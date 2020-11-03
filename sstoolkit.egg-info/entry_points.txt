@@ -1,0 +1,4 @@
+
+        [console_scripts]
+        sstoolkit = sstoolkit.main:main
+    

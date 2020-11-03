@@ -1,0 +1,6 @@
+### Security Server Toolkit Configuration Settings
+base:
+  url: https://ss1:4000/api/v1
+  api_key: X-Road-apikey token=6189108b-7a1d-4bce-a539-265eef3f6a6a
+
+
