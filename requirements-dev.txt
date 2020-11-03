@@ -1,6 +1,6 @@
 -r requirements.txt
 
-pytest
+pytest~=6.1.1
 pytest-cov
 coverage
 twine>=1.11.0
