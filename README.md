@@ -3,9 +3,9 @@
 ## Installation
 
 ```
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 
-$ pip install setup.py
+$ pip3 install setup.py
 ```
 
 ## Development

@@ -2,12 +2,10 @@ cement==3.0.4
 pyyaml
 colorlog
 
-pytest~=6.1.1
-setuptools~=45.2.0
+jinja2>=2.10
+setuptools>=38.6.0
 urllib3~=1.25.8
-sstoolkit~=0.0.1
 confuse~=1.3.0
 certifi >= 14.05.14
 six >= 1.10
 python_dateutil >= 2.5.3
-setuptools >= 21.0.0
