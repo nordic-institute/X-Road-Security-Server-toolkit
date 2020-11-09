@@ -26,7 +26,7 @@ $ source env/bin/activate
 
 ### run sstoolkit cli application
 
-$ sstoolkit --help
+$ xrdsst --help
 
 
 ### run pytest / coverage
@@ -65,5 +65,5 @@ and can be built with the included `make` helper:
 ```
 $ make docker
 
-$ docker run -it sstoolkit --help
+$ docker run -it xrdsst --help
 ```
