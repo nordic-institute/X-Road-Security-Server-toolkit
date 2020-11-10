@@ -52,12 +52,15 @@ class Init(Controller):
     @ex(help='Initialize security server', arguments=[])
     def init(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        cfg = load_config()
-        logging.basicConfig(filename=cfg["logging"][0]["file"],
+        config_file = load_config()
+        self.initialize_server(config_file)
+
+    def initialize_server(self, config_file):
+        logging.basicConfig(filename=config_file["logging"][0]["file"],
                             filemode='w',
-                            level=cfg["logging"][0]["level"],
+                            level=config_file["logging"][0]["level"],
                             format='%(name)s - %(levelname)s - %(message)s')
-        for security_server in cfg["security-server"]:
+        for security_server in config_file["security-server"]:
             logging.info('Starting configuration process for security server: ' + security_server['name'])
             print('Starting configuration process for security server: ' + security_server['name'])
             configuration = initialize_basic_config_values(security_server)
@@ -71,7 +74,7 @@ class Init(Controller):
                 logging.info('Security server \"' + security_server['name'] + '\" already initialized')
                 print('Security server \"' + security_server['name'] + '\" already initialized')
             else:
-                self.init_server(configuration, security_server)
+                self.init_security_server(configuration, security_server)
 
     @staticmethod
     def check_init_status(configuration):
@@ -99,7 +102,7 @@ class Init(Controller):
             logging.error("Exception when calling SystemApi->upload_initial_anchor: %s\n" % e)
 
     @staticmethod
-    def init_server(configuration, security_server):
+    def init_security_server(configuration, security_server):
         try:
             logging.info('Initializing security server: ' + security_server['name'])
             print('Initializing security server: ' + security_server['name'])
