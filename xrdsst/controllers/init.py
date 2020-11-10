@@ -1,9 +1,9 @@
+import logging
 import urllib3
 import yaml
 from cement import Controller, ex
 from cement.utils.version import get_version_banner
 from ..core.version import get_version
-from pprint import pprint
 from ..models import InitialServerConf
 from ..rest.rest import ApiException
 from xrdsst.configuration.configuration import Configuration
@@ -21,6 +21,14 @@ def load_config():
     with open("config/base.yaml", "r") as yml_file:
         cfg = yaml.load(yml_file, Loader=yaml.FullLoader)
     return cfg
+
+
+def initialize_basic_config_values(security_server):
+    configuration = Configuration()
+    configuration.api_key['Authorization'] = security_server["api_key"]
+    configuration.host = security_server["url"]
+    configuration.verify_ssl = False
+    return configuration
 
 
 class Init(Controller):
@@ -45,18 +53,24 @@ class Init(Controller):
     def init(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         cfg = load_config()
+        logging.basicConfig(filename=cfg["logging"][0]["file"],
+                            filemode='w',
+                            level=cfg["logging"][0]["level"],
+                            format='%(name)s - %(levelname)s - %(message)s')
         for security_server in cfg["security-server"]:
+            logging.info('Starting configuration process for security server: ' + security_server['name'])
             print('Starting configuration process for security server: ' + security_server['name'])
-            configuration = Configuration()
-            configuration.api_key['Authorization'] = security_server["api_key"]
-            configuration.host = security_server["url"]
-            configuration.verify_ssl = False
+            configuration = initialize_basic_config_values(security_server)
             configuration_check = self.check_init_status(configuration)
-            anchor_imported = configuration_check.is_anchor_imported
-            server_code_initialized = configuration_check.is_server_code_initialized
-            if not anchor_imported:
+            if configuration_check.is_anchor_imported:
+                logging.info('Configuration anchor for \"' + security_server['name'] + '\" already imported')
+                print('Configuration anchor for \"' + security_server['name'] + '\" already imported')
+            else:
                 self.upload_anchor(configuration, security_server)
-            if not server_code_initialized:
+            if configuration_check.is_server_code_initialized:
+                logging.info('Security server \"' + security_server['name'] + '\" already initialized')
+                print('Security server \"' + security_server['name'] + '\" already initialized')
+            else:
                 self.init_server(configuration, security_server)
 
     @staticmethod
@@ -67,28 +81,37 @@ class Init(Controller):
             return response
         except ApiException as e:
             print("Exception when calling InitializationApi->get_initialization_status: %s\n" % e)
+            logging.error("Exception when calling InitializationApi->get_initialization_status: %s\n" % e)
 
     @staticmethod
     def upload_anchor(configuration, security_server):
         try:
+            logging.info('Uploading configuration anchor for security server: ' + security_server['name'])
             print('Uploading configuration anchor for security server: ' + security_server['name'])
             system_api = SystemApi(ApiClient(configuration))
-            response = system_api.upload_initial_anchor(body=security_server["configuration_anchor"])
-            pprint(response)
+            anchor = open(security_server["configuration_anchor"], "r")
+            system_api.upload_initial_anchor(body=anchor.read())
+            logging.info(
+                'Upload of configuration anchor from \"' + security_server["configuration_anchor"] + '\" successful')
+            print('Upload of configuration anchor from \"' + security_server["configuration_anchor"] + '\" successful')
         except ApiException as e:
             print("Exception when calling SystemApi->upload_initial_anchor: %s\n" % e)
+            logging.error("Exception when calling SystemApi->upload_initial_anchor: %s\n" % e)
 
     @staticmethod
     def init_server(configuration, security_server):
         try:
+            logging.info('Initializing security server: ' + security_server['name'])
             print('Initializing security server: ' + security_server['name'])
             initialization_api = InitializationApi(ApiClient(configuration))
-            response = initialization_api.init_security_server(body=InitialServerConf(
+            initialization_api.init_security_server(body=InitialServerConf(
                 owner_member_class=security_server["owner_member_class"],
                 owner_member_code=security_server["owner_member_code"],
                 security_server_code=security_server["security_server_code"],
                 software_token_pin=security_server["software_token_pin"],
                 ignore_warnings=True))
-            pprint(response)
+            logging.info('Security server \"' + security_server["name"] + '\" initialized')
+            print('Security server \"' + security_server["name"] + '\" initialized')
         except ApiException as e:
             print("Exception when calling InitializationApi->init_security_server: %s\n" % e)
+            logging.error("Exception when calling InitializationApi->init_security_server: %s\n" % e)

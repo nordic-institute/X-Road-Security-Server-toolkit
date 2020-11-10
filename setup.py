@@ -11,7 +11,7 @@ f.close()
 setup(
     name='xrdsst',
     version=VERSION,
-    description='A toolkit for configuring security server',
+    description='A toolkit for configuring X-Road Security Server',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     author='Bert Viikmäe',

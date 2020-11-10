@@ -6,7 +6,7 @@ from .controllers.init import Init
 
 
 class XRDSST(App):
-    """Security Server Toolkit primary application."""
+    """X-Road Security Server Toolkit primary application."""
 
     class Meta:
         label = 'xrdsst'
@@ -18,14 +18,10 @@ class XRDSST(App):
         extensions = [
             'yaml',
             'colorlog',
-            'jinja2',
         ]
 
         # set the log handler
         log_handler = 'colorlog'
-
-        # set the output handler
-        output_handler = 'jinja2'
 
         # register handlers
         handlers = [

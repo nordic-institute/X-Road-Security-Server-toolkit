@@ -2,4 +2,3 @@ recursive-include *.py
 include setup.cfg
 include README.md CHANGELOG.md LICENSE.md
 include *.txt
-recursive-include xrdsst/templates *
