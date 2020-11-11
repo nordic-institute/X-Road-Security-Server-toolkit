@@ -1,6 +1,5 @@
 cement==3.0.4
 pyyaml~=5.3.1
-colorlog
 
 setuptools>=38.6.0
 urllib3~=1.25.8
@@ -10,4 +9,3 @@ six >= 1.10
 python_dateutil >= 2.5.3
 
 pytest~=6.1.1
-xrdsst~=0.1.0

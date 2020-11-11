@@ -1,8 +1,12 @@
 import logging
+from os import path
+
 import urllib3
 import yaml
 from cement import Controller, ex
 from cement.utils.version import get_version_banner
+from xrdsst.core.exc import XRDSSTError
+
 from ..core.version import get_version
 from ..models import InitialServerConf
 from ..rest.rest import ApiException
@@ -21,6 +25,16 @@ def load_config():
     with open("config/base.yaml", "r") as yml_file:
         cfg = yaml.load(yml_file, Loader=yaml.FullLoader)
     return cfg
+
+
+def init_logging(config_file):
+    if path.exists(config_file["logging"][0]["file"]):
+        logging.basicConfig(filename=config_file["logging"][0]["file"],
+                            filemode='w',
+                            level=config_file["logging"][0]["level"],
+                            format='%(name)s - %(levelname)s - %(message)s')
+    else:
+        raise XRDSSTError('Config file path: \"' + config_file["logging"][0]["file"] + '\" does not exist')
 
 
 def initialize_basic_config_values(security_server):
@@ -45,9 +59,8 @@ class Init(Controller):
               'version': VERSION_BANNER}),
         ]
 
-    def _default(self):
-        """Default action if no sub-command is passed."""
-        self.app.args.print_help()
+    def __init__(self, *args, **kw):
+        super(Init, self).__init__(*args, **kw)
 
     @ex(help='Initialize security server', arguments=[])
     def init(self):
@@ -56,10 +69,7 @@ class Init(Controller):
         self.initialize_server(config_file)
 
     def initialize_server(self, config_file):
-        logging.basicConfig(filename=config_file["logging"][0]["file"],
-                            filemode='w',
-                            level=config_file["logging"][0]["level"],
-                            format='%(name)s - %(levelname)s - %(message)s')
+        init_logging(config_file)
         for security_server in config_file["security-server"]:
             logging.info('Starting configuration process for security server: ' + security_server['name'])
             print('Starting configuration process for security server: ' + security_server['name'])

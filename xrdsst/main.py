@@ -15,18 +15,10 @@ class XRDSST(App):
         exit_on_close = True
 
         # load additional framework extensions
-        extensions = [
-            'yaml',
-            'colorlog',
-        ]
-
-        # set the log handler
-        log_handler = 'colorlog'
+        extensions = ['yaml']
 
         # register handlers
-        handlers = [
-            Init,
-        ]
+        handlers = [Init]
 
 
 class XRDSSTTest(TestApp, XRDSST):
