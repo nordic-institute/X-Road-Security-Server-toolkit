@@ -39,7 +39,7 @@ This specification describes automatic configuration of X-Road security servers 
 The automatic configuration of X-Road security servers using the X-Road Security Server Toolkit relies on configuration files, where exact configuration values have to be specified
 
 ### 2.2 Format of configuration file
-
+```
 security-server:
   - name: <SECURITY_SERVER_NAME>
     url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
@@ -49,15 +49,16 @@ security-server:
     owner_member_code: <MEMBER_CODE>
     security_server_code: <SERVER_CODE>
     software_token_pin: <SOFT_TOKEN_PIN>
+```
     
-<SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
-<SECURITY_SERVER_FQDN_OR_IP> should be substituted with the IP address or host name of the installed security server, e.g. ss1
-<API_KEY> should be substituted with the api-key of the installed security server
-/path/to/configuration-anchor.xml should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
-<MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV
-<MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234
-<SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
-<SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code
+* <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
+* <SECURITY_SERVER_FQDN_OR_IP> should be substituted with the IP address or host name of the installed security server, e.g. ss1
+* <API_KEY> should be substituted with the api-key of the installed security server
+* /path/to/configuration-anchor.xml should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
+* <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV
+* <MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234
+* <SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
+* <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code
 
 ## 3 Running the X-Road Security Server Toolkit
 

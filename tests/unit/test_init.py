@@ -3,6 +3,7 @@ import unittest
 from unittest import mock
 from xrdsst.configuration.configuration import Configuration
 from xrdsst.controllers.init import Init
+from xrdsst.models.initialization_status import InitializationStatus
 from xrdsst.rest.rest import ApiException
 import yaml
 
@@ -30,17 +31,15 @@ class TestInit(unittest.TestCase):
         self._config = config
 
     def test_check_init_status(self):
-        expected_response = {
-            'is_anchor_imported': False,
-            'is_server_code_initialized': False,
-            'is_server_owner_initialized': False,
-            'software_token_init_status': 'NOT_INITIALIZED'
-        }
+        initialization_status = InitializationStatus(is_anchor_imported=True,
+                                                     is_server_code_initialized=True,
+                                                     is_server_owner_initialized=True,
+                                                     software_token_init_status='NOT_INITLIALIZED')
         with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
-                        return_value=expected_response):
+                        return_value=initialization_status):
             init = Init()
             response = init.check_init_status(self._config)
-            assert response == expected_response
+            assert response == initialization_status
 
     def test_check_init_status_exception(self):
         with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
@@ -81,15 +80,18 @@ class TestInit(unittest.TestCase):
 
     def test_load_config(self):
         init = Init()
-        config_file = "../../config/base.yaml"
-        with open(config_file, "r") as yml_file:
+        temp_file_name = "base.yaml"
+        config_file = open(temp_file_name, "w")
+        config_file.close()
+        with open(temp_file_name, "r") as yml_file:
             cfg = yaml.load(yml_file, Loader=yaml.FullLoader)
-        response = init.load_config(config_file)
+        response = init.load_config(temp_file_name)
+        os.remove(temp_file_name)
         assert response == cfg
 
     def test_load_config_exception(self):
         init = Init()
-        config_file = "../../config/conf.yaml"
+        config_file = "conf.yaml"
         init.load_config(config_file)
         self.assertRaises(FileNotFoundError)
 
@@ -121,3 +123,29 @@ class TestInit(unittest.TestCase):
         assert response.api_key == configuration.api_key
         assert response.host == configuration.host
         assert response.verify_ssl == configuration.verify_ssl
+
+    def test_initialize_server_when_already_initialized(self):
+        initialization_status = InitializationStatus(is_anchor_imported=True,
+                                                     is_server_code_initialized=True,
+                                                     is_server_owner_initialized=True,
+                                                     software_token_init_status='INITLIALIZED')
+        with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
+                        return_value=initialization_status):
+            init = Init()
+            response = init.initialize_server(self._ss_config)
+            self.assertEqual(response, None)
+
+    def test_initialize_server_when_not_initialized(self):
+        initialization_status = InitializationStatus(is_anchor_imported=False,
+                                                     is_server_code_initialized=False,
+                                                     is_server_owner_initialized=False,
+                                                     software_token_init_status='NOT_INITLIALIZED')
+        with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
+                        return_value=initialization_status):
+            with mock.patch('xrdsst.controllers.init.SystemApi.upload_initial_anchor',
+                            return_value=200):
+                with mock.patch('xrdsst.controllers.init.InitializationApi.init_security_server',
+                                return_value=200):
+                    init = Init()
+                    response = init.initialize_server(self._ss_config)
+                    self.assertEqual(response, None)

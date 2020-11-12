@@ -14,7 +14,7 @@ virtualenv:
 test:
 	python -m pytest \
 		-v \
-		--cov=xrdsst \
+		--cov=xrdsst/controllers \
 		--cov-report=term \
 		--cov-report=html:coverage-report \
 		tests/
