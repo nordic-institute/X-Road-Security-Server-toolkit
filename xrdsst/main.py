@@ -3,6 +3,8 @@ from cement.core.exc import CaughtSignal
 
 from .core.exc import XRDSSTError
 from .controllers.init import Init
+from .controllers.token import TokenController
+
 
 
 class XRDSST(App):
