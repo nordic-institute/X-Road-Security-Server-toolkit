@@ -3,6 +3,9 @@
 clean:
 	find . -name '*.py[co]' -delete
 
+copy:
+	cp tests/unit/resources/configuration-anchor.xml /tmp
+
 virtualenv:
 	virtualenv --prompt '|> xrdsst <| ' env
 	env/bin/pip install -r requirements-dev.txt
@@ -11,7 +14,8 @@ virtualenv:
 	@echo "VirtualENV Setup Complete. Now run: source env/bin/activate"
 	@echo
 
-test:
+
+test: copy
 	python -m pytest \
 		-v \
 		--cov=xrdsst/controllers \
