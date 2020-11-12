@@ -3,24 +3,28 @@
 clean:
 	find . -name '*.py[co]' -delete
 
+copy:
+	cp tests/unit/resources/configuration-anchor.xml /tmp
+
 virtualenv:
-	virtualenv --prompt '|> sstoolkit <| ' env
+	virtualenv --prompt '|> xrdsst <| ' env
 	env/bin/pip install -r requirements-dev.txt
 	env/bin/python setup.py develop
 	@echo
 	@echo "VirtualENV Setup Complete. Now run: source env/bin/activate"
 	@echo
 
-test:
+
+test: copy
 	python -m pytest \
 		-v \
-		--cov=sstoolkit \
+		--cov=xrdsst/controllers \
 		--cov-report=term \
 		--cov-report=html:coverage-report \
 		tests/
 
 docker: clean
-	docker build -t sstoolkit:latest .
+	docker build -t xrdsst:latest .
 
 dist: clean
 	rm -rf dist/*

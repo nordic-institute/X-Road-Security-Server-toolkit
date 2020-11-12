@@ -1,6 +1,6 @@
 
 from setuptools import setup, find_packages
-from sstoolkit.core.version import get_version
+from xrdsst.core.version import get_version
 
 VERSION = get_version()
 
@@ -9,20 +9,20 @@ LONG_DESCRIPTION = f.read()
 f.close()
 
 setup(
-    name='sstoolkit',
+    name='xrdsst',
     version=VERSION,
-    description='A toolkit for configuring security server',
+    description='A toolkit for configuring X-Road Security Server',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     author='Bert Viikmäe',
     author_email='bert.viikmae@gofore.com',
-    url='https://github.com/bertvi/sstoolkit',
+    url='https://github.com/nordic-institute/X-Road-Security-Server-toolkit',
     license='MIT',
     packages=find_packages(exclude=['ez_setup', 'tests*']),
-    package_data={'sstoolkit': ['templates/*']},
+    package_data={'xrdsst': ['templates/*']},
     include_package_data=True,
     entry_points="""
         [console_scripts]
-        sstoolkit = sstoolkit.main:main
+        xrdsst = xrdsst.main:main
     """,
 )
