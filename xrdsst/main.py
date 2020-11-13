@@ -1,11 +1,10 @@
 from cement import App, TestApp
 from cement.core.exc import CaughtSignal
 
-from .core.exc import XRDSSTError
-from .controllers.init import Init
-from .controllers.token import TokenController
-
-
+from xrdsst.core.exc import XRDSSTError
+from xrdsst.controllers.init import InitServerController
+from xrdsst.controllers.token import TokenController
+from xrdsst.controllers.base import BaseController
 
 class XRDSST(App):
     """X-Road Security Server Toolkit primary application."""
@@ -20,7 +19,7 @@ class XRDSST(App):
         extensions = ['yaml']
 
         # register handlers
-        handlers = [Init]
+        handlers = [BaseController, InitServerController, TokenController]
 
 
 class XRDSSTTest(TestApp, XRDSST):
