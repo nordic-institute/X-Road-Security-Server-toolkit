@@ -12,6 +12,7 @@ security-server:
     owner_member_class: <MEMBER_CLASS>
     owner_member_code: <MEMBER_CODE>
     security_server_code: <SERVER_CODE>
+    software_token_id: 0 # default software token ID is zero
     software_token_pin: <SOFT_TOKEN_PIN>
 
   - name: <SECURITY_SERVER_NAME>
@@ -21,5 +22,6 @@ security-server:
     owner_member_class: <MEMBER_CLASS>
     owner_member_code: <MEMBER_CODE>
     security_server_code: <SERVER_CODE>
+    software_token_id: 0 # default software token ID is zero
     software_token_pin: <SOFT_TOKEN_PIN>
 
