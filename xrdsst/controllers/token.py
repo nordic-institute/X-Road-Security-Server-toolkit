@@ -27,9 +27,9 @@ class TokenController(BaseController):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.token_login(self.load_config())
 
-    def token_list(self, config_file):
-        self.init_logging(config_file)
-        for security_server in config_file["security-server"]:
+    def token_list(self, configuration):
+        self.init_logging(configuration)
+        for security_server in configuration["security-server"]:
             configuration = self.initialize_basic_config_values(security_server)
             self.remote_token_list(configuration, security_server)
 
@@ -48,22 +48,22 @@ class TokenController(BaseController):
         except ApiException as e:
             print("Exception when calling TokensApi->get_tokens: %s\n" % e)
 
-    def token_login(self, config_file):
-        self.init_logging(config_file)
-        for security_server in config_file["security-server"]:
+    def token_login(self, configuration):
+        self.init_logging(configuration)
+        for security_server in configuration["security-server"]:
             logging.info('Starting configuration process for security server: ' + security_server['name'])
             print('Starting configuration process for security server: ' + security_server['name'])
-            configuration = self.initialize_basic_config_values(security_server)
-            self.remote_token_login(configuration, security_server)
+            ss_configuration = self.initialize_basic_config_values(security_server)
+            self.remote_token_login(ss_configuration, security_server)
 
     @staticmethod
-    def remote_token_login(configuration, security_server):
+    def remote_token_login(ss_configuration, security_server):
         token_id = security_server['software_token_id']
         token_pin = security_server['software_token_pin']
         try:
             logging.info('Performing software token ' + str(token_id) + ' login: ')
             print('Performing software token ' + str(token_id) + ' login: ')
-            token_api = TokensApi(ApiClient(configuration))
+            token_api = TokensApi(ApiClient(ss_configuration))
             token_api.login_token(
                 id=token_id,
                 body=TokenPassword(token_pin)
