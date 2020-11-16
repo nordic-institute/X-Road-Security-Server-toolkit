@@ -20,18 +20,18 @@ class BaseController(Controller):
         ]
 
     @staticmethod
-    def init_logging(config_file):
+    def init_logging(configuration):
         try:
-            logging.basicConfig(filename=config_file["logging"][0]["file"],
+            log_file_name = configuration["logging"][0]["file"]
+            logging.basicConfig(filename=log_file_name,
                                 filemode='w',
-                                level=config_file["logging"][0]["level"],
+                                level=configuration["logging"][0]["level"],
                                 format='%(name)s - %(levelname)s - %(message)s')
         except FileNotFoundError as e:
-            print("Configuration file \"" + config_file + "\" not found: %s\n" % e)
+            print("Configuration file \"" + log_file_name + "\" not found: %s\n" % e)
 
     @staticmethod
-    def load_config():
-        baseconfig = "config/base.yaml"
+    def load_config(baseconfig="config/base.yaml"):
         # Note: this fallback below is to allow simply running xrdsst from both IDE run/debug
         # and directly from command line. There is no support for configuration file location spec yet.
         # TODO: remove fallback when configuration file spec from command-line is implemented

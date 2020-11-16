@@ -92,8 +92,7 @@ class TestInit(unittest.TestCase):
     def test_load_config_exception(self):
         init = InitServerController()
         config_file = "conf.yaml"
-        init.load_config(config_file)
-        self.assertRaises(FileNotFoundError)
+        self.assertRaises(FileNotFoundError, lambda: init.load_config(config_file))
 
     def test_init_logging(self):
         temp_file_name = "temp.log"
