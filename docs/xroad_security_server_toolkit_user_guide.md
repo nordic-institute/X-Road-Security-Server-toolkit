@@ -58,19 +58,34 @@ security-server:
 * <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV
 * <MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234
 * <SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
+* <SOFT_TOKEN_ID> default software token ID, normally 0 (zero).
 * <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code
 
 ## 3 Running the X-Road Security Server Toolkit
 
 The X-Road Security Server Toolkit is run from the command line by typing:
 
-    xrdsst init
+```
+$ xrdsst
+```
+
+Which currently gives further information about tool invocation options and subcommands.
 
 ### 3.1 The automatic configuration of a single security server
+
+```
+$ xrdsst init
+```
 
 In the first stage of the automatic process, the security server(s) will be initialized according to the configuration data specified
 in the configuration file (base.yaml). First, a configuration anchor is uploaded and then the initialization of the security server
 is performed with respective <MEMBER_CLASS>, <MEMBER_CODE>, <SERVER_CODE> and <SOFT_TOKEN_PIN> values.
 
+### 3.2 Logging in a single software token
 
+Default software token login can be logged on with ``xrdsst token login``
+
+### 3.3 Listing security server tokens
+
+All tokens known to security server can be listed with ``xrdsst token list``
 
