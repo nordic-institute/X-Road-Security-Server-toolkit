@@ -2,9 +2,9 @@ import unittest
 import urllib3
 from xrdsst.controllers.token import TokenController
 
-class TestInit(unittest.TestCase):
+class TestToken(unittest.TestCase):
     ss_config = {
-        'logging': [{'file': '/tmp/xrdsst_test_init_log', 'level': 'INFO'}],
+        'logging': [{'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'}],
         'security-server':
             [{'name': 'ssX',
               'url': 'https://192.168.1.1:8999/api/v1',
