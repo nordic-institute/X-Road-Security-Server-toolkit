@@ -1,11 +1,7 @@
 import os
 import unittest
-from unittest import mock
 from xrdsst.configuration.configuration import Configuration
-from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.init import BaseController
-from xrdsst.models.initialization_status import InitializationStatus
-from xrdsst.rest.rest import ApiException
 import yaml
 
 
