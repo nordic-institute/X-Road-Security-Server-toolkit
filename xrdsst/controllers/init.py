@@ -1,47 +1,28 @@
 import logging
 
 import urllib3
-import yaml
-from cement import Controller, ex
-from cement.utils.version import get_version_banner
+from cement import ex
 
-from ..core.version import get_version
+from .base import BaseController
 from ..models import InitialServerConf
 from ..rest.rest import ApiException
-from xrdsst.configuration.configuration import Configuration
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.api.initialization_api import InitializationApi
 from xrdsst.api.system_api import SystemApi
-
-VERSION_BANNER = """
-A toolkit for configuring security server %s
-%s
-""" % (get_version(), get_version_banner())
+from xrdsst.resources.texts import texts
 
 
-class Init(Controller):
+class InitServerController(BaseController):
     class Meta:
         label = 'init'
+        stacked_on = 'base'
+        stacked_type = 'nested'
+        description = texts['init.controller.description']
 
-        description = 'A toolkit for configuring security server'
-
-        epilog = 'Usage: xrdsst init'
-
-        arguments = [
-            (['-v', '--version'],
-             {'action': 'version',
-              'version': VERSION_BANNER}),
-        ]
-
-    config_file = "config/base.yaml"
-
-    def __init__(self, *args, **kw):
-        super(Init, self).__init__(*args, **kw)
-
-    @ex(help='Initialize security server', arguments=[])
-    def init(self):
+    @ex(help='Initialize security server', hide=True)
+    def _default(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        config_file = self.load_config(self.config_file)
+        config_file = self.load_config()
         self.initialize_server(config_file)
 
     def initialize_server(self, config_file):
@@ -61,33 +42,6 @@ class Init(Controller):
                 print('Security server \"' + security_server['name'] + '\" already initialized')
             else:
                 self.init_security_server(configuration, security_server)
-
-    @staticmethod
-    def load_config(config_file):
-        try:
-            with open(config_file, "r") as yml_file:
-                cfg = yaml.load(yml_file, Loader=yaml.FullLoader)
-                return cfg
-        except FileNotFoundError as e:
-            print("Configuration file \"" + config_file + "\" not found: %s\n" % e)
-
-    @staticmethod
-    def init_logging(config_file):
-        try:
-            logging.basicConfig(filename=config_file["logging"][0]["file"],
-                                filemode='w',
-                                level=config_file["logging"][0]["level"],
-                                format='%(name)s - %(levelname)s - %(message)s')
-        except FileNotFoundError as e:
-            print("Configuration file \"" + config_file + "\" not found: %s\n" % e)
-
-    @staticmethod
-    def initialize_basic_config_values(security_server):
-        configuration = Configuration()
-        configuration.api_key['Authorization'] = security_server["api_key"]
-        configuration.host = security_server["url"]
-        configuration.verify_ssl = False
-        return configuration
 
     @staticmethod
     def check_init_status(configuration):

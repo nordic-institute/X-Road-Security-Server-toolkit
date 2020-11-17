@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2020-11-16
+
+- add token listing and login (for default software token) methods
+
 ## [0.1.0] - 2020-11-10
 
 - add methods for uploading configuration anchor and initializing security server

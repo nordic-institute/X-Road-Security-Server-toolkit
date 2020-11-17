@@ -109,8 +109,9 @@ class TokenCertificate(object):
         :param owner_id: The owner_id of this TokenCertificate.  # noqa: E501
         :type: str
         """
-        if owner_id is None:
-            raise ValueError("Invalid value for `owner_id`, must not be `None`")  # noqa: E501
+        #TODO: see if there is another way around the fact that development environment tokens do not have owner_id
+        #if owner_id is None:
+        #    raise ValueError("Invalid value for `owner_id`, must not be `None`")  # noqa: E501
 
         self._owner_id = owner_id
 
