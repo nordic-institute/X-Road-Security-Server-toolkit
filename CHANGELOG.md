@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] - 2020-11-18
+
+- add support for tabulated / json output render
+- token listing to use Cement rendering
+
 ## [0.1.1] - 2020-11-16
 
 - add token listing and login (for default software token) methods
