@@ -1,10 +1,14 @@
-from cement import App, TestApp
+from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 
 from xrdsst.core.exc import XRDSSTError
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.base import BaseController
+
+META = init_defaults('output.json', 'output.tabulate')
+META['output.json']['overridable'] = True
+META['output.tabulate']['overridable'] = True
 
 class XRDSST(App):
     """X-Road Security Server Toolkit primary application."""
@@ -16,7 +20,12 @@ class XRDSST(App):
         exit_on_close = True
 
         # load additional framework extensions
-        extensions = ['yaml']
+        extensions = ['yaml', 'json', 'tabulate']
+
+        meta_defaults = META
+
+        # set default output format
+        output_handler = 'tabulate'
 
         # register handlers
         handlers = [BaseController, InitServerController, TokenController]

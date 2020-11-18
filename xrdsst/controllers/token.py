@@ -9,6 +9,23 @@ from xrdsst.api.tokens_api import TokensApi
 from xrdsst.models.token_password import TokenPassword
 from xrdsst.resources.texts import texts
 
+class TokenListMapper:
+    @staticmethod
+    def headers():
+        return ['ID', 'NAME', 'STATUS', 'LOGIN STATUS']
+
+    @staticmethod
+    def as_list(token):
+        return [token.id, token.name, token.status, token.logged_in]
+
+    @staticmethod
+    def as_object(token):
+        return {
+            'id' : token.id,
+            'name' : token.name,
+            'status': token.status,
+            'logged_in' : token.logged_in
+        }
 
 class TokenController(BaseController):
     class Meta:
@@ -33,18 +50,19 @@ class TokenController(BaseController):
             configuration = self.initialize_basic_config_values(security_server)
             self.remote_token_list(configuration, security_server)
 
-    @staticmethod # Since this is read-only operation, do not log anything, only console output
-    def remote_token_list(configuration, security_server):
+    # Since this is read-only operation, do not log anything, only console output
+    def remote_token_list(self, configuration, security_server):
         try:
             token_api = TokensApi(ApiClient(configuration))
-            api_response = token_api.get_tokens()
-            print('(Security server): TOKEN ID: NAME, STATUS, LOGIN STATUS, TOKEN INFO')
-            for server_token in api_response:
-                print(
-                    '(', security_server['name'], ') :',
-                    server_token.id, ' :', server_token.name, ', ', server_token.status, ', ',
-                    server_token.logged_in, ',' , str(server_token.token_infos)
-                )
+            token_list_response = token_api.get_tokens()
+            render_data = []
+            if self.is_output_tabulated():
+                render_data = [TokenListMapper.headers()]
+                render_data.extend(map(TokenListMapper.as_list, token_list_response))
+            else:
+                render_data.extend(map(TokenListMapper.as_object, token_list_response))
+
+            self.render(render_data)
         except ApiException as e:
             print("Exception when calling TokensApi->get_tokens: %s\n" % e)
 

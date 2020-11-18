@@ -19,6 +19,16 @@ class BaseController(Controller):
             (['-v', '--version'], {'action': 'version', 'version': BANNER})
         ]
 
+    # Render arguments differ for back-ends, one approach.
+    def render(self, render_data):
+        if self.is_output_tabulated():
+            self.app.render(render_data, headers="firstrow")
+        else:
+            self.app.render(render_data)
+
+    def is_output_tabulated(self):
+        return self.app.output.Meta.label == 'tabulate'
+
     @staticmethod
     def init_logging(configuration):
         try:
