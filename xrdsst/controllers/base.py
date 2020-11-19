@@ -4,7 +4,7 @@ import yaml
 
 from cement import Controller
 from cement.utils.version import get_version_banner
-from xrdsst.core.version import get_version
+from semantic_release.version import get_version
 from xrdsst.resources.texts import texts
 from xrdsst.configuration.configuration import Configuration
 

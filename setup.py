@@ -1,23 +1,20 @@
 import sys
-
 from setuptools import setup, find_packages
-from xrdsst.core.version import get_version
+from semantic_release import setup_hook, version
 
-VERSION = get_version()
 
 f = open('README.md', 'r')
 LONG_DESCRIPTION = f.read()
 f.close()
 
 try:
-    from semantic_release import setup_hook
     setup_hook(sys.argv)
 except ImportError:
     pass
 
 setup(
     name='xrdsst',
-    version=VERSION,
+    version=version.get_version(),
     description='A toolkit for configuring X-Road Security Server',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
