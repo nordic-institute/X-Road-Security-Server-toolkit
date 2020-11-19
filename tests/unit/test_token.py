@@ -12,6 +12,7 @@ from xrdsst.models.token import Token
 import urllib3
 from xrdsst.controllers.token import TokenController
 
+
 class TokenTestData:
     # JSON of the response unusable due to assertions in generated Client API, define response in Python
     token_login_response = Token(
@@ -67,6 +68,7 @@ class TokenTestData:
     token_list_response = [
         token_login_response
     ]
+
 
 class TestToken(unittest.TestCase):
     ss_config = {
