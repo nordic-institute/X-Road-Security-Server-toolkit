@@ -4,12 +4,14 @@ from unittest import mock
 
 from dateutil.tz import tzutc
 
+from xrdsst.main import XRDSSTTest
 from xrdsst.models import TokenStatus, TokenType, Key, KeyUsageType, TokenCertificate, CertificateOcspStatus, \
     CertificateStatus, CertificateDetails, KeyUsage
 from xrdsst.models.token import Token
 
 import urllib3
 from xrdsst.controllers.token import TokenController
+
 
 class TokenTestData:
     # JSON of the response unusable due to assertions in generated Client API, define response in Python
@@ -67,6 +69,7 @@ class TokenTestData:
         token_login_response
     ]
 
+
 class TestToken(unittest.TestCase):
     ss_config = {
         'logging': [{'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'}],
@@ -82,11 +85,13 @@ class TestToken(unittest.TestCase):
               'software_token_pin': '1122'}]}
 
     def test_token_list(self):
-        with mock.patch('xrdsst.api.tokens_api.TokensApi.get_tokens',
-                         return_value=TokenTestData.token_list_response):
-            token_controller = TokenController()
-            token_controller.load_config = (lambda: self.ss_config)
-            token_controller.list()
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.tokens_api.TokensApi.get_tokens',
+                             return_value=TokenTestData.token_list_response):
+                token_controller = TokenController()
+                token_controller.app = app
+                token_controller.load_config = (lambda: self.ss_config)
+                token_controller.list()
 
     def test_token_login(self):
         with mock.patch('xrdsst.api.tokens_api.TokensApi.login_token',

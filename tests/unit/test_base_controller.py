@@ -4,6 +4,8 @@ from xrdsst.configuration.configuration import Configuration
 from xrdsst.controllers.init import BaseController
 import yaml
 
+from xrdsst.main import XRDSSTTest
+
 
 class TestBaseController(unittest.TestCase):
     _ss_config = {
@@ -17,6 +19,12 @@ class TestBaseController(unittest.TestCase):
               'owner_member_code': '1234',
               'security_server_code': 'SS3',
               'software_token_pin': '1234'}]}
+
+    def test_is_output_tabulated(self):
+        with XRDSSTTest() as app:
+            base_controller = BaseController()
+            base_controller.app = app
+            assert base_controller.is_output_tabulated()
 
     def test_load_config(self):
         base_controller = BaseController()
