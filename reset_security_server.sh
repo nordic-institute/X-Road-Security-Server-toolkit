@@ -2,9 +2,13 @@
 # Usage reset_security_server.sh -n server(s) -h path/to/hosts.txt -a path/to/ansible
 #
 # Description of required command line arguments:
+#
 #   -n: name(s) of security servers to be re-initialized (has to conform with the ones listed in hosts file)
 #   -h: lxd hosts file, this file is used by the Ansible script to install security servers
 #   -a: path to ansible script, this is the path to where the Ansible script is located in the locally cloned X-Road Git repository
+#
+#   The LXD hosts file and the Ansible script file that should be used by this script can be found here:
+#   https://github.com/nordic-institute/X-Road/blob/develop/ansible
 #
 # Usage example: reset_security_server.sh -n ss3,ss4 -h ../../X-Road/ansible/hosts/lxd_hosts.txt -a ../../X-Road/ansible
 
