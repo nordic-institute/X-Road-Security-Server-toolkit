@@ -4,27 +4,18 @@ from xrdsst.configuration.configuration import Configuration
 from xrdsst.controllers.init import InitServerController
 from xrdsst.models.initialization_status import InitializationStatus
 from xrdsst.rest.rest import ApiException
+from tests.unit.test_base_controller import TestBaseController
 
 
 class TestInit(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        ss_config = {
-            'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
-            'security-server':
-                [{'name': 'ss3',
-                  'url': 'https://ss3:4000/api/v1',
-                  'api_key': 'X-Road-apikey token=api-key',
-                  'configuration_anchor': '/tmp/configuration-anchor.xml',
-                  'owner_member_class': 'GOV',
-                  'owner_member_code': '1234',
-                  'security_server_code': 'SS3',
-                  'software_token_pin': '1234'}]}
-        self._ss_config = ss_config
+        base_controller = TestBaseController()
+        self._ss_config = base_controller.get_ss_config()
         config = Configuration()
-        config.api_key['Authorization'] = ss_config["security-server"][0]["api_key"]
-        config.host = ss_config["security-server"][0]["url"]
+        config.api_key['Authorization'] = self._ss_config["security-server"][0]["api_key"]
+        config.host = self._ss_config["security-server"][0]["url"]
         config.verify_ssl = False
         self._config = config
 
@@ -66,7 +57,8 @@ class TestInit(unittest.TestCase):
         with mock.patch('xrdsst.controllers.init.InitializationApi.init_security_server',
                         return_value=expected_response):
             init = InitServerController()
-            response = init.init_security_server(self._config, self._ss_config["security-server"][0])
+            response = init.init_security_server(self._config,
+                                                 self._ss_config["security-server"][0])
             assert response == expected_response
 
     def test_init_security_server_exception(self):
@@ -84,8 +76,7 @@ class TestInit(unittest.TestCase):
         with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
                         return_value=initialization_status):
             init = InitServerController()
-            response = init.initialize_server(self._ss_config)
-            self.assertEqual(response, None)
+            self.assertEqual(init.initialize_server(self._ss_config), None)
 
     def test_initialize_server_when_not_initialized(self):
         initialization_status = InitializationStatus(is_anchor_imported=False,
@@ -99,5 +90,4 @@ class TestInit(unittest.TestCase):
                 with mock.patch('xrdsst.controllers.init.InitializationApi.init_security_server',
                                 return_value=200):
                     init = InitServerController()
-                    response = init.initialize_server(self._ss_config)
-                    self.assertEqual(response, None)
+                    self.assertEqual(init.initialize_server(self._ss_config), None)

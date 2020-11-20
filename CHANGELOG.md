@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2020-11-20
+
+- add PyLint to the project so that the code will conform to formatting rules
+
 ## [0.1.3] - 2020-11-19
 
 - add script for automatic reset of security servers and creation of api-keys

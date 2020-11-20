@@ -1,4 +1,4 @@
-
+"""Project setup"""
 from setuptools import setup, find_packages
 from xrdsst.core.version import get_version
 
@@ -20,6 +20,8 @@ setup(
     license='MIT',
     packages=find_packages(exclude=['ez_setup', 'tests*']),
     package_data={'xrdsst': ['templates/*']},
+    setup_requires=['pytest-runner', 'pytest-pylint'],
+    tests_require=['pytest', 'pylint'],
     include_package_data=True,
     entry_points="""
         [console_scripts]

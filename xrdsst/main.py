@@ -1,14 +1,16 @@
+import traceback
+
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 
-from xrdsst.core.exc import XRDSSTError
+from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
-from xrdsst.controllers.base import BaseController
 
 META = init_defaults('output.json', 'output.tabulate')
 META['output.json']['overridable'] = True
 META['output.tabulate']['overridable'] = True
+
 
 class XRDSST(App):
     """X-Road Security Server Toolkit primary application."""
@@ -43,25 +45,19 @@ def main():
         try:
             app.run()
 
-        except AssertionError as e:
-            print('AssertionError > %s' % e.args[0])
+        except AssertionError as err:
+            print('AssertionError > %s' % err.args[0])
             app.exit_code = 1
 
             if app.debug is True:
-                import traceback
                 traceback.print_exc()
-
-        except XRDSSTError as e:
-            print('XRDSSTError > %s' % e.args[0])
-            app.exit_code = 1
 
             if app.debug is True:
-                import traceback
                 traceback.print_exc()
 
-        except CaughtSignal as e:
+        except CaughtSignal as err:
             # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)
-            print('\n%s' % e)
+            print('\n%s' % err)
             app.exit_code = 0
 
 
