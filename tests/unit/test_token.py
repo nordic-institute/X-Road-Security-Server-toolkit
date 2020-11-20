@@ -1,3 +1,4 @@
+import os
 import unittest
 from datetime import datetime
 from unittest import mock
@@ -5,6 +6,8 @@ from unittest import mock
 from dateutil.tz import tzutc
 
 import urllib3
+
+from definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import Token, TokenStatus, TokenType, Key, KeyUsageType, TokenCertificate, \
     CertificateOcspStatus, CertificateStatus, CertificateDetails, KeyUsage
@@ -71,13 +74,14 @@ class TokenTestData:
 
 
 class TestToken(unittest.TestCase):
+    configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     ss_config = {
         'logging': [{'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'}],
         'security-server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'api_key': 'X-Road-apikey token=api-key',
-              'configuration_anchor': '/tmp/configuration-anchor.xml',
+              'configuration_anchor': configuration_anchor,
               'owner_member_class': 'VOG',
               'owner_member_code': '4321',
               'security_server_code': 'SS3',

@@ -1,20 +1,23 @@
 import os
 import unittest
+
 import yaml
 
+from definitions import ROOT_DIR
 from xrdsst.configuration.configuration import Configuration
-from xrdsst.controllers.init import BaseController
+from xrdsst.controllers.base import BaseController
 from xrdsst.main import XRDSSTTest
 
 
 class TestBaseController(unittest.TestCase):
+    configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
         'security-server':
             [{'name': 'ss3',
               'url': 'https://ss3:4000/api/v1',
               'api_key': 'X-Road-apikey token=api-key',
-              'configuration_anchor': '/tmp/configuration-anchor.xml',
+              'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
               'owner_member_code': '1234',
               'security_server_code': 'SS3',
@@ -32,7 +35,6 @@ class TestBaseController(unittest.TestCase):
 
     @staticmethod
     def test_load_config():
-        """Test configuration file loading"""
         base_controller = BaseController()
         temp_file_name = "base.yaml"
         config_file = open(temp_file_name, "w")

@@ -3,9 +3,6 @@
 clean:
 	find . -name '*.py[co]' -delete
 
-copy:
-	cp tests/unit/resources/configuration-anchor.xml /tmp
-
 virtualenv:
 	virtualenv --prompt '|> xrdsst <| ' env
 	env/bin/pip install -r requirements-dev.txt
@@ -15,13 +12,13 @@ virtualenv:
 	@echo
 
 
-test: copy
+test:
 	python -m pytest \
 		-v \
 		--cov=xrdsst/controllers \
 		--cov-report=term \
 		--cov-report=html:coverage-report \
-		tests/
+		tests\
 
 docker: clean
 	docker build -t xrdsst:latest .
