@@ -10,7 +10,7 @@
 #   The LXD hosts file and the Ansible script file that should be used by this script can be found here:
 #   https://github.com/nordic-institute/X-Road/blob/develop/ansible
 #
-# Usage example: reset_security_server.sh -n ss3,ss4 -h ../../X-Road/ansible/hosts/lxd_hosts.txt -a ../../X-Road/ansible
+# Usage example: reset_security_server.sh -n ss3,ss4 -h ../X-Road/ansible/hosts/lxd_hosts.txt -a ../X-Road/ansible
 
 ANSIBLE_CMD="ansible-playbook"
 ANSIBLE_SCRIPT="xroad_init.yml"
@@ -45,15 +45,13 @@ done
 }
 
 run_ansible_script() {
-    if [ -d "$1" ]; then
-        cd "$1"
-    else
+    if [ ! -d "$1" ]; then
         printf "\n The directory %s does not exist" "$1"
         exit 1
     fi
     if [[ -f "$1/$4" ]]; then
-        printf "\nRunning %s/%s -i %s %s\n" "$1" "$2" "$3" "$4"
-        "$ANSIBLE_CMD" -i "$3" "$4"
+        printf "\nRunning %s -i %s %s\n" "$2" "$3" "$1/$4"
+        "$2" -i "$3" "$1/$4"
         printf "\n Ansible script finished installing security servers \n"
     else
         printf "\n The file %s does not exist" "$1/$4"

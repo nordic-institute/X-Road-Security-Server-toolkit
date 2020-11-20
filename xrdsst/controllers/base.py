@@ -4,7 +4,7 @@ import yaml
 
 from cement import Controller
 from cement.utils.version import get_version_banner
-from semantic_release.version import get_version
+from xrdsst.core.version import get_version
 from xrdsst.resources.texts import texts
 from xrdsst.configuration.configuration import Configuration
 
@@ -36,13 +36,14 @@ class BaseController(Controller):
             logging.basicConfig(filename=log_file_name,
                                 level=configuration["logging"][0]["level"],
                                 format='%(name)s - %(levelname)s - %(message)s')
-        except FileNotFoundError as e:
-            print("Configuration file \"" + log_file_name + "\" not found: %s\n" % e)
+        except FileNotFoundError as err:
+            print("Configuration file \"" + log_file_name + "\" not found: %s\n" % err)
 
     @staticmethod
     def load_config(baseconfig="config/base.yaml"):
         # Note: this fallback below is to allow simply running xrdsst from both IDE run/debug
-        # and directly from command line. There is no support for configuration file location spec yet.
+        # and directly from command line. There is no support for configuration
+        # file location spec yet.
         # TODO: remove fallback when configuration file spec from command-line is implemented
         if not os.path.exists(baseconfig):
             baseconfig = os.path.join("..", baseconfig)

@@ -2,12 +2,13 @@ import logging
 import urllib3
 from cement import ex
 
-from .base import BaseController
-from ..rest.rest import ApiException
+from xrdsst.controllers.base import BaseController
+from xrdsst.rest.rest import ApiException
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.api.tokens_api import TokensApi
 from xrdsst.models.token_password import TokenPassword
 from xrdsst.resources.texts import texts
+
 
 class TokenListMapper:
     @staticmethod
@@ -26,6 +27,7 @@ class TokenListMapper:
             'status': token.status,
             'logged_in' : token.logged_in
         }
+
 
 class TokenController(BaseController):
     class Meta:
@@ -48,10 +50,10 @@ class TokenController(BaseController):
         self.init_logging(configuration)
         for security_server in configuration["security-server"]:
             configuration = self.initialize_basic_config_values(security_server)
-            self.remote_token_list(configuration, security_server)
+            self.remote_token_list(configuration)
 
     # Since this is read-only operation, do not log anything, only console output
-    def remote_token_list(self, configuration, security_server):
+    def remote_token_list(self, configuration):
         try:
             token_api = TokensApi(ApiClient(configuration))
             token_list_response = token_api.get_tokens()
@@ -63,14 +65,16 @@ class TokenController(BaseController):
                 render_data.extend(map(TokenListMapper.as_object, token_list_response))
 
             self.render(render_data)
-        except ApiException as e:
-            print("Exception when calling TokensApi->get_tokens: %s\n" % e)
+        except ApiException as err:
+            print("Exception when calling TokensApi->get_tokens: %s\n" % err)
 
     def token_login(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security-server"]:
-            logging.info('Starting configuration process for security server: ' + security_server['name'])
-            print('Starting configuration process for security server: ' + security_server['name'])
+            logging.info('Starting configuration process for security server: %s',
+                         security_server['name'])
+            print('Starting configuration process for security server: ' +
+                  security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server)
             self.remote_token_login(ss_configuration, security_server)
 
@@ -79,18 +83,20 @@ class TokenController(BaseController):
         token_id = security_server['software_token_id']
         token_pin = security_server['software_token_pin']
         try:
-            logging.info('Performing software token ' + str(token_id) + ' login: ')
+            logging.info('Performing software token %s login: ', str(token_id))
             print('Performing software token ' + str(token_id) + ' login: ')
             token_api = TokensApi(ApiClient(ss_configuration))
             token_api.login_token(
                 id=token_id,
                 body=TokenPassword(token_pin)
             )
-            logging.info('Security server \"' + security_server["name"]  + '\"  token ' + str(token_id) + ' logged in')
-            print('Security server \"' + security_server["name"] + '\"  token ' +str(token_id) + ' logged in')
-        except ApiException as e:
-            if 409 == e.status:
+            logging.info('Security server \"%s\" token %s logged in', security_server["name"],
+                         str(token_id))
+            print('Security server \"' + security_server["name"] + '\" token ' + str(token_id)
+                  + ' logged in')
+        except ApiException as err:
+            if err.status == 409:
                 print("Token already logged in.")
             else:
-                print("Exception when calling TokensApi->login_token: %s\n" % e)
-                logging.error("Exception when calling TokensApi->login_token: %s\n" % e)
+                print("Exception when calling TokensApi->login_token: %s\n" % err)
+                logging.error("Exception when calling TokensApi->login_token: %s\n", err)

@@ -4,17 +4,17 @@ from unittest import mock
 
 from dateutil.tz import tzutc
 
-from xrdsst.main import XRDSSTTest
-from xrdsst.models import TokenStatus, TokenType, Key, KeyUsageType, TokenCertificate, CertificateOcspStatus, \
-    CertificateStatus, CertificateDetails, KeyUsage
-from xrdsst.models.token import Token
-
 import urllib3
+from xrdsst.main import XRDSSTTest
+from xrdsst.models import Token, TokenStatus, TokenType, Key, KeyUsageType, TokenCertificate, \
+    CertificateOcspStatus, CertificateStatus, CertificateDetails, KeyUsage
+
 from xrdsst.controllers.token import TokenController
 
 
 class TokenTestData:
-    # JSON of the response unusable due to assertions in generated Client API, define response in Python
+    # JSON of the response unusable due to assertions in generated Client API,
+    # define response in Python
     token_login_response = Token(
         available=True,
         id=0,
@@ -53,7 +53,7 @@ class TokenTestData:
                         not_before=datetime(2020, 11, 5, 22, 24, 45, tzinfo=tzutc()),
                         public_key_algorithm='RSA',
                         rsa_public_key_exponent=65537,
-                        rsa_public_key_modulus=214432, # Not even a prime, but fine ATM
+                        rsa_public_key_modulus=214432,  # Not even a prime, but fine ATM
                         signature='30eb0bde826774031726',
                         signature_algorithm='SHA256withRSA',
                         serial=5,
@@ -87,7 +87,7 @@ class TestToken(unittest.TestCase):
     def test_token_list(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.tokens_api.TokensApi.get_tokens',
-                             return_value=TokenTestData.token_list_response):
+                            return_value=TokenTestData.token_list_response):
                 token_controller = TokenController()
                 token_controller.app = app
                 token_controller.load_config = (lambda: self.ss_config)
@@ -95,7 +95,7 @@ class TestToken(unittest.TestCase):
 
     def test_token_login(self):
         with mock.patch('xrdsst.api.tokens_api.TokensApi.login_token',
-                         return_value=TokenTestData.token_login_response):
+                        return_value=TokenTestData.token_login_response):
             token_controller = TokenController()
             token_controller.load_config = (lambda: self.ss_config)
             token_controller.login()

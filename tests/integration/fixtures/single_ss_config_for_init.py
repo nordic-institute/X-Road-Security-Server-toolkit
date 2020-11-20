@@ -7,6 +7,7 @@ import pytest
 
 @pytest.fixture(scope="function")
 def single_ss_config_for_init():
+    """Fixture for single security server initialization"""
     config = {
         'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
         'security-server':

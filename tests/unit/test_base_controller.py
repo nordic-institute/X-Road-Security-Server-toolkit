@@ -1,9 +1,9 @@
 import os
 import unittest
-from xrdsst.configuration.configuration import Configuration
-from xrdsst.controllers.init import BaseController
 import yaml
 
+from xrdsst.configuration.configuration import Configuration
+from xrdsst.controllers.init import BaseController
 from xrdsst.main import XRDSSTTest
 
 
@@ -20,13 +20,19 @@ class TestBaseController(unittest.TestCase):
               'security_server_code': 'SS3',
               'software_token_pin': '1234'}]}
 
-    def test_is_output_tabulated(self):
+    def get_ss_config(self):
+        return self._ss_config
+
+    @staticmethod
+    def test_is_output_tabulated():
         with XRDSSTTest() as app:
             base_controller = BaseController()
             base_controller.app = app
             assert base_controller.is_output_tabulated()
 
-    def test_load_config(self):
+    @staticmethod
+    def test_load_config():
+        """Test configuration file loading"""
         base_controller = BaseController()
         temp_file_name = "base.yaml"
         config_file = open(temp_file_name, "w")
