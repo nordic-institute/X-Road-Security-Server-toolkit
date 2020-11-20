@@ -6,7 +6,7 @@ from xrdsst.configuration.configuration import Configuration
 @pytest.mark.usefixtures("single_ss_config_for_init")
 def test_init_single_ss(single_ss_config_for_init):
     configuration = init_configuration(single_ss_config_for_init)
-    pass
+    assert configuration is not None
 
 
 def init_configuration(config_file):
