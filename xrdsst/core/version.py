@@ -1,11 +1,11 @@
 """Module for getting project version"""
 from cement.utils.version import get_version as cement_get_version
 
-current_version = "current_version = "0.1.4""
+current_version = "0.1.5"
 
 
 def convert_version(version_str):
-    version_parts = version_str.split(sep="-")
+    version_parts = version_str.split(sep=".")
     major = version_parts[0].split(".")[0]
     minor = version_parts[0].split(".")[1]
     patch = version_parts[0].split(".")[2]
