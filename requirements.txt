@@ -13,5 +13,5 @@ pytest~=6.1.1
 pylint~=2.6.0
 pytest-pylint~=0.18.0
 bump2version~=1.0.1
-gitchangelog~=3.0.4
-pystache~=0.5.4
+click~=7.1
+python-changelog~=0.2.0
