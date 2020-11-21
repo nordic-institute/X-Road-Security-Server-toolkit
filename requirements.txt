@@ -12,3 +12,4 @@ python_dateutil >= 2.5.3
 pytest~=6.1.1
 pylint~=2.6.0
 pytest-pylint~=0.18.0
+bumpversion~=0.6.0
