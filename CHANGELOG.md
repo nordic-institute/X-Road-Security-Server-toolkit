@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9-alpha.0] - 2020-11-24
+
+- add bump2version to handle automatic version updates
+
 ## [0.1.4-alpha.0] - 2020-11-20
 
 - add PyLint to the project so that the code will conform to formatting rules
