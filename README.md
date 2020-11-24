@@ -12,6 +12,7 @@ $ pip3 install setup.py
 
 This project includes a number of helpers in the `Makefile` to streamline common development tasks.
 
+
 ### Environment Setup
 
 The following demonstrates setting up and working with a development environment:
@@ -29,11 +30,35 @@ $ source env/bin/activate
 $ xrdsst --help
 
 
-### run pytest / coverage
+### run pytest with coverage and pylint to check code formatting
 
 $ make test
 ```
 
+### Updating project version
+
+```
+### Update patch (major.minor.patch-release.build)
+
+$ bump2version patch
+
+### Update minor (major.minor.patch-release.build)
+
+$ bump2version minor
+
+### Update major (major.minor.patch-release.build)
+
+$ bump2version major
+
+### Update release (major.minor.patch-release.build)
+
+$ bump2version release
+
+### Update build (major.minor.patch-release.build)
+
+$ bump2version build
+
+```
 
 ### Releasing to PyPi
 
