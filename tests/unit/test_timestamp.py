@@ -1,6 +1,7 @@
+
 import unittest
-import urllib3
 from unittest import mock, TestCase
+import urllib3
 
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.main import XRDSSTTest
@@ -67,5 +68,3 @@ class TestTimestamp(unittest.TestCase):
                 timestamp_controller.app = app
                 timestamp_controller.load_config = (lambda: TestTimestamp.ss_config)
                 TestCase.assertRaises(TestTimestamp, urllib3.exceptions.MaxRetryError, lambda: timestamp_controller.init())
-
-
