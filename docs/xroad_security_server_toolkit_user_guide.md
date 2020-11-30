@@ -89,3 +89,7 @@ Default software token login can be logged on with ``xrdsst token login``
 
 All tokens known to security server can be listed with ``xrdsst token list``
 
+### 3.4 Configuring security server to use single approved timestamping service
+
+Single timestamping service approved for use in central server can be configured for security server by invoking ``timestamp`` subcommand
+as ``xrdsst timestamp init``.
