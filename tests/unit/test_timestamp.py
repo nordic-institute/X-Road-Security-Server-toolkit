@@ -37,7 +37,7 @@ class TestTimestamp(unittest.TestCase):
                              return_value=TimestampTestData.timestamp_service_list_response):
                 timestamp_controller = TimestampController()
                 timestamp_controller.app = app
-                timestamp_controller.load_config = (lambda: TestTimestamp.ss_config)
+                timestamp_controller.load_config = (lambda: self.ss_config)
                 timestamp_controller.list_approved()
 
     def test_timestamp_service_configured_list(self):
@@ -46,7 +46,7 @@ class TestTimestamp(unittest.TestCase):
                              return_value=TimestampTestData.timestamp_service_list_response):
                 timestamp_controller = TimestampController()
                 timestamp_controller.app = app
-                timestamp_controller.load_config = (lambda: TestTimestamp.ss_config)
+                timestamp_controller.load_config = (lambda: self.ss_config)
                 timestamp_controller.list_configured()
 
     def test_timestamp_service_init(self):
@@ -57,7 +57,7 @@ class TestTimestamp(unittest.TestCase):
                              return_value=TimestampTestData.timestamp_service_response):
                     timestamp_controller = TimestampController()
                     timestamp_controller.app = app
-                    timestamp_controller.load_config = (lambda: TestTimestamp.ss_config)
+                    timestamp_controller.load_config = (lambda: self.ss_config)
                     timestamp_controller.init()
 
     def test_timestamp_service_init_nonresolving_url(self):
@@ -66,5 +66,5 @@ class TestTimestamp(unittest.TestCase):
                              return_value=TimestampTestData.timestamp_service_list_response):
                 timestamp_controller = TimestampController()
                 timestamp_controller.app = app
-                timestamp_controller.load_config = (lambda: TestTimestamp.ss_config)
+                timestamp_controller.load_config = (lambda: self.ss_config)
                 TestCase.assertRaises(TestTimestamp, urllib3.exceptions.MaxRetryError, lambda: timestamp_controller.init())
