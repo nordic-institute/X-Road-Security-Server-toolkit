@@ -15,7 +15,7 @@
 ANSIBLE_CMD="ansible-playbook"
 ANSIBLE_SCRIPT="xroad_init.yml"
 URL=https://localhost:4000/api/v1/api-keys
-ROLES='["XROAD_SYSTEM_ADMINISTRATOR"]'
+ROLES='["XROAD_SYSTEM_ADMINISTRATOR","XROAD_SECURITY_OFFICER"]'
 HEADER='Content-Type: application/json'
 
 usage() {
