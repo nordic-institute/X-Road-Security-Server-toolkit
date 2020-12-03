@@ -2,6 +2,13 @@
 
 clean:
 	find . -name '*.py[co]' -delete
+	rm -rf dist
+	rm -rf build
+	rm -rf .eggs
+	rm -rf .pytest_cache
+	rm -rf coverage-report
+	rm .coverage
+	rm -rf *.egg-info
 
 virtualenv:
 	virtualenv --prompt '|> xrdsst <| ' env
@@ -11,8 +18,18 @@ virtualenv:
 	@echo "VirtualENV Setup Complete. Now run: source env/bin/activate"
 	@echo
 
+install:
+	python setup.py install
 
 test:
+	python -m pytest \
+		-v \
+		--cov=xrdsst/controllers \
+		--cov-report=term \
+		--cov-report=html:coverage-report \
+		tests/unit\
+
+test-all:
 	python -m pytest \
 		-v \
 		--cov=xrdsst/controllers \
@@ -24,9 +41,6 @@ docker: clean
 	docker build -t xrdsst:latest .
 
 dist: clean
-	rm -rf dist/*
-	python setup.py sdist
-	python setup.py bdist_wheel
+	python setup.py sdist bdist_wheel
 
-dist-upload:
-	twine upload dist/*
+

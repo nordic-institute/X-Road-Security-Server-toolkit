@@ -2,13 +2,14 @@
 
 **Technical Specification**
 
-Version: 1.0 
+Version: 1.1.1 
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
 |------------|-------------|------------------------------------------------------------------------------|--------------------|
-| 10.11.2020 | 1.0         | Initial draft                                                                | Bert Viikmäe       |
-
+| 10.11.2020 | 1.0.0       | Initial draft                                                                | Bert Viikmäe       |
+| 12.11.2020 | 1.1.0       | Documentation of initialization functionality                                | Bert Viikmäe       |
+| 16.11.2020 | 1.1.1       | Documentation of token login functionality                                   | Taimo Peelo        |
 
 ## Table of Contents
 
