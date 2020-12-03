@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.10-alpha.0] - 2020-12-03
+
+- create Makefile tasks for testing
+
 ## [0.1.9-alpha.0] - 2020-11-24
 
 - add bump2version to handle automatic version updates
