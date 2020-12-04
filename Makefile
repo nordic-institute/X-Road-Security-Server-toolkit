@@ -32,10 +32,12 @@ test:
 test-all:
 	python -m pytest \
 		-v \
+		--pylint --pylint-rcfile=setup.cfg \
 		--cov=xrdsst/controllers \
 		--cov-report=term \
 		--cov-report=html:coverage-report \
 		tests\
+
 
 docker: clean
 	docker build -t xrdsst:latest .
