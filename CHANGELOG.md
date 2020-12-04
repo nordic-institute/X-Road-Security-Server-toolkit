@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 - create Makefile tasks for testing
 
+## [0.1.10-alpha.0] - 2020-11-27
+
+- add ``timestamp`` sub-command with ``init`` and some listing proto-bonuses
+
 ## [0.1.9-alpha.0] - 2020-11-24
 
 - add bump2version to handle automatic version updates
