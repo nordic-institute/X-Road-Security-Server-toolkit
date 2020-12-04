@@ -14,13 +14,13 @@ class TestBaseController(unittest.TestCase):
     _ss_config = {
         'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
         'security-server':
-            [{'name': 'ss3',
-              'url': 'https://ss3:4000/api/v1',
+            [{'name': 'ss',
+              'url': 'https://ss:4000/api/v1',
               'api_key': 'X-Road-apikey token=api-key',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
               'owner_member_code': '1234',
-              'security_server_code': 'SS3',
+              'security_server_code': 'SS',
               'software_token_pin': '1234'}]}
 
     def get_ss_config(self):
