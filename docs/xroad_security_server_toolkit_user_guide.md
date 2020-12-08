@@ -10,6 +10,7 @@ Doc. ID: XRDSST-CONF
 | 10.11.2020 | 1.0.0       | Initial draft                                                                | Bert Viikmäe       |
 | 12.11.2020 | 1.1.0       | Documentation of initialization functionality                                | Bert Viikmäe       |
 | 16.11.2020 | 1.1.1       | Documentation of token login functionality                                   | Taimo Peelo        |
+| 08.12.2020 | 1.1.2       | Documentation of token key initializations                                   | Taimo Peelo        |
 
 ## Table of Contents
 
@@ -46,6 +47,8 @@ security-server:
     url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
     api_key: X-Road-apikey token=<API_KEY>
     configuration_anchor: /path/to/configuration-anchor.xml
+    owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+    owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
     owner_member_class: <MEMBER_CLASS>
     owner_member_code: <MEMBER_CODE>
     security_server_code: <SERVER_CODE>
@@ -56,6 +59,8 @@ security-server:
 * <SECURITY_SERVER_FQDN_OR_IP> should be substituted with the IP address or host name of the installed security server, e.g. ss1
 * <API_KEY> should be substituted with the api-key of the installed security server
 * /path/to/configuration-anchor.xml should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
+* <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
+* <OWNER_DISTINGUISHED_NAME_ORGANIZATION> should be set to server owner organization. This is used in certificate generation.
 * <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV
 * <MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234
 * <SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
@@ -94,3 +99,10 @@ All tokens known to security server can be listed with ``xrdsst token list``
 
 Single timestamping service approved for use in central server can be configured for security server by invoking ``timestamp`` subcommand
 as ``xrdsst timestamp init``.
+
+### 3.5 Initializing token keys and corresponding certificate signing requests
+
+Token keys for authentication and signatures can be created with ``xrdsst token init-keys``, which creates
+two keys and generates corresponding certificate signing requests (one for authentication, other for signing).
+The key labels used are conventionally with suffixes ``default-auth-key`` and ``default-sign-key``, if
+those already exist, they will not be duplicated and command acts as no-op for such security server.

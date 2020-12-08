@@ -4,6 +4,9 @@ config/base-dev.yaml
 # Ignore PyCharm venv virtual environment
 venv/
 
+# New PyCharm folder
+pyc-env/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
