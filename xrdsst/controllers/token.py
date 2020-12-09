@@ -5,7 +5,7 @@ from cement import ex
 from xrdsst.api.security_servers_api import SecurityServersApi
 from xrdsst.api.certificate_authorities_api import CertificateAuthoritiesApi
 from xrdsst.controllers.base import BaseController
-from xrdsst.models import CsrGenerate, KeyUsageType, CsrFormat, KeyLabelWithCsrGenerate, CertificateAuthority
+from xrdsst.models import CsrGenerate, KeyUsageType, CsrFormat, KeyLabelWithCsrGenerate
 from xrdsst.rest.rest import ApiException
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.api.tokens_api import TokensApi
@@ -172,7 +172,7 @@ class TokenController(BaseController):
             )
 
             if has_sign_key and has_auth_key:
-                print("No key initialization needed.")
+                BaseController.log_info("No key initialization needed.")
                 return
 
             token_api = TokensApi(ApiClient(ss_configuration))

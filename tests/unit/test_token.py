@@ -11,7 +11,8 @@ from definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import Token, TokenStatus, TokenType, Key, KeyUsageType, TokenCertificate, \
     CertificateOcspStatus, CertificateStatus, CertificateDetails, KeyUsage, CertificateAuthority, \
-    CertificateAuthorityOcspResponse, SecurityServer, KeyWithCertificateSigningRequestId, TokenCertificateSigningRequest
+    CertificateAuthorityOcspResponse, SecurityServer, KeyWithCertificateSigningRequestId, \
+    TokenCertificateSigningRequest
 
 from xrdsst.controllers.token import TokenController
 
@@ -118,6 +119,7 @@ class TokenTestData:
         )
     )
 
+
 class TestToken(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     ss_config = {
@@ -166,6 +168,18 @@ class TestToken(unittest.TestCase):
                             token_controller.app = app
                             token_controller.load_config = (lambda: self.ss_config)
                             token_controller.init_keys()
+
+    def test_token_init_keys_without_cas_available(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.certificate_authorities_api.CertificateAuthoritiesApi.get_approved_certificate_authorities') as mock_get_cas:
+                mock_get_cas.return_value.__enter__.return_value = []
+                with mock.patch(
+                        'xrdsst.api.security_servers_api.SecurityServersApi.get_security_servers',
+                        return_value=TokenTestData.security_servers_current_server_response):
+                    token_controller = TokenController()
+                    token_controller.app = app
+                    token_controller.load_config = (lambda: self.ss_config)
+                    self.assertRaises(IndexError, lambda: token_controller.init_keys())
 
     def test_token_list_nonresolving_url(self):
         token_controller = TokenController()
