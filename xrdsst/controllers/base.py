@@ -58,3 +58,13 @@ class BaseController(Controller):
         configuration.host = security_server["url"]
         configuration.verify_ssl = False
         return configuration
+
+    @staticmethod
+    def log_api_error(api_method, exception):
+        logging.error("Exception calling " + api_method + ": " + str(exception))
+        print("Exception calling " + api_method + ": " + str(exception))
+
+    @staticmethod
+    def log_info(message):
+        logging.info(message)
+        print(message)

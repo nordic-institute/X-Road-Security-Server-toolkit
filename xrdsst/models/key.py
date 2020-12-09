@@ -121,8 +121,9 @@ class Key(object):
         :param name: The name of this Key.  # noqa: E501
         :type: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
+        #if name is None:
+        #    raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
+        # Not all keys generated on token must have a name # TODO: API change likely?
 
         self._name = name
 
@@ -146,8 +147,9 @@ class Key(object):
         :param label: The label of this Key.  # noqa: E501
         :type: str
         """
-        if label is None:
-            raise ValueError("Invalid value for `label`, must not be `None`")  # noqa: E501
+        #if label is None:
+        #    raise ValueError("Invalid value for `label`, must not be `None`")  # noqa: E501
+        # Not all keys generated on token must have a label # TODO: API change likely?
 
         self._label = label
 
@@ -219,8 +221,9 @@ class Key(object):
         :param usage: The usage of this Key.  # noqa: E501
         :type: KeyUsageType
         """
-        if usage is None:
-            raise ValueError("Invalid value for `usage`, must not be `None`")  # noqa: E501
+        #if usage is None:
+        #    raise ValueError("Invalid value for `usage`, must not be `None`")  # noqa: E501
+        # Keys without CSR cannot have usage type #TODO API change
 
         self._usage = usage
 
