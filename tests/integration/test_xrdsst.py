@@ -1,10 +1,10 @@
-
 import unittest
 import time
 import subprocess
 import os
 import json
 import git
+import docker
 import urllib3
 
 from definitions import ROOT_DIR
@@ -16,19 +16,17 @@ from xrdsst.main import XRDSSTTest
 
 
 class TestXRDSST(unittest.TestCase):
+
     git_repo = 'https://github.com/nordic-institute/X-Road.git'
     local_folder = os.path.join(ROOT_DIR, "tests/integration/X-Road")
     branch_name = 'develop'
     docker_folder = local_folder + '/Docker/securityserver'
-    dist = 'bionic-6.25.0'
-    image = 'xroad-security-server:' + dist
+    image = 'xroad-security-server:latest'
     url = 'https://localhost:4000/api/v1/api-keys'
     roles = '[\"XROAD_SYSTEM_ADMINISTRATOR\",\"XROAD_SECURITY_OFFICER\"]'
     header = 'Content-Type: application/json'
-    file_name = 'api-key.txt'
-    max_retries = 100
+    max_retries = 10
     curl_retry_wait_seconds = 5
-
     api_key = None
 
     @staticmethod
@@ -53,37 +51,32 @@ class TestXRDSST(unittest.TestCase):
     def setUp(self):
         config = self.single_ss_config()
         name = config["security-server"][0]["name"]
-        if not os.path.exists('./' + self.local_folder):
+        if not os.path.exists(self.local_folder):
             git.Repo.clone_from(self.git_repo, self.local_folder, branch=self.branch_name)
-        process = subprocess.run('docker image inspect ' + self.image + ':' + self.dist, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE, shell=True, check=False)
-        if len(process.stderr) > 0:
-            subprocess.run('docker build --build-arg DIST=' + self.dist + ' -t ' + self.image + ' .', shell=True,
-                           cwd=self.docker_folder, check=False)
-        process = subprocess.run("docker top " + name, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True,
-                                 check=False)
-        if len(process.stderr) > 0:
-            subprocess.run("docker run -p 8000:4000 -p 4001:80 --detach --name " + name + " " + self.image,
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=False)
-        return_code = 1
-        retries = 0
-        while return_code != 0 and retries <= self.max_retries:
-            process = subprocess.run(
-                "docker exec " + name + " curl -X POST -u xrd:secret " + self.url + " --data \'" + self.roles
-                + "\'" + " --header \"" + self.header + "\" -k >" + self.file_name, shell=True, check=False)
-            return_code = process.returncode
-            if return_code == 0:
-                break
-            time.sleep(self.curl_retry_wait_seconds)
-            retries += 1
-        with open(self.file_name) as json_file:
-            data = json.load(json_file)
-        assert data["key"] is not None
-        self.api_key = data["key"]
+        client = docker.from_env()
+        images = client.images.list(name=self.image)
+        if len(images) == 0:
+            client.images.build(path=self.docker_folder, tag=self.image)
+        containers = client.containers.list(all=True, filters={"name": name})
+        if len(containers) == 0:
+            client.containers.run(detach=True, name=name, image=self.image, ports={'4000/tcp': 8000})
+        containers = client.containers.list(all=True, filters={"name": name})
+        for container in containers:
+            if container.name == name:
+                retries = 0
+                while retries <= self.max_retries:
+                    cmd = "curl -X POST -u xrd:secret --silent " + self.url + " --data \'" + self.roles + \
+                          "\'" + " --header \"" + self.header + "\" -k"
+                    result = container.exec_run(cmd, stdout=True, stderr=True, demux=False)
+                    if len(result.output) > 0:
+                        json_data = json.loads(result.output)
+                        self.api_key = json_data["key"]
+                        break
+                    time.sleep(self.curl_retry_wait_seconds)
+                    retries += 1
 
     def tearDown(self):
         subprocess.call("rm -rf " + self.local_folder + "/", shell=True)
-        subprocess.call("rm " + self.file_name, shell=True)
         subprocess.call("docker ps -a | awk '{ print $1,$2 }' | grep " + self.image +
                         " | awk '{print $1 }' | xargs -I {} docker rm -f {}", shell=True)
         subprocess.call("docker rmi -f $(docker images --format '{{.Repository}}:{{.Tag}}' "
