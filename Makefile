@@ -7,7 +7,7 @@ clean:
 	rm -rf .eggs
 	rm -rf .pytest_cache
 	rm -rf coverage-report
-	rm .coverage
+	rm -rf .coverage
 	rm -rf *.egg-info
 	rm -rf tests/integration/X-Road
 
@@ -22,7 +22,7 @@ virtualenv:
 install:
 	python setup.py install
 
-test:
+test: clean
 	python -m pytest \
 		-v \
 		--cov=xrdsst/controllers \
@@ -30,7 +30,7 @@ test:
 		--cov-report=html:coverage-report \
 		tests/unit\
 
-test-all:
+test-all: clean
 	python -m pytest \
 		-v \
 		--pylint --pylint-rcfile=setup.cfg \
