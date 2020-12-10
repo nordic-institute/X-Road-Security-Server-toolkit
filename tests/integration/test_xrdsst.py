@@ -41,8 +41,8 @@ class TestXRDSST(unittest.TestCase):
                   'url': 'https://localhost:8000/api/v1',
                   'api_key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
                   'configuration_anchor': configuration_anchor,
-                  'owner_dn_country': 'FI',
-                  'owner_dn_org': 'UNSERE',
+                  'owner_dn_country': 'EE',
+                  'owner_dn_org': 'ORG',
                   'owner_member_class': 'GOV',
                   'owner_member_code': '1234',
                   'security_server_code': 'SS',
@@ -119,8 +119,16 @@ class TestXRDSST(unittest.TestCase):
         token_controller.load_config = (lambda: config)
         token_controller.login()
 
+    def step_token_init_keys(self):
+        config = self.single_ss_config()
+        config["security-server"][0]["api_key"] = 'X-Road-apikey token=' + self.api_key
+        token_controller = TokenController()
+        token_controller.load_config = (lambda: config)
+        token_controller.init_keys()
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.step_init()
         self.step_timestamp_init()
         self.step_token_login()
+        self.step_token_init_keys()
