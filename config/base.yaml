@@ -9,6 +9,8 @@ security-server:
     url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
     api_key: X-Road-apikey token=<API_KEY>
     configuration_anchor: /path/to/configuration-anchor.xml
+    owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+    owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
     owner_member_class: <MEMBER_CLASS>
     owner_member_code: <MEMBER_CODE>
     security_server_code: <SERVER_CODE>
@@ -19,6 +21,8 @@ security-server:
     url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
     api_key: X-Road-apikey token=<API_KEY>
     configuration_anchor: /path/to/configuration-anchor.xml
+    owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+    owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
     owner_member_class: <MEMBER_CLASS>
     owner_member_code: <MEMBER_CODE>
     security_server_code: <SERVER_CODE>

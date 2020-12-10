@@ -10,7 +10,9 @@ import urllib3
 from definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import Token, TokenStatus, TokenType, Key, KeyUsageType, TokenCertificate, \
-    CertificateOcspStatus, CertificateStatus, CertificateDetails, KeyUsage
+    CertificateOcspStatus, CertificateStatus, CertificateDetails, KeyUsage, CertificateAuthority, \
+    CertificateAuthorityOcspResponse, SecurityServer, KeyWithCertificateSigningRequestId, \
+    TokenCertificateSigningRequest
 
 from xrdsst.controllers.token import TokenController
 
@@ -72,6 +74,51 @@ class TokenTestData:
         token_login_response
     ]
 
+    security_servers_current_server_response = [
+        SecurityServer(
+            id="DEV:GOV:7392:UNS-SSX",
+            instance_id="DEV",
+            member_class="GOV",
+            member_code="7392",
+            server_code="UNS-SSX",
+            server_address="ssX"
+        )
+    ]
+
+    ca_list_response = [
+        CertificateAuthority(
+            name="Some CA",
+            subject_distinguished_name="CN=Some CA, O=Some X-Road CA",
+            issuer_distinguished_name="CN=Some Other CA, O=Some Other X-Road CA",
+            ocsp_response=CertificateAuthorityOcspResponse.OCSP_RESPONSE_UNKNOWN,
+            not_after=datetime(2180, 1, 14, 0, 0, 0),
+            top_ca=True,
+            path="CN=Some Other CA, O=Some Other X-Road CA",
+            authentication_only=False
+        )
+    ]
+
+    add_key_with_csr_response = KeyWithCertificateSigningRequestId(
+        csr_id="16F2B5A9D76B790EE3DD7544152E333FC57F57FF",
+        key=Key(
+            available=True,
+            certificate_signing_requests=[
+                TokenCertificateSigningRequest(
+                    id="16F2B5A9D76B790EE3DD7544152E333FC57F57FF",
+                    owner_id=None,
+                    possible_actions=[]
+                )
+            ],
+            certificates=[],
+            id="D1969303DB4B2CB5A5E0596CF6E4EA9E77D4C405",
+            label="ss1-default-auth-key",
+            name="ss1-default-auth-key",
+            possible_actions=None,
+            saved_to_configuration=True,
+            usage=KeyUsageType.AUTHENTICATION
+        )
+    )
+
 
 class TestToken(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
@@ -82,6 +129,8 @@ class TestToken(unittest.TestCase):
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'api_key': 'X-Road-apikey token=api-key',
               'configuration_anchor': configuration_anchor,
+              'owner_dn_country': 'FI',
+              'owner_dn_org': 'UNSERE',
               'owner_member_class': 'VOG',
               'owner_member_code': '4321',
               'security_server_code': 'SS3',
@@ -104,6 +153,34 @@ class TestToken(unittest.TestCase):
             token_controller.load_config = (lambda: self.ss_config)
             token_controller.login()
 
+    def test_token_init_keys(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.certificate_authorities_api.CertificateAuthoritiesApi.get_approved_certificate_authorities') as mock_get_cas:
+                mock_get_cas.return_value.__enter__.return_value = TokenTestData.ca_list_response
+                with mock.patch(
+                        'xrdsst.api.security_servers_api.SecurityServersApi.get_security_servers',
+                        return_value=TokenTestData.security_servers_current_server_response):
+                    with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
+                                    return_value=TokenTestData.token_login_response):
+                        with mock.patch('xrdsst.api.tokens_api.TokensApi.add_key_and_csr',
+                                        return_value=TokenTestData.add_key_with_csr_response):
+                            token_controller = TokenController()
+                            token_controller.app = app
+                            token_controller.load_config = (lambda: self.ss_config)
+                            token_controller.init_keys()
+
+    def test_token_init_keys_without_cas_available(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.certificate_authorities_api.CertificateAuthoritiesApi.get_approved_certificate_authorities') as mock_get_cas:
+                mock_get_cas.return_value.__enter__.return_value = []
+                with mock.patch(
+                        'xrdsst.api.security_servers_api.SecurityServersApi.get_security_servers',
+                        return_value=TokenTestData.security_servers_current_server_response):
+                    token_controller = TokenController()
+                    token_controller.app = app
+                    token_controller.load_config = (lambda: self.ss_config)
+                    self.assertRaises(IndexError, lambda: token_controller.init_keys())
+
     def test_token_list_nonresolving_url(self):
         token_controller = TokenController()
         token_controller.load_config = (lambda: self.ss_config)
@@ -113,3 +190,8 @@ class TestToken(unittest.TestCase):
         token_controller = TokenController()
         token_controller.load_config = (lambda: self.ss_config)
         self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.login())
+
+    def test_token_init_keys_nonresolving_url(self):
+        token_controller = TokenController()
+        token_controller.load_config = (lambda: self.ss_config)
+        self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.init_keys())

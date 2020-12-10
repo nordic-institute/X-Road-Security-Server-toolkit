@@ -94,8 +94,9 @@ class TokenCertificateSigningRequest(object):
         :param owner_id: The owner_id of this TokenCertificateSigningRequest.  # noqa: E501
         :type: str
         """
-        if owner_id is None:
-            raise ValueError("Invalid value for `owner_id`, must not be `None`")  # noqa: E501
+        # if owner_id is None:
+        #    raise ValueError("Invalid value for `owner_id`, must not be `None`")  # noqa: E501
+        # Simple keys without CSRs are not guaranteed to have owner_id # TODO likely API change
 
         self._owner_id = owner_id
 

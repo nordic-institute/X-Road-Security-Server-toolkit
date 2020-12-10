@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.12-alpha.0] - 2020-12-08
+
+- add ``token`` sub-command ``init-keys``
+
 ## [0.1.11-alpha.0] - 2020-12-03
 
 - create Makefile tasks for testing

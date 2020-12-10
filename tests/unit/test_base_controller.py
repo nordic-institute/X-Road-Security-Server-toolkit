@@ -18,6 +18,8 @@ class TestBaseController(unittest.TestCase):
               'url': 'https://ss:4000/api/v1',
               'api_key': 'X-Road-apikey token=api-key',
               'configuration_anchor': configuration_anchor,
+              'owner_dn_country': 'FI',
+              'owner_dn_org': 'UNSERE',
               'owner_member_class': 'GOV',
               'owner_member_code': '1234',
               'security_server_code': 'SS',
