@@ -9,6 +9,7 @@ clean:
 	rm -rf coverage-report
 	rm .coverage
 	rm -rf *.egg-info
+	rm -rf tests/integration/X-Road
 
 virtualenv:
 	virtualenv --prompt '|> xrdsst <| ' env
