@@ -34,6 +34,9 @@ class TestXRDSST(unittest.TestCase):
     def load_config(self):
         self.config = {
             'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
+            'api-key': [{'url': self.url,
+                         'key': 'key',
+                         'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
             'security-server':
                 [{'name': 'ss',
                   'url': 'https://localhost:8000/api/v1',
@@ -112,7 +115,7 @@ class TestXRDSST(unittest.TestCase):
     def step_init(self):
         base = BaseController()
         init = InitServerController()
-        configuration = base.initialize_basic_config_values(self.config["security-server"][0])
+        configuration = base.initialize_basic_config_values(self.config["security-server"][0], self.config)
         status = init.check_init_status(configuration)
         assert status.is_anchor_imported is False
         assert status.is_server_code_initialized is False

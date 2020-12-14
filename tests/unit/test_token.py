@@ -124,6 +124,9 @@ class TestToken(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     ss_config = {
         'logging': [{'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'}],
+        'api-key': [{'url': 'https://localhost:4000/api/v1/api-keys',
+                     'key': 'private key',
+                     'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security-server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',

@@ -27,6 +27,7 @@ class TestInit(unittest.TestCase):
         with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
                         return_value=initialization_status):
             init = InitServerController()
+            init.load_config = (lambda: self._ss_config)
             response = init.check_init_status(self._config)
             assert response == initialization_status
 
@@ -34,6 +35,7 @@ class TestInit(unittest.TestCase):
         with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
                         side_effect=ApiException):
             init = InitServerController()
+            init.load_config = (lambda: self._ss_config)
             init.check_init_status(self._config)
             self.assertRaises(ApiException)
 
@@ -42,6 +44,7 @@ class TestInit(unittest.TestCase):
         with mock.patch('xrdsst.controllers.init.SystemApi.upload_initial_anchor',
                         return_value=expected_response):
             init = InitServerController()
+            init.load_config = (lambda: self._ss_config)
             response = init.upload_anchor(self._config, self._ss_config["security-server"][0])
             assert response == expected_response
 
@@ -49,6 +52,7 @@ class TestInit(unittest.TestCase):
         with mock.patch('xrdsst.controllers.init.SystemApi.upload_initial_anchor',
                         side_effect=ApiException):
             init = InitServerController()
+            init.load_config = (lambda: self._ss_config)
             init.upload_anchor(self._config, self._ss_config["security-server"][0])
             self.assertRaises(ApiException)
 
@@ -57,6 +61,7 @@ class TestInit(unittest.TestCase):
         with mock.patch('xrdsst.controllers.init.InitializationApi.init_security_server',
                         return_value=expected_response):
             init = InitServerController()
+            init.load_config = (lambda: self._ss_config)
             response = init.init_security_server(self._config,
                                                  self._ss_config["security-server"][0])
             assert response == expected_response
@@ -65,6 +70,7 @@ class TestInit(unittest.TestCase):
         with mock.patch('xrdsst.controllers.init.InitializationApi.init_security_server',
                         side_effect=ApiException):
             init = InitServerController()
+            init.load_config = (lambda: self._ss_config)
             init.init_security_server(self._config, self._ss_config["security-server"][0])
             self.assertRaises(ApiException)
 
@@ -76,6 +82,7 @@ class TestInit(unittest.TestCase):
         with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
                         return_value=initialization_status):
             init = InitServerController()
+            init.load_config = (lambda: self._ss_config)
             self.assertEqual(init.initialize_server(self._ss_config), None)
 
     def test_initialize_server_when_not_initialized(self):
@@ -90,4 +97,5 @@ class TestInit(unittest.TestCase):
                 with mock.patch('xrdsst.controllers.init.InitializationApi.init_security_server',
                                 return_value=200):
                     init = InitServerController()
+                    init.load_config = (lambda: self._ss_config)
                     self.assertEqual(init.initialize_server(self._ss_config), None)

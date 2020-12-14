@@ -57,7 +57,7 @@ class TokenController(BaseController):
     def token_list(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security-server"]:
-            configuration = self.initialize_basic_config_values(security_server)
+            configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_list(configuration)
 
     # Since this is read-only operation, do not log anything, only console output
@@ -80,7 +80,7 @@ class TokenController(BaseController):
         self.init_logging(configuration)
         for security_server in configuration["security-server"]:
             BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server)
+            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_login(ss_configuration, security_server)
 
     @staticmethod
@@ -105,7 +105,7 @@ class TokenController(BaseController):
         self.init_logging(configuration)
         for security_server in configuration["security-server"]:
             BaseController.log_info('Starting configuration process for security server: '+ security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server)
+            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_add_keys_with_csrs(ss_configuration, security_server)
 
     # requires token to be logged in
