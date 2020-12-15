@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.14-alpha.0] - 2020-12-15
+
+- add automatic api key creation
+
 ## [0.1.13-alpha.0] - 2020-12-10
 
 - add integration tests for init, token login, token init-keys and timestamp init
