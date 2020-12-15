@@ -58,7 +58,7 @@ class BaseController(Controller):
             url = config["api-key"][0]["url"]
             curl_cmd = "curl -X POST -u xrd:secret --silent " + url + " --data \'" + roles + "\'" + \
                        " --header \'Content-Type: application/json\' -k"
-            cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i \"" + \
+            cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
                   config["api-key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + \
                   "\"" + " | jq \'.key\'"
             process = subprocess.run(cmd, shell=True, check=False, capture_output=True)

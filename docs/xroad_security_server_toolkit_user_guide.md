@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.1.1 
+Version: 1.1.3 
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
@@ -11,6 +11,7 @@ Doc. ID: XRDSST-CONF
 | 12.11.2020 | 1.1.0       | Documentation of initialization functionality                                | Bert Viikmäe       |
 | 16.11.2020 | 1.1.1       | Documentation of token login functionality                                   | Taimo Peelo        |
 | 08.12.2020 | 1.1.2       | Documentation of token key initializations                                   | Taimo Peelo        |
+| 15.12.2020 | 1.1.3       | Documentation of api-key parameterization                                    | Bert Viikmäe       |
 
 ## Table of Contents
 
@@ -42,23 +43,39 @@ The automatic configuration of X-Road security servers using the X-Road Security
 
 ### 2.2 Format of configuration file
 ```
+api-key:
+- key: /path/to/ssh_private_key
+  roles:
+  - <SECURITY_SERVER_ROLE_NAME>
+  url: https://localhost:4000/api/v1/api-keys
+logging:
+- file: /path/to/xrdsst.log
+  level: <LOG_LEVEL>
 security-server:
-  - name: <SECURITY_SERVER_NAME>
-    url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
-    api_key: X-Road-apikey token=<API_KEY>
-    configuration_anchor: /path/to/configuration-anchor.xml
-    owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
-    owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
-    owner_member_class: <MEMBER_CLASS>
-    owner_member_code: <MEMBER_CODE>
-    security_server_code: <SERVER_CODE>
-    software_token_pin: <SOFT_TOKEN_PIN>
+- api_key: <X-Road-apikey token=API_KEY>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <MEMBER_CLASS>
+  owner_member_code: <MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
 ```
-    
-* <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
-* <SECURITY_SERVER_FQDN_OR_IP> should be substituted with the IP address or host name of the installed security server, e.g. ss1
-* <API_KEY> should be substituted with the api-key of the installed security server
+
+The ``api-key`` section is for configuring the automatic api key generation parameters for security server
+The ``logging`` section is for configuring the logging parameters of the X-Road Security Server Toolkit
+The ``security-server`` section is for configuring security server parameters
+
+* /path/to/ssh_private_key should be substituted with the correct path to the ssh private key file, e.g. home/user/id_rsa
+* <SECURITY_SERVER_ROLE_NAME> parameter required for security server api key, should be substituted with a security server role name, e.g. XROAD_SYSTEM_ADMINISTRATOR    
+* /path/to/xrdsst.log should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
+* <LOG_LEVEL> parameter for configuring the logging level for the X-Road Security Server Toolkit, e.g INFO
+* <API_KEY> will be automatically substituted with the api-key of the installed security server
 * /path/to/configuration-anchor.xml should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
+* <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
 * <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
 * <OWNER_DISTINGUISHED_NAME_ORGANIZATION> should be set to server owner organization. This is used in certificate generation.
 * <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV
@@ -66,6 +83,7 @@ security-server:
 * <SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
 * <SOFT_TOKEN_ID> default software token ID, normally 0 (zero).
 * <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code
+* <SECURITY_SERVER_FQDN_OR_IP> should be substituted with the IP address or host name of the installed security server, e.g. ss1
 
 ## 3 Running the X-Road Security Server Toolkit
 

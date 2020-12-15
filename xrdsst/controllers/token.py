@@ -54,10 +54,10 @@ class TokenController(BaseController):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.token_add_keys_with_csrs(self.load_config())
 
-    def token_list(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security-server"]:
-            configuration = self.initialize_basic_config_values(security_server, configuration)
+    def token_list(self, config):
+        self.init_logging(config)
+        for security_server in config["security-server"]:
+            configuration = self.initialize_basic_config_values(security_server, config)
             self.remote_token_list(configuration)
 
     # Since this is read-only operation, do not log anything, only console output

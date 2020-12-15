@@ -1,32 +1,32 @@
 api-key:
-- key: /home/bertvi/x/work/gofore_private_key
+- key: /path/to/ssh_private_key
   roles:
-  - <ROLE>
-  - <ROLE>
+  - <SECURITY_SERVER_ROLE_NAME>
+  - <SECURITY_SERVER_ROLE_NAME>
   url: https://localhost:4000/api/v1/api-keys
 logging:
-- file: /var/log/xroad/xrdsst.log
-  level: INFO
+- file: /path/to/xrdsst.log
+  level: <LOG_LEVEL>
 security-server:
 - api_key: <X-Road-apikey token=API_KEY>
-  configuration_anchor: /etc/xroad/configuration-anchor.xml
-  name: ss3
-  owner_dn_country: EE
-  owner_dn_org: ORG
-  owner_member_class: GOV
-  owner_member_code: 1234
-  security_server_code: SS3
-  software_token_id: 0
-  software_token_pin: 1234
-  url: https://ss3:4000/api/v1
+  configuration_anchor: /path/to/configuration-anchor.xml
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <MEMBER_CLASS>
+  owner_member_code: <MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
 - api_key: <X-Road-apikey token=API_KEY>
-  configuration_anchor: /etc/xroad/configuration-anchor.xml
-  name: ss4
-  owner_dn_country: EE
-  owner_dn_org: ORG
-  owner_member_class: GOV
-  owner_member_code: 1234
-  security_server_code: SS4
-  software_token_id: 0
-  software_token_pin: 1234
-  url: https://ss4:4000/api/v1
+  configuration_anchor: /path/to/configuration-anchor.xml
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <MEMBER_CLASS>
+  owner_member_code: <MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
