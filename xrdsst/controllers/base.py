@@ -22,7 +22,7 @@ class BaseController(Controller):
 
     config_file = "config/base.yaml"
     config = None
-    api_key_default = "<X-Road-apikey token=API_KEY>"
+    api_key_default = "X-Road-apikey token=<API_KEY>"
 
     # Render arguments differ for back-ends, one approach.
     def render(self, render_data):
