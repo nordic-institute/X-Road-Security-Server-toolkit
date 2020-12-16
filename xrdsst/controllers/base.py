@@ -14,10 +14,21 @@ BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_ban
 class BaseController(Controller):
     class Meta:
         label = 'base'
+        stacked_on = 'base'
         description = texts['app.description']
         arguments = [
             (['-v', '--version'], {'action': 'version', 'version': BANNER})
         ]
+
+    def _pre_argument_parsing(self):
+        p = self._parser
+        # Top level configuration file specification only
+        if (issubclass(BaseController, self.__class__)) and issubclass(self.__class__, BaseController):
+            p.add_argument('-c', '--configfile',
+                           # TODO after the conventional name and location for config file gets figured out, extract to texts
+                           help="Specify configuration file to use instead of default 'config/base.yaml'",
+                           metavar='file',
+                           default='config/base.yaml') # TODO extract to consts after settling on naming
 
     # Render arguments differ for back-ends, one approach.
     def render(self, render_data):
@@ -39,17 +50,16 @@ class BaseController(Controller):
         except FileNotFoundError as err:
             print("Configuration file \"" + log_file_name + "\" not found: %s\n" % err)
 
-    @staticmethod
-    def load_config(baseconfig="config/base.yaml"):
-        # Note: this fallback below is to allow simply running xrdsst from both IDE run/debug
-        # and directly from command line. There is no support for configuration
-        # file location spec yet.
-        # TODO: remove fallback when configuration file spec from command-line is implemented
+    def load_config(self, baseconfig=None):
+        if not baseconfig:
+            baseconfig = self.app.pargs.configfile
         if not os.path.exists(baseconfig):
-            baseconfig = os.path.join("..", baseconfig)
-        with open(baseconfig, "r") as yml_file:
-            cfg = yaml.load(yml_file, Loader=yaml.FullLoader)
-        return cfg
+            self.log_info("Cannot load config '" + baseconfig + "'")
+            self.app.close(os.EX_CONFIG)
+        else:
+            with open(baseconfig, "r") as yml_file:
+                cfg = yaml.load(yml_file, Loader=yaml.FullLoader)
+            return cfg
 
     @staticmethod
     def initialize_basic_config_values(security_server):
