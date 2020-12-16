@@ -1,4 +1,4 @@
-api-key:
+api_key:
 - key: /path/to/ssh_private_key
   roles:
   - <SECURITY_SERVER_ROLE_NAME>
@@ -7,7 +7,7 @@ api-key:
 logging:
 - file: /path/to/xrdsst.log
   level: <LOG_LEVEL>
-security-server:
+security_server:
 - api_key: <X-Road-apikey token=API_KEY>
   configuration_anchor: /path/to/configuration-anchor.xml
   name: <SECURITY_SERVER_NAME>

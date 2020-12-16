@@ -39,7 +39,7 @@ class BaseController(Controller):
             config = self.config
         else:
             config = conf
-        roles_list = config["api-key"][0]["roles"]
+        roles_list = config["api_key"][0]["roles"]
         if security_server["api_key"] != self.api_key_default:
             self.log_info('API key for security server: ' + security_server['name'] +
                           ' with roles: ' + str(roles_list) + ' has already been created')
@@ -55,17 +55,17 @@ class BaseController(Controller):
                 else:
                     roles += role + '\\"]'
                 count += 1
-            url = config["api-key"][0]["url"]
+            url = config["api_key"][0]["url"]
             curl_cmd = "curl -X POST -u xrd:secret --silent " + url + " --data \'" + roles + "\'" + \
                        " --header \'Content-Type: application/json\' -k"
             cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                  config["api-key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + \
+                  config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + \
                   "\"" + " | jq \'.key\'"
             process = subprocess.run(cmd, shell=True, check=False, capture_output=True)
             api_key = 'X-Road-apikey token=' + str(process.stdout, 'utf-8').strip().replace('"', '')
             self.log_info('API key \"' + api_key + '\" for security server ' + security_server['name'] +
                           ' created successfully')
-            for ss in config["security-server"]:
+            for ss in config["security_server"]:
                 if ss["name"] == security_server['name']:
                     ss["api_key"] = api_key
             with open(self.config_file, 'w') as config_file:

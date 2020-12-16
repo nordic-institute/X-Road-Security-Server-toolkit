@@ -1,0 +1,21 @@
+api_key:
+- key: /path/to/ssh_private_key
+  roles:
+  - XROAD_SYSTEM_ADMINISTRATOR
+  - XROAD_SECURITY_OFFICER
+  url: https://localhost:4000/api/v1/api-keys
+logging:
+- file: /var/log/xroad/xrdsst.log
+  level: INFO
+security_server:
+- api_key: <X-Road-apikey token=API_KEY>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: EE
+  owner_dn_org: ORG
+  owner_member_class: GOV
+  owner_member_code: 1234
+  security_server_code: <SERVER_CODE>
+  software_token_id: 0
+  software_token_pin: 1234
+  url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1

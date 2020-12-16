@@ -59,12 +59,12 @@ class TimestampController(BaseController):
 
     # Since this is read-only operation, do not log anything, only console output
     def timestamp_service_list(self, configuration):
-        for security_server in configuration["security-server"]:
+        for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
             self.remote_timestamp_service_list(ss_config, security_server)
 
     def timestamp_service_list_approved(self, configuration):
-        for security_server in configuration["security-server"]:
+        for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
             self.remote_timestamp_service_list_approved(ss_config, security_server)
 
@@ -98,7 +98,7 @@ class TimestampController(BaseController):
 
     def timestamp_service_init(self, configuration): # logging required
         self.init_logging(configuration)
-        for security_server in configuration["security-server"]:
+        for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
             self.remote_timestamp_service_init(ss_config, security_server)
 

@@ -12,10 +12,10 @@ class TestBaseController(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
-         'api-key': [{'url': 'https://localhost:4000/api/v1/api-keys',
+         'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
                       'key': 'private key',
                       'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
-        'security-server':
+        'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
               'api_key': 'X-Road-apikey token=api-key',
@@ -82,9 +82,9 @@ class TestBaseController(unittest.TestCase):
         base_controller = BaseController()
         temp_file_name = "conf.yaml"
         config = self.create_temp_conf(base_controller, temp_file_name)
-        security_server = config["security-server"][0]
+        security_server = config["security_server"][0]
         security_server["api_key"] = '<X-Road-apikey token=API_KEY>'
-        expected_key = config["security-server"][0]["api_key"]
+        expected_key = config["security_server"][0]["api_key"]
         key = base_controller.create_api_key(config, security_server)
         os.remove(temp_file_name)
         assert key != expected_key
@@ -93,7 +93,7 @@ class TestBaseController(unittest.TestCase):
         base_controller = BaseController()
         temp_file_name = "conf.yaml"
         config = self.create_temp_conf(base_controller, temp_file_name)
-        security_server = config["security-server"][0]
+        security_server = config["security_server"][0]
         configuration = Configuration()
         configuration.api_key['Authorization'] = security_server["api_key"]
         configuration.host = security_server["url"]
