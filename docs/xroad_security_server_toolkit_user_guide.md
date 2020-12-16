@@ -52,7 +52,7 @@ logging:
 - file: /path/to/xrdsst.log
   level: <LOG_LEVEL>
 security-server:
-- api_key: <X-Road-apikey token=API_KEY>
+- api_key: X-Road-apikey token=<API_KEY>
   configuration_anchor: /path/to/configuration-anchor.xml
   name: <SECURITY_SERVER_NAME>
   owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
