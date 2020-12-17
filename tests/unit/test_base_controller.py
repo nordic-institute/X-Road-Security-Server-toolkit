@@ -128,19 +128,19 @@ class TestBaseController(unittest.TestCase):
         assert response.host == configuration.host
         assert response.verify_ssl == configuration.verify_ssl
 
-    def test_configfile_argument_added(self):
-        base_controller = BaseController()
-        base_controller._parser = Mock()
-        base_parser = base_controller._parser
-        base_parser.add_argument = Mock(return_value=None)
-        base_controller._pre_argument_parsing()
-        base_parser.add_argument.assert_called_once()
+def test_configfile_argument_added():
+    base_controller = BaseController()
+    base_controller._parser = Mock()
+    base_parser = base_controller._parser
+    base_parser.add_argument = Mock(return_value=None)
+    base_controller._pre_argument_parsing()
+    base_parser.add_argument.assert_called_once()
 
-    def test_unsuccessful_app_exit_with_nonexistant_config_spec(self):
-        base_controller = BaseController()
-        base_controller.app = Mock()
-        base_controller.app.pargs = Mock()
-        base_controller.app.pargs.configfile = 'just/not/there/at/all'
-        base_controller.app.close = Mock(return_value=None)
-        base_controller.load_config()
-        base_controller.app.close.assert_called_once_with(os.EX_CONFIG)
+def test_unsuccessful_app_exit_with_nonexistant_config_spec():
+    base_controller = BaseController()
+    base_controller.app = Mock()
+    base_controller.app.pargs = Mock()
+    base_controller.app.pargs.configfile = 'just/not/there/at/all'
+    base_controller.app.close = Mock(return_value=None)
+    base_controller.load_config()
+    base_controller.app.close.assert_called_once_with(os.EX_CONFIG)
