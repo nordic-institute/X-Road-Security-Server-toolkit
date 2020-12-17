@@ -1,5 +1,6 @@
 api_key:
-- key: /path/to/ssh_private_key
+- credentials: xrd:secret
+  key: /path/to/ssh_private_key
   roles:
   - <SECURITY_SERVER_ROLE_NAME>
   - <SECURITY_SERVER_ROLE_NAME>
@@ -8,7 +9,7 @@ logging:
 - file: /path/to/xrdsst.log
   level: <LOG_LEVEL>
 security_server:
-- api_key: <X-Road-apikey token=API_KEY>
+- api_key: X-Road-apikey token=<API_KEY>
   configuration_anchor: /path/to/configuration-anchor.xml
   name: <SECURITY_SERVER_NAME>
   owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
@@ -19,7 +20,7 @@ security_server:
   software_token_id: <SOFT_TOKEN_ID>
   software_token_pin: <SOFT_TOKEN_PIN>
   url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
-- api_key: <X-Road-apikey token=API_KEY>
+- api_key: X-Road-apikey token=<API_KEY>
   configuration_anchor: /path/to/configuration-anchor.xml
   name: <SECURITY_SERVER_NAME>
   owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>

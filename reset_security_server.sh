@@ -15,6 +15,8 @@
 
 ANSIBLE_CMD="ansible-playbook"
 ANSIBLE_SCRIPT="xroad_init.yml"
+SSH_FOLDER=".ssh"
+AUTHORIZED_KEYS_FILE="authorized_keys"
 
 usage() {
   echo "Usage: reset_security_server.sh -n name(s) -h hosts.txt -a ansible_folder -k public_key_file"
@@ -62,8 +64,8 @@ add_public_key() {
     for name in $names
     do
         printf "\nAdding public key to LXD container %s\n" "$name"
-        lxc exec "$name" -- bash -c "echo \"$(cat "$2")\" > .ssh/authorized_keys"
-        printf "\n"
+        lxc exec "$name" -- bash -c "mkdir -p $3"
+        lxc exec "$name" -- bash -c "echo \"$(cat "$2")\" > $3/$4"
     done
 }
 
@@ -94,7 +96,7 @@ fi
 
 delete_containers "$NAME"
 run_ansible_script "$ANSIBLE" "$ANSIBLE_CMD" "$HOSTS" "$ANSIBLE_SCRIPT"
-add_public_key "$NAME" "$KEY"
+add_public_key "$NAME" "$KEY" "$SSH_FOLDER" "$AUTHORIZED_KEYS_FILE"
 
 
 
