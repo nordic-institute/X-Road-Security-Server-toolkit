@@ -1,31 +1,33 @@
-### Security Server Toolkit Configuration Settings
-
+api-key:
+- credentials: xrd:secret
+  key: /path/to/ssh_private_key
+  roles:
+  - <SECURITY_SERVER_ROLE_NAME>
+  - <SECURITY_SERVER_ROLE_NAME>
+  url: https://localhost:4000/api/v1/api-keys
 logging:
-  - file: /path/to/xrdsst.log
-    level: INFO
-
+- file: /path/to/xrdsst.log
+  level: <LOG_LEVEL>
 security-server:
-  - name: <SECURITY_SERVER_NAME>
-    url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
-    api_key: X-Road-apikey token=<API_KEY>
-    configuration_anchor: /path/to/configuration-anchor.xml
-    owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
-    owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
-    owner_member_class: <MEMBER_CLASS>
-    owner_member_code: <MEMBER_CODE>
-    security_server_code: <SERVER_CODE>
-    software_token_id: 0 # <SOFT_TOKEN_ID> -- default software token ID is zero
-    software_token_pin: <SOFT_TOKEN_PIN>
-
-  - name: <SECURITY_SERVER_NAME>
-    url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
-    api_key: X-Road-apikey token=<API_KEY>
-    configuration_anchor: /path/to/configuration-anchor.xml
-    owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
-    owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
-    owner_member_class: <MEMBER_CLASS>
-    owner_member_code: <MEMBER_CODE>
-    security_server_code: <SERVER_CODE>
-    software_token_id: 0 # <SOFT_TOKEN_ID> -- default software token ID is zero
-    software_token_pin: <SOFT_TOKEN_PIN>
-
+- api_key: X-Road-apikey token=<API_KEY>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <MEMBER_CLASS>
+  owner_member_code: <MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
+- api_key: X-Road-apikey token=<API_KEY>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <MEMBER_CLASS>
+  owner_member_code: <MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1

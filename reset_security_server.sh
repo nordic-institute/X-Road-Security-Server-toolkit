@@ -1,25 +1,25 @@
 #!/bin/bash
-# Usage reset_security_server.sh -n server(s) -h path/to/hosts.txt -a path/to/ansible
+# Usage reset_security_server.sh -n server(s) -h path/to/hosts.txt -a path/to/ansible -k path/to/public_key_file
 #
 # Description of required command line arguments:
 #
 #   -n: name(s) of security servers to be re-initialized (has to conform with the ones listed in hosts file)
 #   -h: lxd hosts file, this file is used by the Ansible script to install security servers
 #   -a: path to ansible script, this is the path to where the Ansible script is located in the locally cloned X-Road Git repository
+#   -k: path to public ssh key file
 #
 #   The LXD hosts file and the Ansible script file that should be used by this script can be found here:
 #   https://github.com/nordic-institute/X-Road/blob/develop/ansible
 #
-# Usage example: reset_security_server.sh -n ss3,ss4 -h ../X-Road/ansible/hosts/lxd_hosts.txt -a ../X-Road/ansible
+# Usage example: reset_security_server.sh -n ss3,ss4 -h ../X-Road/ansible/hosts/lxd_hosts.txt -a ../X-Road/ansible -k public_key_file
 
 ANSIBLE_CMD="ansible-playbook"
 ANSIBLE_SCRIPT="xroad_init.yml"
-URL=https://localhost:4000/api/v1/api-keys
-ROLES='["XROAD_SYSTEM_ADMINISTRATOR","XROAD_SECURITY_OFFICER"]'
-HEADER='Content-Type: application/json'
+SSH_FOLDER=".ssh"
+AUTHORIZED_KEYS_FILE="authorized_keys"
 
 usage() {
-  echo "Usage: reset_security_server.sh -n name(s) -h hosts.txt -a ansible_folder"
+  echo "Usage: reset_security_server.sh -n name(s) -h hosts.txt -a ansible_folder -k public_key_file"
 }
 
 exit_abnormal() {
@@ -59,19 +59,17 @@ run_ansible_script() {
     fi
 }
 
-create_api_keys() {
+add_public_key() {
     names=$(echo "$1" | tr "," "\n")
     for name in $names
     do
-        printf "\nCreating api-key for LXD container %s\n" "$name"
-        FILE=api-key-$name.txt
-        lxc exec "$name" -- curl -X POST -u xrd:secret --retry 30 --retry-connrefused --silent "$2" --data "$3" --header "$4" -k -o "$FILE"
-        lxc exec "$name" -- cat api-key-"$name".txt | jq '.key'
-        printf "\n"
+        printf "\nAdding public key to LXD container %s\n" "$name"
+        lxc exec "$name" -- bash -c "mkdir -p $3"
+        lxc exec "$name" -- bash -c "echo \"$(cat "$2")\" > $3/$4"
     done
 }
 
-while getopts ":n:h:a:" options; do
+while getopts ":n:h:a:k:" options; do
   case "${options}" in
     n )
       NAME=${OPTARG}
@@ -82,6 +80,9 @@ while getopts ":n:h:a:" options; do
     a )
       ANSIBLE=${OPTARG}
       ;;
+    k )
+      KEY=${OPTARG}
+      ;;
     \? )
         exit_abnormal
       ;;
@@ -89,13 +90,13 @@ while getopts ":n:h:a:" options; do
 done
 
 
-if [[ $NAME == "" ]] | [[ $HOSTS == "" ]] | [[ $ANSIBLE == "" ]]; then
+if [[ $NAME == "" ]] | [[ $HOSTS == "" ]] | [[ $ANSIBLE == "" ]] | [[ $KEY == "" ]]; then
     exit_abnormal
 fi
 
 delete_containers "$NAME"
 run_ansible_script "$ANSIBLE" "$ANSIBLE_CMD" "$HOSTS" "$ANSIBLE_SCRIPT"
-create_api_keys "$NAME" "$URL" "$ROLES" "$HEADER"
+add_public_key "$NAME" "$KEY" "$SSH_FOLDER" "$AUTHORIZED_KEYS_FILE"
 
 
 
