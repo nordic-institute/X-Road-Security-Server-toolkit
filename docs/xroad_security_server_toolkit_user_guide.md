@@ -70,7 +70,7 @@ The ``api-key`` section is for configuring the automatic api key generation para
 The ``logging`` section is for configuring the logging parameters of the X-Road Security Server Toolkit
 The ``security-server`` section is for configuring security server parameters
 
-* <SECURITTY_SERVER_CREDENTIALS> X-Road Security Server credentials, e.g. xrd:secret
+* <SECURITY_SERVER_CREDENTIALS> X-Road Security Server credentials, e.g. xrd:secret
 * /path/to/ssh_private_key should be substituted with the correct path to the ssh private key file, e.g. home/user/id_rsa
 * <SECURITY_SERVER_ROLE_NAME> parameter required for security server api key, should be substituted with a security server role name, e.g. XROAD_SYSTEM_ADMINISTRATOR    
 * /path/to/xrdsst.log should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
