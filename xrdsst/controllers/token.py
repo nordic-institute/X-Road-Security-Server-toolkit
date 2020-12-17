@@ -1,4 +1,3 @@
-import logging
 import urllib3
 from cement import ex
 
@@ -59,6 +58,7 @@ class TokenController(BaseController):
         for security_server in config["security-server"]:
             configuration = self.initialize_basic_config_values(security_server, config)
             self.remote_token_list(configuration)
+            self.revoke_api_key(security_server, config)
 
     # Since this is read-only operation, do not log anything, only console output
     def remote_token_list(self, configuration):
@@ -82,6 +82,7 @@ class TokenController(BaseController):
             BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_login(ss_configuration, security_server)
+            self.revoke_api_key(security_server, configuration)
 
     @staticmethod
     def remote_token_login(ss_configuration, security_server):
@@ -107,6 +108,7 @@ class TokenController(BaseController):
             BaseController.log_info('Starting configuration process for security server: '+ security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_add_keys_with_csrs(ss_configuration, security_server)
+            self.revoke_api_key(security_server, configuration)
 
     # requires token to be logged in
     @staticmethod

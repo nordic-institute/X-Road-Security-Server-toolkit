@@ -1,14 +1,16 @@
 import os
 import unittest
+from unittest.mock import patch
+
 import yaml
 
 from definitions import ROOT_DIR
 from xrdsst.configuration.configuration import Configuration
 from xrdsst.controllers.base import BaseController
-from xrdsst.main import XRDSSTTest
 
 
 class TestBaseController(unittest.TestCase):
+
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
@@ -36,13 +38,6 @@ class TestBaseController(unittest.TestCase):
         with open(temp_file_name, "w") as yml_file:
             yaml.dump(self.get_ss_config(), yml_file)
         return base_controller.load_config(temp_file_name)
-
-    @staticmethod
-    def test_is_output_tabulated():
-        with XRDSSTTest() as app:
-            base_controller = BaseController()
-            base_controller.app = app
-            assert base_controller.is_output_tabulated()
 
     @staticmethod
     def test_load_config():
@@ -78,16 +73,53 @@ class TestBaseController(unittest.TestCase):
         base_controller.init_logging(self.get_ss_config())
         self.assertRaises(FileNotFoundError)
 
-    def test_create_api_key(self):
+    def test_get_api_key(self):
+        with patch.object(BaseController, 'create_api_key', return_value='api-key-123'):
+            base_controller = BaseController()
+            temp_file_name = "conf.yaml"
+            config = self.create_temp_conf(base_controller, temp_file_name)
+            security_server = config["security-server"][0]
+            security_server["api_key"] = 'X-Road-apikey token=some key'
+            key = base_controller.get_api_key(config, security_server)
+            assert key != 'X-Road-apikey token=api-key-123'
+            security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+            key = base_controller.get_api_key(config, security_server)
+            os.remove(temp_file_name)
+            assert key == 'X-Road-apikey token=api-key-123'
+
+    def test_get_api_key_ssh_key_exception(self):
         base_controller = BaseController()
         temp_file_name = "conf.yaml"
         config = self.create_temp_conf(base_controller, temp_file_name)
         security_server = config["security-server"][0]
-        security_server["api_key"] = '<X-Road-apikey token=API_KEY>'
-        expected_key = config["security-server"][0]["api_key"]
-        key = base_controller.create_api_key(config, security_server)
+        security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+        base_controller.get_api_key(config, security_server)
         os.remove(temp_file_name)
-        assert key != expected_key
+        self.assertRaises(Exception)
+
+    def test_get_api_key_json_exception(self):
+        base_controller = BaseController()
+        temp_file_name = "conf.yaml"
+        config = self.create_temp_conf(base_controller, temp_file_name)
+        temp_key_file = open("my_key", "w")
+        temp_key_file.close()
+        config["api-key"][0]["key"] = "my_key"
+        security_server = config["security-server"][0]
+        security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+        base_controller.get_api_key(config, security_server)
+        os.remove(temp_file_name)
+        os.remove("my_key")
+        self.assertRaises(Exception)
+
+    def test_revoke_api_key(self):
+        base_controller = BaseController()
+        temp_file_name = "conf.yaml"
+        config = self.create_temp_conf(base_controller, temp_file_name)
+        security_server = config["security-server"][0]
+        security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+        base_controller.get_api_key(config, security_server)
+        base_controller.revoke_api_key(security_server, config)
+        os.remove(temp_file_name)
 
     def test_initialize_basic_conf_values(self):
         base_controller = BaseController()
