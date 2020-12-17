@@ -18,6 +18,7 @@ from xrdsst.main import XRDSSTTest
 class TestXRDSST(unittest.TestCase):
 
     configuration_anchor = "tests/resources/configuration-anchor.xml"
+    credentials = "xrd:secret"
     git_repo = 'https://github.com/nordic-institute/X-Road.git'
     local_folder = os.path.join(ROOT_DIR, "tests/integration/X-Road")
     branch_name = 'develop'
@@ -34,6 +35,9 @@ class TestXRDSST(unittest.TestCase):
     def load_config(self):
         self.config = {
             'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
+            'api-key': [{'url': self.url,
+                         'key': 'key',
+                         'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
             'security-server':
                 [{'name': 'ss',
                   'url': 'https://localhost:8000/api/v1',
@@ -89,7 +93,7 @@ class TestXRDSST(unittest.TestCase):
             if container.name == self.name:
                 retries = 0
                 while retries <= self.max_retries:
-                    cmd = "curl -X POST -u xrd:secret --silent " + self.url + " --data \'" + self.roles + \
+                    cmd = "curl -X POST -u " + self.credentials + " --silent " + self.url + " --data \'" + self.roles + \
                           "\'" + " --header \"" + self.header + "\" -k"
                     result = container.exec_run(cmd, stdout=True, stderr=True, demux=False)
                     if len(result.output) > 0:
@@ -112,7 +116,7 @@ class TestXRDSST(unittest.TestCase):
     def step_init(self):
         base = BaseController()
         init = InitServerController()
-        configuration = base.initialize_basic_config_values(self.config["security-server"][0])
+        configuration = base.initialize_basic_config_values(self.config["security-server"][0], self.config)
         status = init.check_init_status(configuration)
         assert status.is_anchor_imported is False
         assert status.is_server_code_initialized is False
