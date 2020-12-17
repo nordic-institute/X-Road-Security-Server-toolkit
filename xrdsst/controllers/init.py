@@ -37,7 +37,6 @@ class InitServerController(BaseController):
                 self.log_info('Security server \"' + security_server['name'] + '\" already initialized')
             else:
                 self.init_security_server(configuration, security_server)
-            self.revoke_api_key(security_server, config_file)
 
     def check_init_status(self, configuration):
         try:

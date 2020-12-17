@@ -62,13 +62,11 @@ class TimestampController(BaseController):
         for security_server in configuration["security-server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
             self.remote_timestamp_service_list(ss_config, security_server)
-            self.revoke_api_key(security_server, configuration)
 
     def timestamp_service_list_approved(self, configuration):
         for security_server in configuration["security-server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
             self.remote_timestamp_service_list_approved(ss_config, security_server)
-            self.revoke_api_key(security_server, configuration)
 
     def render_timestamping_services(self, ts_list):
         render_data = []
@@ -103,7 +101,6 @@ class TimestampController(BaseController):
         for security_server in configuration["security-server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
             self.remote_timestamp_service_init(ss_config, security_server)
-            self.revoke_api_key(security_server, configuration)
 
     def remote_timestamp_service_init(self, ss_configuration, security_server):
         try:

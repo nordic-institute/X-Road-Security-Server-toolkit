@@ -1,5 +1,6 @@
 api-key:
-- key: /path/to/ssh_private_key
+- credentials: xrd:secret
+  key: /path/to/ssh_private_key
   roles:
   - <SECURITY_SERVER_ROLE_NAME>
   - <SECURITY_SERVER_ROLE_NAME>

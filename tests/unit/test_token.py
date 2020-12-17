@@ -126,6 +126,7 @@ class TestToken(unittest.TestCase):
         'logging': [{'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'}],
         'api-key': [{'url': 'https://localhost:4000/api/v1/api-keys',
                      'key': 'private key',
+                     'credentials': 'user:pass',
                      'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security-server':
             [{'name': 'ssX',

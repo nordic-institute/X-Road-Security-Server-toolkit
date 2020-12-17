@@ -18,6 +18,7 @@ from xrdsst.main import XRDSSTTest
 class TestXRDSST(unittest.TestCase):
 
     configuration_anchor = "tests/resources/configuration-anchor.xml"
+    credentials = "xrd:secret"
     git_repo = 'https://github.com/nordic-institute/X-Road.git'
     local_folder = os.path.join(ROOT_DIR, "tests/integration/X-Road")
     branch_name = 'develop'
@@ -92,7 +93,7 @@ class TestXRDSST(unittest.TestCase):
             if container.name == self.name:
                 retries = 0
                 while retries <= self.max_retries:
-                    cmd = "curl -X POST -u xrd:secret --silent " + self.url + " --data \'" + self.roles + \
+                    cmd = "curl -X POST -u " + self.credentials + " --silent " + self.url + " --data \'" + self.roles + \
                           "\'" + " --header \"" + self.header + "\" -k"
                     result = container.exec_run(cmd, stdout=True, stderr=True, demux=False)
                     if len(result.output) > 0:

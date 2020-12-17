@@ -27,16 +27,12 @@ class BaseController(Controller):
 
     def create_api_key(self, roles_list, config, security_server):
         self.log_info('Creating API key for security server: ' + security_server['name'])
-        roles = '[\\"'
-        count = 1
+        roles = []
         for role in roles_list:
-            if count < len(roles_list):
-                roles += role + '\\",\\"'
-            else:
-                roles += role + '\\"]'
-            count += 1
-        curl_cmd = "curl -X POST -u xrd:secret --silent " + config["api-key"][0]["url"] + " --data \'" + \
-                   roles + "\'" + " --header \'Content-Type: application/json\' -k"
+            roles.append(role)
+        curl_cmd = "curl -X POST -u " + config["api-key"][0]["credentials"] + " --silent " + \
+                   config["api-key"][0]["url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
+                   " --header \'Content-Type: application/json\' -k"
         cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
               config["api-key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
         if os.path.isfile(config["api-key"][0]["key"]):
@@ -63,10 +59,7 @@ class BaseController(Controller):
         return self.app.output.Meta.label == 'tabulate'
 
     def get_api_key(self, conf, security_server):
-        if conf is None:
-            config = self.config
-        else:
-            config = conf
+        config = conf if conf else self.config
         roles_list = config["api-key"][0]["roles"]
         api_key = None
         if security_server["api_key"] != self.api_key_default:
@@ -109,16 +102,6 @@ class BaseController(Controller):
         configuration.host = security_server["url"]
         configuration.verify_ssl = False
         return configuration
-
-    def revoke_api_key(self, security_server, config=None):
-        if self.api_key_id:
-            self.log_info('Revoking API key for security server ' + security_server['name'])
-            curl_cmd = "curl -X DELETE -u xrd:secret --silent " + config["api-key"][0]["url"] + "/" + \
-                       str(self.api_key_id[security_server['name']]) + " -k"
-            cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                config["api-key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
-            process = subprocess.run(cmd, shell=True, check=False, capture_output=True)
-            self.log_info('API key for security server ' + security_server['name'] + ' revoked successfully')
 
     @staticmethod
     def log_api_error(api_method, exception):

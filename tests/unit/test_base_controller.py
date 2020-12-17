@@ -16,6 +16,7 @@ class TestBaseController(unittest.TestCase):
         'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
          'api-key': [{'url': 'https://localhost:4000/api/v1/api-keys',
                       'key': 'private key',
+                      'credentials': 'xrd:secret',
                       'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security-server':
             [{'name': 'ss',
@@ -110,16 +111,6 @@ class TestBaseController(unittest.TestCase):
         os.remove(temp_file_name)
         os.remove("my_key")
         self.assertRaises(Exception)
-
-    def test_revoke_api_key(self):
-        base_controller = BaseController()
-        temp_file_name = "conf.yaml"
-        config = self.create_temp_conf(base_controller, temp_file_name)
-        security_server = config["security-server"][0]
-        security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
-        base_controller.get_api_key(config, security_server)
-        base_controller.revoke_api_key(security_server, config)
-        os.remove(temp_file_name)
 
     def test_initialize_basic_conf_values(self):
         base_controller = BaseController()
