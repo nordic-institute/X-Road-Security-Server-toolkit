@@ -29,6 +29,14 @@ update_config() {
   cmd="${cmd}|.security_server[0].security_server_code=\"$4\""
   cmd="${cmd}|.security_server[0].url=\"https://$3:4000/api/v1\""
   yq -y "$cmd" "$1" > tests/resources/test-config.yaml
+  chmod 777 tests/resources/test-config.yaml
+}
+
+init() {
+  source env/bin/activate
+  response=${"xrdsst -c tests/resources/test-config.yaml init status"}
+  echo "response: \n $response"
+  rm tests/resources/test-config.yaml
 }
 
 
@@ -60,3 +68,4 @@ if [[ $CONFIG == "" ]] | [[ $ANCHOR == "" ]] | [[ $HOST == "" ]] | [[ $NAME == "
 fi
 
 update_config "$CONFIG" "$ANCHOR" "$HOST" "$NAME" "$KEY"
+init
