@@ -17,22 +17,11 @@ class InitServerController(BaseController):
         stacked_type = 'nested'
         description = texts['init.controller.description']
 
-    @ex(help='Initialize security server', arguments=[])
-    def init(self):
+    @ex(help='Initialize security server', hide=True)
+    def _default(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         config_file = self.load_config()
         self.initialize_server(config_file)
-
-    @ex(help='Show status', arguments=[])
-    def status(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        status = []
-        config_file = self.load_config()
-        for security_server in config_file["security_server"]:
-            configuration = self.initialize_basic_config_values(security_server, config_file)
-            status.append(self.check_init_status(configuration))
-        self.log_info(status)
-        return status
 
     def initialize_server(self, config_file):
         self.init_logging(config_file)

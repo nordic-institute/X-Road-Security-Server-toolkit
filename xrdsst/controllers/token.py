@@ -75,6 +75,15 @@ class TokenController(BaseController):
         except ApiException as err:
             print("Exception when calling TokensApi->get_tokens: %s\n" % err)
 
+    @staticmethod
+    def remote_get_tokens(configuration):
+        try:
+            token_api = TokensApi(ApiClient(configuration))
+            token_list_response = token_api.get_tokens()
+            return token_list_response
+        except ApiException as err:
+            print("Exception when calling TokensApi->get_tokens: %s\n" % err)
+
     def token_login(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:

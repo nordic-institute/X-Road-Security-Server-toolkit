@@ -1,5 +1,11 @@
 #!/bin/bash
-# Usage run_end_to_end_tests.sh -c config_file -a configuration_anchor -h security_server_host -n security_server_name -k private_key_file
+# Usage prepare_end_to_end_tests.sh -c config_file
+#                                   -a configuration_anchor
+#                                   -h security_server_host
+#                                   -n security_server_name
+#                                   -k private_key_file
+#                                   -u credentials
+#                                   -o output file
 #
 # Description of required command line arguments:
 #
@@ -8,13 +14,27 @@
 #   -h: host name or IP address of the security server
 #   -n: security server name
 #   -k: private ssh key file
+#   -u: credentials
+#   -o: output file
 #
 #
-# Usage example: run_end_to_end_tests.sh -c tests/resources/test-config.yaml -a /etc/xroad/configuration_anchor.xml -h ss -n ss -k /home/user/id_rsa
+# Usage example: prepare_end_to_end_tests.sh -c tests/resources/test-config.yaml
+#                                             -a /etc/xroad/configuration_anchor.xml
+#                                             -h ss
+#                                             -n ss
+#                                             -k /home/user/id_rsa
+#                                             -u xrd:secret
+#                                             -o tests/resources/test-config.yaml
 
 
 usage() {
-  echo "Usage: run_end_to_end_tests.sh -c config_file -a configuration_anchor -h security_server_host -n security_server_name -k private_key_file"
+  echo "Usage: prepare_end_to_end_tests.sh -c config_file
+                                           -a configuration_anchor
+                                           -h security_server_host
+                                           -n security_server_name
+                                           -k private_key_file
+                                           -u credentials
+                                           -o output"
 }
 
 exit_abnormal() {
@@ -28,19 +48,16 @@ update_config() {
   cmd="${cmd}|.security_server[0].name=\"$4\""
   cmd="${cmd}|.security_server[0].security_server_code=\"$4\""
   cmd="${cmd}|.security_server[0].url=\"https://$3:4000/api/v1\""
-  yq -y "$cmd" "$1" > tests/resources/test-config.yaml
-  chmod 777 tests/resources/test-config.yaml
+  cmd="${cmd}|.api_key[0].credentials=\"$6\""
+  yq -y "$cmd" "$1" > "$7"
+  chmod 777 "$7"
 }
 
-init() {
-  source env/bin/activate
-  response=${"xrdsst -c tests/resources/test-config.yaml init status"}
-  echo "response: \n $response"
-  rm tests/resources/test-config.yaml
+run_tests() {
+  python -m pytest -v tests/end_to_end/tests.py -c "$1"
 }
 
-
-while getopts ":c:a:h:n:k:" options; do
+while getopts ":c:a:h:n:k:u:o:" options; do
   case "${options}" in
     c )
       CONFIG=${OPTARG}
@@ -57,15 +74,22 @@ while getopts ":c:a:h:n:k:" options; do
     k )
       KEY=${OPTARG}
       ;;
+    u )
+      CREDENTIALS=${OPTARG}
+      ;;
+    o )
+      OUTPUT=${OPTARG}
+      ;;
     \? )
         exit_abnormal
       ;;
   esac
 done
 
-if [[ $CONFIG == "" ]] | [[ $ANCHOR == "" ]] | [[ $HOST == "" ]] | [[ $NAME == "" ]] | [[ $KEY == "" ]]; then
+if [[ $CONFIG == "" ]] | [[ $ANCHOR == "" ]] | [[ $HOST == "" ]] | \
+   [[ $NAME == "" ]] | [[ $KEY == "" ]] | [[ $CREDENTIALS == "" ]] | [[ $OUTPUT == "" ]]; then
     exit_abnormal
 fi
 
-update_config "$CONFIG" "$ANCHOR" "$HOST" "$NAME" "$KEY"
-init
+update_config "$CONFIG" "$ANCHOR" "$HOST" "$NAME" "$KEY" "$CREDENTIALS" "$OUTPUT"
+run_tests "$OUTPUT"

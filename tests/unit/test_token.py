@@ -15,6 +15,7 @@ from xrdsst.models import Token, TokenStatus, TokenType, Key, KeyUsageType, Toke
     TokenCertificateSigningRequest
 
 from xrdsst.controllers.token import TokenController
+from xrdsst.rest.rest import ApiException
 
 
 class TokenTestData:
@@ -149,6 +150,30 @@ class TestToken(unittest.TestCase):
                 token_controller.app = app
                 token_controller.load_config = (lambda: self.ss_config)
                 token_controller.list()
+
+    def test_get_tokens(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.tokens_api.TokensApi.get_tokens',
+                            return_value=TokenTestData.token_list_response):
+                token_controller = TokenController()
+                token_controller.app = app
+                token_controller.load_config = (lambda: self.ss_config)
+                for security_server in self.ss_config["security_server"]:
+                    configuration = token_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    response = token_controller.remote_get_tokens(configuration)
+                    assert response == TokenTestData.token_list_response
+
+    def test_get_tokens_exception(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.tokens_api.TokensApi.get_tokens',
+                            side_effect=ApiException):
+                token_controller = TokenController()
+                token_controller.app = app
+                token_controller.load_config = (lambda: self.ss_config)
+                for security_server in self.ss_config["security_server"]:
+                    configuration = token_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    token_controller.remote_get_tokens(configuration)
+                    self.assertRaises(ApiException)
 
     def test_token_login(self):
         with mock.patch('xrdsst.api.tokens_api.TokensApi.login_token',

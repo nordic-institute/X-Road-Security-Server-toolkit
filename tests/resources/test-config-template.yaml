@@ -1,5 +1,6 @@
 api_key:
-- key: /path/to/ssh_private_key
+- credentials: xrd:secret
+  key: /path/to/ssh_private_key
   roles:
   - XROAD_SYSTEM_ADMINISTRATOR
   - XROAD_SECURITY_OFFICER
@@ -8,7 +9,7 @@ logging:
 - file: /var/log/xroad/xrdsst.log
   level: INFO
 security_server:
-- api_key: <X-Road-apikey token=API_KEY>
+- api_key: X-Road-apikey token=<API_KEY>
   configuration_anchor: /path/to/configuration-anchor.xml
   name: <SECURITY_SERVER_NAME>
   owner_dn_country: EE
