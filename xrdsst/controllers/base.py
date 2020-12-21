@@ -97,7 +97,7 @@ class BaseController(Controller):
         except FileNotFoundError as err:
             print("Configuration file \"" + log_file_name + "\" not found: %s\n" % err)
 
-    def load_config(self, baseconfig=os.path.join(ROOT_DIR, "config/base.yaml")):
+    def load_config(self, baseconfig=None):
         if not baseconfig:
             baseconfig = self.app.pargs.configfile
             self.config_file = baseconfig

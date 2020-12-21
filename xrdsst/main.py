@@ -69,7 +69,7 @@ def revoke_api_key(app):
     if len(app.argv) > 1:
         api_key_id = app.Meta.handlers[0].api_key_id
         if api_key_id:
-            config_file = app.Meta.handlers[0].config_file
+            config_file = app.pargs.configfile if app.pargs.configfile else app.Meta.handlers[0].config_file
             api_key_default = app.Meta.handlers[0].api_key_default
             if not os.path.exists(config_file):
                 config_file = os.path.join("..", config_file)
