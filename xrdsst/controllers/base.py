@@ -21,10 +21,21 @@ class BaseController(Controller):
             (['-v', '--version'], {'action': 'version', 'version': BANNER})
         ]
 
+
     config_file = "config/base.yaml"
     config = None
     api_key_default = "X-Road-apikey token=<API_KEY>"
     api_key_id = {}
+
+    def _pre_argument_parsing(self):
+        p = self._parser
+        # Top level configuration file specification only
+        if (issubclass(BaseController, self.__class__)) and issubclass(self.__class__, BaseController):
+            p.add_argument('-c', '--configfile',
+                           # TODO after the conventional name and location for config file gets figured out, extract to texts
+                           help="Specify configuration file to use instead of default 'config/base.yaml'",
+                           metavar='file',
+                           default='config/base.yaml') # TODO extract to consts after settling on naming
 
     def create_api_key(self, roles_list, config, security_server):
         self.log_info('Creating API key for security server: ' + security_server['name'])
@@ -48,16 +59,6 @@ class BaseController(Controller):
                 self.log_api_error('BaseController->create_api_key:', err)
         else:
             raise Exception("SSH private key file does not exists")
-
-    def _pre_argument_parsing(self):
-        p = self._parser
-        # Top level configuration file specification only
-        if (issubclass(BaseController, self.__class__)) and issubclass(self.__class__, BaseController):
-            p.add_argument('-c', '--configfile',
-                           # TODO after the conventional name and location for config file gets figured out, extract to texts
-                           help="Specify configuration file to use instead of default 'config/base.yaml'",
-                           metavar='file',
-                           default='config/base.yaml') # TODO extract to consts after settling on naming
 
     # Render arguments differ for back-ends, one approach.
     def render(self, render_data):
@@ -99,11 +100,13 @@ class BaseController(Controller):
         if not baseconfig:
             baseconfig = self.app.pargs.configfile
         if not os.path.exists(baseconfig):
-            baseconfig = os.path.join("..", baseconfig)
-        with open(baseconfig, "r") as yml_file:
-            self.config = yaml.load(yml_file, Loader=yaml.FullLoader)
-        self.config_file = baseconfig
-        return self.config
+            self.log_info("Cannot load config '" + baseconfig + "'")
+            self.app.close(os.EX_CONFIG)
+        else:
+            with open(baseconfig, "r") as yml_file:
+                self.config = yaml.load(yml_file, Loader=yaml.FullLoader)
+            self.config_file = baseconfig
+            return self.config
 
     def initialize_basic_config_values(self, security_server, config=None):
         configuration = Configuration()
