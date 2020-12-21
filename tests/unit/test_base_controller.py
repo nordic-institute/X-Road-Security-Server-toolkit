@@ -78,7 +78,7 @@ class TestBaseController(unittest.TestCase):
     def test_get_api_key(self):
         with patch.object(BaseController, 'create_api_key', return_value='api-key-123'):
             base_controller = BaseController()
-            temp_file_name = "conf.yaml"
+            temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
             config = self.create_temp_conf(base_controller, temp_file_name)
             security_server = config["security_server"][0]
             security_server["api_key"] = 'X-Road-apikey token=some key'
@@ -91,7 +91,7 @@ class TestBaseController(unittest.TestCase):
 
     def test_get_api_key_ssh_key_exception(self):
         base_controller = BaseController()
-        temp_file_name = "conf.yaml"
+        temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
         config = self.create_temp_conf(base_controller, temp_file_name)
         security_server = config["security_server"][0]
         security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
@@ -101,7 +101,7 @@ class TestBaseController(unittest.TestCase):
 
     def test_get_api_key_json_exception(self):
         base_controller = BaseController()
-        temp_file_name = "conf.yaml"
+        temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
         config = self.create_temp_conf(base_controller, temp_file_name)
         temp_key_file = open("my_key", "w")
         temp_key_file.close()
@@ -115,7 +115,7 @@ class TestBaseController(unittest.TestCase):
 
     def test_initialize_basic_conf_values(self):
         base_controller = BaseController()
-        temp_file_name = "conf.yaml"
+        temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
         config = self.create_temp_conf(base_controller, temp_file_name)
         security_server = config["security_server"][0]
         configuration = Configuration()
