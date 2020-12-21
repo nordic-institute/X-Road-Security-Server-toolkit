@@ -26,7 +26,7 @@
 OUTPUT="tests/resources/test-config.yaml"
 
 usage() {
-  echo "Usage: prepare_end_to_end_tests.sh -c config_file
+  echo "Usage: run_end_to_end_tests.sh -c config_file
                                            -a configuration_anchor
                                            -h security_server_host
                                            -n security_server_name
