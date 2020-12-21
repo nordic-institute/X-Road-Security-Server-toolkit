@@ -1,11 +1,10 @@
 #!/bin/bash
-# Usage prepare_end_to_end_tests.sh -c config_file
-#                                   -a configuration_anchor
-#                                   -h security_server_host
-#                                   -n security_server_name
-#                                   -k private_key_file
-#                                   -u credentials
-#                                   -o output file
+# Usage run_end_to_end_tests.sh -c config_file
+#                               -a configuration_anchor
+#                               -h security_server_host
+#                               -n security_server_name
+#                               -k private_key_file
+#                               -u credentials
 #
 # Description of required command line arguments:
 #
@@ -15,17 +14,16 @@
 #   -n: security server name
 #   -k: private ssh key file
 #   -u: credentials
-#   -o: output file
 #
 #
-# Usage example: prepare_end_to_end_tests.sh -c tests/resources/test-config.yaml
-#                                             -a /etc/xroad/configuration_anchor.xml
-#                                             -h ss
-#                                             -n ss
-#                                             -k /home/user/id_rsa
-#                                             -u xrd:secret
-#                                             -o tests/resources/test-config.yaml
+# Usage example: run_end_to_end_tests.sh -c tests/resources/test-config-template.yaml
+#                                        -a /etc/xroad/configuration_anchor.xml
+#                                        -h ss
+#                                        -n ss
+#                                        -k /home/user/id_rsa
+#                                        -u xrd:secret
 
+OUTPUT="tests/resources/test-config.yaml"
 
 usage() {
   echo "Usage: prepare_end_to_end_tests.sh -c config_file
@@ -33,8 +31,7 @@ usage() {
                                            -h security_server_host
                                            -n security_server_name
                                            -k private_key_file
-                                           -u credentials
-                                           -o output"
+                                           -u credentials"
 }
 
 exit_abnormal() {
@@ -43,6 +40,8 @@ exit_abnormal() {
 }
 
 update_config() {
+  local cmd
+  cmd=""
   cmd=".api_key[0].key=\"$5\""
   cmd="${cmd}|.security_server[0].configuration_anchor=\"$2\""
   cmd="${cmd}|.security_server[0].name=\"$4\""
@@ -57,7 +56,7 @@ run_tests() {
   python -m pytest -v tests/end_to_end/tests.py -c "$1"
 }
 
-while getopts ":c:a:h:n:k:u:o:" options; do
+while getopts ":c:a:h:n:k:u:" options; do
   case "${options}" in
     c )
       CONFIG=${OPTARG}
@@ -77,9 +76,6 @@ while getopts ":c:a:h:n:k:u:o:" options; do
     u )
       CREDENTIALS=${OPTARG}
       ;;
-    o )
-      OUTPUT=${OPTARG}
-      ;;
     \? )
         exit_abnormal
       ;;
@@ -87,7 +83,7 @@ while getopts ":c:a:h:n:k:u:o:" options; do
 done
 
 if [[ $CONFIG == "" ]] | [[ $ANCHOR == "" ]] | [[ $HOST == "" ]] | \
-   [[ $NAME == "" ]] | [[ $KEY == "" ]] | [[ $CREDENTIALS == "" ]] | [[ $OUTPUT == "" ]]; then
+   [[ $NAME == "" ]] | [[ $KEY == "" ]] | [[ $CREDENTIALS == "" ]]; then
     exit_abnormal
 fi
 
