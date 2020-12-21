@@ -25,7 +25,7 @@ class InitServerController(BaseController):
 
     def initialize_server(self, config_file):
         self.init_logging(config_file)
-        for security_server in config_file["security-server"]:
+        for security_server in config_file["security_server"]:
             self.log_info('Starting configuration process for security server: ' + security_server['name'])
             configuration = self.initialize_basic_config_values(security_server, config_file)
             configuration_check = self.check_init_status(configuration)

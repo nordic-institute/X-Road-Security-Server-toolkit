@@ -14,8 +14,8 @@ class TestInit(unittest.TestCase):
         base_controller = TestBaseController()
         self._ss_config = base_controller.get_ss_config()
         config = Configuration()
-        config.api_key['Authorization'] = self._ss_config["security-server"][0]["api_key"]
-        config.host = self._ss_config["security-server"][0]["url"]
+        config.api_key['Authorization'] = self._ss_config["security_server"][0]["api_key"]
+        config.host = self._ss_config["security_server"][0]["url"]
         config.verify_ssl = False
         self._config = config
 
@@ -45,7 +45,7 @@ class TestInit(unittest.TestCase):
                         return_value=expected_response):
             init = InitServerController()
             init.load_config = (lambda: self._ss_config)
-            response = init.upload_anchor(self._config, self._ss_config["security-server"][0])
+            response = init.upload_anchor(self._config, self._ss_config["security_server"][0])
             assert response == expected_response
 
     def test_upload_anchor_exception(self):
@@ -53,7 +53,7 @@ class TestInit(unittest.TestCase):
                         side_effect=ApiException):
             init = InitServerController()
             init.load_config = (lambda: self._ss_config)
-            init.upload_anchor(self._config, self._ss_config["security-server"][0])
+            init.upload_anchor(self._config, self._ss_config["security_server"][0])
             self.assertRaises(ApiException)
 
     def test_init_security_server(self):
@@ -63,7 +63,7 @@ class TestInit(unittest.TestCase):
             init = InitServerController()
             init.load_config = (lambda: self._ss_config)
             response = init.init_security_server(self._config,
-                                                 self._ss_config["security-server"][0])
+                                                 self._ss_config["security_server"][0])
             assert response == expected_response
 
     def test_init_security_server_exception(self):
@@ -71,7 +71,7 @@ class TestInit(unittest.TestCase):
                         side_effect=ApiException):
             init = InitServerController()
             init.load_config = (lambda: self._ss_config)
-            init.init_security_server(self._config, self._ss_config["security-server"][0])
+            init.init_security_server(self._config, self._ss_config["security_server"][0])
             self.assertRaises(ApiException)
 
     def test_initialize_server_when_already_initialized(self):

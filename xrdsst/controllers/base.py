@@ -5,6 +5,8 @@ import subprocess
 import yaml
 from cement import Controller
 from cement.utils.version import get_version_banner
+
+from definitions import ROOT_DIR
 from xrdsst.core.version import get_version
 from xrdsst.resources.texts import texts
 from xrdsst.configuration.configuration import Configuration
@@ -21,8 +23,7 @@ class BaseController(Controller):
             (['-v', '--version'], {'action': 'version', 'version': BANNER})
         ]
 
-
-    config_file = "config/base.yaml"
+    config_file = os.path.join(ROOT_DIR, "config/base.yaml")
     config = None
     api_key_default = "X-Road-apikey token=<API_KEY>"
     api_key_id = {}
@@ -35,19 +36,19 @@ class BaseController(Controller):
                            # TODO after the conventional name and location for config file gets figured out, extract to texts
                            help="Specify configuration file to use instead of default 'config/base.yaml'",
                            metavar='file',
-                           default='config/base.yaml') # TODO extract to consts after settling on naming
+                           default=os.path.join(ROOT_DIR, "config/base.yaml")) # TODO extract to consts after settling on naming
 
     def create_api_key(self, roles_list, config, security_server):
         self.log_info('Creating API key for security server: ' + security_server['name'])
         roles = []
         for role in roles_list:
             roles.append(role)
-        curl_cmd = "curl -X POST -u " + config["api-key"][0]["credentials"] + " --silent " + \
-                   config["api-key"][0]["url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
+        curl_cmd = "curl -X POST -u " + config["api_key"][0]["credentials"] + " --silent " + \
+                   config["api_key"][0]["url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
                    " --header \'Content-Type: application/json\' -k"
         cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-              config["api-key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
-        if os.path.isfile(config["api-key"][0]["key"]):
+              config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
+        if os.path.isfile(config["api_key"][0]["key"]):
             try:
                 process = subprocess.run(cmd, shell=True, check=False, capture_output=True)
                 api_key_json = json.loads(str(process.stdout, 'utf-8').strip())
@@ -72,7 +73,7 @@ class BaseController(Controller):
 
     def get_api_key(self, conf, security_server):
         config = conf if conf else self.config
-        roles_list = config["api-key"][0]["roles"]
+        roles_list = config["api_key"][0]["roles"]
         api_key = None
         if security_server["api_key"] != self.api_key_default:
             self.log_info('API key for security server: ' + security_server['name'] + ' has already been created')
@@ -99,6 +100,7 @@ class BaseController(Controller):
     def load_config(self, baseconfig=None):
         if not baseconfig:
             baseconfig = self.app.pargs.configfile
+            self.config_file = baseconfig
         if not os.path.exists(baseconfig):
             self.log_info("Cannot load config '" + baseconfig + "'")
             self.app.close(os.EX_CONFIG)
@@ -106,7 +108,7 @@ class BaseController(Controller):
             with open(baseconfig, "r") as yml_file:
                 self.config = yaml.load(yml_file, Loader=yaml.FullLoader)
             self.config_file = baseconfig
-            return self.config
+        return self.config
 
     def initialize_basic_config_values(self, security_server, config=None):
         configuration = Configuration()

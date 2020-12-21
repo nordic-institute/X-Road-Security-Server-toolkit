@@ -66,25 +66,29 @@ def opdep_init(app):
 
 
 def revoke_api_key(app):
-    if app.argv:
-        config_file = app.Meta.handlers[0].config_file
+    if len(app.argv) > 1:
         api_key_id = app.Meta.handlers[0].api_key_id
-        api_key_default = app.Meta.handlers[0].api_key_default
-        if not os.path.exists(config_file):
-            config_file = os.path.join("..", config_file)
-        with open(config_file, "r") as yml_file:
-            config = yaml.load(yml_file, Loader=yaml.FullLoader)
-        for security_server in config["security-server"]:
-            if security_server["api_key"] == api_key_default:
-                logging.info('Revoking API key for security server ' + security_server['name'])
-                print('Revoking API key for security server ' + security_server['name'])
-                curl_cmd = "curl -X DELETE -u " + config["api-key"][0]["credentials"] + " --silent " + \
-                           config["api-key"][0]["url"] + "/" + str(api_key_id[security_server['name']]) + " -k"
-                cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                    config["api-key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
-                process = subprocess.run(cmd, shell=True, check=False, capture_output=True)
-                logging.info('API key for security server ' + security_server['name'] + ' revoked successfully')
-                print('API key for security server ' + security_server['name'] + ' revoked successfully')
+        if api_key_id:
+            config_file = app.pargs.configfile if app.pargs.configfile else app.Meta.handlers[0].config_file
+            api_key_default = app.Meta.handlers[0].api_key_default
+            if not os.path.exists(config_file):
+                config_file = os.path.join("..", config_file)
+            with open(config_file, "r") as yml_file:
+                config = yaml.load(yml_file, Loader=yaml.FullLoader)
+            for security_server in config["security_server"]:
+                if security_server["api_key"] == api_key_default:
+                    log_info('Revoking API key for security server ' + security_server['name'])
+                    curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
+                        config["api_key"][0]["url"] + "/" + str(api_key_id[security_server['name']]) + " -k"
+                    cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
+                        config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
+                    process = subprocess.run(cmd, shell=True, check=False, capture_output=True)
+                    log_info('API key for security server ' + security_server['name'] + ' revoked successfully')
+
+
+def log_info(message):
+    logging.info(message)
+    print(message)
 
 
 class XRDSST(App):

@@ -10,6 +10,7 @@ clean:
 	rm -rf .coverage
 	rm -rf *.egg-info
 	rm -rf tests/integration/X-Road
+	rm -rf tests/end_to_end/.pytest_cache
 
 virtualenv:
 	virtualenv --prompt '|> xrdsst <| ' env

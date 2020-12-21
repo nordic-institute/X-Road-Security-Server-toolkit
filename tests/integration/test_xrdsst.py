@@ -35,10 +35,10 @@ class TestXRDSST(unittest.TestCase):
     def load_config(self):
         self.config = {
             'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
-            'api-key': [{'url': self.url,
+            'api_key': [{'url': self.url,
                          'key': 'key',
                          'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
-            'security-server':
+            'security_server':
                 [{'name': 'ss',
                   'url': 'https://localhost:8000/api/v1',
                   'api_key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
@@ -50,11 +50,11 @@ class TestXRDSST(unittest.TestCase):
                   'security_server_code': 'SS',
                   'software_token_id': 0,
                   'software_token_pin': '1234'}]}
-        self.name = self.config["security-server"][0]["name"]
+        self.name = self.config["security_server"][0]["name"]
         return self.config
 
     def set_api_key(self, api_key):
-        self.config["security-server"][0]["api_key"] = 'X-Road-apikey token=' + api_key
+        self.config["security_server"][0]["api_key"] = 'X-Road-apikey token=' + api_key
 
     def setUp(self):
         self.load_config()
@@ -116,7 +116,7 @@ class TestXRDSST(unittest.TestCase):
     def step_init(self):
         base = BaseController()
         init = InitServerController()
-        configuration = base.initialize_basic_config_values(self.config["security-server"][0], self.config)
+        configuration = base.initialize_basic_config_values(self.config["security_server"][0], self.config)
         status = init.check_init_status(configuration)
         assert status.is_anchor_imported is False
         assert status.is_server_code_initialized is False

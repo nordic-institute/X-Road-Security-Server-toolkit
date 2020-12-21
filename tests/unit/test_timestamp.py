@@ -6,6 +6,7 @@ from tests.unit.test_base_controller import TestBaseController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import TimestampingService
+from xrdsst.rest.rest import ApiException
 
 
 class TimestampTestData:
@@ -41,6 +42,30 @@ class TestTimestamp(unittest.TestCase):
                 timestamp_controller.app = app
                 timestamp_controller.load_config = (lambda: self.ss_config)
                 timestamp_controller.list_configured()
+
+    def test_timestamp_get_configured(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.system_api.SystemApi.get_configured_timestamping_services',
+                            return_value=TimestampTestData.timestamp_service_list_response):
+                timestamp_controller = TimestampController()
+                timestamp_controller.app = app
+                timestamp_controller.load_config = (lambda: self.ss_config)
+                for security_server in self.ss_config["security_server"]:
+                    configuration = timestamp_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    response = timestamp_controller.remote_get_configured(configuration)
+                    assert response == TimestampTestData.timestamp_service_list_response
+
+    def test_timestamp_get_configured_exception(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.system_api.SystemApi.get_configured_timestamping_services',
+                            side_effect=ApiException):
+                timestamp_controller = TimestampController()
+                timestamp_controller.app = app
+                timestamp_controller.load_config = (lambda: self.ss_config)
+                for security_server in self.ss_config["security_server"]:
+                    configuration = timestamp_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    timestamp_controller.remote_get_configured(configuration)
+                    self.assertRaises(ApiException)
 
     def test_timestamp_service_init(self):
         with XRDSSTTest() as app:

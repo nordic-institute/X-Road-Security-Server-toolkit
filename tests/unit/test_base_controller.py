@@ -15,11 +15,11 @@ class TestBaseController(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
-         'api-key': [{'url': 'https://localhost:4000/api/v1/api-keys',
+         'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
                       'key': 'private key',
                       'credentials': 'xrd:secret',
                       'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
-        'security-server':
+        'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
               'api_key': 'X-Road-apikey token=api-key',
@@ -78,9 +78,9 @@ class TestBaseController(unittest.TestCase):
     def test_get_api_key(self):
         with patch.object(BaseController, 'create_api_key', return_value='api-key-123'):
             base_controller = BaseController()
-            temp_file_name = "conf.yaml"
+            temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
             config = self.create_temp_conf(base_controller, temp_file_name)
-            security_server = config["security-server"][0]
+            security_server = config["security_server"][0]
             security_server["api_key"] = 'X-Road-apikey token=some key'
             key = base_controller.get_api_key(config, security_server)
             assert key != 'X-Road-apikey token=api-key-123'
@@ -91,9 +91,9 @@ class TestBaseController(unittest.TestCase):
 
     def test_get_api_key_ssh_key_exception(self):
         base_controller = BaseController()
-        temp_file_name = "conf.yaml"
+        temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
         config = self.create_temp_conf(base_controller, temp_file_name)
-        security_server = config["security-server"][0]
+        security_server = config["security_server"][0]
         security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
         base_controller.get_api_key(config, security_server)
         os.remove(temp_file_name)
@@ -101,12 +101,12 @@ class TestBaseController(unittest.TestCase):
 
     def test_get_api_key_json_exception(self):
         base_controller = BaseController()
-        temp_file_name = "conf.yaml"
+        temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
         config = self.create_temp_conf(base_controller, temp_file_name)
         temp_key_file = open("my_key", "w")
         temp_key_file.close()
-        config["api-key"][0]["key"] = "my_key"
-        security_server = config["security-server"][0]
+        config["api_key"][0]["key"] = "my_key"
+        security_server = config["security_server"][0]
         security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
         base_controller.get_api_key(config, security_server)
         os.remove(temp_file_name)
@@ -115,9 +115,9 @@ class TestBaseController(unittest.TestCase):
 
     def test_initialize_basic_conf_values(self):
         base_controller = BaseController()
-        temp_file_name = "conf.yaml"
+        temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
         config = self.create_temp_conf(base_controller, temp_file_name)
-        security_server = config["security-server"][0]
+        security_server = config["security_server"][0]
         configuration = Configuration()
         configuration.api_key['Authorization'] = security_server["api_key"]
         configuration.host = security_server["url"]
@@ -128,19 +128,19 @@ class TestBaseController(unittest.TestCase):
         assert response.host == configuration.host
         assert response.verify_ssl == configuration.verify_ssl
 
-def test_configfile_argument_added():
-    base_controller = BaseController()
-    base_controller._parser = Mock()
-    base_parser = base_controller._parser
-    base_parser.add_argument = Mock(return_value=None)
-    base_controller._pre_argument_parsing()
-    base_parser.add_argument.assert_called_once()
+    def test_configfile_argument_added(self):
+        base_controller = BaseController()
+        base_controller._parser = Mock()
+        base_parser = base_controller._parser
+        base_parser.add_argument = Mock(return_value=None)
+        base_controller._pre_argument_parsing()
+        base_parser.add_argument.assert_called_once()
 
-def test_unsuccessful_app_exit_with_nonexistant_config_spec():
-    base_controller = BaseController()
-    base_controller.app = Mock()
-    base_controller.app.pargs = Mock()
-    base_controller.app.pargs.configfile = 'just/not/there/at/all'
-    base_controller.app.close = Mock(return_value=None)
-    base_controller.load_config()
-    base_controller.app.close.assert_called_once_with(os.EX_CONFIG)
+    def test_unsuccessful_app_exit_with_nonexistant_config_spec(self):
+        base_controller = BaseController()
+        base_controller.app = Mock()
+        base_controller.app.pargs = Mock()
+        base_controller.app.pargs.configfile = 'just/not/there/at/all'
+        base_controller.app.close = Mock(return_value=None)
+        base_controller.load_config(baseconfig=None)
+        base_controller.app.close.assert_called_once_with(os.EX_CONFIG)
