@@ -212,11 +212,11 @@ class TestCert(unittest.TestCase):
     authcert_existing = os.path.join(ROOT_DIR, "tests/resources/authcert.pem")
     ss_config = {
         'logging': [{'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'}],
-        'api-key': [{'url': 'https://localhost:4000/api/v1/api-keys',
+        'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
                      'key': 'private key',
                      'credentials': 'user:pass',
                      'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
-        'security-server':
+        'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'certificates': [
@@ -234,7 +234,7 @@ class TestCert(unittest.TestCase):
 
     def ss_config_with_authcert(self):
         r = copy.deepcopy(self.ss_config)
-        r['security-server'][0]['certificates'] = [self.authcert_existing]
+        r['security_server'][0]['certificates'] = [self.authcert_existing]
         return r
 
     @pytest.fixture(autouse=True)
