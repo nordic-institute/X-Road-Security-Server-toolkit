@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.1.3 
+Version: 1.1.4
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
@@ -12,6 +12,8 @@ Doc. ID: XRDSST-CONF
 | 16.11.2020 | 1.1.1       | Documentation of token login functionality                                   | Taimo Peelo        |
 | 08.12.2020 | 1.1.2       | Documentation of token key initializations                                   | Taimo Peelo        |
 | 15.12.2020 | 1.1.3       | Documentation of api-key parameterization                                    | Bert Viikmäe       |
+| 22.12.2020 | 1.1.4       | Brief notes on certificate management                                        | Taimo Peelo        |
+
 
 ## Table of Contents
 
@@ -55,6 +57,9 @@ logging:
 security-server:
 - api_key: X-Road-apikey token=<API_KEY>
   configuration_anchor: /path/to/configuration-anchor.xml
+  certificates:
+    - /path/to/signcert
+    - /path/to/authcert
   name: <SECURITY_SERVER_NAME>
   owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
   owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
@@ -86,6 +91,9 @@ The ``security-server`` section is for configuring security server parameters
 * <SOFT_TOKEN_ID> default software token ID, normally 0 (zero).
 * <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code
 * <SECURITY_SERVER_FQDN_OR_IP> should be substituted with the IP address or host name of the installed security server, e.g. ss1
+* ``/path/to/signcert`` and ``/path/to/authcert`` should be given as paths referring to certificate locations,
+in fact any number of certificates can be imported for the keys labelled ``default-auth-key`` and ``default-sign-key``
+(but not all of them can be in use / registered)
 
 ## 3 Running the X-Road Security Server Toolkit
 
@@ -126,3 +134,9 @@ Token keys for authentication and signatures can be created with ``xrdsst token 
 two keys and generates corresponding certificate signing requests (one for authentication, other for signing).
 The key labels used are conventionally with suffixes ``default-auth-key`` and ``default-sign-key``, if
 those already exist, they will not be duplicated and command acts as no-op for such security server.
+
+### 3.6 Certificate management
+
+Certificates are imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
+from being attached to key labelled with suffix ``default-auth-key`` at central server can be initiated with ``xrdsst
+cert register``.
