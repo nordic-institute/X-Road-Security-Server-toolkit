@@ -9,6 +9,7 @@ from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 
 from xrdsst.controllers.base import BaseController
+from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
@@ -109,7 +110,7 @@ class XRDSST(App):
         output_handler = 'tabulate'
 
         # register handlers
-        handlers = [BaseController, TimestampController, TokenController, InitServerController]
+        handlers = [BaseController, CertController, TimestampController, TokenController, InitServerController]
 
 
 class XRDSSTTest(TestApp, XRDSST):

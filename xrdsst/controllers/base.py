@@ -5,6 +5,7 @@ import subprocess
 import yaml
 from cement import Controller
 from cement.utils.version import get_version_banner
+from urllib.parse import urlparse
 from xrdsst.core.version import get_version
 from xrdsst.resources.texts import texts
 from xrdsst.configuration.configuration import Configuration
@@ -124,3 +125,22 @@ class BaseController(Controller):
     def log_info(message):
         logging.info(message)
         print(message)
+
+    # TODO: these are very useful, but they might be better off migrated into some utility from base controller
+    @staticmethod
+    def default_auth_key_label(security_server):
+        return security_server['name'] + '-default-auth-key'
+
+    @staticmethod
+    def default_sign_key_label(security_server):
+        return security_server['name'] + '-default-sign-key'
+
+    @staticmethod
+    def security_server_address(security_server):
+        """
+        Returns IP/host name of security server, deduced from its configured URL
+
+        :param security_server security server configuration section
+        :return: IP/host deduced from security server URL
+        """
+        return urlparse(security_server['url']).netloc.split(':')[0]  # keep the case, unlike with '.hostname'
