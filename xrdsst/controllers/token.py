@@ -55,7 +55,7 @@ class TokenController(BaseController):
 
     def token_list(self, config):
         self.init_logging(config)
-        for security_server in config["security-server"]:
+        for security_server in config["security_server"]:
             configuration = self.initialize_basic_config_values(security_server, config)
             self.remote_token_list(configuration)
 
@@ -75,9 +75,18 @@ class TokenController(BaseController):
         except ApiException as err:
             print("Exception when calling TokensApi->get_tokens: %s\n" % err)
 
+    @staticmethod
+    def remote_get_tokens(configuration):
+        try:
+            token_api = TokensApi(ApiClient(configuration))
+            token_list_response = token_api.get_tokens()
+            return token_list_response
+        except ApiException as err:
+            print("Exception when calling TokensApi->get_tokens: %s\n" % err)
+
     def token_login(self, configuration):
         self.init_logging(configuration)
-        for security_server in configuration["security-server"]:
+        for security_server in configuration["security_server"]:
             BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_login(ss_configuration, security_server)
@@ -102,7 +111,7 @@ class TokenController(BaseController):
 
     def token_add_keys_with_csrs(self, configuration):
         self.init_logging(configuration)
-        for security_server in configuration["security-server"]:
+        for security_server in configuration["security_server"]:
             BaseController.log_info('Starting configuration process for security server: '+ security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_add_keys_with_csrs(ss_configuration, security_server)

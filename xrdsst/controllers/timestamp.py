@@ -59,12 +59,12 @@ class TimestampController(BaseController):
 
     # Since this is read-only operation, do not log anything, only console output
     def timestamp_service_list(self, configuration):
-        for security_server in configuration["security-server"]:
+        for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
             self.remote_timestamp_service_list(ss_config, security_server)
 
     def timestamp_service_list_approved(self, configuration):
-        for security_server in configuration["security-server"]:
+        for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
             self.remote_timestamp_service_list_approved(ss_config, security_server)
 
@@ -96,9 +96,18 @@ class TimestampController(BaseController):
         system_api = SystemApi(ApiClient(ss_configuration))
         self.remote_ts_list(lambda: system_api.get_configured_timestamping_services())
 
+    @staticmethod
+    def remote_get_configured(ss_configuration):
+        try:
+            system_api = SystemApi(ApiClient(ss_configuration))
+            ts_list_response = system_api.get_configured_timestamping_services()
+            return ts_list_response
+        except ApiException as e:
+            print("Exception when listing timestamping services: %s\n", e)
+
     def timestamp_service_init(self, configuration): # logging required
         self.init_logging(configuration)
-        for security_server in configuration["security-server"]:
+        for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
             self.remote_timestamp_service_init(ss_config, security_server)
 
