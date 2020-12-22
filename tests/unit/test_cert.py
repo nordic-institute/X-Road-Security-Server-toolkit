@@ -3,13 +3,11 @@ import os
 import sys
 import unittest
 from datetime import datetime
-from http.client import HTTPResponse
 from unittest import mock
 
 import pytest
 import urllib3
 from dateutil.tz import tzutc
-#from urllib3 import HTTPResponse
 
 from definitions import ROOT_DIR
 from xrdsst.controllers.cert import CertController
@@ -233,9 +231,9 @@ class TestCert(unittest.TestCase):
               'software_token_pin': '1122'}]}
 
     def ss_config_with_authcert(self):
-        r = copy.deepcopy(self.ss_config)
-        r['security_server'][0]['certificates'] = [self.authcert_existing]
-        return r
+        config = copy.deepcopy(self.ss_config)
+        config['security_server'][0]['certificates'] = [self.authcert_existing]
+        return config
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
@@ -340,15 +338,14 @@ class TestCert(unittest.TestCase):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
                             return_value=CertTestData.single_key_with_multiple_registrable_auth_cert_response):
-                    cert_controller = CertController()
-                    cert_controller.app = app
-                    cert_controller.load_config = (lambda: self.ss_config_with_authcert())
-                    cert_controller.register()
+                cert_controller = CertController()
+                cert_controller.app = app
+                cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+                cert_controller.register()
 
-                    out, err = self.capsys.readouterr()
-                    assert out.count("Multiple registrable certificates for key") > 0
+                out, err = self.capsys.readouterr()
+                assert out.count("Multiple registrable certificates for key") > 0
 
-                    with self.capsys.disabled():
-                        sys.stdout.write(out)
-                        sys.stderr.write(err)
-
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
