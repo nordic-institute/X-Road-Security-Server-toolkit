@@ -17,15 +17,22 @@ Doc. ID: XRDSST-CONF
 
 ## Table of Contents
 
+
+
 <!-- vim-markdown-toc GFM -->
+
 * [License](#license)
 * [1 Introduction](#1-introduction)
 * [2 Configuration of X-Road Security Server](#2-configuration-of-x-road-security-server)
-    * [2.1 General](#21-general)
-    * [2.2 Format of configuration file](#22-format-of-configuration-file)
+	* [2.1 General](#21-general)
+	* [2.2 Format of configuration file](#22-format-of-configuration-file)
 * [3 Running the X-Road Security Server Toolkit](#3-running-the-x-road-security-server-toolkit)
-    * [3.1 The automatic configuration of a single security server](#31-the-automatic-configuration-of-a-single-security-server)
-
+	* [3.1 The automatic configuration of a single security server](#31-the-automatic-configuration-of-a-single-security-server)
+	* [3.2 Logging in a single software token](#32-logging-in-a-single-software-token)
+	* [3.3 Listing security server tokens](#33-listing-security-server-tokens)
+	* [3.4 Configuring security server to use single approved timestamping service](#34-configuring-security-server-to-use-single-approved-timestamping-service)
+	* [3.5 Initializing token keys and corresponding certificate signing requests](#35-initializing-token-keys-and-corresponding-certificate-signing-requests)
+	* [3.6 Certificate management](#36-certificate-management)
 
 <!-- vim-markdown-toc -->
 
