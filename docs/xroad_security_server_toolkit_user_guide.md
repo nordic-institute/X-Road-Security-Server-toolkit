@@ -83,12 +83,12 @@ The ``logging`` section is for configuring the logging parameters of the X-Road 
 The ``security-server`` section is for configuring security server parameters
 
 * <SECURITY_SERVER_CREDENTIALS> X-Road Security Server credentials, e.g. xrd:secret
-* /path/to/ssh_private_key should be substituted with the correct path to the ssh private key file, e.g. home/user/id_rsa
+* ``/path/to/ssh_private_key`` should be substituted with the correct path to the ssh private key file, e.g. home/user/id_rsa
 * <SECURITY_SERVER_ROLE_NAME> parameter required for security server api key, should be substituted with a security server role name, e.g. XROAD_SYSTEM_ADMINISTRATOR    
-* /path/to/xrdsst.log should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
+* ``/path/to/xrdsst.log`` should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
 * <LOG_LEVEL> parameter for configuring the logging level for the X-Road Security Server Toolkit, e.g INFO
 * <API_KEY> will be automatically substituted with the api-key of the installed security server
-* /path/to/configuration-anchor.xml should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
+* ``/path/to/configuration-anchor.xml`` should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
 * <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
 * <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
 * <OWNER_DISTINGUISHED_NAME_ORGANIZATION> should be set to server owner organization. This is used in certificate generation.
