@@ -1,4 +1,3 @@
-import logging
 import urllib3
 from cement import ex
 
@@ -9,19 +8,6 @@ from xrdsst.api_client.api_client import ApiClient
 from xrdsst.api.tokens_api import TokensApi
 from xrdsst.resources.texts import texts
 
-
-#Once the certificate authority has signed the CSRs we need to be able to import the certificates to the security server.
-#Acceptance criteria
-#    Toolkit can import auth and sign certificates
-#    There are automatic tests for the certificate import functionality
-#    The usage has been documented to Github
-#
-
-# When an authentication certificate has been imported to the security server it needs to be registered next.
-# Acceptance criteria
-#  Toolkit can register authentication certificates
-# There are automatic tests for the authentication certificate registering functionality
-# The usage has been documented to Github
 
 from xrdsst.rest.rest import ApiException
 
