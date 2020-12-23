@@ -54,12 +54,11 @@ class CertController(BaseController):
                 BaseController.log_info("Certificate '" + location[0] + "' does not exist")
             else:
                 certfile = location[0]
-                response = None
                 try:
                     cert_file = open(location[0], "rb")
                     cert_data = cert_file.read()
                     cert_file.close()
-                    response = token_cert_api.import_certificate(body=cert_data)
+                    token_cert_api.import_certificate(body=cert_data)
                 except ApiException as err:
                     if err.status == 409 and err.body.count("certificate_already_exists"):
                         print("Certificate '" + certfile + "' already imported.")
@@ -83,13 +82,13 @@ class CertController(BaseController):
         # So far so good, are there actual certificates attached to key?
         auth_key = auth_keys[0]
         if not auth_key.certificates:
-            BaseController.log_info("No certificates available for authentication key labelled '" + auth_key_label +"'.")
+            BaseController.log_info("No certificates available for authentication key labelled '" + auth_key_label + "'.")
             return
 
         # Find registrable certs
         registrable_certs = list(filter(lambda c: 'REGISTER' in c.possible_actions, auth_key.certificates))
         if len(registrable_certs) == 0:
-            BaseController.log_info("No registrable certificates for key labelled '" + auth_key_label +"'.")
+            BaseController.log_info("No registrable certificates for key labelled '" + auth_key_label + "'.")
             return
         elif len(registrable_certs) > 1:
             BaseController.log_info("Multiple registrable certificates for key labelled '" + auth_key_label + "'.")

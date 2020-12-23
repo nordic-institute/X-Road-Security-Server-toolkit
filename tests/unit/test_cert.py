@@ -156,7 +156,7 @@ class CertTestData:
         status=TokenStatus.OK,
         token_infos=[{'key': 'Type'}, {'value': 'Software'}],
         type=TokenType.SOFTWARE,
-        keys= [single_auth_key_without_certs_or_csr1]
+        keys=[single_auth_key_without_certs_or_csr1]
     )
 
     single_auth_key_with_cert_token_response = Token(
