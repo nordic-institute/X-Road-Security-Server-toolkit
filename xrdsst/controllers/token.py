@@ -135,8 +135,8 @@ class TokenController(BaseController):
         dn_common_name = security_server['owner_member_code']
         dn_org = security_server['owner_dn_org']
 
-        auth_key_label = security_server['name'] + '-default-auth-key'
-        sign_key_label = security_server['name'] + '-default-sign-key'
+        auth_key_label = BaseController.default_auth_key_label(security_server)
+        sign_key_label = BaseController.default_sign_key_label(security_server)
 
         try:
             ssi = remote_get_security_server_instance(ss_configuration)
