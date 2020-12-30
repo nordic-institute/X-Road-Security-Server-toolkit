@@ -146,4 +146,4 @@ those already exist, they will not be duplicated and command acts as no-op for s
 
 Certificates are imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
 from being attached to key labelled with suffix ``default-auth-key`` at central server can be initiated with ``xrdsst
-cert register``.
+cert register``, final activation with ``xrdsst cert activate``.
