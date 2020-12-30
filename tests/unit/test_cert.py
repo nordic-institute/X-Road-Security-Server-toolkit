@@ -344,8 +344,28 @@ class TestCert(unittest.TestCase):
                 cert_controller.register()
 
                 out, err = self.capsys.readouterr()
-                assert out.count("Multiple registrable certificates for key") > 0
+                assert out.count("Multiple certificates to 'REGISTER' for key") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
                     sys.stderr.write(err)
+
+    def test_cert_activate(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
+                            return_value=CertTestData.single_auth_key_with_cert_token_response):
+                with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.activate_certificate',
+                                return_value={}):
+                    with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_possible_actions_for_certificate',
+                                    return_value=[PossibleAction.DISABLE, PossibleAction.UNREGISTER]):
+                        cert_controller = CertController()
+                        cert_controller.app = app
+                        cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+                        cert_controller.activate()
+
+                        out, err = self.capsys.readouterr()
+                        assert out.count("Activated certificate") > 0
+
+                        with self.capsys.disabled():
+                            sys.stdout.write(out)
+                            sys.stderr.write(err)
