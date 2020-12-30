@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.1.4
+Version: 1.1.5
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
@@ -13,6 +13,7 @@ Doc. ID: XRDSST-CONF
 | 08.12.2020 | 1.1.2       | Documentation of token key initializations                                   | Taimo Peelo        |
 | 15.12.2020 | 1.1.3       | Documentation of api-key parameterization                                    | Bert Viikmäe       |
 | 22.12.2020 | 1.1.4       | Brief notes on certificate management                                        | Taimo Peelo        |
+| 30.12.2020 | 1.1.5       | Note on certificate activation                                               | Taimo Peelo        |
 
 
 ## Table of Contents

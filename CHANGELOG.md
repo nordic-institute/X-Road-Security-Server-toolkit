@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.17-alpha.0] - 2020-12-30
+
+- add ``xrdsst cert`` command ``activate``
+
 ## [0.1.16-alpha.0] - 2020-12-22
 
 - add ``xrdsst cert`` commands ``import`` and ``register``
