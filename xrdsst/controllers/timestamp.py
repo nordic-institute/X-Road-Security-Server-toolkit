@@ -61,12 +61,12 @@ class TimestampController(BaseController):
     def timestamp_service_list(self, configuration):
         for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
-            self.remote_timestamp_service_list(ss_config, security_server)
+            self.remote_timestamp_service_list(ss_config)
 
     def timestamp_service_list_approved(self, configuration):
         for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
-            self.remote_timestamp_service_list_approved(ss_config, security_server)
+            self.remote_timestamp_service_list_approved(ss_config)
 
     def render_timestamping_services(self, ts_list):
         render_data = []
@@ -89,10 +89,10 @@ class TimestampController(BaseController):
         timestamping_api = TimestampingServicesApi(ApiClient(ss_configuration))
         return timestamping_api.get_approved_timestamping_services()
 
-    def remote_timestamp_service_list_approved(self, ss_configuration, security_server):
+    def remote_timestamp_service_list_approved(self, ss_configuration):
         self.remote_ts_list(lambda: self.get_approved_timestamping_services(ss_configuration))
 
-    def remote_timestamp_service_list(self, ss_configuration, security_server):
+    def remote_timestamp_service_list(self, ss_configuration):
         system_api = SystemApi(ApiClient(ss_configuration))
         self.remote_ts_list(lambda: system_api.get_configured_timestamping_services())
 
