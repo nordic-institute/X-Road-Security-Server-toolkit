@@ -113,7 +113,7 @@ class CertController(BaseController):
         if found_auth_key_count == 0:
             BaseController.log_info("Did not found authentication key labelled '" + auth_key_label + "'.")
             return None
-        elif found_auth_key_count > 1:
+        if found_auth_key_count > 1:
             BaseController.log_info("Found multiple authentication keys labelled '" + auth_key_label + "', skipping registration.")
             return None
 
@@ -128,7 +128,7 @@ class CertController(BaseController):
         if len(actionable_certs) == 0:
             BaseController.log_info("No certificates to '" + cert_action + "' for key labelled '" + auth_key_label + "'.")
             return None
-        elif len(actionable_certs) > 1:
+        if len(actionable_certs) > 1:
             BaseController.log_info("Multiple certificates to '" + cert_action + "' for key labelled '" + auth_key_label + "'.")
             return None
 
