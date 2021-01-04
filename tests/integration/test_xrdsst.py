@@ -209,21 +209,21 @@ class TestXRDSST(unittest.TestCase):
             cert_controller = CertController()
             cert_controller.app = app
             cert_controller.load_config = (lambda: self.config)
-            result = cert_controller.import_()
+            cert_controller.import_()
 
     def step_cert_register(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
             cert_controller.load_config = (lambda: self.config)
-            result = cert_controller.register()
+            cert_controller.register()
 
     def step_cert_activate(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
             cert_controller.load_config = (lambda: self.config)
-            result = cert_controller.activate()
+            cert_controller.activate()
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
