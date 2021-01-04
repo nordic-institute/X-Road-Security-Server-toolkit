@@ -1,14 +1,16 @@
 import os
 
 import urllib3
+import cement.utils.fs
+
 from cement import ex
 
 from xrdsst.api import KeysApi
 from xrdsst.api.token_certificates_api import TokenCertificatesApi
 from xrdsst.controllers.base import BaseController
+from xrdsst.core.api_util import remote_get_token
 from xrdsst.models import SecurityServerAddress, CsrFormat
 from xrdsst.api_client.api_client import ApiClient
-from xrdsst.api.tokens_api import TokensApi
 from xrdsst.resources.texts import texts
 
 
@@ -100,7 +102,6 @@ class CertController(BaseController):
     # requires token to be logged in
     @staticmethod
     def remote_import_certificates(ss_configuration, security_server):
-        import cement.utils.fs
         token_cert_api = TokenCertificatesApi(ApiClient(ss_configuration))
         for cert in security_server["certificates"]:
             location = cement.utils.fs.join_exists(cert)
@@ -166,8 +167,7 @@ class CertController(BaseController):
         for keytype in [(sign_keys, 'sign'), (auth_keys, 'auth')]:
             for key in keytype[0]:
                 for csr in key.certificate_signing_requests:
-                    from cement.utils import fs
-                    with fs.Tmp(
+                    with cement.utils.fs.Tmp(
                         prefix=csr_file_prefix(keytype[1], csr, security_server),
                         suffix='.der',
                         cleanup=False
@@ -225,13 +225,6 @@ class CertController(BaseController):
             return None
 
         return actionable_certs[0]
-
-
-def remote_get_token(ss_configuration, security_server):
-    token_id = security_server['software_token_id']
-    token_api = TokensApi(ApiClient(ss_configuration))
-    token = token_api.get_token(token_id)
-    return token
 
 
 def csr_file_prefix(type, key, security_server):
