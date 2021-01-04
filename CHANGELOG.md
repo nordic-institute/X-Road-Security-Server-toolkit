@@ -2,9 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.17-alpha.0] - 2020-12-30
+## [0.1.17-alpha.0] - 2020-12-31
 
-- add ``xrdsst cert`` command ``activate``
+- add ``xrdsst cert`` commands ``activate`` and ``download-csrs``
 
 ## [0.1.16-alpha.0] - 2020-12-22
 

@@ -144,7 +144,7 @@ The key labels used are conventionally with suffixes ``default-auth-key`` and ``
 those already exist, they will not be duplicated and command acts as no-op for such security server.
 
 ### 3.6 Certificate management
-
-Certificates are imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
+Certificate signing requests can be downloaded with ``xrdsst cert download-csrs``, suitably signed
+certificates can be imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
 from being attached to key labelled with suffix ``default-auth-key`` at central server can be initiated with ``xrdsst
 cert register``, final activation with ``xrdsst cert activate``.

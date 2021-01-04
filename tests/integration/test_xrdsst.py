@@ -5,14 +5,47 @@ import os
 import json
 import git
 import docker
+import requests
 import urllib3
 
 from definitions import ROOT_DIR
 from xrdsst.controllers.base import BaseController
+from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
+
+# Returns TEST CA signed certificate in PEM format.
+def perform_test_ca_sign(test_ca_sign_url, certfile_loc, type):
+    certfile = open(certfile_loc, "rb")  # opening for [r]eading as [b]inary
+    cert_data = certfile.read()
+    certfile.close()
+
+    response = requests.post(
+        test_ca_sign_url,
+        {'type': type},
+        files={
+            'certreq': (os.path.basename(certfile_loc), cert_data, 'application/x-x509-ca-cert')
+        }
+    )
+
+    # Test CA returns plain PEMs only
+    return response.content.decode("ascii")
+
+# Deduce possible TEST CA URL from configuration anchor
+def find_test_ca_sign_url(conf_anchor_file_loc):
+    prefix = "/testca"
+    port = 8888
+    suffix = "/sign"
+    with open(conf_anchor_file_loc, 'r') as anchor_file:
+        xml_fragment = list(filter(lambda s: s.count('downloadURL>') == 2, anchor_file.readlines())).pop()
+        internal_conf_url = xml_fragment.replace("<downloadURL>", "").replace("</downloadURL>", "").strip()
+        from urllib.parse import urlparse
+        parsed_url = urlparse(internal_conf_url)
+        host = parsed_url.netloc.split(':')[0]
+        protocol = parsed_url.scheme
+        return protocol + "://" + host + ":" + str(port) + prefix + suffix
 
 
 class TestXRDSST(unittest.TestCase):
@@ -27,8 +60,8 @@ class TestXRDSST(unittest.TestCase):
     url = 'https://localhost:4000/api/v1/api-keys'
     roles = '[\"XROAD_SYSTEM_ADMINISTRATOR\",\"XROAD_SECURITY_OFFICER\"]'
     header = 'Content-Type: application/json'
-    max_retries = 10
-    curl_retry_wait_seconds = 10
+    max_retries = 60
+    curl_retry_wait_seconds = 5
     name = None
     config = None
 
@@ -142,9 +175,65 @@ class TestXRDSST(unittest.TestCase):
         token_controller.load_config = (lambda: self.config)
         token_controller.init_keys()
 
+    def step_cert_download_csrs(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+            result = cert_controller.download_csrs()
+            assert len(result) == 2
+            assert result[0].fs_loc != result[1].fs_loc
+
+            return [
+                ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
+                ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
+            ]
+
+    def step_acquire_certs(self, downloaded_csrs):
+        tca_sign_url = find_test_ca_sign_url(self.config['security_server'][0]['configuration_anchor'])
+        cert_files = []
+        for down_csr in downloaded_csrs:
+            cert = perform_test_ca_sign(tca_sign_url, down_csr[1], down_csr[0])
+            cert_file = down_csr[1] + ".signed.pem"
+            cert_files.append(cert_file)
+            with open(cert_file, "w") as out_cert:
+                out_cert.write(cert)
+
+        return cert_files
+
+    def apply_cert_config(self, signed_certs):
+        self.config['security_server'][0]['certificates'] = signed_certs
+
+    def step_cert_import(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+            result = cert_controller.import_()
+
+    def step_cert_register(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+            result = cert_controller.register()
+
+    def step_cert_activate(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+            result = cert_controller.activate()
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.step_init()
         self.step_timestamp_init()
         self.step_token_login()
         self.step_token_init_keys()
+        downloaded_csrs = self.step_cert_download_csrs()
+        signed_certs = self.step_acquire_certs(downloaded_csrs)
+        self.apply_cert_config(signed_certs)
+        self.step_cert_import()
+        self.step_cert_register()
+        self.step_cert_activate()
