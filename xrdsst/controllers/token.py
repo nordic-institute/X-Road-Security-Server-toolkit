@@ -3,6 +3,7 @@ from cement import ex
 
 from xrdsst.api.security_servers_api import SecurityServersApi
 from xrdsst.api.certificate_authorities_api import CertificateAuthoritiesApi
+from xrdsst.core.api_util import remote_get_token
 from xrdsst.controllers.base import BaseController
 from xrdsst.models import CsrGenerate, KeyUsageType, CsrFormat, KeyLabelWithCsrGenerate
 from xrdsst.rest.rest import ApiException
@@ -206,13 +207,6 @@ class TokenController(BaseController):
             raise exc
 
         log_creations(responses)
-
-
-def remote_get_token(ss_configuration, security_server):
-    token_id = security_server['software_token_id']
-    token_api = TokensApi(ApiClient(ss_configuration))
-    token = token_api.get_token(token_id)
-    return token
 
 
 def remote_get_security_server_instance(ss_configuration):

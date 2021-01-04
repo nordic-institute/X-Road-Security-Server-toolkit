@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.1.4
+Version: 1.1.5
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
@@ -13,6 +13,7 @@ Doc. ID: XRDSST-CONF
 | 08.12.2020 | 1.1.2       | Documentation of token key initializations                                   | Taimo Peelo        |
 | 15.12.2020 | 1.1.3       | Documentation of api-key parameterization                                    | Bert Viikmäe       |
 | 22.12.2020 | 1.1.4       | Brief notes on certificate management                                        | Taimo Peelo        |
+| 30.12.2020 | 1.1.5       | Note on certificate activation                                               | Taimo Peelo        |
 
 
 ## Table of Contents
@@ -143,7 +144,7 @@ The key labels used are conventionally with suffixes ``default-auth-key`` and ``
 those already exist, they will not be duplicated and command acts as no-op for such security server.
 
 ### 3.6 Certificate management
-
-Certificates are imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
+Certificate signing requests can be downloaded with ``xrdsst cert download-csrs``, suitably signed
+certificates can be imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
 from being attached to key labelled with suffix ``default-auth-key`` at central server can be initiated with ``xrdsst
-cert register``.
+cert register``, final activation with ``xrdsst cert activate``.

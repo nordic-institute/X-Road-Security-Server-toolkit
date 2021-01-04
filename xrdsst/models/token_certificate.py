@@ -84,8 +84,9 @@ class TokenCertificate(object):
         :param ocsp_status: The ocsp_status of this TokenCertificate.  # noqa: E501
         :type: CertificateOcspStatus
         """
-        if ocsp_status is None:
-            raise ValueError("Invalid value for `ocsp_status`, must not be `None`")  # noqa: E501
+        #Can be missing at construction time
+        #if ocsp_status is None:
+        #    raise ValueError("Invalid value for `ocsp_status`, must not be `None`")  # noqa: E501
 
         self._ocsp_status = ocsp_status
 

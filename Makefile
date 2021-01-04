@@ -31,10 +31,12 @@ test: clean
 		--cov-report=html:coverage-report \
 		tests/unit\
 
+lint: clean
+	pylint --exit-zero --output-format=colorized --reports=y --rcfile=setup.cfg xrdsst tests
+
 test-all: clean
 	python -m pytest \
 		-v \
-		--pylint --pylint-rcfile=setup.cfg \
 		--cov=xrdsst/controllers \
 		--cov-report=term \
 		--cov-report=html:coverage-report \
