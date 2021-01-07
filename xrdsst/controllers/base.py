@@ -152,6 +152,6 @@ class BaseController(Controller):
     @staticmethod
     def convert_swagger_enum(type, value):
         valid_values = list(filter(lambda x: x.isupper(), vars(type)))
-        if value not in filter(lambda x: x.isupper(), valid_values):
+        if value not in valid_values:
             raise SyntaxWarning("Invalid value '" + value + "' for " + str(type.__name__) + ", need " + str(valid_values))
         return value
