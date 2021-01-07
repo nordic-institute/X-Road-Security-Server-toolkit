@@ -160,7 +160,7 @@ class CertController(BaseController):
         sign_keys = list(filter(lambda key: key.label == key_labels['sign'], token.keys))
 
         if not (auth_keys or sign_keys):
-            return
+            return []
 
         keys_api = KeysApi(ApiClient(ss_configuration))
         downloaded_csrs = []
@@ -228,5 +228,5 @@ class CertController(BaseController):
         return actionable_certs[0]
 
 
-def csr_file_prefix(type, key, security_server):
-    return security_server['name'] + '-' + type +  "-CSR-" + key.id + "-"
+def csr_file_prefix(_type, key, security_server):
+    return security_server['name'] + '-' + _type +  "-CSR-" + key.id + "-"

@@ -11,6 +11,7 @@ import urllib3
 from definitions import ROOT_DIR
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
+from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
@@ -225,15 +226,37 @@ class TestXRDSST(unittest.TestCase):
             cert_controller.load_config = (lambda: self.config)
             cert_controller.activate()
 
+    def apply_subsystem_config(self):
+        clients = [{
+            'member_class': 'GOV',
+            'member_code': '1234',
+            'subsystem_code': 'BUS',
+            'connection_type': 'HTTP'
+        }]
+        self.config['security_server'][0]['clients'] = clients
+
+    def step_subsystem_add(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            client_controller.load_config = (lambda: self.config)
+            client_controller.add()
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.step_init()
         self.step_timestamp_init()
         self.step_token_login()
         self.step_token_init_keys()
+
+        # certificates
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
         self.apply_cert_config(signed_certs)
         self.step_cert_import()
         self.step_cert_register()
         self.step_cert_activate()
+
+        # subsystems
+        self.apply_subsystem_config()
+        self.step_subsystem_add()

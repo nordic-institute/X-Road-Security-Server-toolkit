@@ -87,15 +87,18 @@ class BaseController(Controller):
 
     @staticmethod
     def init_logging(configuration):
+        log_file_name = configuration["logging"][0]["file"]
+        log_level = configuration["logging"][0]["level"]
         try:
-            log_file_name = configuration["logging"][0]["file"]
-            if not os.path.isfile(log_file_name):
-                raise FileNotFoundError
-            logging.basicConfig(filename=log_file_name,
-                                level=configuration["logging"][0]["level"],
-                                format='%(name)s - %(levelname)s - %(message)s')
-        except FileNotFoundError as err:
-            print("Configuration file \"" + log_file_name + "\" not found: %s\n" % err)
+            exists = os.path.exists(log_file_name)
+            if exists and os.path.isdir(log_file_name):
+                raise IsADirectoryError
+            if os.path.exists(os.path.dirname(log_file_name)):
+                logging.basicConfig(filename=log_file_name,
+                                    level=log_level,
+                                    format='%(name)s - %(levelname)s - %(message)s')
+        except IsADirectoryError:
+            print("Log configuration refers to directory: '" + log_file_name + "'")
 
     def load_config(self, baseconfig=None):
         if not baseconfig:
@@ -145,3 +148,10 @@ class BaseController(Controller):
         :return: IP/host deduced from security server URL
         """
         return urlparse(security_server['url']).netloc.split(':')[0]  # keep the case, unlike with '.hostname'
+
+    @staticmethod
+    def convert_swagger_enum(type, value):
+        valid_values = list(filter(lambda x: x.isupper(), vars(type)))
+        if value not in filter(lambda x: x.isupper(), valid_values):
+            raise SyntaxWarning("Invalid value '" + value + "' for " + str(type.__name__) + ", need " + str(valid_values))
+        return value

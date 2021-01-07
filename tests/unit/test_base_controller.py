@@ -8,6 +8,7 @@ import yaml
 from definitions import ROOT_DIR
 from xrdsst.configuration.configuration import Configuration
 from xrdsst.controllers.base import BaseController
+from xrdsst.models import ConnectionType
 
 
 class TestBaseController(unittest.TestCase):
@@ -140,3 +141,15 @@ class TestBaseController(unittest.TestCase):
         base_controller.app.close = Mock(return_value=None)
         base_controller.load_config(baseconfig=None)
         base_controller.app.close.assert_called_once_with(os.EX_CONFIG)
+
+    def test_conversion_of_text_to_swagger_enum_succeeds(self):
+        assert 'HTTP' == BaseController.convert_swagger_enum(ConnectionType, "HTTP")
+        assert 'HTTPS' == BaseController.convert_swagger_enum(ConnectionType, "HTTPS")
+        assert 'HTTPS_NO_AUTH' == BaseController.convert_swagger_enum(ConnectionType, "HTTPS_NO_AUTH")
+
+    def test_conversion_of_text_to_swagger_enum_fails(self):
+        try:
+            BaseController.convert_swagger_enum(ConnectionType, "HTTPX")
+            raise AssertionError("Conversion of 'HTTPX' to ConnectionType should have failed.")
+        except SyntaxWarning:
+            pass
