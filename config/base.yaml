@@ -23,3 +23,8 @@ security_server:
   software_token_id: <SOFT_TOKEN_ID>
   software_token_pin: <SOFT_TOKEN_PIN>
   url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
+  clients:
+    - member_class: <MEMBER_CLASS>
+      member_code: <MEMBER_CODE>
+      subsystem_code: <SUBSYSTEM_CODE>
+      connection_type: <CONNECTION_TYPE>
