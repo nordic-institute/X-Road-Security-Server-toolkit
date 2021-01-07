@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.18-alpha.0] - 2021-01-07
+
+- add ``xrdsst client`` and subcommand ``add``
+
 ## [0.1.17-alpha.0] - 2020-12-31
 
 - add ``xrdsst cert`` commands ``activate`` and ``download-csrs``

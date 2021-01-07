@@ -158,4 +158,5 @@ from being attached to key labelled with suffix ``default-auth-key`` at central 
 cert register``, final activation with ``xrdsst cert activate``.
 
 ### 3.7 Client management
-Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with ``xrdsst client add``.
+Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
+``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
