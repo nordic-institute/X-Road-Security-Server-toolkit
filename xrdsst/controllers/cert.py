@@ -114,9 +114,10 @@ class CertController(BaseController):
                     cert_data = cert_file.read()
                     cert_file.close()
                     token_cert_api.import_certificate(body=cert_data)
+                    BaseController.log_info("Imported certificate '" + certfile + "'")
                 except ApiException as err:
                     if err.status == 409 and err.body.count("certificate_already_exists"):
-                        print("Certificate '" + certfile + "' already imported.")
+                        BaseController.log_info("Certificate '" + certfile + "' already imported.")
                     else:
                         BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
 
