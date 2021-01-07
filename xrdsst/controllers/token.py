@@ -106,7 +106,7 @@ class TokenController(BaseController):
             BaseController.log_info('Security server \"' + security_server["name"] + '\" token ' + str(token_id) + ' logged in')
         except ApiException as err:
             if err.status == 409:
-                print("Token already logged in.")
+                BaseController.log_info("Token already logged in.")
             else:
                 BaseController.log_api_error('TokensApi->login_token', err)
 
