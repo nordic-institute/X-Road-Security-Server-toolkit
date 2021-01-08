@@ -25,7 +25,7 @@ class ClientController(BaseController):
     def add_client(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting client add process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             for client in security_server["clients"]:
                 self.remote_add_client(ss_configuration, client)

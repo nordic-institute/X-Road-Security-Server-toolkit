@@ -74,28 +74,28 @@ class CertController(BaseController):
     def import_certificates(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting certificate import process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_import_certificates(ss_configuration, security_server)
 
     def register_certificate(self,  configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting certificate registration process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_register_certificate(ss_configuration, security_server)
 
     def activate_certificate(self,  configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting certificate activation for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_activate_certificate(ss_configuration, security_server)
 
     def _download_csrs(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting CSR download from security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             return self.remote_download_csrs(ss_configuration, security_server)
 
