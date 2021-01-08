@@ -108,16 +108,16 @@ class CertController(BaseController):
             if not location[1]:
                 BaseController.log_info("Certificate '" + location[0] + "' does not exist")
             else:
-                certfile = location[0]
+                cert_file_loc = location[0]
                 try:
-                    cert_file = open(location[0], "rb")
+                    cert_file = open(cert_file_loc, "rb")
                     cert_data = cert_file.read()
                     cert_file.close()
                     token_cert_api.import_certificate(body=cert_data)
-                    BaseController.log_info("Imported certificate '" + certfile + "'")
+                    BaseController.log_info("Imported certificate '" + cert_file_loc + "'")
                 except ApiException as err:
                     if err.status == 409 and err.body.count("certificate_already_exists"):
-                        BaseController.log_info("Certificate '" + certfile + "' already imported.")
+                        BaseController.log_info("Certificate '" + cert_file_loc + "' already imported.")
                     else:
                         BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
 

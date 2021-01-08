@@ -150,8 +150,8 @@ class BaseController(Controller):
         return urlparse(security_server['url']).netloc.split(':')[0]  # keep the case, unlike with '.hostname'
 
     @staticmethod
-    def convert_swagger_enum(type, value):
-        valid_values = list(filter(lambda x: x.isupper(), vars(type)))
+    def convert_swagger_enum(_type, value):
+        valid_values = list(filter(lambda x: x.isupper(), vars(_type)))
         if value not in valid_values:
-            raise SyntaxWarning("Invalid value '" + value + "' for " + str(type.__name__) + ", need " + str(valid_values))
+            raise SyntaxWarning("Invalid value '" + value + "' for " + str(_type.__name__) + ", need " + str(valid_values))
         return value
