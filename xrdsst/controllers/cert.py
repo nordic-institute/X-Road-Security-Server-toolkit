@@ -74,28 +74,28 @@ class CertController(BaseController):
     def import_certificates(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting certificate import process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_import_certificates(ss_configuration, security_server)
 
     def register_certificate(self,  configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting certificate registration process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_register_certificate(ss_configuration, security_server)
 
     def activate_certificate(self,  configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting certificate activation for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_activate_certificate(ss_configuration, security_server)
 
     def _download_csrs(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting CSR download from security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             return self.remote_download_csrs(ss_configuration, security_server)
 
@@ -108,15 +108,16 @@ class CertController(BaseController):
             if not location[1]:
                 BaseController.log_info("Certificate '" + location[0] + "' does not exist")
             else:
-                certfile = location[0]
+                cert_file_loc = location[0]
                 try:
-                    cert_file = open(location[0], "rb")
+                    cert_file = open(cert_file_loc, "rb")
                     cert_data = cert_file.read()
                     cert_file.close()
                     token_cert_api.import_certificate(body=cert_data)
+                    BaseController.log_info("Imported certificate '" + cert_file_loc + "'")
                 except ApiException as err:
                     if err.status == 409 and err.body.count("certificate_already_exists"):
-                        print("Certificate '" + certfile + "' already imported.")
+                        BaseController.log_info("Certificate '" + cert_file_loc + "' already imported.")
                     else:
                         BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
 
@@ -159,7 +160,7 @@ class CertController(BaseController):
         sign_keys = list(filter(lambda key: key.label == key_labels['sign'], token.keys))
 
         if not (auth_keys or sign_keys):
-            return
+            return []
 
         keys_api = KeysApi(ApiClient(ss_configuration))
         downloaded_csrs = []
@@ -227,5 +228,5 @@ class CertController(BaseController):
         return actionable_certs[0]
 
 
-def csr_file_prefix(type, key, security_server):
-    return security_server['name'] + '-' + type +  "-CSR-" + key.id + "-"
+def csr_file_prefix(_type, key, security_server):
+    return security_server['name'] + '-' + _type +  "-CSR-" + key.id + "-"

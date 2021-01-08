@@ -10,6 +10,7 @@ from cement.core.exc import CaughtSignal
 
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
+from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
@@ -114,7 +115,7 @@ class XRDSST(App):
         output_handler = 'tabulate'
 
         # register handlers
-        handlers = [BaseController, CertController, TimestampController, TokenController, InitServerController]
+        handlers = [BaseController, ClientController, CertController, TimestampController, TokenController, InitServerController]
 
 
 class XRDSSTTest(TestApp, XRDSST):

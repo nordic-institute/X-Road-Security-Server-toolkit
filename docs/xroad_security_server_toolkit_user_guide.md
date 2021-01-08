@@ -34,6 +34,7 @@ Doc. ID: XRDSST-CONF
 	* [3.4 Configuring security server to use single approved timestamping service](#34-configuring-security-server-to-use-single-approved-timestamping-service)
 	* [3.5 Initializing token keys and corresponding certificate signing requests](#35-initializing-token-keys-and-corresponding-certificate-signing-requests)
 	* [3.6 Certificate management](#36-certificate-management)
+	* [3.7 Client management](#37-client-management)
 
 <!-- vim-markdown-toc -->
 
@@ -77,6 +78,11 @@ security-server:
   software_token_id: <SOFT_TOKEN_ID>
   software_token_pin: <SOFT_TOKEN_PIN>
   url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
+  clients:
+    - member_class: <MEMBER_CLASS>
+      member_code: <MEMBER_CODE>
+      subsystem_code: <SUBSYSTEM_CODE>
+      connection_type: <CONNECTION_TYPE>
 ```
 
 The ``api-key`` section is for configuring the automatic api key generation parameters for security server
@@ -102,6 +108,8 @@ The ``security-server`` section is for configuring security server parameters
 * ``/path/to/signcert`` and ``/path/to/authcert`` should be given as paths referring to certificate locations,
 in fact any number of certificates can be imported for the keys labelled ``default-auth-key`` and ``default-sign-key``
 (but not all of them can be in use / registered)
+* <SUBSYSTEM_CODE> X-Road member/client subsystem code.
+* <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
 
 ## 3 Running the X-Road Security Server Toolkit
 
@@ -148,3 +156,7 @@ Certificate signing requests can be downloaded with ``xrdsst cert download-csrs`
 certificates can be imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
 from being attached to key labelled with suffix ``default-auth-key`` at central server can be initiated with ``xrdsst
 cert register``, final activation with ``xrdsst cert activate``.
+
+### 3.7 Client management
+Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
+``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.

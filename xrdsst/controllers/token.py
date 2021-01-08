@@ -88,7 +88,7 @@ class TokenController(BaseController):
     def token_login(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: ' + security_server['name'])
+            BaseController.log_info('Starting token login process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_login(ss_configuration, security_server)
 
@@ -106,14 +106,14 @@ class TokenController(BaseController):
             BaseController.log_info('Security server \"' + security_server["name"] + '\" token ' + str(token_id) + ' logged in')
         except ApiException as err:
             if err.status == 409:
-                print("Token already logged in.")
+                BaseController.log_info("Token already logged in.")
             else:
                 BaseController.log_api_error('TokensApi->login_token', err)
 
     def token_add_keys_with_csrs(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting configuration process for security server: '+ security_server['name'])
+            BaseController.log_info('Starting token key creation process for security server: '+ security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_add_keys_with_csrs(ss_configuration, security_server)
 
