@@ -242,6 +242,13 @@ class TestXRDSST(unittest.TestCase):
             client_controller.load_config = (lambda: self.config)
             client_controller.add()
 
+    def step_subsystem_register(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            client_controller.load_config = (lambda: self.config)
+            client_controller.register()
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.step_init()
@@ -260,3 +267,4 @@ class TestXRDSST(unittest.TestCase):
         # subsystems
         self.apply_subsystem_config()
         self.step_subsystem_add()
+        self.step_subsystem_register()

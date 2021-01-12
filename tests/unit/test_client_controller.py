@@ -85,3 +85,70 @@ class TestClient(unittest.TestCase):
                 with self.capsys.disabled():
                     sys.stdout.write(out)
                     sys.stderr.write(err)
+
+    def test_client_register_not_found(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[]):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.register()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("not found") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_client_register_found(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                        id='DEV:GOV:9876:SUB1',
+                        instance_id='DEV',
+                        member_class='GOV',
+                        member_code='9876',
+                        subsystem_code='SUB1',
+                        connection_type=ConnectionType.HTTP,
+                        status=ClientStatus.SAVED,
+                        owner=True,
+                        has_valid_local_sign_cert=True
+                    )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.register_client', return_value=None):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config)
+                    client_controller.register()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Registered client") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_client_register_already_registered(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                        id='DEV:GOV:9876:SUB1',
+                        instance_id='DEV',
+                        member_class='GOV',
+                        member_code='9876',
+                        subsystem_code='SUB1',
+                        connection_type=ConnectionType.HTTP,
+                        status=ClientStatus.REGISTERED,
+                        owner=True,
+                        has_valid_local_sign_cert=True
+                    )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.register_client', return_value=None):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config)
+                    client_controller.register()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("already registered") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
