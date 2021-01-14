@@ -4,6 +4,7 @@ api_key:
   roles:
   - XROAD_SYSTEM_ADMINISTRATOR
   - XROAD_SECURITY_OFFICER
+  - XROAD_REGISTRATION_OFFICER
   url: https://localhost:4000/api/v1/api-keys
 logging:
 - file: /var/log/xroad/xrdsst.log
