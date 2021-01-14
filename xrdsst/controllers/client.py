@@ -64,7 +64,6 @@ class ClientController(BaseController):
 
     @staticmethod
     def remote_register_client(ss_configuration, security_server_conf, client_conf):
-        client = None
         clients_api = ClientsApi(ApiClient(ss_configuration))
         try:
             found_clients = clients_api.find_clients(

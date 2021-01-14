@@ -26,7 +26,7 @@ def waitfor(boolf, delay, retries):
         count += 1
 
     if count >= retries:
-        raise Exception("Exceeded retry count " + retries + " with delay " + delay)
+        raise Exception("Exceeded retry count " + str(retries) + " with delay " + str(delay) + "s.")
 
 
 # Returns TEST CA signed certificate in PEM format.
