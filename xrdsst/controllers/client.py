@@ -5,7 +5,7 @@ from cement import ex
 from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
-from xrdsst.models import ClientAdd, Client, ConnectionType
+from xrdsst.models import ClientAdd, Client, ConnectionType, ServiceDescriptionAdd
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 
@@ -17,8 +17,13 @@ class ClientController(BaseController):
         stacked_type = 'nested'
         description = texts['client.controller.description']
 
-    @ex(help="Add client subsystem", arguments=[])
+    @ex(label='add-client-subsystem', help="Add client subsystem", arguments=[])
     def add(self):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        self.add_client(self.load_config())
+
+    @ex(label='add-service-description', help="Add client service description", arguments=[])
+    def add_description(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.add_client(self.load_config())
 
@@ -29,6 +34,15 @@ class ClientController(BaseController):
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             for client in security_server["clients"]:
                 self.remote_add_client(ss_configuration, client)
+
+    def add_service_description(self, configuration):
+        self.init_logging(configuration)
+        for security_server in configuration["security_server"]:
+            BaseController.log_info('Starting service description add process for security server: ' + security_server['name'])
+            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    self.remote_add_service_description(ss_configuration, client, service_description)
 
     @staticmethod
     def remote_add_client(ss_configuration, client_conf):
@@ -48,6 +62,24 @@ class ClientController(BaseController):
                 BaseController.log_info("Client for '" + partial_client_id(client_conf) + "' already exists.")
             else:
                 BaseController.log_api_error('ClientsApi->add_client', err)
+
+    @staticmethod
+    def remote_add_service_description(ss_configuration, client_conf, service_description_conf):
+        description_add = ServiceDescriptionAdd(url=service_description_conf['url'],
+                                                rest_service_code=service_description_conf['rest_service_code'],
+                                                ignore_warnings=True)
+        clients_api = ClientsApi(ApiClient(ss_configuration))
+        try:
+            clients = clients_api.find_clients(member_class=client_conf['member_class'],
+                                               member_code=client_conf['member_code'],
+                                               subsystem_code=client_conf['subsystem_code'])
+            response = clients_api.add_client_service_description(clients[0].id, body=description_add)
+            BaseController.log_info("Added client subsystem " + partial_client_id(client_conf) + " service description" + " (got full id " + response.id + ")")
+        except ApiException as err:
+            if err.status == 409:
+                BaseController.log_info("Service description for '" + partial_client_id(client_conf) + "' already exists.")
+            else:
+                BaseController.log_api_error('ClientsApi->add_client_service_description', err)
 
 
 def partial_client_id(client_conf):
