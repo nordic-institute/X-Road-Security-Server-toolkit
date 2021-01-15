@@ -17,15 +17,27 @@ from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
 
+
+# Waits until boolean function returns True within number of retried delays or raises error
+def waitfor(boolf, delay, retries):
+    count = 0
+    while count < retries and not boolf():
+        time.sleep(delay)
+        count += 1
+
+    if count >= retries:
+        raise Exception("Exceeded retry count " + str(retries) + " with delay " + str(delay) + "s.")
+
+
 # Returns TEST CA signed certificate in PEM format.
-def perform_test_ca_sign(test_ca_sign_url, certfile_loc, type):
+def perform_test_ca_sign(test_ca_sign_url, certfile_loc, _type):
     certfile = open(certfile_loc, "rb")  # opening for [r]eading as [b]inary
     cert_data = certfile.read()
     certfile.close()
 
     response = requests.post(
         test_ca_sign_url,
-        {'type': type},
+        {'type': _type},
         files={
             'certreq': (os.path.basename(certfile_loc), cert_data, 'application/x-x509-ca-cert')
         }
@@ -33,6 +45,7 @@ def perform_test_ca_sign(test_ca_sign_url, certfile_loc, type):
 
     # Test CA returns plain PEMs only
     return response.content.decode("ascii")
+
 
 # Deduce possible TEST CA URL from configuration anchor
 def find_test_ca_sign_url(conf_anchor_file_loc):
@@ -49,6 +62,30 @@ def find_test_ca_sign_url(conf_anchor_file_loc):
         return protocol + "://" + host + ":" + str(port) + prefix + suffix
 
 
+# Check for auth cert registration update receival
+def auth_cert_registration_global_configuration_update_received(config):
+    def registered_auth_key(key):
+        return BaseController.default_auth_key_label(config["security_server"][0]) == key['label'] and \
+               'REGISTERED' == key['certificates'][0]['status']
+
+    result = requests.get(
+        config["security_server"][0]["url"] + "/tokens/" + str(config["security_server"][0]['software_token_id']),
+        None,
+        headers={
+            'Authorization': config["security_server"][0]["api_key"],
+            'accept': 'application/json'
+        },
+        verify=False
+    )
+
+    if result.status_code != 200:
+        raise Exception("Failed registration status check, status " + result.status_code + ": " + result.reason)
+
+    response = json.loads(result.content)
+    registered_auth_keys = list(filter(registered_auth_key, response['keys']))
+    return True if registered_auth_keys else False
+
+
 class TestXRDSST(unittest.TestCase):
 
     configuration_anchor = "tests/resources/configuration-anchor.xml"
@@ -59,10 +96,10 @@ class TestXRDSST(unittest.TestCase):
     docker_folder = local_folder + '/Docker/securityserver'
     image = 'xroad-security-server:latest'
     url = 'https://localhost:4000/api/v1/api-keys'
-    roles = '[\"XROAD_SYSTEM_ADMINISTRATOR\",\"XROAD_SECURITY_OFFICER\"]'
+    roles = '[\"XROAD_SYSTEM_ADMINISTRATOR\",\"XROAD_SECURITY_OFFICER\", \"XROAD_REGISTRATION_OFFICER\"]'
     header = 'Content-Type: application/json'
-    max_retries = 60
-    curl_retry_wait_seconds = 5
+    max_retries = 300
+    retry_wait = 1 # in seconds
     name = None
     config = None
 
@@ -71,10 +108,10 @@ class TestXRDSST(unittest.TestCase):
             'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
             'api_key': [{'url': self.url,
                          'key': 'key',
-                         'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
+                         'roles': json.loads(self.roles)}],
             'security_server':
                 [{'name': 'ss',
-                  'url': 'https://localhost:8000/api/v1',
+                  'url': 'https://CONTAINER_HOST:4000/api/v1',
                   'api_key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
                   'owner_dn_country': 'EE',
@@ -90,6 +127,11 @@ class TestXRDSST(unittest.TestCase):
     def set_api_key(self, api_key):
         self.config["security_server"][0]["api_key"] = 'X-Road-apikey token=' + api_key
 
+    def set_ip_url(self, ip_address):
+        local_url = self.config["security_server"][0]["url"]
+        container_ip_url = local_url.replace("CONTAINER_HOST", ip_address)
+        self.config["security_server"][0]["url"] = container_ip_url
+
     def setUp(self):
         self.load_config()
         self.clean_docker()
@@ -97,6 +139,18 @@ class TestXRDSST(unittest.TestCase):
         client = docker.from_env()
         self.build_image(client)
         self.run_container(client)
+
+        # Wait for functional networking to be started up, with side effect of configuration update.
+        container_ip = ''
+        count = 0
+        while not container_ip and count < self.max_retries:
+            time.sleep(self.retry_wait)
+            count += 1
+            container_ip = client.containers.list(filters={"name": self.name})[0].attrs['NetworkSettings']['IPAddress']
+        if count >= self.max_retries and not container_ip:
+            raise Exception("Unable to acquire network address of the container '" + self.name + "'.")
+
+        self.set_ip_url(container_ip)
         self.create_api_key(client)
 
     def tearDown(self):
@@ -116,10 +170,11 @@ class TestXRDSST(unittest.TestCase):
         containers = client.containers.list(filters={"name": self.name})
         if len(containers) == 0:
             client.containers.run(detach=True, name=self.name, image=self.image, ports={'4000/tcp': 8000})
+        elif len(containers) == 1:
+            if containers[0].status != 'running':
+                containers[0].restart()
         else:
-            for container in containers:
-                if container.status != 'running':
-                    container.restart()
+            raise Exception("Encountered multiple containers named '" + self.name + "', no action taken.")
 
     def create_api_key(self, client):
         containers = client.containers.list(filters={"name": self.name})
@@ -134,7 +189,7 @@ class TestXRDSST(unittest.TestCase):
                         json_data = json.loads(result.output)
                         self.set_api_key(json_data["key"])
                         break
-                    time.sleep(self.curl_retry_wait_seconds)
+                    time.sleep(self.retry_wait)
                     retries += 1
 
     def clean_docker(self):
@@ -242,6 +297,13 @@ class TestXRDSST(unittest.TestCase):
             client_controller.load_config = (lambda: self.config)
             client_controller.add()
 
+    def step_subsystem_register(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            client_controller.load_config = (lambda: self.config)
+            client_controller.register()
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.step_init()
@@ -257,6 +319,10 @@ class TestXRDSST(unittest.TestCase):
         self.step_cert_register()
         self.step_cert_activate()
 
+        # Wait for global configuration status updates
+        waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), self.retry_wait, self.max_retries)
+
         # subsystems
         self.apply_subsystem_config()
         self.step_subsystem_add()
+        self.step_subsystem_register()

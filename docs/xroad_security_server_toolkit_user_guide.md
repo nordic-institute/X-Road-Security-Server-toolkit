@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.1.5
+Version: 1.1.6
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
@@ -14,6 +14,7 @@ Doc. ID: XRDSST-CONF
 | 15.12.2020 | 1.1.3       | Documentation of api-key parameterization                                    | Bert Viikmäe       |
 | 22.12.2020 | 1.1.4       | Brief notes on certificate management                                        | Taimo Peelo        |
 | 30.12.2020 | 1.1.5       | Note on certificate activation                                               | Taimo Peelo        |
+| 12.01.2021 | 1.1.6       | Notes on client management                                                   | Taimo Peelo        |
 
 
 ## Table of Contents
@@ -160,3 +161,4 @@ cert register``, final activation with ``xrdsst cert activate``.
 ### 3.7 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
 ``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
+Further subsystem registration can proceed with ``xrdsst client register``.

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.19-alpha.0] - 2021-01-12
+
+- add ``xrdsst client`` subcommand ``register``
+
 ## [0.1.18-alpha.0] - 2021-01-07
 
 - add ``xrdsst client`` and subcommand ``add``
