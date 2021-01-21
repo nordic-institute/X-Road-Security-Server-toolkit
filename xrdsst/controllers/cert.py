@@ -13,7 +13,6 @@ from xrdsst.models import SecurityServerAddress, CsrFormat
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts
 
-
 from xrdsst.rest.rest import ApiException
 
 
@@ -78,14 +77,14 @@ class CertController(BaseController):
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_import_certificates(ss_configuration, security_server)
 
-    def register_certificate(self,  configuration):
+    def register_certificate(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
             BaseController.log_info('Starting certificate registration process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_register_certificate(ss_configuration, security_server)
 
-    def activate_certificate(self,  configuration):
+    def activate_certificate(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
             BaseController.log_info('Starting certificate activation for security server: ' + security_server['name'])
@@ -130,8 +129,9 @@ class CertController(BaseController):
         token_cert_api = TokenCertificatesApi(ApiClient(ss_configuration))
         ss_address = SecurityServerAddress(BaseController.security_server_address(security_server))
         try:
-            token_cert_api.register_certificate(registrable_cert.certificate_details.hash, body=ss_address)
+            response = token_cert_api.register_certificate(registrable_cert.certificate_details.hash, body=ss_address)
             BaseController.log_info("Registered certificate " + registrable_cert.certificate_details.hash + " for address '" + str(ss_address) + "'")
+            return response
         except ApiException as err:
             BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
 
@@ -142,12 +142,13 @@ class CertController(BaseController):
             return
 
         token_cert_api = TokenCertificatesApi(ApiClient(ss_configuration))
-        token_cert_api.activate_certificate(activatable_cert.certificate_details.hash) # responseless PUT
+        token_cert_api.activate_certificate(activatable_cert.certificate_details.hash)  # responseless PUT
         cert_actions = token_cert_api.get_possible_actions_for_certificate(activatable_cert.certificate_details.hash)
         if 'ACTIVATE' not in cert_actions:
             BaseController.log_info("Activated certificate " + activatable_cert.certificate_details.hash)
         else:
             BaseController.log_info("Could not activate certificate " + activatable_cert.certificate_details.hash)
+        return cert_actions
 
     def remote_download_csrs(self, ss_configuration, security_server):
         key_labels = {
@@ -169,16 +170,16 @@ class CertController(BaseController):
             for key in keytype[0]:
                 for csr in key.certificate_signing_requests:
                     with cement.utils.fs.Tmp(
-                        prefix=csr_file_prefix(keytype[1], csr, security_server),
-                        suffix='.der',
-                        cleanup=False
+                            prefix=csr_file_prefix(keytype[1], csr, security_server),
+                            suffix='.der',
+                            cleanup=False
                     ) as tmp:
                         # Impossible to get valid byte array via generated client API conversion, resort to HTTP response.
                         http_response = keys_api.download_csr(key.id, csr.id, csr_format=CsrFormat.DER, _preload_content=False)
                         if 200 == http_response.status:
-                            with open(tmp.file, 'wb') as f:
-                                f.write(http_response.data)
-                                downloaded_csrs.append(DownloadedCsr(csr.id, key.id, keytype[1].upper(), f.name))
+                            with open(tmp.file, 'wb') as file:
+                                file.write(http_response.data)
+                                downloaded_csrs.append(DownloadedCsr(csr.id, key.id, keytype[1].upper(), file.name))
                         else:
                             BaseController.log_info(
                                 "Failed to download key '" + key.id + "' CSR '" + csr.id + "' (HTTP " + http_response.status + ", " + http_response.reason + ")"
@@ -229,4 +230,4 @@ class CertController(BaseController):
 
 
 def csr_file_prefix(_type, key, security_server):
-    return security_server['name'] + '-' + _type +  "-CSR-" + key.id + "-"
+    return security_server['name'] + '-' + _type + "-CSR-" + key.id + "-"

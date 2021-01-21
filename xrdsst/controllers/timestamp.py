@@ -1,12 +1,10 @@
-import logging
 import urllib3
 from cement import ex
-
-from .base import BaseController
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts
-from ..api import TimestampingServicesApi
 from xrdsst.api.system_api import SystemApi
+from .base import BaseController
+from ..api import TimestampingServicesApi
 from ..models import TimestampingService
 from ..rest.rest import ApiException
 
@@ -23,7 +21,7 @@ class TimestampServiceListMapper:
     @staticmethod
     def as_object(timestamping_service):
         return {
-            'name' : timestamping_service.name,
+            'name': timestamping_service.name,
             'url': timestamping_service.url
         }
 
@@ -82,10 +80,11 @@ class TimestampController(BaseController):
         try:
             ts_list_response = apicall()
             self.render_timestamping_services(ts_list_response)
-        except ApiException as e:
-            print("Exception when listing timestamping services: %s\n", e)
+        except ApiException as exc:
+            self.log_api_error('Exception when listing timestamping services:', exc)
 
-    def get_approved_timestamping_services(self, ss_configuration):
+    @staticmethod
+    def get_approved_timestamping_services(ss_configuration):
         timestamping_api = TimestampingServicesApi(ApiClient(ss_configuration))
         return timestamping_api.get_approved_timestamping_services()
 
@@ -96,16 +95,15 @@ class TimestampController(BaseController):
         system_api = SystemApi(ApiClient(ss_configuration))
         self.remote_ts_list(lambda: system_api.get_configured_timestamping_services())
 
-    @staticmethod
-    def remote_get_configured(ss_configuration):
+    def remote_get_configured(self, ss_configuration):
         try:
             system_api = SystemApi(ApiClient(ss_configuration))
             ts_list_response = system_api.get_configured_timestamping_services()
             return ts_list_response
-        except ApiException as e:
-            print("Exception when listing timestamping services: %s\n", e)
+        except ApiException as exc:
+            self.log_api_error('Exception when listing timestamping services:', exc)
 
-    def timestamp_service_init(self, configuration): # logging required
+    def timestamp_service_init(self, configuration):  # logging required
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)
@@ -119,13 +117,12 @@ class TimestampController(BaseController):
                 ts_init_response = system_api.add_configured_timestamping_service(
                     body=TimestampingService(name=approved_ts[0].name, url=approved_ts[0].url)
                 )
-                if ts_init_response: # single timestamping service added is also returned
-                    print(security_server['name'])
+                if ts_init_response:  # single timestamping service added is also returned
+                    self.log_info(security_server['name'])
                     self.render_timestamping_services([ts_init_response])
         except ApiException as excn:
             if 409 == excn.status:
-                print(security_server['name'], "Timestamping service already configured.")
+                self.log_info("Timestamping service already configured for " + security_server['name'])
             else:
-                tsiferr_msg = "Timestamping service initialization configuration failure"
-                print(security_server['name'], tsiferr_msg, excn)
-                logging.error(security_server['name'] + ' '  + tsiferr_msg, excn)
+                tsiferr_msg = "Timestamping service initialization configuration failure for "
+                self.log_api_error(tsiferr_msg + security_server['name'], excn)

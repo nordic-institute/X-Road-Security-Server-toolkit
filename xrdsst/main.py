@@ -1,13 +1,11 @@
-import networkx
 import logging
 import os
 import subprocess
 import traceback
-
+import networkx
 import yaml
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
-
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -29,15 +27,15 @@ class OPS:
     INIT = "INIT"
     TOKEN_LOGIN = "TOKEN\nLOGIN"
     TIMESTAMP_ENABLE = "TIMESTAMPING"
-    GENKEYS_CSRS ="KEYS AND CSR\nGENERATION"
-    IMPORT_CERTS ="CERTIFICATE\nIMPORT"
+    GENKEYS_CSRS = "KEYS AND CSR\nGENERATION"
+    IMPORT_CERTS = "CERTIFICATE\nIMPORT"
 
 
-OP_INIT="INIT"
-OP_TOKEN_LOGIN="TOKEN\nLOGIN"
-OP_TIMESTAMP_ENABLE="TIMESTAMPING"
-OP_GENKEYS_CSRS="KEYS AND CSR\nGENERATION"
-OP_IMPORT_CERTS="CERTIFICATE\nIMPORT"
+OP_INIT = "INIT"
+OP_TOKEN_LOGIN = "TOKEN\nLOGIN"
+OP_TIMESTAMP_ENABLE = "TIMESTAMPING"
+OP_GENKEYS_CSRS = "KEYS AND CSR\nGENERATION"
+OP_IMPORT_CERTS = "CERTIFICATE\nIMPORT"
 
 
 # Initialize operational dependency graph for the security server operations
@@ -62,9 +60,9 @@ def opdep_init(app):
     graph.add_edge(OPS.TOKEN_LOGIN, OPS.GENKEYS_CSRS)
     graph.add_edge(OPS.GENKEYS_CSRS, OPS.IMPORT_CERTS)
 
-    ts=list(networkx.topological_sort(graph))
+    topologically_sorted = list(networkx.topological_sort(graph))
     app.OP_GRAPH = graph
-    app.OP_DEPENDENCY_LIST = ts
+    app.OP_DEPENDENCY_LIST = topologically_sorted
 
 
 def revoke_api_key(app):
@@ -81,10 +79,10 @@ def revoke_api_key(app):
                 if security_server["api_key"] == api_key_default:
                     log_info('Revoking API key for security server ' + security_server['name'])
                     curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
-                        config["api_key"][0]["url"] + "/" + str(api_key_id[security_server['name']]) + " -k"
+                               config["api_key"][0]["url"] + "/" + str(api_key_id[security_server['name']]) + " -k"
                     cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                        config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
-                    process = subprocess.run(cmd, shell=True, check=False, capture_output=True)
+                          config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
+                    subprocess.run(cmd, shell=True, check=False, capture_output=True)
                     log_info('API key for security server ' + security_server['name'] + ' revoked successfully')
 
 

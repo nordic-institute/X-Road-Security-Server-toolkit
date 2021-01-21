@@ -32,3 +32,4 @@ security_server:
       service_descriptions:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
+          type: <SERVICE_TYPE>

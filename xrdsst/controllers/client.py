@@ -1,7 +1,5 @@
 import urllib3
-
 from cement import ex
-
 from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
@@ -17,7 +15,7 @@ class ClientController(BaseController):
         stacked_type = 'nested'
         description = texts['client.controller.description']
 
-    @ex(label='add-client-subsystem', help="Add client subsystem", arguments=[])
+    @ex(label='add-subsystem', help="Add client subsystem", arguments=[])
     def add(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.add_client(self.load_config())
@@ -25,7 +23,7 @@ class ClientController(BaseController):
     @ex(label='add-service-description', help="Add client service description", arguments=[])
     def add_description(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        self.add_client(self.load_config())
+        self.add_service_description(self.load_config())
 
     @ex(help="Register client", arguments=[])
     def register(self):
@@ -47,7 +45,7 @@ class ClientController(BaseController):
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
-                    self.remote_add_service_description(ss_configuration, client, service_description)
+                    self.remote_add_service_description(ss_configuration, security_server, client, service_description)
 
     def register_client(self, configuration):
         self.init_logging(configuration)
@@ -70,64 +68,75 @@ class ClientController(BaseController):
         try:
             response = clients_api.add_client(body=client_add)
             BaseController.log_info("Added client subsystem " + partial_client_id(client_conf) + " (got full id " + response.id + ")")
+            return response
         except ApiException as err:
             if err.status == 409:
                 BaseController.log_info("Client for '" + partial_client_id(client_conf) + "' already exists.")
             else:
                 BaseController.log_api_error('ClientsApi->add_client', err)
 
-    @staticmethod
-    def remote_add_service_description(ss_configuration, client_conf, service_description_conf):
+    def remote_add_service_description(self, ss_configuration, security_server_conf, client_conf, service_description_conf):
+        code = service_description_conf['rest_service_code'] if service_description_conf['rest_service_code'] else None
         description_add = ServiceDescriptionAdd(url=service_description_conf['url'],
-                                                rest_service_code=service_description_conf['rest_service_code'],
-                                                ignore_warnings=True)
+                                                rest_service_code=code,
+                                                ignore_warnings=True,
+                                                type=service_description_conf['type'])
         clients_api = ClientsApi(ApiClient(ss_configuration))
         try:
-            clients = clients_api.find_clients(member_class=client_conf['member_class'],
-                                               member_code=client_conf['member_code'],
-                                               subsystem_code=client_conf['subsystem_code'])
-            response = clients_api.add_client_service_description(clients[0].id, body=description_add)
-            BaseController.log_info("Added client subsystem " + partial_client_id(client_conf) + " service description" + " (got full id " + response.id + ")")
-        except ApiException as err:
-            if err.status == 409:
-                BaseController.log_info("Service description for '" + partial_client_id(client_conf) + "' already exists.")
-            else:
-                BaseController.log_api_error('ClientsApi->add_client_service_description', err)
-
-    def remote_register_client(ss_configuration, security_server_conf, client_conf):
-        clients_api = ClientsApi(ApiClient(ss_configuration))
-        try:
-            found_clients = clients_api.find_clients(
-                member_class=client_conf['member_class'],
-                member_code=client_conf['member_code'],
-                subsystem_code=client_conf['subsystem_code']
-            )
-
-            if not found_clients:
-                BaseController.log_info(
-                    security_server_conf['name'] + ": Client matching " + partial_client_id(client_conf) + " not found")
-                return
-
-            if len(found_clients) > 1:
-                BaseController.log_info(
-                    security_server_conf['name'] + ": Error, multiple matching clients found for " + partial_client_id(client_conf)
-                )
-                return
-
-            client = found_clients[0]
-            if ClientStatus.SAVED != client.status:
-                BaseController.log_info(
-                    security_server_conf['name'] + ": " + partial_client_id(client_conf) + " already registered."
-                )
-                return
-
-            try:
-                clients_api.register_client(id=client.id)
-                BaseController.log_info("Registered client " + partial_client_id(client_conf))
-            except ApiException as reg_err:
-                BaseController.log_api_error('ClientsApi->register_client', reg_err)
+            client = self.find_client(clients_api, security_server_conf, client_conf)
+            if client:
+                try:
+                    response = clients_api.add_client_service_description(client.id, body=description_add)
+                    BaseController.log_info("Added client subsystem " + partial_client_id(client_conf) + " service description" +
+                                            " (got full id " + response.id + ")")
+                except ApiException as err:
+                    if err.status == 409:
+                        BaseController.log_info("Service description for '" + partial_client_id(client_conf) + "' already exists.")
+                    else:
+                        BaseController.log_api_error('ClientsApi->add_client_service_description', err)
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
+
+    def remote_register_client(self, ss_configuration, security_server_conf, client_conf):
+        clients_api = ClientsApi(ApiClient(ss_configuration))
+        try:
+            client = self.find_client(clients_api, security_server_conf, client_conf)
+            if client:
+                if ClientStatus.SAVED != client.status:
+                    BaseController.log_info(
+                        security_server_conf['name'] + ": " + partial_client_id(client_conf) + " already registered."
+                    )
+                    return
+
+                try:
+                    clients_api.register_client(id=client.id)
+                    BaseController.log_info("Registered client " + partial_client_id(client_conf))
+                except ApiException as reg_err:
+                    BaseController.log_api_error('ClientsApi->register_client', reg_err)
+        except ApiException as find_err:
+            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+
+    @staticmethod
+    def find_client(clients_api, security_server_conf, client_conf):
+        found_clients = clients_api.find_clients(
+            member_class=client_conf['member_class'],
+            member_code=client_conf['member_code'],
+            subsystem_code=client_conf['subsystem_code']
+        )
+
+        if not found_clients:
+            BaseController.log_info(
+                security_server_conf['name'] + ": Client matching " + partial_client_id(client_conf) + " not found")
+            return
+
+        if len(found_clients) > 1:
+            BaseController.log_info(
+                security_server_conf['name'] + ": Error, multiple matching clients found for " + partial_client_id(client_conf)
+            )
+            return
+
+        return found_clients[0]
+
 
 def partial_client_id(client_conf):
     return str(client_conf['member_class']) + ":" + \

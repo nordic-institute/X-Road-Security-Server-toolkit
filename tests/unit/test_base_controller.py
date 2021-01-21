@@ -65,12 +65,18 @@ class TestBaseController(unittest.TestCase):
         os.remove(temp_file_name)
         self.assertEqual(response, None)
 
-    def test_init_logging_exception(self):
+    def test_init_logging_file_not_found_error(self):
         temp_file_name = "temp.log"
         self._ss_config["logging"][0]["file"] = temp_file_name
         base_controller = BaseController()
         base_controller.init_logging(self.get_ss_config())
         self.assertRaises(FileNotFoundError)
+
+    def test_init_logging_is_directory_error(self):
+        self._ss_config["logging"][0]["file"] = "/var/log"
+        base_controller = BaseController()
+        base_controller.init_logging(self.get_ss_config())
+        self.assertRaises(IsADirectoryError)
 
     def test_get_api_key(self):
         with patch.object(BaseController, 'create_api_key', return_value='api-key-123'):
