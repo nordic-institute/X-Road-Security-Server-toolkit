@@ -2,16 +2,21 @@ import logging
 import os
 import subprocess
 import traceback
+
 import networkx
+import urllib3
 import yaml
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
+
+from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
+from xrdsst.resources.texts import texts
 
 META = init_defaults('output.json', 'output.tabulate')
 META['output.json']['overridable'] = True
@@ -21,26 +26,39 @@ META['output.tabulate']['overridable'] = True
 OP_GRAPH = networkx.DiGraph()
 OP_DEPENDENCY_LIST = []
 
+OP_INIT="INIT"
+OP_TOKEN_LOGIN="TOKEN\nLOGIN"
+OP_TIMESTAMP_ENABLE="TIMESTAMPING"
+OP_GENKEYS_CSRS="KEYS AND CSR\nGENERATION"
+OP_IMPORT_CERTS="CERTIFICATE\nIMPORT"
+OP_REGISTER_AUTH_CERT="REGISTER\nAUTH CERT"
+OP_ACTIVATE_AUTH_CERT="ACTIVATE\nAUTH CERT"
+
 
 # Operations supported and known at the dependency graph level
 class OPS:
-    INIT = "INIT"
-    TOKEN_LOGIN = "TOKEN\nLOGIN"
-    TIMESTAMP_ENABLE = "TIMESTAMPING"
-    GENKEYS_CSRS = "KEYS AND CSR\nGENERATION"
-    IMPORT_CERTS = "CERTIFICATE\nIMPORT"
-
-
-OP_INIT = "INIT"
-OP_TOKEN_LOGIN = "TOKEN\nLOGIN"
-OP_TIMESTAMP_ENABLE = "TIMESTAMPING"
-OP_GENKEYS_CSRS = "KEYS AND CSR\nGENERATION"
-OP_IMPORT_CERTS = "CERTIFICATE\nIMPORT"
+    INIT = OP_INIT
+    TOKEN_LOGIN = OP_TOKEN_LOGIN
+    TIMESTAMP_ENABLE = OP_TIMESTAMP_ENABLE
+    GENKEYS_CSRS = OP_GENKEYS_CSRS
+    IMPORT_CERTS = OP_IMPORT_CERTS
+    REGISTER_AUTH_CERT = OP_REGISTER_AUTH_CERT
+    ACTIVATE_AUTH_CERT = OP_ACTIVATE_AUTH_CERT
 
 
 # Initialize operational dependency graph for the security server operations
 def opdep_init(app):
     graph = OP_GRAPH
+
+    graph.add_node(OPS.ACTIVATE_AUTH_CERT,
+                   controller=CertController, operation=CertController.activate,
+                   configured=False)
+    graph.add_node(OPS.REGISTER_AUTH_CERT,
+                   controller=CertController, operation=CertController.register,
+                   configured=False)
+    graph.add_node(OPS.IMPORT_CERTS,
+                   controller=CertController, operation=CertController.import_,
+                   configured=False)
     graph.add_node(OPS.GENKEYS_CSRS,
                    controller=TokenController, operation=TokenController.init_keys,
                    configured=False)
@@ -54,7 +72,8 @@ def opdep_init(app):
                    controller=TokenController, operation=TokenController.login,
                    configured=False)
 
-    graph.add_node(OPS.IMPORT_CERTS)
+    graph.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
+    graph.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
     graph.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
     graph.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
     graph.add_edge(OPS.TOKEN_LOGIN, OPS.GENKEYS_CSRS)
@@ -95,10 +114,11 @@ class XRDSST(App):
     """X-Road Security Server Toolkit primary application."""
 
     class Meta:
-        label = 'xrdsst'
+        label = texts['app.label']
 
         hooks = [
-            ('pre_setup', opdep_init)
+            ('pre_setup', opdep_init),
+            ('pre_setup', lambda app: urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning))
         ]
 
         # call sys.exit() on close
@@ -113,16 +133,18 @@ class XRDSST(App):
         output_handler = 'tabulate'
 
         # register handlers
-        handlers = [BaseController, ClientController, CertController, TimestampController, TokenController, InitServerController]
+        handlers = [BaseController, ClientController, CertController, TimestampController, TokenController, InitServerController, AutoController]
 
 
 class XRDSSTTest(TestApp, XRDSST):
     """A sub-class of XRDSST that is better suited for testing."""
 
     class Meta:
-        label = 'xrdsst'
+        label = texts['app.label'] + "-test"
 
         exit_on_close = False
+
+        handlers = XRDSST.Meta.handlers
 
 
 def main():

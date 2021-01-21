@@ -1,5 +1,7 @@
 texts = {
     'app.description': 'A toolkit for configuring security server',
+    'app.label': 'xrdsst',
+    'auto.controller.description': 'Automatically performs all operations possible with configuration.',
     'cert.controller.description': 'Commands for performing certificate operations.',
     'client.controller.description': 'Commands for performing client management operations.',
     'init.controller.description': 'Initializes security server with configuration anchor.',

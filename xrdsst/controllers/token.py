@@ -1,4 +1,3 @@
-import urllib3
 from cement import ex
 
 from xrdsst.api.security_servers_api import SecurityServersApi
@@ -41,17 +40,14 @@ class TokenController(BaseController):
 
     @ex(help='List tokens', arguments=[])
     def list(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.token_list(self.load_config())
 
     @ex(help='Login token', arguments=[])
     def login(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.token_login(self.load_config())
 
     @ex(help="Initializes two token keys with corresponding AUTH and SIGN CSR generated")
     def init_keys(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.token_add_keys_with_csrs(self.load_config())
 
     def token_list(self, config):

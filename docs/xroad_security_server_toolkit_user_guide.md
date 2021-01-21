@@ -55,15 +55,15 @@ The automatic configuration of X-Road security servers using the X-Road Security
 
 ### 2.2 Format of configuration file
 ```
+logging:
+  file: /path/to/xrdsst.log
+  level: <LOG_LEVEL>
 api-key:
 - credentials: <SECURITTY_SERVER_CREDENTIALS>
   key: /path/to/ssh_private_key
   roles:
   - <SECURITY_SERVER_ROLE_NAME>
   url: https://localhost:4000/api/v1/api-keys
-logging:
-- file: /path/to/xrdsst.log
-  level: <LOG_LEVEL>
 security-server:
 - api_key: X-Road-apikey token=<API_KEY>
   configuration_anchor: /path/to/configuration-anchor.xml
@@ -129,10 +129,10 @@ $ xrdsst
 
 Which currently gives further information about tool invocation options and subcommands.
 
-### 3.1 The automatic configuration of a single security server
+### 3.1 The automatic configuration of security servers listed in configuration file
 
 ```
-$ xrdsst init
+$ xrdsst apply
 ```
 
 In the first stage of the automatic process, the security server(s) will be initialized according to the configuration data specified

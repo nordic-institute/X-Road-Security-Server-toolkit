@@ -17,7 +17,6 @@ class ClientController(BaseController):
 
     @ex(label='add-subsystem', help="Add client subsystem", arguments=[])
     def add(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.add_client(self.load_config())
 
     @ex(label='add-service-description', help="Add client service description", arguments=[])
@@ -27,7 +26,6 @@ class ClientController(BaseController):
 
     @ex(help="Register client", arguments=[])
     def register(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.register_client(self.load_config())
 
     def add_client(self, configuration):

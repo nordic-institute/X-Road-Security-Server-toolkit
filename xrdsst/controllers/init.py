@@ -1,5 +1,3 @@
-import urllib3
-
 from cement import ex
 from xrdsst.controllers.base import BaseController
 from xrdsst.models import InitialServerConf
@@ -19,7 +17,6 @@ class InitServerController(BaseController):
 
     @ex(help='Initialize security server', hide=True)
     def _default(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         config_file = self.load_config()
         self.initialize_server(config_file)
 
