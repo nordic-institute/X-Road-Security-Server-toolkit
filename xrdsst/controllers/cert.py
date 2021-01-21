@@ -1,6 +1,5 @@
 import os
 
-import urllib3
 import cement.utils.fs
 
 from cement import ex
@@ -53,22 +52,18 @@ class CertController(BaseController):
 
     @ex(help="Import certificate(s)", label="import", arguments=[])
     def import_(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.import_certificates(self.load_config())
 
     @ex(help="Register authentication certificate(s)", arguments=[])
     def register(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.register_certificate(self.load_config())
 
     @ex(help="Activate registered centrally approved authentication certificate", arguments=[])
     def activate(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.activate_certificate(self.load_config())
 
     @ex(help="Download certificate requests for sign and auth keys, if any.", arguments=[])
     def download_csrs(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         return self._download_csrs(self.load_config())
 
     def import_certificates(self, configuration):

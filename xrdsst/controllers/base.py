@@ -1,10 +1,15 @@
+import atexit
 import json
 import os
 import logging
+import random
+import string
 import subprocess
 import yaml
 from cement import Controller
 from cement.utils.version import get_version_banner
+from datetime import datetime
+from pathlib import Path
 from urllib.parse import urlparse
 from definitions import ROOT_DIR
 from xrdsst.core.version import get_version
@@ -87,18 +92,45 @@ class BaseController(Controller):
 
     @staticmethod
     def init_logging(configuration):
-        log_file_name = configuration["logging"][0]["file"]
-        log_level = configuration["logging"][0]["level"]
+        if logging.getLogger().handlers:
+            return
+
+        exit_messages = ['']
+
+        auto_log_file_name = str(Path.home()) + "/" + texts['app.label'] + "-" + \
+            datetime.now().strftime("%Y%m%d-%H%M-%S") + \
+            '-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(4)) + '.log'
+
+        log_format = "%(asctime)-15s: %(levelname)s - %(message)s"
+        log_level = "INFO"
+        log_file_name = auto_log_file_name
+        auto_log = not configuration.get("logging") or not configuration.get("logging").get("file")
+        if configuration.get("logging"):
+            log_file_name = configuration["logging"].get("file", log_file_name)
+            log_level = configuration["logging"].get("level", log_level)
+
         try:
             exists = os.path.exists(log_file_name)
             if exists and os.path.isdir(log_file_name):
                 raise IsADirectoryError
-            if os.path.exists(os.path.dirname(log_file_name)):
-                logging.basicConfig(filename=log_file_name,
-                                    level=log_level,
-                                    format='%(name)s - %(levelname)s - %(message)s')
+            # 2nd condition allows for relative log file path spec
+            if os.path.exists(os.path.dirname(log_file_name)) or not os.path.dirname(log_file_name):
+                logging.basicConfig(filename=log_file_name, level=log_level, force=False, format=log_format)
         except IsADirectoryError:
-            print("Log configuration refers to directory: '" + log_file_name + "'")
+            exit_messages.append("Log configuration referred to directory: '" + log_file_name + "'.")
+            log_file_name = auto_log_file_name
+            auto_log = True
+        except PermissionError:
+            exit_messages.append("Was unable to log into '" + log_file_name + "'.")
+            log_file_name = auto_log_file_name
+            auto_log = True
+
+        if auto_log:
+            if not logging.getLogger().handlers: # auto_log enabled due to errors, needs setting up
+                logging.basicConfig(filename=log_file_name, level=log_level, force=False, format=log_format)
+            exit_messages.append("Activities logged into '" + log_file_name + "'.")
+            atexit.register(lambda: print(*exit_messages, sep='\n'))
+
 
     def load_config(self, baseconfig=None):
         if not baseconfig:

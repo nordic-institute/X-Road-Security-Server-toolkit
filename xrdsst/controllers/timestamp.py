@@ -1,5 +1,4 @@
 import logging
-import urllib3
 from cement import ex
 
 from .base import BaseController
@@ -43,18 +42,15 @@ class TimestampController(BaseController):
     # Protobonus: approved timestamp services list
     @ex(label='list-approved', help='List approved timestamping services.', arguments=[])
     def list_approved(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.timestamp_service_list_approved(self.load_config())
 
     # Protobonus: configured timestamp services list
     @ex(label='list-configured', help='List configured timestamping services', arguments=[])
     def list_configured(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.timestamp_service_list(self.load_config())
 
     @ex(help='Select and activate single approved timestamping service.', arguments=[])
     def init(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.timestamp_service_init(self.load_config())
 
     # Since this is read-only operation, do not log anything, only console output

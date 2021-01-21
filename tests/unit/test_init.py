@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 from xrdsst.configuration.configuration import Configuration
 from xrdsst.controllers.init import InitServerController
+from xrdsst.models import TokenInitStatus
 from xrdsst.models.initialization_status import InitializationStatus
 from xrdsst.rest.rest import ApiException
 from tests.unit.test_base_controller import TestBaseController
@@ -78,7 +79,7 @@ class TestInit(unittest.TestCase):
         initialization_status = InitializationStatus(is_anchor_imported=True,
                                                      is_server_code_initialized=True,
                                                      is_server_owner_initialized=True,
-                                                     software_token_init_status='INITLIALIZED')
+                                                     software_token_init_status=TokenInitStatus.INITIALIZED)
         with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
                         return_value=initialization_status):
             init = InitServerController()
@@ -89,7 +90,7 @@ class TestInit(unittest.TestCase):
         initialization_status = InitializationStatus(is_anchor_imported=False,
                                                      is_server_code_initialized=False,
                                                      is_server_owner_initialized=False,
-                                                     software_token_init_status='NOT_INITLIALIZED')
+                                                     software_token_init_status=TokenInitStatus.NOT_INITIALIZED)
         with mock.patch('xrdsst.controllers.init.InitializationApi.get_initialization_status',
                         return_value=initialization_status):
             with mock.patch('xrdsst.controllers.init.SystemApi.upload_initial_anchor',

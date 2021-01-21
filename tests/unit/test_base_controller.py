@@ -1,9 +1,10 @@
 import os
 import unittest
+import yaml
+
+from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
-
-import yaml
 
 from definitions import ROOT_DIR
 from xrdsst.configuration.configuration import Configuration
@@ -15,7 +16,7 @@ class TestBaseController(unittest.TestCase):
 
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
-        'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
+        'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
          'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
                       'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security_server':
@@ -57,20 +58,48 @@ class TestBaseController(unittest.TestCase):
 
     def test_init_logging(self):
         temp_file_name = "temp.log"
-        log_file = open(temp_file_name, "w")
-        self._ss_config["logging"][0]["file"] = temp_file_name
-        base_controller = BaseController()
-        response = base_controller.init_logging(self.get_ss_config())
-        log_file.close()
-        os.remove(temp_file_name)
-        self.assertEqual(response, None)
 
-    def test_init_logging_exception(self):
-        temp_file_name = "temp.log"
-        self._ss_config["logging"][0]["file"] = temp_file_name
+        import logging
+        logging.getLogger().handlers.clear()
+        assert not logging.getLogger().handlers
+
+        if os.path.exists(temp_file_name) and not os.path.isdir(temp_file_name):
+            os.remove(temp_file_name)
+
+        self._ss_config["logging"]["file"] = temp_file_name
         base_controller = BaseController()
         base_controller.init_logging(self.get_ss_config())
-        self.assertRaises(FileNotFoundError)
+        assert len(logging.getLogger().handlers) == 1
+        assert os.path.exists(temp_file_name)
+
+        logging.shutdown()
+        os.remove(temp_file_name)
+
+
+    def test_init_logging_no_write_access(self):
+        temp_file_name = "/root/nocanwrite.log"
+
+        import logging
+        logging.getLogger().handlers.clear()
+        assert not logging.getLogger().handlers
+
+        self._ss_config["logging"]["file"] = temp_file_name
+        base_controller = BaseController()
+        base_controller.init_logging(self.get_ss_config())
+        assert len(logging.getLogger().handlers) == 1
+
+    def test_init_logging_directory(self):
+        temp_file_name = str(Path.home())
+
+        import logging
+        logging.getLogger().handlers.clear()
+        assert not logging.getLogger().handlers
+
+        self._ss_config["logging"]["file"] = temp_file_name
+        base_controller = BaseController()
+        base_controller.init_logging(self.get_ss_config())
+        assert len(logging.getLogger().handlers) == 1
+
 
     def test_get_api_key(self):
         with patch.object(BaseController, 'create_api_key', return_value='api-key-123'):
