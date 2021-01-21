@@ -122,10 +122,10 @@ $ xrdsst
 
 Which currently gives further information about tool invocation options and subcommands.
 
-### 3.1 The automatic configuration of a single security server
+### 3.1 The automatic configuration of security servers listed in configuration file
 
 ```
-$ xrdsst init
+$ xrdsst apply
 ```
 
 In the first stage of the automatic process, the security server(s) will be initialized according to the configuration data specified
