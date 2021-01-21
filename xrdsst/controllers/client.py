@@ -87,8 +87,9 @@ class ClientController(BaseController):
             if client:
                 try:
                     response = clients_api.add_client_service_description(client.id, body=description_add)
-                    BaseController.log_info("Added client subsystem " + partial_client_id(client_conf) + " service description" +
-                                            " (got full id " + response.id + ")")
+                    if response:
+                        BaseController.log_info("Added client subsystem " + partial_client_id(client_conf) + " service description" +
+                                                " (got full id " + response.id + ")")
                 except ApiException as err:
                     if err.status == 409:
                         BaseController.log_info("Service description for '" + partial_client_id(client_conf) + "' already exists.")

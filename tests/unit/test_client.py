@@ -26,7 +26,7 @@ class ClientTestData:
 
     add_description_response = ServiceDescription(
         id='DEV:GOV:9876:SUB1',
-        url='https://openapi3.service.com',
+        url='https://openapi3',
         type=ServiceType.OPENAPI3,
         disabled=True,
         disabled_notice='',
@@ -184,7 +184,7 @@ class TestClient(unittest.TestCase):
                         member_code='9876',
                         subsystem_code='SUB1',
                         connection_type=ConnectionType.HTTP,
-                        status=ClientStatus.SAVED,
+                        status=ClientStatus.REGISTERED,
                         owner=True,
                         has_valid_local_sign_cert=True
                     )]):
@@ -196,29 +196,40 @@ class TestClient(unittest.TestCase):
                     client_controller.add_description()
 
                     out, err = self.capsys.readouterr()
-                    assert out.count("Added client") > 0
+                    assert out.count("service description") > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
                         sys.stderr.write(err)
 
-    # def test_service_description_add_already_existing(self):
-    #     class AlreadyExistingResponse:
-    #         status = 409
-    #         data = '{"status":409,"error":{"code":"certificate_already_exists"}}'
-    #         reason = None
-    #         def getheaders(self): return None
-    #     with XRDSSTTest() as app:
-    #             with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_service_description',
-    #                             side_effect=ApiException(http_resp=AlreadyExistingResponse())):
-    #                 client_controller = ClientController()
-    #                 client_controller.app = app
-    #                 client_controller.load_config = (lambda: self.ss_config)
-    #                 client_controller.add_description()
-    #
-    #                 out, err = self.capsys.readouterr()
-    #                 assert out.count("already exists") > 0
-    #
-    #                 with self.capsys.disabled():
-    #                     sys.stdout.write(out)
-    #                     sys.stderr.write(err)
+    def test_service_description_add_already_existing(self):
+        class AlreadyExistingResponse:
+            status = 409
+            data = '{"status":409,"error":{"code":"service_description_already_exists"}}'
+            reason = None
+            def getheaders(self): return None
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                        id='DEV:GOV:9876:SUB1',
+                        instance_id='DEV',
+                        member_class='GOV',
+                        member_code='9876',
+                        subsystem_code='SUB1',
+                        connection_type=ConnectionType.HTTP,
+                        status=ClientStatus.REGISTERED,
+                        owner=True,
+                        has_valid_local_sign_cert=True
+                    )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_service_description',
+                                side_effect=ApiException(http_resp=AlreadyExistingResponse())):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config)
+                    client_controller.add_description()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("already exists") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)

@@ -5,6 +5,7 @@ api_key:
   - <SECURITY_SERVER_ROLE_NAME>
   - <SECURITY_SERVER_ROLE_NAME>
   - <SECURITY_SERVER_ROLE_NAME>
+  - <SECURITY_SERVER_ROLE_NAME>
   url: https://localhost:4000/api/v1/api-keys
 logging:
 - file: /path/to/xrdsst.log
