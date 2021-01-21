@@ -87,11 +87,10 @@ class EndToEndTest(unittest.TestCase):
             assert str(response[0].keys[1].label) == sign_key_label
 
     def step_cert_download_csrs(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            cert_controller.load_config = (lambda: self.config)
-            result = cert_controller.download_csrs()
+        cert_controller = CertController()
+        for security_server in self.config["security_server"]:
+            ss_configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+            result = cert_controller.remote_download_csrs(ss_configuration, security_server)
             assert len(result) == 2
             assert result[0].fs_loc != result[1].fs_loc
 
@@ -153,6 +152,15 @@ class EndToEndTest(unittest.TestCase):
                 response = client_controller.remote_register_client(configuration, security_server, client)
                 assert len(response) > 0
 
+    def step_subsystem_add_service_description(self):
+        client_controller = ClientController()
+        for security_server in self.config["security_server"]:
+            configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    response = client_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                assert len(response) > 0
+
     def test_run_configuration(self):
         self.step_init()
         self.step_timestamp_init()
@@ -172,3 +180,7 @@ class EndToEndTest(unittest.TestCase):
         # subsystems
         self.step_subsystem_add_client()
         self.step_subsystem_register()
+
+        # service descriptions
+        self.step_subsystem_add_service_description()
+
