@@ -53,7 +53,7 @@ def find_test_ca_sign_url(conf_anchor_file_loc):
 def auth_cert_registration_global_configuration_update_received(config):
     def registered_auth_key(key):
         return BaseController.default_auth_key_label(config["security_server"][0]) == key['label'] and \
-               'REGISTERED' == key['certificates'][1]['status']
+               'REGISTERED' == key['certificates'][0]['status']
 
     result = requests.get(
         config["security_server"][0]["url"] + "/tokens/" + str(config["security_server"][0]['software_token_id']),
