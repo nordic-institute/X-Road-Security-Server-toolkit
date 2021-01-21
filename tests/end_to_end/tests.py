@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import unittest
 import urllib3
@@ -37,12 +38,13 @@ class EndToEndTest(unittest.TestCase):
         init = InitServerController()
         self.config = base.load_config(baseconfig=self.config_file)
         for security_server in self.config["security_server"]:
-            configuration = init.initialize_basic_config_values(security_server, self.config)
-            status = init.check_init_status(configuration)
-            assert status.is_anchor_imported is False and status.is_server_code_initialized is False
-            init.initialize_server(self.config)
-            status = init.check_init_status(configuration)
-            assert status.is_anchor_imported is True and status.is_server_code_initialized is True
+             configuration = init.initialize_basic_config_values(security_server, self.config)
+             status = init.check_init_status(configuration)
+             assert status.is_anchor_imported is False and status.is_server_code_initialized is False
+             init.initialize_server(self.config)
+             status = init.check_init_status(configuration)
+             assert status.is_anchor_imported is True and status.is_server_code_initialized is True
+             self.revoke_api_key(security_server)
 
     def step_timestamp_init(self):
         with XRDSSTTest() as app:
@@ -57,6 +59,7 @@ class EndToEndTest(unittest.TestCase):
                 assert len(response) > 0
                 assert len(response[0].name) > 0
                 assert len(response[0].url) > 0
+                self.revoke_api_key(security_server)
 
     def step_token_login(self):
         token_controller = TokenController()
@@ -69,6 +72,7 @@ class EndToEndTest(unittest.TestCase):
             response = token_controller.remote_get_tokens(configuration)
             assert len(response) > 0
             assert response[0].logged_in is True
+            self.revoke_api_key(security_server)
 
     def step_token_init_keys(self):
         token_controller = TokenController()
@@ -85,19 +89,24 @@ class EndToEndTest(unittest.TestCase):
             sign_key_label = security_server['name'] + '-default-sign-key'
             assert str(response[0].keys[0].label) == auth_key_label
             assert str(response[0].keys[1].label) == sign_key_label
+            self.revoke_api_key(security_server)
 
     def step_cert_download_csrs(self):
-        cert_controller = CertController()
-        for security_server in self.config["security_server"]:
-            ss_configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
-            result = cert_controller.remote_download_csrs(ss_configuration, security_server)
-            assert len(result) == 2
-            assert result[0].fs_loc != result[1].fs_loc
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                ss_configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                result = cert_controller.remote_download_csrs(ss_configuration, security_server)
+                assert len(result) == 2
+                assert result[0].fs_loc != result[1].fs_loc
 
-            return [
-                ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
-                ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
-            ]
+                self.revoke_api_key(security_server)
+
+                return [
+                    ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
+                    ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
+                ]
 
     def step_acquire_certs(self, downloaded_csrs):
         tca_sign_url = find_test_ca_sign_url(self.config['security_server'][0]['configuration_anchor'])
@@ -114,43 +123,61 @@ class EndToEndTest(unittest.TestCase):
     def apply_cert_config(self, signed_certs):
         self.config['security_server'][0]['certificates'] = signed_certs
 
+    def revoke_api_key(self, security_server):
+        base = BaseController()
+        if security_server["api_key"] == base.api_key_default:
+            curl_cmd = "curl -X DELETE -u " + self.config["api_key"][0]["credentials"] + " --silent " + \
+                       self.config["api_key"][0]["url"] + "/" + str(base.api_key_id[security_server['name']]) + " -k"
+            cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
+                  self.config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
+            subprocess.run(cmd, shell=True, check=False, capture_output=True)
+
     def step_cert_import(self):
-        cert_controller = CertController()
-        for security_server in self.config["security_server"]:
-            configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
-            response = cert_controller.remote_import_certificates(configuration, security_server)
-            assert len(response) > 0
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                cert_controller.remote_import_certificates(configuration, security_server)
+                self.revoke_api_key(security_server)
 
     def step_cert_register(self):
-        cert_controller = CertController()
-        for security_server in self.config["security_server"]:
-            configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
-            response = cert_controller.remote_register_certificate(configuration, security_server)
-            assert len(response) > 0
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                cert_controller.remote_register_certificate(configuration, security_server)
+                self.revoke_api_key(security_server)
 
     def step_cert_activate(self):
-        cert_controller = CertController()
-        for security_server in self.config["security_server"]:
-            configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
-            response = cert_controller.remote_activate_certificate(configuration, security_server)
-            assert len(response) > 0
-            assert 'ACTIVATE' in response
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                cert_controller.remote_activate_certificate(configuration, security_server)
+                self.revoke_api_key(security_server)
 
     def step_subsystem_add_client(self):
-        client_controller = ClientController()
-        for security_server in self.config["security_server"]:
-            configuration = client_controller.initialize_basic_config_values(security_server, self.config)
-            for client in security_server["clients"]:
-                response = client_controller.remote_add_client(configuration, client)
-                assert len(response) > 0
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+                for client in security_server["clients"]:
+                    client_controller.remote_add_client(configuration, client)
+                self.revoke_api_key(security_server)
 
     def step_subsystem_register(self):
-        client_controller = ClientController()
-        for security_server in self.config["security_server"]:
-            configuration = client_controller.initialize_basic_config_values(security_server, self.config)
-            for client in security_server["clients"]:
-                response = client_controller.remote_register_client(configuration, security_server, client)
-                assert len(response) > 0
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+                for client in security_server["clients"]:
+                    client_controller.remote_register_client(configuration, security_server, client)
+                self.revoke_api_key(security_server)
 
     def step_subsystem_add_service_description(self):
         client_controller = ClientController()
@@ -158,18 +185,18 @@ class EndToEndTest(unittest.TestCase):
             configuration = client_controller.initialize_basic_config_values(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
-                    response = client_controller.remote_add_service_description(configuration, security_server, client, service_description)
-                assert len(response) > 0
+                    client_controller.remote_add_service_description(configuration, security_server, client, service_description)
+            self.revoke_api_key(security_server)
 
     def test_run_configuration(self):
         self.step_init()
         self.step_timestamp_init()
         self.step_token_login()
         self.step_token_init_keys()
-
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
         self.apply_cert_config(signed_certs)
+        self.step_cert_import()
         self.step_cert_import()
         self.step_cert_register()
         self.step_cert_activate()
@@ -177,10 +204,7 @@ class EndToEndTest(unittest.TestCase):
         # Wait for global configuration status updates
         waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), self.retry_wait, self.max_retries)
 
-        # subsystems
         self.step_subsystem_add_client()
         self.step_subsystem_register()
-
-        # service descriptions
         self.step_subsystem_add_service_description()
 
