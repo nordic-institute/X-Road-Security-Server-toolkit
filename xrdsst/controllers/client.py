@@ -86,7 +86,7 @@ class ClientController(BaseController):
                 try:
                     response = clients_api.add_client_service_description(client.id, body=description_add)
                     if response:
-                        BaseController.log_info("Added client subsystem " + partial_client_id(client_conf) + " service description" +
+                        BaseController.log_info("Added service description with type \"" + response.type + "\" and url \"" + response.url + "\"" +
                                                 " (got full id " + response.id + ")")
                 except ApiException as err:
                     if err.status == 409:
