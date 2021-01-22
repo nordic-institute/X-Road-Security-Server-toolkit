@@ -167,6 +167,6 @@ cert register``, final activation with ``xrdsst cert activate``.
 
 ### 3.7 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
-``xrdsst client add-subsystem``, the subsystem parameters should be specified in the configuration ``clients`` section.
+``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
 Further subsystem registration can proceed with ``xrdsst client register``. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst client add-service-description``.
