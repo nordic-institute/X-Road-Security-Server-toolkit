@@ -62,11 +62,6 @@ class TestXRDSST(unittest.TestCase):
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
                           'rest_service_code': 'Petstore',
                           'type': 'OPENAPI3'
-                      },
-                      {
-                          'url': 'https://wsdl.service.com',
-                          'rest_service_code': '',
-                          'type': 'WSDL'
                       }
                       ]
                   }]
@@ -264,6 +259,7 @@ class TestXRDSST(unittest.TestCase):
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
         self.apply_cert_config(signed_certs)
+        self.step_cert_import()
         self.step_cert_import()
         self.step_cert_register()
         self.step_cert_activate()

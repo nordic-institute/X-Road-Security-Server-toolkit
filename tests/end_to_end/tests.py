@@ -1,10 +1,11 @@
 import os
 import subprocess
 import sys
+import time
 import unittest
 import urllib3
 
-from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, waitfor, auth_cert_registration_global_configuration_update_received
+from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -17,8 +18,6 @@ from xrdsst.main import XRDSSTTest
 class EndToEndTest(unittest.TestCase):
     config_file = None
     config = None
-    max_retries = 300
-    retry_wait = 1  # in seconds
 
     def setUp(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -202,7 +201,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_cert_activate()
 
         # Wait for global configuration status updates
-        waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), self.retry_wait, self.max_retries)
+        time.sleep(120)
 
         self.step_subsystem_add_client()
         self.step_subsystem_register()
