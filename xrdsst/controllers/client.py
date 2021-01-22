@@ -86,11 +86,12 @@ class ClientController(BaseController):
                 try:
                     response = clients_api.add_client_service_description(client.id, body=description_add)
                     if response:
-                        BaseController.log_info("Added service description with type \"" + response.type + "\" and url \"" + response.url + "\"" +
-                                                " (got full id " + response.id + ")")
+                        BaseController.log_info("Added service description with type '" + response.type + "' and url '" + response.url +
+                                                "' (got full id " + response.id + ")")
                 except ApiException as err:
                     if err.status == 409:
-                        BaseController.log_info("Service description for '" + partial_client_id(client_conf) + "' already exists.")
+                        BaseController.log_info("Service description for '" + partial_client_id(client_conf) + "' with url '" + description_add.url +
+                                                "' and type '" + description_add.type + "' already exists.")
                     else:
                         BaseController.log_api_error('ClientsApi->add_client_service_description', err)
         except ApiException as find_err:
