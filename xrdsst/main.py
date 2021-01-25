@@ -100,9 +100,10 @@ def revoke_api_key(app):
                     curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
                                config["api_key"][0]["url"] + "/" + str(api_key_id[security_server['name']]) + " -k"
                     cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                          config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
-                    subprocess.run(cmd, shell=True, check=False, capture_output=True)
-                    log_info('API key for security server ' + security_server['name'] + ' revoked successfully')
+                        config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
+                    process = subprocess.run(cmd, shell=True, check=True, capture_output=True)
+                    if process.returncode == 0:
+                        log_info('API key for security server ' + security_server['name'] + ' revoked successfully')
 
 
 def log_info(message):

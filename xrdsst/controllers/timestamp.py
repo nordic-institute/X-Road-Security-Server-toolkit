@@ -1,3 +1,5 @@
+import logging
+
 from cement import ex
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts

@@ -86,7 +86,7 @@ security-server:
       connection_type: <CONNECTION_TYPE>
       service_descriptions:
         - url: <SERVICE_DESCRIPTION_URL>
-          rest_service_code: <SERVICE_CODE>
+          rest_service_code: <REST_SERVICE_CODE>
           type: <SERVICE_TYPE>
 ```
 
@@ -116,7 +116,7 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SUBSYSTEM_CODE> X-Road member/client subsystem code.
 * <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
 * <SERVICE_DESCRIPTION_URL> URL for service description
-* <SERVICE_CODE> rest service code, empty for WSDL service
+* <REST_SERVICE_CODE> rest service code, not used for WSDL services
 * <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
 
 ## 3 Running the X-Road Security Server Toolkit

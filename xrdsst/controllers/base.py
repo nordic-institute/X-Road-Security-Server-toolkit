@@ -154,7 +154,7 @@ class BaseController(Controller):
 
     @staticmethod
     def log_api_error(api_method, exception):
-        logging.error("Exception calling %s: %s", api_method, str(exception))
+        logging.error("Exception calling " + api_method + ": " + str(exception))
         print("Exception calling " + api_method + ": " + str(exception))
 
     @staticmethod

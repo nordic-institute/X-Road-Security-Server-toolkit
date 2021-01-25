@@ -42,8 +42,9 @@ class ClientController(BaseController):
             BaseController.log_info('Starting service description add process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    self.remote_add_service_description(ss_configuration, security_server, client, service_description)
+                if "service_descriptions" in client:
+                    for service_description in client["service_descriptions"]:
+                        self.remote_add_service_description(ss_configuration, security_server, client, service_description)
 
     def register_client(self, configuration):
         self.init_logging(configuration)
