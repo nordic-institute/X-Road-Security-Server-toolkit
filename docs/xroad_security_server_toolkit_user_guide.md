@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.1.6
+Version: 1.1.7
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
@@ -15,7 +15,7 @@ Doc. ID: XRDSST-CONF
 | 22.12.2020 | 1.1.4       | Brief notes on certificate management                                        | Taimo Peelo        |
 | 30.12.2020 | 1.1.5       | Note on certificate activation                                               | Taimo Peelo        |
 | 12.01.2021 | 1.1.6       | Notes on client management                                                   | Taimo Peelo        |
-
+| 20.01.2021 | 1.1.7       | Notes on adding service descriptions                                         | Bert Viikmäe       |
 
 ## Table of Contents
 
@@ -84,6 +84,10 @@ security-server:
       member_code: <MEMBER_CODE>
       subsystem_code: <SUBSYSTEM_CODE>
       connection_type: <CONNECTION_TYPE>
+      service_descriptions:
+        - url: <SERVICE_DESCRIPTION_URL>
+          rest_service_code: <REST_SERVICE_CODE>
+          type: <SERVICE_TYPE>
 ```
 
 The ``api-key`` section is for configuring the automatic api key generation parameters for security server
@@ -111,6 +115,9 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 (but not all of them can be in use / registered)
 * <SUBSYSTEM_CODE> X-Road member/client subsystem code.
 * <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
+* <SERVICE_DESCRIPTION_URL> URL for service description
+* <REST_SERVICE_CODE> rest service code, not used for WSDL services
+* <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
 
 ## 3 Running the X-Road Security Server Toolkit
 
@@ -161,4 +168,5 @@ cert register``, final activation with ``xrdsst cert activate``.
 ### 3.7 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
 ``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
-Further subsystem registration can proceed with ``xrdsst client register``.
+Further subsystem registration can proceed with ``xrdsst client register``. Adding REST/OPENAPI3/WSDL service descriptions
+is performed with ``xrdsst client add-service-description``.

@@ -17,6 +17,7 @@ def test_default_sign_key_label():
     security_server_config = {'name': 'ss-name1'}
     assert 'ss-name1-default-sign-key' == BaseController.default_sign_key_label(security_server_config)
 
+
 def test_default_auth_key_label():
     security_server_config = {'name': 'ss-name2'}
     assert 'ss-name2-default-auth-key' == BaseController.default_auth_key_label(security_server_config)

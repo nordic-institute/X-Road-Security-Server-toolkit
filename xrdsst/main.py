@@ -1,9 +1,9 @@
-import networkx
 import logging
 import os
 import subprocess
 import traceback
 
+import networkx
 import urllib3
 import yaml
 from cement import App, TestApp, init_defaults
@@ -79,9 +79,9 @@ def opdep_init(app):
     graph.add_edge(OPS.TOKEN_LOGIN, OPS.GENKEYS_CSRS)
     graph.add_edge(OPS.GENKEYS_CSRS, OPS.IMPORT_CERTS)
 
-    ts = list(networkx.topological_sort(graph))
+    topologically_sorted = list(networkx.topological_sort(graph))
     app.OP_GRAPH = graph
-    app.OP_DEPENDENCY_LIST = ts
+    app.OP_DEPENDENCY_LIST = topologically_sorted
 
 
 def revoke_api_key(app):
@@ -98,11 +98,14 @@ def revoke_api_key(app):
                 if security_server["api_key"] == api_key_default:
                     log_info('Revoking API key for security server ' + security_server['name'])
                     curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
-                        config["api_key"][0]["url"] + "/" + str(api_key_id[security_server['name']]) + " -k"
+                               config["api_key"][0]["url"] + "/" + str(api_key_id[security_server['name']]) + " -k"
                     cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
                         config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
-                    process = subprocess.run(cmd, shell=True, check=False, capture_output=True)
-                    log_info('API key for security server ' + security_server['name'] + ' revoked successfully')
+                    process = subprocess.run(cmd, shell=True, check=True, capture_output=True)
+                    if process.returncode == 0:
+                        log_info('API key for security server ' + security_server['name'] + ' revoked successfully')
+                    else:
+                        logging.error('Revoking of API key for security server ' + security_server['name'] + ' failed')
 
 
 def log_info(message):

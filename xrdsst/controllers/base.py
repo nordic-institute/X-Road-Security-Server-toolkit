@@ -34,14 +34,14 @@ class BaseController(Controller):
     api_key_id = {}
 
     def _pre_argument_parsing(self):
-        p = self._parser
+        parser = self._parser
         # Top level configuration file specification only
         if (issubclass(BaseController, self.__class__)) and issubclass(self.__class__, BaseController):
-            p.add_argument('-c', '--configfile',
+            parser.add_argument('-c', '--configfile',
                            # TODO after the conventional name and location for config file gets figured out, extract to texts
                            help="Specify configuration file to use instead of default 'config/base.yaml'",
                            metavar='file',
-                           default=os.path.join(ROOT_DIR, "config/base.yaml")) # TODO extract to consts after settling on naming
+                           default=os.path.join(ROOT_DIR, "config/base.yaml"))  # TODO extract to consts after settling on naming
 
     def create_api_key(self, roles_list, config, security_server):
         self.log_info('Creating API key for security server: ' + security_server['name'])

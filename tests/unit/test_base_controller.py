@@ -100,7 +100,6 @@ class TestBaseController(unittest.TestCase):
         base_controller.init_logging(self.get_ss_config())
         assert len(logging.getLogger().handlers) == 1
 
-
     def test_get_api_key(self):
         with patch.object(BaseController, 'create_api_key', return_value='api-key-123'):
             base_controller = BaseController()

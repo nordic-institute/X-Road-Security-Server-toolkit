@@ -24,10 +24,10 @@ class TokenListMapper:
     @staticmethod
     def as_object(token):
         return {
-            'id' : token.id,
-            'name' : token.name,
+            'id': token.id,
+            'name': token.name,
             'status': token.status,
-            'logged_in' : token.logged_in
+            'logged_in': token.logged_in
         }
 
 
@@ -109,7 +109,7 @@ class TokenController(BaseController):
     def token_add_keys_with_csrs(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting token key creation process for security server: '+ security_server['name'])
+            BaseController.log_info('Starting token key creation process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_add_keys_with_csrs(ss_configuration, security_server)
 

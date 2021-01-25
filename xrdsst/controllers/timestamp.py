@@ -1,11 +1,11 @@
 import logging
-from cement import ex
 
-from .base import BaseController
+from cement import ex
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts
-from ..api import TimestampingServicesApi
 from xrdsst.api.system_api import SystemApi
+from .base import BaseController
+from ..api import TimestampingServicesApi
 from ..models import TimestampingService
 from ..rest.rest import ApiException
 
@@ -22,7 +22,7 @@ class TimestampServiceListMapper:
     @staticmethod
     def as_object(timestamping_service):
         return {
-            'name' : timestamping_service.name,
+            'name': timestamping_service.name,
             'url': timestamping_service.url
         }
 
@@ -81,7 +81,8 @@ class TimestampController(BaseController):
         except ApiException as e:
             print("Exception when listing timestamping services: %s\n", e)
 
-    def get_approved_timestamping_services(self, ss_configuration):
+    @staticmethod
+    def get_approved_timestamping_services(ss_configuration):
         timestamping_api = TimestampingServicesApi(ApiClient(ss_configuration))
         return timestamping_api.get_approved_timestamping_services()
 
@@ -101,7 +102,7 @@ class TimestampController(BaseController):
         except ApiException as e:
             print("Exception when listing timestamping services: %s\n", e)
 
-    def timestamp_service_init(self, configuration): # logging required
+    def timestamp_service_init(self, configuration):  # logging required
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
             ss_config = self.initialize_basic_config_values(security_server, configuration)

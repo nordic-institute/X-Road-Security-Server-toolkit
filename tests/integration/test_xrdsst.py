@@ -1,14 +1,15 @@
-import unittest
-import time
-import subprocess
-import os
 import json
-import git
+import os
+import subprocess
+import time
+import unittest
+
 import docker
-import requests
+import git
 import urllib3
 
 from definitions import ROOT_DIR
+from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, auth_cert_registration_global_configuration_update_received, waitfor
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -18,76 +19,7 @@ from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
 
 
-# Waits until boolean function returns True within number of retried delays or raises error
-def waitfor(boolf, delay, retries):
-    count = 0
-    while count < retries and not boolf():
-        time.sleep(delay)
-        count += 1
-
-    if count >= retries:
-        raise Exception("Exceeded retry count " + str(retries) + " with delay " + str(delay) + "s.")
-
-
-# Returns TEST CA signed certificate in PEM format.
-def perform_test_ca_sign(test_ca_sign_url, certfile_loc, _type):
-    certfile = open(certfile_loc, "rb")  # opening for [r]eading as [b]inary
-    cert_data = certfile.read()
-    certfile.close()
-
-    response = requests.post(
-        test_ca_sign_url,
-        {'type': _type},
-        files={
-            'certreq': (os.path.basename(certfile_loc), cert_data, 'application/x-x509-ca-cert')
-        }
-    )
-
-    # Test CA returns plain PEMs only
-    return response.content.decode("ascii")
-
-
-# Deduce possible TEST CA URL from configuration anchor
-def find_test_ca_sign_url(conf_anchor_file_loc):
-    prefix = "/testca"
-    port = 8888
-    suffix = "/sign"
-    with open(conf_anchor_file_loc, 'r') as anchor_file:
-        xml_fragment = list(filter(lambda s: s.count('downloadURL>') == 2, anchor_file.readlines())).pop()
-        internal_conf_url = xml_fragment.replace("<downloadURL>", "").replace("</downloadURL>", "").strip()
-        from urllib.parse import urlparse
-        parsed_url = urlparse(internal_conf_url)
-        host = parsed_url.netloc.split(':')[0]
-        protocol = parsed_url.scheme
-        return protocol + "://" + host + ":" + str(port) + prefix + suffix
-
-
-# Check for auth cert registration update receival
-def auth_cert_registration_global_configuration_update_received(config):
-    def registered_auth_key(key):
-        return BaseController.default_auth_key_label(config["security_server"][0]) == key['label'] and \
-               'REGISTERED' == key['certificates'][0]['status']
-
-    result = requests.get(
-        config["security_server"][0]["url"] + "/tokens/" + str(config["security_server"][0]['software_token_id']),
-        None,
-        headers={
-            'Authorization': config["security_server"][0]["api_key"],
-            'accept': 'application/json'
-        },
-        verify=False
-    )
-
-    if result.status_code != 200:
-        raise Exception("Failed registration status check, status " + result.status_code + ": " + result.reason)
-
-    response = json.loads(result.content)
-    registered_auth_keys = list(filter(registered_auth_key, response['keys']))
-    return True if registered_auth_keys else False
-
-
 class TestXRDSST(unittest.TestCase):
-
     configuration_anchor = "tests/resources/configuration-anchor.xml"
     credentials = "xrd:secret"
     git_repo = 'https://github.com/nordic-institute/X-Road.git'
@@ -96,10 +28,10 @@ class TestXRDSST(unittest.TestCase):
     docker_folder = local_folder + '/Docker/securityserver'
     image = 'xroad-security-server:latest'
     url = 'https://localhost:4000/api/v1/api-keys'
-    roles = '[\"XROAD_SYSTEM_ADMINISTRATOR\",\"XROAD_SECURITY_OFFICER\", \"XROAD_REGISTRATION_OFFICER\"]'
+    roles = '[\"XROAD_SYSTEM_ADMINISTRATOR\",\"XROAD_SERVICE_ADMINISTRATOR\", \"XROAD_SECURITY_OFFICER\", \"XROAD_REGISTRATION_OFFICER\"]'
     header = 'Content-Type: application/json'
     max_retries = 300
-    retry_wait = 1 # in seconds
+    retry_wait = 1  # in seconds
     name = None
     config = None
 
@@ -120,7 +52,21 @@ class TestXRDSST(unittest.TestCase):
                   'owner_member_code': '1234',
                   'security_server_code': 'SS',
                   'software_token_id': 0,
-                  'software_token_pin': '1234'}]}
+                  'software_token_pin': '1234',
+                  'clients': [{
+                      'member_class': 'GOV',
+                      'member_code': '1234',
+                      'subsystem_code': 'BUS',
+                      'connection_type': 'HTTP',
+                      'service_descriptions': [{
+                          'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
+                          'rest_service_code': 'Petstore',
+                          'type': 'OPENAPI3'
+                      }
+                      ]
+                  }]
+                  }]
+        }
         self.name = self.config["security_server"][0]["name"]
         return self.config
 
@@ -281,16 +227,7 @@ class TestXRDSST(unittest.TestCase):
             cert_controller.load_config = (lambda: self.config)
             cert_controller.activate()
 
-    def apply_subsystem_config(self):
-        clients = [{
-            'member_class': 'GOV',
-            'member_code': '1234',
-            'subsystem_code': 'BUS',
-            'connection_type': 'HTTP'
-        }]
-        self.config['security_server'][0]['clients'] = clients
-
-    def step_subsystem_add(self):
+    def step_subsystem_add_client(self):
         with XRDSSTTest() as app:
             client_controller = ClientController()
             client_controller.app = app
@@ -304,6 +241,13 @@ class TestXRDSST(unittest.TestCase):
             client_controller.load_config = (lambda: self.config)
             client_controller.register()
 
+    def step_subsystem_add_service_description(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            client_controller.load_config = (lambda: self.config)
+            client_controller.add_description()
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.step_init()
@@ -316,6 +260,7 @@ class TestXRDSST(unittest.TestCase):
         signed_certs = self.step_acquire_certs(downloaded_csrs)
         self.apply_cert_config(signed_certs)
         self.step_cert_import()
+        self.step_cert_import()
         self.step_cert_register()
         self.step_cert_activate()
 
@@ -323,6 +268,8 @@ class TestXRDSST(unittest.TestCase):
         waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), self.retry_wait, self.max_retries)
 
         # subsystems
-        self.apply_subsystem_config()
-        self.step_subsystem_add()
+        self.step_subsystem_add_client()
         self.step_subsystem_register()
+
+        # service descriptions
+        self.step_subsystem_add_service_description()

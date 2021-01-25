@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [0.2.0-alpha.0] - 2021-01-21
+
+- add ``xrdsst client`` subcommand ``add-service-description``
+
 ## [0.1.20-alpha.0] - 2021-01-21
 
 - add ``xrdsst apply`` autoconfiguration command, rework log error handling

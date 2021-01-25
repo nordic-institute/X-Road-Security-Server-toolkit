@@ -1,9 +1,14 @@
 import os
+import subprocess
 import sys
+import time
 import unittest
 import urllib3
 
+from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign
 from xrdsst.controllers.base import BaseController
+from xrdsst.controllers.cert import CertController
+from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
@@ -21,8 +26,14 @@ class EndToEndTest(unittest.TestCase):
             idx += 1
             if arg == "-c":
                 self.config_file = sys.argv[idx]
+        base = BaseController()
+        self.config = base.load_config(baseconfig=self.config_file)
+        for security_server in self.config["security_server"]:
+            api_key = base.get_api_key(self.config, security_server)
+            self.create_api_key(api_key)
 
     def tearDown(self):
+        self.revoke_api_key()
         if self.config_file is not None:
             if os.path.exists(self.config_file):
                 os.remove(self.config_file)
@@ -32,12 +43,12 @@ class EndToEndTest(unittest.TestCase):
         init = InitServerController()
         self.config = base.load_config(baseconfig=self.config_file)
         for security_server in self.config["security_server"]:
-            configuration = init.initialize_basic_config_values(security_server, self.config)
-            status = init.check_init_status(configuration)
-            assert status.is_anchor_imported is False and status.is_server_code_initialized is False
-            init.initialize_server(self.config)
-            status = init.check_init_status(configuration)
-            assert status.is_anchor_imported is True and status.is_server_code_initialized is True
+             configuration = init.initialize_basic_config_values(security_server, self.config)
+             status = init.check_init_status(configuration)
+             assert status.is_anchor_imported is False and status.is_server_code_initialized is False
+             init.initialize_server(self.config)
+             status = init.check_init_status(configuration)
+             assert status.is_anchor_imported is True and status.is_server_code_initialized is True
 
     def step_timestamp_init(self):
         with XRDSSTTest() as app:
@@ -81,8 +92,114 @@ class EndToEndTest(unittest.TestCase):
             assert str(response[0].keys[0].label) == auth_key_label
             assert str(response[0].keys[1].label) == sign_key_label
 
+    def step_cert_download_csrs(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                ss_configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                result = cert_controller.remote_download_csrs(ss_configuration, security_server)
+                assert len(result) == 2
+                assert result[0].fs_loc != result[1].fs_loc
+
+                return [
+                    ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
+                    ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
+                ]
+
+    def step_acquire_certs(self, downloaded_csrs):
+        tca_sign_url = find_test_ca_sign_url(self.config['security_server'][0]['configuration_anchor'])
+        cert_files = []
+        for down_csr in downloaded_csrs:
+            cert = perform_test_ca_sign(tca_sign_url, down_csr[1], down_csr[0])
+            cert_file = down_csr[1] + ".signed.pem"
+            cert_files.append(cert_file)
+            with open(cert_file, "w") as out_cert:
+                out_cert.write(cert)
+
+        return cert_files
+
+    def apply_cert_config(self, signed_certs):
+        self.config['security_server'][0]['certificates'] = signed_certs
+
+    def create_api_key(self, api_key):
+        self.config["security_server"][0]["api_key"] = 'X-Road-apikey token=' + api_key
+
+    def revoke_api_key(self):
+        base = BaseController()
+        curl_cmd = "curl -X DELETE -u " + self.config["api_key"][0]["credentials"] + " --silent " + \
+                    self.config["api_key"][0]["url"] + "/" + str(base.api_key_id[self.config["security_server"][0]['name']]) + " -k"
+        cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
+                self.config["api_key"][0]["key"] + "\" root@" + self.config["security_server"][0]["name"] + " \"" + curl_cmd + "\""
+        subprocess.run(cmd, shell=True, check=False, capture_output=True)
+
+    def step_cert_import(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                cert_controller.remote_import_certificates(configuration, security_server)
+
+    def step_cert_register(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                cert_controller.remote_register_certificate(configuration, security_server)
+
+    def step_cert_activate(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                cert_controller.remote_activate_certificate(configuration, security_server)
+
+    def step_subsystem_add_client(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+                for client in security_server["clients"]:
+                    client_controller.remote_add_client(configuration, client)
+
+    def step_subsystem_register(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+                for client in security_server["clients"]:
+                    client_controller.remote_register_client(configuration, security_server, client)
+
+    def step_subsystem_add_service_description(self):
+        client_controller = ClientController()
+        for security_server in self.config["security_server"]:
+            configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    client_controller.remote_add_service_description(configuration, security_server, client, service_description)
+
     def test_run_configuration(self):
         self.step_init()
         self.step_timestamp_init()
         self.step_token_login()
         self.step_token_init_keys()
+        downloaded_csrs = self.step_cert_download_csrs()
+        signed_certs = self.step_acquire_certs(downloaded_csrs)
+        self.apply_cert_config(signed_certs)
+        self.step_cert_import()
+        self.step_cert_import()
+        self.step_cert_register()
+        self.step_cert_activate()
+
+        # Wait for global configuration status updates
+        time.sleep(120)
+
+        self.step_subsystem_add_client()
+        self.step_subsystem_register()
+        self.step_subsystem_add_service_description()
+
