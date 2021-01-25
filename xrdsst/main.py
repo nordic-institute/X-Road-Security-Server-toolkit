@@ -104,6 +104,8 @@ def revoke_api_key(app):
                     process = subprocess.run(cmd, shell=True, check=True, capture_output=True)
                     if process.returncode == 0:
                         log_info('API key for security server ' + security_server['name'] + ' revoked successfully')
+                    else:
+                        logging.error('Revoking of API key for security server ' + security_server['name'] + ' failed')
 
 
 def log_info(message):
