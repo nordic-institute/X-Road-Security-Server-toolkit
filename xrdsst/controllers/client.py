@@ -1,5 +1,5 @@
 from cement import ex
-from xrdsst.api import ClientsApi
+from xrdsst.api import ClientsApi, ServiceDescriptionsApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.models import ClientAdd, Client, ConnectionType, ServiceDescriptionAdd, ClientStatus
@@ -21,6 +21,10 @@ class ClientController(BaseController):
     @ex(label='add-service-description', help="Add client service description", arguments=[])
     def add_description(self):
         self.add_service_description(self.load_config())
+
+    @ex(label='enable-service-description', help="Enable client service description", arguments=[])
+    def enable_description(self):
+        self.enable_service_description(self.load_config())
 
     @ex(help="Register client", arguments=[])
     def register(self):
@@ -51,6 +55,16 @@ class ClientController(BaseController):
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             for client in security_server["clients"]:
                 self.remote_register_client(ss_configuration, security_server, client)
+
+    def enable_service_description(self, configuration):
+        self.init_logging(configuration)
+        for security_server in configuration["security_server"]:
+            BaseController.log_info('Starting service description add process for security server: ' + security_server['name'])
+            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
+            for client in security_server["clients"]:
+                if "service_descriptions" in client:
+                    for service_description in client["service_descriptions"]:
+                        self.remote_enable_service_description(ss_configuration, security_server, client, service_description)
 
     @staticmethod
     def remote_add_client(ss_configuration, client_conf):
@@ -112,6 +126,26 @@ class ClientController(BaseController):
                     BaseController.log_info("Registered client " + partial_client_id(client_conf))
                 except ApiException as reg_err:
                     BaseController.log_api_error('ClientsApi->register_client', reg_err)
+        except ApiException as find_err:
+            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+
+    def remote_enable_service_description(self, ss_configuration, security_server_conf, client_conf, service_description_conf):
+        clients_api = ClientsApi(ApiClient(ss_configuration))
+        service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_configuration))
+        try:
+            client = self.find_client(clients_api, security_server_conf, client_conf)
+            if client:
+                try:
+                    service_descriptions = clients_api.get_client_service_descriptions(client.id)
+                    for service_description in service_descriptions:
+                        if service_description.disabled:
+                            service_descriptions_api.enable_service_description(service_description.id)
+                except ApiException as err:
+                    if err.status == 409:
+                        BaseController.log_info("Service description for '" + partial_client_id(client_conf) + "' with id: '" +
+                                                service_description.id + "' already enabled.")
+                    else:
+                        BaseController.log_api_error('ServiceDescriptionsApi->enable_service_description', err)
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
 
