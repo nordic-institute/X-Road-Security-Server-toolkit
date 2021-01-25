@@ -1,13 +1,7 @@
-logging:
-  file: /path/to/xrdsst.log
-  level: <LOG_LEVEL>
 api_key:
 - credentials: xrd:secret
   key: /path/to/ssh_private_key
   roles:
-  - <SECURITY_SERVER_ROLE_NAME>
-  - <SECURITY_SERVER_ROLE_NAME>
-  - <SECURITY_SERVER_ROLE_NAME>
   - <SECURITY_SERVER_ROLE_NAME>
   url: https://localhost:4000/api/v1/api-keys
 security_server:
