@@ -1,4 +1,3 @@
-import urllib3
 from cement import ex
 from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
@@ -21,7 +20,6 @@ class ClientController(BaseController):
 
     @ex(label='add-service-description', help="Add client service description", arguments=[])
     def add_description(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.add_service_description(self.load_config())
 
     @ex(help="Register client", arguments=[])
