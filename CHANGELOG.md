@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.1-alpha.0] - 2021-01-27
 
-- add ``xrdsst client`` subcommand ``enable-service-description``
+- move adding and enabling of service descriptions to ServiceController
+  so that adding is performed with``xrdsst service`` subcommand ``add-description``
+  and enabling with ``xrdsst service`` subcommand ``enable-description``
 
 ## [0.2.0-alpha.0] - 2021-01-21
 
