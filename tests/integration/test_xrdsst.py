@@ -255,6 +255,7 @@ class TestXRDSST(unittest.TestCase):
             service_controller.app = app
             service_controller.load_config = (lambda: self.config)
             service_controller.enable_description()
+            assert service_controller.is_description_disabled(self.config) is not True
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

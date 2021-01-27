@@ -79,7 +79,7 @@ class TestService(unittest.TestCase):
                     service_controller.add_description()
 
                     out, err = self.capsys.readouterr()
-                    assert out.count("service description") > 0
+                    assert out.count("Added service description with type") > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
@@ -142,7 +142,7 @@ class TestService(unittest.TestCase):
                         service_controller.enable_description()
 
                         out, err = self.capsys.readouterr()
-                        assert out.count("service description") > 0
+                        assert out.count("enabled successfully") > 0
 
                         with self.capsys.disabled():
                             sys.stdout.write(out)

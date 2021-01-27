@@ -84,6 +84,8 @@ class ServiceController(BaseController):
                     if service_description:
                         try:
                             service_descriptions_api.enable_service_description(service_description.id)
+                            BaseController.log_info("Service description for '" + client_controller.partial_client_id(client_conf) +
+                                                    "' with id: '" + service_description.id + "' enabled successfully.")
                         except ApiException as err:
                             if err.status == 409:
                                 BaseController.log_info("Service description for '" + client_controller.partial_client_id(client_conf) +
@@ -104,3 +106,22 @@ class ServiceController(BaseController):
             if service_description.url == url and service_description.type == service_type:
                 return service_description
 
+    def is_description_disabled(self, configuration):
+        for security_server in configuration["security_server"]:
+            if "clients" in security_server:
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        for service_description in client["service_descriptions"]:
+                            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
+                            clients_api = ClientsApi(ApiClient(ss_configuration))
+                            try:
+                                client_controller = ClientController()
+                                client = client_controller.find_client(clients_api, security_server, client)
+                                if client:
+                                    try:
+                                        found_description = self.get_client_service_description(clients_api, client, service_description)
+                                        return found_description.disabled if found_description else True
+                                    except ApiException as find_err:
+                                        BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+                            except ApiException as find_err:
+                                BaseController.log_api_error('ClientsApi->find_clients', find_err)

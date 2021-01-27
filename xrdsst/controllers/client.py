@@ -38,8 +38,7 @@ class ClientController(BaseController):
             for client in security_server["clients"]:
                 self.remote_register_client(ss_configuration, security_server, client)
 
-    @staticmethod
-    def remote_add_client(ss_configuration, client_conf):
+    def remote_add_client(self, ss_configuration, client_conf):
         conn_type = BaseController.convert_swagger_enum(ConnectionType, client_conf['connection_type'])
         client = Client(member_class=client_conf['member_class'],
                         member_code=client_conf['member_code'],
@@ -50,11 +49,11 @@ class ClientController(BaseController):
         clients_api = ClientsApi(ApiClient(ss_configuration))
         try:
             response = clients_api.add_client(body=client_add)
-            BaseController.log_info("Added client subsystem " + partial_client_id(client_conf) + " (got full id " + response.id + ")")
+            BaseController.log_info("Added client subsystem " + self.partial_client_id(client_conf) + " (got full id " + response.id + ")")
             return response
         except ApiException as err:
             if err.status == 409:
-                BaseController.log_info("Client for '" + partial_client_id(client_conf) + "' already exists.")
+                BaseController.log_info("Client for '" + self.partial_client_id(client_conf) + "' already exists.")
             else:
                 BaseController.log_api_error('ClientsApi->add_client', err)
 
@@ -65,20 +64,19 @@ class ClientController(BaseController):
             if client:
                 if ClientStatus.SAVED != client.status:
                     BaseController.log_info(
-                        security_server_conf['name'] + ": " + partial_client_id(client_conf) + " already registered."
+                        security_server_conf['name'] + ": " + self.partial_client_id(client_conf) + " already registered."
                     )
                     return
 
                 try:
                     clients_api.register_client(id=client.id)
-                    BaseController.log_info("Registered client " + partial_client_id(client_conf))
+                    BaseController.log_info("Registered client " + self.partial_client_id(client_conf))
                 except ApiException as reg_err:
                     BaseController.log_api_error('ClientsApi->register_client', reg_err)
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
 
-    @staticmethod
-    def find_client(clients_api, security_server_conf, client_conf):
+    def find_client(self, clients_api, security_server_conf, client_conf):
         found_clients = clients_api.find_clients(
             member_class=client_conf['member_class'],
             member_code=client_conf['member_code'],
@@ -87,19 +85,17 @@ class ClientController(BaseController):
 
         if not found_clients:
             BaseController.log_info(
-                security_server_conf['name'] + ": Client matching " + partial_client_id(client_conf) + " not found")
+                security_server_conf['name'] + ": Client matching " + self.partial_client_id(client_conf) + " not found")
             return
 
         if len(found_clients) > 1:
             BaseController.log_info(
-                security_server_conf['name'] + ": Error, multiple matching clients found for " + partial_client_id(client_conf)
+                security_server_conf['name'] + ": Error, multiple matching clients found for " + self.partial_client_id(client_conf)
             )
             return
 
         return found_clients[0]
 
-
-def partial_client_id(client_conf):
-    return str(client_conf['member_class']) + ":" + \
-           str(client_conf['member_code']) + ":" + \
-           str(client_conf['subsystem_code'])
+    @staticmethod
+    def partial_client_id(client_conf):
+        return str(client_conf['member_class']) + ":" + str(client_conf['member_code']) + ":" + str(client_conf['subsystem_code'])

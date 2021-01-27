@@ -191,6 +191,7 @@ class EndToEndTest(unittest.TestCase):
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+                    assert service_controller.is_description_disabled(self.config) is not True
 
     def test_run_configuration(self):
         self.step_init()
