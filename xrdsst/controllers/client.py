@@ -43,10 +43,11 @@ class ClientController(BaseController):
         for security_server in configuration["security_server"]:
             BaseController.log_info('Starting service description add process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-            for client in security_server["clients"]:
-                if "service_descriptions" in client:
-                    for service_description in client["service_descriptions"]:
-                        self.remote_add_service_description(ss_configuration, security_server, client, service_description)
+            if "clients" in security_server:
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        for service_description in client["service_descriptions"]:
+                            self.remote_add_service_description(ss_configuration, security_server, client, service_description)
 
     def register_client(self, configuration):
         self.init_logging(configuration)
@@ -61,10 +62,11 @@ class ClientController(BaseController):
         for security_server in configuration["security_server"]:
             BaseController.log_info('Starting service description enabling process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-            for client in security_server["clients"]:
-                if "service_descriptions" in client:
-                    for service_description in client["service_descriptions"]:
-                        self.remote_enable_service_description(ss_configuration, security_server, client, service_description)
+            if "clients" in security_server:
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        for service_description in client["service_descriptions"]:
+                            self.remote_enable_service_description(ss_configuration, security_server, client, service_description)
 
     @staticmethod
     def remote_add_client(ss_configuration, client_conf):
