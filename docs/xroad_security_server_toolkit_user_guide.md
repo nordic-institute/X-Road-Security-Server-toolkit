@@ -37,7 +37,8 @@ Doc. ID: XRDSST-CONF
 	* [3.5 Initializing token keys and corresponding certificate signing requests](#35-initializing-token-keys-and-corresponding-certificate-signing-requests)
 	* [3.6 Certificate management](#36-certificate-management)
 	* [3.7 Client management](#37-client-management)
-
+	* [3.8 Service management](#38-service-management)
+	
 <!-- vim-markdown-toc -->
 
 ## License
@@ -169,7 +170,8 @@ cert register``, final activation with ``xrdsst cert activate``.
 ### 3.7 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
 ``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
-Further subsystem registration can proceed with ``xrdsst client register``. Adding REST/OPENAPI3/WSDL service descriptions
-is performed with ``xrdsst client add-service-description``. Enabling of client service descriptions is performed 
-with ``xrdsst client enable-service-description``.
+Further subsystem registration can proceed with ``xrdsst client register``. 
 
+### 3.8 Service management
+Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
+is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
