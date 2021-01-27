@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1-alpha.0] - 2021-01-27
+
+- add ``xrdsst client`` subcommand ``enable-service-description``
 
 ## [0.2.0-alpha.0] - 2021-01-21
 
