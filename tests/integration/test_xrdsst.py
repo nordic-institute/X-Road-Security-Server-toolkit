@@ -14,6 +14,7 @@ from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.init import InitServerController
+from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
@@ -241,19 +242,19 @@ class TestXRDSST(unittest.TestCase):
             client_controller.load_config = (lambda: self.config)
             client_controller.register()
 
-    def step_subsystem_add_service_description(self):
+    def step_add_service_description(self):
         with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
-            client_controller.load_config = (lambda: self.config)
-            client_controller.add_description()
+            service_controller = ServiceController()
+            service_controller.app = app
+            service_controller.load_config = (lambda: self.config)
+            service_controller.add_description()
 
-    def step_subsystem_enable_service_description(self):
+    def step_enable_service_description(self):
         with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
-            client_controller.load_config = (lambda: self.config)
-            client_controller.enable_description()
+            service_controller = ServiceController()
+            service_controller.app = app
+            service_controller.load_config = (lambda: self.config)
+            service_controller.enable_description()
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -279,5 +280,5 @@ class TestXRDSST(unittest.TestCase):
         self.step_subsystem_register()
 
         # service descriptions
-        self.step_subsystem_add_service_description()
-        self.step_subsystem_enable_service_description()
+        self.step_add_service_description()
+        self.step_enable_service_description()

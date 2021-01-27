@@ -10,6 +10,7 @@ from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.init import InitServerController
+from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
@@ -175,21 +176,21 @@ class EndToEndTest(unittest.TestCase):
                 for client in security_server["clients"]:
                     client_controller.remote_register_client(configuration, security_server, client)
 
-    def step_subsystem_add_service_description(self):
-        client_controller = ClientController()
+    def step_add_service_description(self):
+        service_controller = ServiceController()
         for security_server in self.config["security_server"]:
-            configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+            configuration = service_controller.initialize_basic_config_values(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
-                    client_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                    service_controller.remote_add_service_description(configuration, security_server, client, service_description)
 
-    def step_subsystem_enable_service_description(self):
-        client_controller = ClientController()
+    def step_enable_service_description(self):
+        service_controller = ServiceController()
         for security_server in self.config["security_server"]:
-            configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+            configuration = service_controller.initialize_basic_config_values(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
-                    client_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+                    service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
 
     def test_run_configuration(self):
         self.step_init()
@@ -209,6 +210,6 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_subsystem_add_client()
         self.step_subsystem_register()
-        self.step_subsystem_add_service_description()
-        self.step_subsystem_enable_service_description()
+        self.step_add_service_description()
+        self.step_enable_service_description()
 
