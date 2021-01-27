@@ -183,6 +183,14 @@ class EndToEndTest(unittest.TestCase):
                 for service_description in client["service_descriptions"]:
                     client_controller.remote_add_service_description(configuration, security_server, client, service_description)
 
+    def step_subsystem_enable_service_description(self):
+        client_controller = ClientController()
+        for security_server in self.config["security_server"]:
+            configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    client_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+
     def test_run_configuration(self):
         self.step_init()
         self.step_timestamp_init()
@@ -202,4 +210,5 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_add_client()
         self.step_subsystem_register()
         self.step_subsystem_add_service_description()
+        self.step_subsystem_enable_service_description()
 

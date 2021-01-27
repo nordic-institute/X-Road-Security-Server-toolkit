@@ -248,6 +248,13 @@ class TestXRDSST(unittest.TestCase):
             client_controller.load_config = (lambda: self.config)
             client_controller.add_description()
 
+    def step_subsystem_enable_service_description(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            client_controller.load_config = (lambda: self.config)
+            client_controller.enable_description()
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.step_init()
@@ -273,3 +280,4 @@ class TestXRDSST(unittest.TestCase):
 
         # service descriptions
         self.step_subsystem_add_service_description()
+        self.step_subsystem_enable_service_description()

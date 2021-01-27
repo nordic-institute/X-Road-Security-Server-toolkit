@@ -136,16 +136,18 @@ class ClientController(BaseController):
             client = self.find_client(clients_api, security_server_conf, client_conf)
             if client:
                 try:
-                    service_descriptions = clients_api.get_client_service_descriptions(client.id)
-                    for service_description in service_descriptions:
-                        if service_description.disabled:
+                    service_description = self.get_client_service_description(clients_api, client, service_description_conf)
+                    if service_description:
+                        try:
                             service_descriptions_api.enable_service_description(service_description.id)
-                except ApiException as err:
-                    if err.status == 409:
-                        BaseController.log_info("Service description for '" + partial_client_id(client_conf) + "' with id: '" +
-                                                service_description.id + "' already enabled.")
-                    else:
-                        BaseController.log_api_error('ServiceDescriptionsApi->enable_service_description', err)
+                        except ApiException as err:
+                            if err.status == 409:
+                                BaseController.log_info("Service description for '" + partial_client_id(client_conf) + "' with id: '" +
+                                                        service_description.id + "' already enabled.")
+                            else:
+                                BaseController.log_api_error('ServiceDescriptionsApi->enable_service_description', err)
+                except ApiException as find_err:
+                    BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
 
@@ -169,6 +171,15 @@ class ClientController(BaseController):
             return
 
         return found_clients[0]
+
+    @staticmethod
+    def get_client_service_description(clients_api, client, service_description_conf):
+        url = service_description_conf['url']
+        service_type = service_description_conf['type']
+        service_descriptions = clients_api.get_client_service_descriptions(client.id)
+        for service_description in service_descriptions:
+            if service_description.url == url and service_description.type == service_type:
+                return service_description
 
 
 def partial_client_id(client_conf):
