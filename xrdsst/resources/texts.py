@@ -7,4 +7,5 @@ texts = {
     'init.controller.description': 'Initializes security server with configuration anchor.',
     'timestamp.controller.description': 'Commands for performing timestamping service operations.',
     'token.controller.description': 'Commands for performing token operations.',
+    'service.controller.description': 'Commands for performing service operations.',
 }

@@ -4,7 +4,7 @@ import time
 from urllib.parse import urlparse
 import requests
 from xrdsst.controllers.base import BaseController
-
+from xrdsst.models import ConnectionType
 
 # Waits until boolean function returns True within number of retried delays or raises error
 def waitfor(boolf, delay, retries):
@@ -33,6 +33,35 @@ def perform_test_ca_sign(test_ca_sign_url, certfile_loc, _type):
 
     # Test CA returns plain PEMs only
     return response.content.decode("ascii")
+
+
+# Returns service descriptions for given client
+def get_service_description(config, client_id):
+    service_description = requests.get(
+        config["security_server"][0]["url"] + "/clients/" + client_id + "/service-descriptions",
+        None,
+        headers={'Authorization': config["security_server"][0]["api_key"], 'accept': 'application/json'},
+        verify=False)
+    service_description_json = json.loads(str(service_description.content, 'utf-8').strip())
+    return service_description_json[0]
+
+
+# Returns client
+def get_client(config):
+    conn_type = BaseController.convert_swagger_enum(ConnectionType, config['security_server'][0]['clients'][0]['connection_type'])
+    member_class = config['security_server'][0]['clients'][0]['member_class']
+    member_code = config['security_server'][0]['clients'][0]['member_code']
+    subsystem_code = config['security_server'][0]['clients'][0]['subsystem_code']
+    client = requests.get(
+        config["security_server"][0]["url"] + "/clients",
+        {'member_class': member_class,
+         'member_code': member_code,
+         'subsystem_code': subsystem_code,
+         'connection_type': conn_type},
+        headers={'Authorization': config["security_server"][0]["api_key"], 'accept': 'application/json'},
+        verify=False)
+    client_json = json.loads(str(client.content, 'utf-8').strip())
+    return client_json[0]
 
 
 # Deduce possible TEST CA URL from configuration anchor

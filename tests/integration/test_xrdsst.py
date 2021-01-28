@@ -9,11 +9,13 @@ import git
 import urllib3
 
 from definitions import ROOT_DIR
-from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, auth_cert_registration_global_configuration_update_received, waitfor
+from tests.util.test_util import get_service_description, find_test_ca_sign_url, perform_test_ca_sign
+from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.init import InitServerController
+from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
@@ -241,12 +243,23 @@ class TestXRDSST(unittest.TestCase):
             client_controller.load_config = (lambda: self.config)
             client_controller.register()
 
-    def step_subsystem_add_service_description(self):
+    def step_add_service_description(self, client_id):
         with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
-            client_controller.load_config = (lambda: self.config)
-            client_controller.add_description()
+            service_controller = ServiceController()
+            service_controller.app = app
+            service_controller.load_config = (lambda: self.config)
+            service_controller.add_description()
+            service_description = get_service_description(self.config, client_id)
+            assert service_description["disabled"] is True
+
+    def step_enable_service_description(self, client_id):
+        with XRDSSTTest() as app:
+            service_controller = ServiceController()
+            service_controller.app = app
+            service_controller.load_config = (lambda: self.config)
+            service_controller.enable_description()
+            service_description = get_service_description(self.config, client_id)
+            assert service_description["disabled"] is False
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -270,6 +283,9 @@ class TestXRDSST(unittest.TestCase):
         # subsystems
         self.step_subsystem_add_client()
         self.step_subsystem_register()
+        client = get_client(self.config)
+        client_id = client['id']
 
         # service descriptions
-        self.step_subsystem_add_service_description()
+        self.step_add_service_description(client_id)
+        self.step_enable_service_description(client_id)

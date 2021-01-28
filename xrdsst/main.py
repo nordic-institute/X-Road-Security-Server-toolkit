@@ -13,6 +13,7 @@ from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
+from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
@@ -136,7 +137,8 @@ class XRDSST(App):
         output_handler = 'tabulate'
 
         # register handlers
-        handlers = [BaseController, ClientController, CertController, TimestampController, TokenController, InitServerController, AutoController]
+        handlers = [BaseController, ClientController, CertController, TimestampController,
+                    TokenController, InitServerController, AutoController, ServiceController]
 
 
 class XRDSSTTest(TestApp, XRDSST):

@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 
 from xrdsst.controllers.client import ClientController
-from xrdsst.models import Client, ConnectionType, ClientStatus, ServiceDescription, ServiceType
+from xrdsst.models import Client, ConnectionType, ClientStatus
 from xrdsst.main import XRDSSTTest
 from xrdsst.rest.rest import ApiException
 
@@ -24,16 +24,6 @@ class ClientTestData:
         status=ClientStatus.SAVED
     )
 
-    add_description_response = ServiceDescription(
-        id='DEV:GOV:9876:SUB1',
-        url='https://openapi3',
-        type=ServiceType.OPENAPI3,
-        disabled=True,
-        disabled_notice='',
-        refreshed_at='2021-01-01T09:10:00',
-        services=[],
-        client_id='DEV:GOV:9876:SUB1'
-    )
 
 class TestClient(unittest.TestCase):
     ss_config = {
@@ -57,11 +47,11 @@ class TestClient(unittest.TestCase):
                           'rest_service_code': 'RestService',
                           'type': 'OPENAPI3'
                       },
-                      {
-                          'url': 'https://wsdl',
-                          'rest_service_code': '',
-                          'type': 'WSDL'
-                      }
+                          {
+                              'url': 'https://wsdl',
+                              'rest_service_code': '',
+                              'type': 'WSDL'
+                          }
                       ]
                   }
               ]}]}
@@ -91,6 +81,7 @@ class TestClient(unittest.TestCase):
             status = 409
             data = '{"status":409,"error":{"code":"certificate_already_exists"}}'
             reason = None
+
             def getheaders(self): return None
 
         with XRDSSTTest() as app:
@@ -126,16 +117,16 @@ class TestClient(unittest.TestCase):
     def test_client_register_found(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
-                        id='DEV:GOV:9876:SUB1',
-                        instance_id='DEV',
-                        member_class='GOV',
-                        member_code='9876',
-                        subsystem_code='SUB1',
-                        connection_type=ConnectionType.HTTP,
-                        status=ClientStatus.SAVED,
-                        owner=True,
-                        has_valid_local_sign_cert=True
-                    )]):
+                    id='DEV:GOV:9876:SUB1',
+                    instance_id='DEV',
+                    member_class='GOV',
+                    member_code='9876',
+                    subsystem_code='SUB1',
+                    connection_type=ConnectionType.HTTP,
+                    status=ClientStatus.SAVED,
+                    owner=True,
+                    has_valid_local_sign_cert=True
+            )]):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.register_client', return_value=None):
                     client_controller = ClientController()
                     client_controller.app = app
@@ -152,16 +143,16 @@ class TestClient(unittest.TestCase):
     def test_client_register_already_registered(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
-                        id='DEV:GOV:9876:SUB1',
-                        instance_id='DEV',
-                        member_class='GOV',
-                        member_code='9876',
-                        subsystem_code='SUB1',
-                        connection_type=ConnectionType.HTTP,
-                        status=ClientStatus.REGISTERED,
-                        owner=True,
-                        has_valid_local_sign_cert=True
-                    )]):
+                    id='DEV:GOV:9876:SUB1',
+                    instance_id='DEV',
+                    member_class='GOV',
+                    member_code='9876',
+                    subsystem_code='SUB1',
+                    connection_type=ConnectionType.HTTP,
+                    status=ClientStatus.REGISTERED,
+                    owner=True,
+                    has_valid_local_sign_cert=True
+            )]):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.register_client', return_value=None):
                     client_controller = ClientController()
                     client_controller.app = app
@@ -170,65 +161,6 @@ class TestClient(unittest.TestCase):
 
                     out, err = self.capsys.readouterr()
                     assert out.count("already registered") > 0
-
-                    with self.capsys.disabled():
-                        sys.stdout.write(out)
-                        sys.stderr.write(err)
-
-    def test_service_description_add(self):
-        with XRDSSTTest() as app:
-            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
-                        id='DEV:GOV:9876:SUB1',
-                        instance_id='DEV',
-                        member_class='GOV',
-                        member_code='9876',
-                        subsystem_code='SUB1',
-                        connection_type=ConnectionType.HTTP,
-                        status=ClientStatus.REGISTERED,
-                        owner=True,
-                        has_valid_local_sign_cert=True
-                    )]):
-                with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_service_description',
-                                return_value=ClientTestData.add_description_response):
-                    client_controller = ClientController()
-                    client_controller.app = app
-                    client_controller.load_config = (lambda: self.ss_config)
-                    client_controller.add_description()
-
-                    out, err = self.capsys.readouterr()
-                    assert out.count("service description") > 0
-
-                    with self.capsys.disabled():
-                        sys.stdout.write(out)
-                        sys.stderr.write(err)
-
-    def test_service_description_add_already_existing(self):
-        class AlreadyExistingResponse:
-            status = 409
-            data = '{"status":409,"error":{"code":"service_description_already_exists"}}'
-            reason = None
-            def getheaders(self): return None
-        with XRDSSTTest() as app:
-            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
-                        id='DEV:GOV:9876:SUB1',
-                        instance_id='DEV',
-                        member_class='GOV',
-                        member_code='9876',
-                        subsystem_code='SUB1',
-                        connection_type=ConnectionType.HTTP,
-                        status=ClientStatus.REGISTERED,
-                        owner=True,
-                        has_valid_local_sign_cert=True
-                    )]):
-                with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_service_description',
-                                side_effect=ApiException(http_resp=AlreadyExistingResponse())):
-                    client_controller = ClientController()
-                    client_controller.app = app
-                    client_controller.load_config = (lambda: self.ss_config)
-                    client_controller.add_description()
-
-                    out, err = self.capsys.readouterr()
-                    assert out.count("already exists") > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)

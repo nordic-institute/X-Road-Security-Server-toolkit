@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.1.7
+Version: 1.1.8
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
@@ -16,6 +16,7 @@ Doc. ID: XRDSST-CONF
 | 30.12.2020 | 1.1.5       | Note on certificate activation                                               | Taimo Peelo        |
 | 12.01.2021 | 1.1.6       | Notes on client management                                                   | Taimo Peelo        |
 | 20.01.2021 | 1.1.7       | Notes on adding service descriptions                                         | Bert Viikmäe       |
+| 27.01.2021 | 1.1.8       | Notes on enabling service descriptions                                       | Bert Viikmäe       |
 
 ## Table of Contents
 
@@ -36,7 +37,8 @@ Doc. ID: XRDSST-CONF
 	* [3.5 Initializing token keys and corresponding certificate signing requests](#35-initializing-token-keys-and-corresponding-certificate-signing-requests)
 	* [3.6 Certificate management](#36-certificate-management)
 	* [3.7 Client management](#37-client-management)
-
+	* [3.8 Service management](#38-service-management)
+	
 <!-- vim-markdown-toc -->
 
 ## License
@@ -168,5 +170,8 @@ cert register``, final activation with ``xrdsst cert activate``.
 ### 3.7 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
 ``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
-Further subsystem registration can proceed with ``xrdsst client register``. Adding REST/OPENAPI3/WSDL service descriptions
-is performed with ``xrdsst client add-service-description``.
+Further subsystem registration can proceed with ``xrdsst client register``. 
+
+### 3.8 Service management
+Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
+is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
