@@ -240,23 +240,3 @@ class TestService(unittest.TestCase):
                         with self.capsys.disabled():
                             sys.stdout.write(out)
                             sys.stderr.write(err)
-
-    def test_is_description_disabled(self):
-        with XRDSSTTest() as app:
-            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
-                    id='DEV:GOV:9876:SUB1',
-                    instance_id='DEV',
-                    member_class='GOV',
-                    member_code='9876',
-                    subsystem_code='SUB1',
-                    connection_type=ConnectionType.HTTP,
-                    status=ClientStatus.REGISTERED,
-                    owner=True,
-                    has_valid_local_sign_cert=True
-            )]):
-                with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
-                                return_value=[ServiceTestData.add_description_response]):
-                    service_controller = ServiceController()
-                    service_controller.app = app
-                    service_controller.load_config = (lambda: self.ss_config)
-                    assert service_controller.is_description_disabled(self.ss_config)

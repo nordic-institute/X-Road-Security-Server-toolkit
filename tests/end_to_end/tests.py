@@ -5,7 +5,7 @@ import time
 import unittest
 import urllib3
 
-from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign
+from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -40,16 +40,14 @@ class EndToEndTest(unittest.TestCase):
                 os.remove(self.config_file)
 
     def step_init(self):
-        base = BaseController()
         init = InitServerController()
-        self.config = base.load_config(baseconfig=self.config_file)
         for security_server in self.config["security_server"]:
-             configuration = init.initialize_basic_config_values(security_server, self.config)
-             status = init.check_init_status(configuration)
-             assert status.is_anchor_imported is False and status.is_server_code_initialized is False
-             init.initialize_server(self.config)
-             status = init.check_init_status(configuration)
-             assert status.is_anchor_imported is True and status.is_server_code_initialized is True
+            configuration = init.initialize_basic_config_values(security_server, self.config)
+            status = init.check_init_status(configuration)
+            assert status.is_anchor_imported is False and status.is_server_code_initialized is False
+            init.initialize_server(self.config)
+            status = init.check_init_status(configuration)
+            assert status.is_anchor_imported is True and status.is_server_code_initialized is True
 
     def step_timestamp_init(self):
         with XRDSSTTest() as app:
@@ -124,14 +122,14 @@ class EndToEndTest(unittest.TestCase):
         self.config['security_server'][0]['certificates'] = signed_certs
 
     def create_api_key(self, api_key):
-        self.config["security_server"][0]["api_key"] = 'X-Road-apikey token=' + api_key
+        self.config["security_server"][0]["api_key"] = api_key
 
     def revoke_api_key(self):
         base = BaseController()
         curl_cmd = "curl -X DELETE -u " + self.config["api_key"][0]["credentials"] + " --silent " + \
-                    self.config["api_key"][0]["url"] + "/" + str(base.api_key_id[self.config["security_server"][0]['name']]) + " -k"
+                   self.config["api_key"][0]["url"] + "/" + str(base.api_key_id[self.config["security_server"][0]['name']]) + " -k"
         cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                self.config["api_key"][0]["key"] + "\" root@" + self.config["security_server"][0]["name"] + " \"" + curl_cmd + "\""
+              self.config["api_key"][0]["key"] + "\" root@" + self.config["security_server"][0]["name"] + " \"" + curl_cmd + "\""
         subprocess.run(cmd, shell=True, check=False, capture_output=True)
 
     def step_cert_import(self):
@@ -176,22 +174,25 @@ class EndToEndTest(unittest.TestCase):
                 for client in security_server["clients"]:
                     client_controller.remote_register_client(configuration, security_server, client)
 
-    def step_add_service_description(self):
+    def step_add_service_description(self, client_id):
         service_controller = ServiceController()
         for security_server in self.config["security_server"]:
             configuration = service_controller.initialize_basic_config_values(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+        description = get_service_description(self.config, client_id)
+        assert description["disabled"] is True
 
-    def step_enable_service_description(self):
+    def step_enable_service_description(self, client_id):
         service_controller = ServiceController()
         for security_server in self.config["security_server"]:
             configuration = service_controller.initialize_basic_config_values(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
-                    assert service_controller.is_description_disabled(self.config) is not True
+        description = get_service_description(self.config, client_id)
+        assert description["disabled"] is False
 
     def test_run_configuration(self):
         self.step_init()
@@ -211,6 +212,8 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_subsystem_add_client()
         self.step_subsystem_register()
-        self.step_add_service_description()
-        self.step_enable_service_description()
+        client = get_client(self.config)
+        client_id = client['id']
 
+        self.step_add_service_description(client_id)
+        self.step_enable_service_description(client_id)
