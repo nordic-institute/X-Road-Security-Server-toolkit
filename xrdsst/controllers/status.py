@@ -141,7 +141,7 @@ class StatusController(BaseController):
 
     @ex(help='status', hide=True)
     def _default(self):
-        self._status(self.load_config())
+        return self._status(self.load_config())  # Returned for status comparisons in tests only
 
     # Since this is read-only operation, do not log anything, only console output
     def _status(self, configuration):
@@ -161,6 +161,8 @@ class StatusController(BaseController):
         self.render(render_data)
         if self.is_output_tabulated() and not configuration.get("security_server"):
             print("No security servers defined.")
+
+        return servers
 
     @staticmethod
     def remote_status(ss_configuration, security_server):

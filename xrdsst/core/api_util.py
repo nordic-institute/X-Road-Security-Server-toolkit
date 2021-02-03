@@ -44,7 +44,7 @@ class StatusVersion:
             f'StatusVersion(version="{self.version}")'
 
     def to_status_str(self):
-        return ('VER ' + self.version)
+        return 'VER ' + self.version
 
 
 class StatusRoles:
@@ -66,18 +66,18 @@ class StatusRoles:
 
 class StatusAnchor:
     has_anchor: bool = False
-    hash: str = None
+    hash_: str = None
     created_at: datetime = None
 
-    def __init__(self, has_anchor: bool = False, hash: str = None, created_at: datetime = None):
+    def __init__(self, has_anchor: bool = False, hash_: str = None, created_at: datetime = None):
         self.has_anchor = has_anchor
-        self.hash = hash
+        self.hash_ = hash
         self.created_at = created_at
 
     def __repr__(self):
         return \
             f'StatusAnchor(has_anchor={self.has_anchor},' \
-            f'hash="{self.hash}",' \
+            f'hash_="{self.hash_}",' \
             f'created_at={self.created_at})'
 
 
@@ -131,6 +131,14 @@ class StatusServerTimestamping:
             f'StatusServerTimestamping(name="{self.name}",' \
             f'url="{self.url}")'
 
+    def __eq__(self, other):
+        if isinstance(other, StatusServerTimestamping):
+            return \
+                self.name == other.name and \
+                self.url == other.url
+
+        return False
+
 
 class StatusToken:
     id: str = None
@@ -138,8 +146,8 @@ class StatusToken:
     status: str = None
     logged_in: bool = False
 
-    def __init__(self, id: str = None, name: str = None, status: str = None, logged_in: bool = False):
-        self.id = id
+    def __init__(self, id_: str = None, name: str = None, status: str = None, logged_in: bool = False):
+        self.id = id_
         self.name = name
         self.status = status
         self.logged_in = logged_in
@@ -328,7 +336,7 @@ def status_anchor(ss_configuration):
     anchor = system_api.get_anchor()
     return StatusAnchor(
         has_anchor=True,
-        hash=anchor.hash,
+        hash_=anchor.hash,
         created_at=anchor.created_at
     )
 
@@ -374,7 +382,7 @@ def status_timestamping(ss_configuration):
 def status_token(ss_configuration, security_server):
     token = remote_get_token(ss_configuration, security_server)
     return StatusToken(
-        id=token.id,
+        id_=token.id,
         name=token.name,
         status=token.status,
         logged_in=token.logged_in

@@ -17,6 +17,10 @@ from xrdsst.models import Version, User, GlobalConfDiagnostics, InitializationSt
 from xrdsst.rest.rest import ApiException
 
 
+def sysadm_secoff(opt_p):
+    return User(username='api-key-N', permissions=[], roles=['ROLE_XROAD_SYSTEM_ADMINISTRATOR', 'ROLE_XROAD_SECURITY_OFFICER'])
+
+
 class TestStatus(unittest.TestCase):
     authcert_existing = os.path.join(ROOT_DIR, "tests/resources/authcert.pem")
     ss_config = {
@@ -82,10 +86,12 @@ class TestStatus(unittest.TestCase):
                 sys.stdout.write(out)
                 sys.stderr.write(err)
 
-    @mock.patch.object(UserApi, 'get_user', (lambda x: User(username='api-key-N', permissions=[], roles=['ROLE_XROAD_SYSTEM_ADMINISTRATOR', 'ROLE_XROAD_SECURITY_OFFICER'])))
+    @mock.patch.object(UserApi, 'get_user', sysadm_secoff)
     @mock.patch.object(SystemApi, 'system_version', (lambda x: Version(info="6.25.0")))
-    @mock.patch.object(DiagnosticsApi, 'get_global_conf_diagnostics', (lambda x: GlobalConfDiagnostics(status_class="FAIL", status_code="INTERNAL", prev_update_at=datetime.now(), next_update_at=datetime.now() + timedelta(minutes=5))))
-    @mock.patch.object(InitializationApi, 'get_initialization_status', (lambda x: InitializationStatus(is_anchor_imported=False, is_server_owner_initialized=False, is_server_code_initialized=False, software_token_init_status=TokenStatus.NOT_INITIALIZED)))
+    @mock.patch.object(DiagnosticsApi, 'get_global_conf_diagnostics', (lambda x:
+        GlobalConfDiagnostics(status_class="FAIL", status_code="INTERNAL", prev_update_at=datetime.now(), next_update_at=datetime.now() + timedelta(minutes=5))
+    ))
+    @mock.patch.object(InitializationApi, 'get_initialization_status', (lambda x: InitializationStatus(False, False, False, TokenStatus.NOT_INITIALIZED)))
     def test_status_uninitialized_server(self):
         with XRDSSTTest() as app:
             status_controller = StatusController()
@@ -120,10 +126,14 @@ class TestStatus(unittest.TestCase):
                 sys.stdout.write(out)
                 sys.stderr.write(err)
 
-    @mock.patch.object(UserApi, 'get_user', (lambda x: User(username='api-key-N', permissions=[], roles=['ROLE_XROAD_SYSTEM_ADMINISTRATOR', 'ROLE_XROAD_SECURITY_OFFICER'])))
+    @mock.patch.object(UserApi, 'get_user', sysadm_secoff)
     @mock.patch.object(SystemApi, 'system_version', (lambda x: Version(info="6.25.0")))
-    @mock.patch.object(DiagnosticsApi, 'get_global_conf_diagnostics', (lambda x: GlobalConfDiagnostics(status_class="OK", status_code="SUCCESS", prev_update_at=datetime.now(), next_update_at=datetime.now() + timedelta(minutes=5))))
-    @mock.patch.object(InitializationApi, 'get_initialization_status', (lambda x: InitializationStatus(is_anchor_imported=True, is_server_owner_initialized=True, is_server_code_initialized=True, software_token_init_status=TokenStatus.OK)))
+    @mock.patch.object(DiagnosticsApi, 'get_global_conf_diagnostics', (lambda x:
+        GlobalConfDiagnostics(status_class="OK", status_code="SUCCESS", prev_update_at=datetime.now(), next_update_at=datetime.now() + timedelta(minutes=5))
+    ))
+    @mock.patch.object(InitializationApi, 'get_initialization_status', (lambda x:
+        InitializationStatus(is_anchor_imported=True, is_server_owner_initialized=True, is_server_code_initialized=True, software_token_init_status=TokenStatus.OK)
+    ))
     @mock.patch.object(SecurityServersApi, 'get_security_servers', (lambda x, **kwargs: [
         SecurityServer(id="TEST:GOV:8672:SSLONG", instance_id="TEST", member_class="GOV", server_address="4.2.2.1", server_code="SSLONG")
     ]))
