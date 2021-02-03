@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.1.8
+Version: 1.1.9
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
@@ -17,6 +17,7 @@ Doc. ID: XRDSST-CONF
 | 12.01.2021 | 1.1.6       | Notes on client management                                                   | Taimo Peelo        |
 | 20.01.2021 | 1.1.7       | Notes on adding service descriptions                                         | Bert Viikmäe       |
 | 27.01.2021 | 1.1.8       | Notes on enabling service descriptions                                       | Bert Viikmäe       |
+| 03.02.2021 | 1.1.9       | Notes on server status query                                                 | Taimo Peelo        |
 
 ## Table of Contents
 
