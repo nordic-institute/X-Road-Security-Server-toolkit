@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-
+from tests.util.test_util import ObjectStruct
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.cert import CertController
@@ -9,15 +9,6 @@ from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
-
-
-class ObjectStruct:
-    def __init__(self, **entries): self.__dict__.update(entries)
-
-    def __eq__(self, other): return self.__dict__ == other.__dict__
-
-    def __ne__(self, other): return self.__dict__ != other.__dict__
-
 
 class TestAuto(unittest.TestCase):
     ss_config = {

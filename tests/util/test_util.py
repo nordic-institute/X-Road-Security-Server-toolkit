@@ -4,7 +4,17 @@ import time
 from urllib.parse import urlparse
 import requests
 from xrdsst.controllers.base import BaseController
+from xrdsst.core.util import default_auth_key_label
 from xrdsst.models import ConnectionType
+
+
+class ObjectStruct:
+    def __init__(self, **entries): self.__dict__.update(entries)
+
+    def __eq__(self, other): return self.__dict__ == other.__dict__
+
+    def __ne__(self, other): return self.__dict__ != other.__dict__
+
 
 # Waits until boolean function returns True within number of retried delays or raises error
 def waitfor(boolf, delay, retries):
@@ -81,7 +91,7 @@ def find_test_ca_sign_url(conf_anchor_file_loc):
 # Check for auth cert registration update receival
 def auth_cert_registration_global_configuration_update_received(config):
     def registered_auth_key(key):
-        return BaseController.default_auth_key_label(config["security_server"][0]) == key['label'] and \
+        return default_auth_key_label(config["security_server"][0]) == key['label'] and \
                'REGISTERED' == key['certificates'][0]['status']
 
     result = requests.get(

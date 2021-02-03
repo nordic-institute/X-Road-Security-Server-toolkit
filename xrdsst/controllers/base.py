@@ -69,7 +69,7 @@ class BaseController(Controller):
     # Render arguments differ for back-ends, one approach.
     def render(self, render_data):
         if self.is_output_tabulated():
-            self.app.render(render_data, headers="firstrow")
+            self.app.render(render_data, headers="firstrow", tablefmt="fancy_grid")
         else:
             self.app.render(render_data)
 
@@ -161,15 +161,6 @@ class BaseController(Controller):
     def log_info(message):
         logging.info(message)
         print(message)
-
-    # TODO: these are very useful, but they might be better off migrated into some utility from base controller
-    @staticmethod
-    def default_auth_key_label(security_server):
-        return security_server['name'] + '-default-auth-key'
-
-    @staticmethod
-    def default_sign_key_label(security_server):
-        return security_server['name'] + '-default-sign-key'
 
     @staticmethod
     def security_server_address(security_server):

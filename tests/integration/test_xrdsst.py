@@ -16,6 +16,7 @@ from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.service import ServiceController
+from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
@@ -150,6 +151,20 @@ class TestXRDSST(unittest.TestCase):
         if len(images) != 0:
             client.images.remove(image=self.image, force=True)
 
+    def query_status(self):
+        with XRDSSTTest() as app:
+            status_controller = StatusController()
+            status_controller.app = app
+            status_controller.load_config = (lambda: self.config)
+
+            status_controller._default()
+
+            # Must not throw exception, must produce output, test with global status only -- should be ALWAYS present
+            # in the configuration that integration test will be run, even when it is still failing as security server
+            # has only recently been started up.
+            assert status_controller.app._last_rendered[0][1][0].count('LAST') == 1
+            assert status_controller.app._last_rendered[0][1][0].count('NEXT') == 1
+
     def step_init(self):
         base = BaseController()
         init = InitServerController()
@@ -263,29 +278,57 @@ class TestXRDSST(unittest.TestCase):
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        # Uninitialized security server can already have functioning API interface and status query must function
+        self.query_status()
         self.step_init()
+
+        self.query_status()
         self.step_timestamp_init()
+
+        self.query_status()
         self.step_token_login()
+
+        self.query_status()
         self.step_token_init_keys()
+
+        self.query_status()
 
         # certificates
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
+
         self.apply_cert_config(signed_certs)
+        self.query_status()
+
         self.step_cert_import()
+        self.query_status()
+
         self.step_cert_import()
+        self.query_status()
+
         self.step_cert_register()
+        self.query_status()
+
         self.step_cert_activate()
+        self.query_status()
 
         # Wait for global configuration status updates
         waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), self.retry_wait, self.max_retries)
+        self.query_status()
 
         # subsystems
         self.step_subsystem_add_client()
+        self.query_status()
+
         self.step_subsystem_register()
+        self.query_status()
+
         client = get_client(self.config)
         client_id = client['id']
 
         # service descriptions
         self.step_add_service_description(client_id)
+        self.query_status()
+
         self.step_enable_service_description(client_id)
+        self.query_status()
