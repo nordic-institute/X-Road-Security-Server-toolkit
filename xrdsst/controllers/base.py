@@ -127,7 +127,7 @@ class BaseController(Controller):
 
         if auto_log:
             if not logging.getLogger().handlers: # auto_log enabled due to errors, needs setting up
-                logging.basicConfig(filename=log_file_name, level=log_level, force=False, format=log_format)
+                logging.basicConfig(filename=log_file_name, level=log_level, format=log_format)
             exit_messages.append("Activities logged into '" + log_file_name + "'.")
             atexit.register(lambda: print(*exit_messages, sep='\n'))
 
