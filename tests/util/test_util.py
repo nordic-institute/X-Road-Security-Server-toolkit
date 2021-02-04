@@ -4,7 +4,67 @@ import time
 from urllib.parse import urlparse
 import requests
 from xrdsst.controllers.base import BaseController
-from xrdsst.models import ConnectionType
+from xrdsst.controllers.status import ServerStatus
+from xrdsst.core.util import default_auth_key_label
+from xrdsst.models import ConnectionType, TokenInitStatus
+
+
+class ObjectStruct:
+    def __init__(self, **entries): self.__dict__.update(entries)
+
+    def __eq__(self, other): return self.__dict__ == other.__dict__
+
+    def __ne__(self, other): return self.__dict__ != other.__dict__
+
+
+# Requires all server status in first list to be uninitialized and all in second list to be
+# communication-capable on X-Road (certs present, auth cert registered)
+def assert_server_statuses_transitioned(sl1: [ServerStatus], sl2: [ServerStatus]):
+    assert len(sl1) == len(sl2)
+
+    # Ignore the global status, roles, for same reasons as in server_statuses_equal()
+    # Rely on booleans only, multi-server configs cannot have more
+    for i in range(0, len(sl1)):
+        assert sl1[i].security_server_name == sl2[i].security_server_name # Config match sanity check
+
+        assert sl1[i].server_init_status.has_anchor is not True
+        assert sl2[i].server_init_status.has_anchor is True
+
+        assert sl1[i].server_init_status.has_server_code is not True
+        assert sl2[i].server_init_status.has_server_code is True
+
+        assert sl1[i].server_init_status.has_server_owner is not True
+        assert sl2[i].server_init_status.has_server_owner is True
+
+        assert TokenInitStatus.NOT_INITIALIZED == sl1[i].server_init_status.token_init_status
+        assert TokenInitStatus.INITIALIZED == sl2[i].server_init_status.token_init_status
+
+        assert sl1[i].token_status.logged_in is not True
+        assert sl2[i].token_status.logged_in is True
+
+        assert not sl1[i].timestamping_status
+        assert len(sl2[i].timestamping_status) > 0
+
+        assert sl1[i].status_keys.has_auth_key is not True
+        assert sl2[i].status_keys.has_auth_key is True
+        assert sl1[i].status_keys.has_toolkit_auth_key is not True
+        assert sl2[i].status_keys.has_toolkit_auth_key is True
+
+        # No assumptions about CSRS.
+
+        assert sl1[i].status_certs.has_toolkit_sign_cert is not True
+        assert sl2[i].status_certs.has_toolkit_sign_cert is True
+        assert sl1[i].status_certs.has_sign_cert is not True
+        assert sl2[i].status_certs.has_sign_cert is True
+
+        assert sl1[i].status_certs.has_toolkit_auth_cert is not True
+        assert sl2[i].status_certs.has_toolkit_auth_cert is True
+        assert sl1[i].status_certs.has_auth_cert is not True
+        assert sl2[i].status_certs.has_auth_cert is True
+
+        assert sl1[i].status_certs.has_registered_auth_cert is not True
+        assert sl2[i].status_certs.has_registered_auth_cert is True
+
 
 # Waits until boolean function returns True within number of retried delays or raises error
 def waitfor(boolf, delay, retries):
@@ -81,7 +141,7 @@ def find_test_ca_sign_url(conf_anchor_file_loc):
 # Check for auth cert registration update receival
 def auth_cert_registration_global_configuration_update_received(config):
     def registered_auth_key(key):
-        return BaseController.default_auth_key_label(config["security_server"][0]) == key['label'] and \
+        return default_auth_key_label(config["security_server"][0]) == key['label'] and \
                'REGISTERED' == key['certificates'][0]['status']
 
     result = requests.get(

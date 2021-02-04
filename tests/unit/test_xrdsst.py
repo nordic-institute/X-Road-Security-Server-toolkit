@@ -1,4 +1,5 @@
 from xrdsst.controllers.base import BaseController
+from xrdsst.core.util import default_sign_key_label, default_auth_key_label
 from xrdsst.main import opdep_init
 
 
@@ -15,12 +16,12 @@ def test_opdep_init_adds_app_opdep():
 
 def test_default_sign_key_label():
     security_server_config = {'name': 'ss-name1'}
-    assert 'ss-name1-default-sign-key' == BaseController.default_sign_key_label(security_server_config)
+    assert 'ss-name1-default-sign-key' == default_sign_key_label(security_server_config)
 
 
 def test_default_auth_key_label():
     security_server_config = {'name': 'ss-name2'}
-    assert 'ss-name2-default-auth-key' == BaseController.default_auth_key_label(security_server_config)
+    assert 'ss-name2-default-auth-key' == default_auth_key_label(security_server_config)
 
 
 def test_security_server_address_from_url():

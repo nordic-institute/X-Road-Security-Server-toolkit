@@ -3,22 +3,45 @@ import os
 import subprocess
 import time
 import unittest
+from unittest import mock
 
 import docker
 import git
 import urllib3
 
 from definitions import ROOT_DIR
-from tests.util.test_util import get_service_description, find_test_ca_sign_url, perform_test_ca_sign
+from tests.util.test_util import get_service_description, find_test_ca_sign_url, perform_test_ca_sign, \
+    assert_server_statuses_transitioned
 from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor
+from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.service import ServiceController
+from xrdsst.controllers.status import StatusController, ServerStatus
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
+
+
+def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
+    assert len(sl1) == len(sl2)
+
+    # Ignore the global status that can have temporal changes and sometimes relies on flaky development central server
+    # Ignore the roles which can freely change and be divided among API keys.
+    for i in range(0, len(sl1)):
+        assert sl1[i].security_server_name == sl2[i].security_server_name # Config match sanity check
+
+        assert sl1[i].version_status.__dict__ == sl2[i].version_status.__dict__
+        assert sl1[i].token_status.__dict__ == sl2[i].token_status.__dict__
+        assert sl1[i].server_init_status.__dict__ == sl2[i].server_init_status.__dict__
+        assert sl1[i].status_keys.__dict__ == sl2[i].status_keys.__dict__
+        assert sl1[i].status_csrs.__dict__ == sl2[i].status_csrs.__dict__
+        assert sl1[i].status_certs.__dict__ == sl2[i].status_certs.__dict__
+        assert sl1[i].timestamping_status == sl2[i].timestamping_status
+
+    return True
 
 
 class TestXRDSST(unittest.TestCase):
@@ -37,7 +60,7 @@ class TestXRDSST(unittest.TestCase):
     name = None
     config = None
 
-    def load_config(self):
+    def init_config(self):
         self.config = {
             'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
             'api_key': [{'url': self.url,
@@ -72,6 +95,9 @@ class TestXRDSST(unittest.TestCase):
         self.name = self.config["security_server"][0]["name"]
         return self.config
 
+    def load_config(self):
+        return self.config
+
     def set_api_key(self, api_key):
         self.config["security_server"][0]["api_key"] = 'X-Road-apikey token=' + api_key
 
@@ -81,7 +107,7 @@ class TestXRDSST(unittest.TestCase):
         self.config["security_server"][0]["url"] = container_ip_url
 
     def setUp(self):
-        self.load_config()
+        self.init_config()
         self.clean_docker()
         self.clone_repo()
         client = docker.from_env()
@@ -149,6 +175,22 @@ class TestXRDSST(unittest.TestCase):
         images = client.images.list(name=self.image)
         if len(images) != 0:
             client.images.remove(image=self.image, force=True)
+
+    def query_status(self):
+        with XRDSSTTest() as app:
+            status_controller = StatusController()
+            status_controller.app = app
+            status_controller.load_config = (lambda: self.config)
+
+            servers = status_controller._default()
+
+            # Must not throw exception, must produce output, test with global status only -- should be ALWAYS present
+            # in the configuration that integration test will be run, even when it is still failing as security server
+            # has only recently been started up.
+            assert status_controller.app._last_rendered[0][1][0].count('LAST') == 1
+            assert status_controller.app._last_rendered[0][1][0].count('NEXT') == 1
+
+            return servers
 
     def step_init(self):
         base = BaseController()
@@ -261,31 +303,77 @@ class TestXRDSST(unittest.TestCase):
             service_description = get_service_description(self.config, client_id)
             assert service_description["disabled"] is False
 
+    def step_autoconf(self):
+        with XRDSSTTest() as app:
+            with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
+                auto_controller = AutoController()
+                auto_controller.app = app
+                auto_controller._default()
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        # Uninitialized security server can already have functioning API interface and status query must function
+        unconfigured_servers_at_start = self.query_status()
         self.step_init()
+
+        self.query_status()
         self.step_timestamp_init()
+
+        self.query_status()
         self.step_token_login()
+
+        self.query_status()
         self.step_token_init_keys()
+
+        self.query_status()
 
         # certificates
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
+
         self.apply_cert_config(signed_certs)
+        self.query_status()
+
         self.step_cert_import()
+        self.query_status()
+
         self.step_cert_import()
+        self.query_status()
+
         self.step_cert_register()
+        self.query_status()
+
         self.step_cert_activate()
+        self.query_status()
 
         # Wait for global configuration status updates
         waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), self.retry_wait, self.max_retries)
+        self.query_status()
 
         # subsystems
         self.step_subsystem_add_client()
+        self.query_status()
+
         self.step_subsystem_register()
+        self.query_status()
+
         client = get_client(self.config)
         client_id = client['id']
 
         # service descriptions
         self.step_add_service_description(client_id)
+        self.query_status()
+
         self.step_enable_service_description(client_id)
+        configured_servers_at_end = self.query_status()
+
+        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
+
+        # Run autoconfiguration which should at this stage NOT AFFECT anything since configuration has not been
+        # changed, all operations need to act idempotently and no new errors should occur if previous was successful.
+        self.step_autoconf()
+
+        auto_reconfigured_servers_after = self.query_status()
+        assert server_statuses_equal(configured_servers_at_end, auto_reconfigured_servers_after)
+
+

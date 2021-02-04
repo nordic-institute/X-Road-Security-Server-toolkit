@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.1.8
+Version: 1.1.9
 Doc. ID: XRDSST-CONF
 
 | Date       | Version     | Description                                                                  | Author             |
@@ -17,6 +17,7 @@ Doc. ID: XRDSST-CONF
 | 12.01.2021 | 1.1.6       | Notes on client management                                                   | Taimo Peelo        |
 | 20.01.2021 | 1.1.7       | Notes on adding service descriptions                                         | Bert Viikmäe       |
 | 27.01.2021 | 1.1.8       | Notes on enabling service descriptions                                       | Bert Viikmäe       |
+| 03.02.2021 | 1.1.9       | Notes on server status query                                                 | Taimo Peelo        |
 
 ## Table of Contents
 
@@ -130,6 +131,32 @@ $ xrdsst
 ```
 
 Which currently gives further information about tool invocation options and subcommands.
+Base information about statuses of all defined security servers can be seen with read-only
+``status`` operation:
+
+```
+$ xrdsst status
+╒══════════════════╤══════════════════════╤═════════════════════════╤═══════════════════════╤══════════╤═════════════╤══════════╤═══════════╤═════════╕
+│ GLOBAL           │ SERVER               │ ROLES                   │ INIT                  │ TSAS     │ TOKEN       │ KEYS     │ CSRS      │ CERTS   │
+╞══════════════════╪══════════════════════╪═════════════════════════╪═══════════════════════╪══════════╪═════════════╪══════════╪═══════════╪═════════╡
+│ OK (SUCCESS)     │ ss5                  │ System Administrator    │ ANCHOR INITIALIZED    │ Test TSA │ ID 0        │ SIGN (2) │ AUTH* (1) │ SIGN    │
+│ LAST 131158 0202 │ VER 6.25.0           │ Service Administrator   │ CODE INITIALIZED      │          │ softToken-0 │ AUTH (2) │ 1 CSRS    │ AUTH    │
+│ NEXT 131258 0202 │ DEV:GOV:9876:UNS-SS5 │ Registration Officer    │ OWNER INITIALIZED     │          │ STATUS OK   │ 4 KEYS   │           │         │
+│                  │                      │ Security Officer        │ TOKEN INITIALIZED     │          │ LOGIN NO    │          │           │         │
+│                  │                      │ Securityserver Observer │                       │          │             │          │           │         │
+├──────────────────┼──────────────────────┼─────────────────────────┼───────────────────────┼──────────┼─────────────┼──────────┼───────────┼─────────┤
+│ OK (SUCCESS)     │ ss3                  │ System Administrator    │ ANCHOR INITIALIZED    │ Test TSA │ ID 0        │ SIGN (1) │ SIGN (1)  │         │
+│ LAST 131222 0202 │ VER 6.25.0           │ Service Administrator   │ CODE INITIALIZED      │          │ softToken-0 │ AUTH (1) │ AUTH (1)  │         │
+│ NEXT 131322 0202 │ DEV:GOV:9876:UNS-SS3 │ Registration Officer    │ OWNER INITIALIZED     │          │ STATUS OK   │ 2 KEYS   │ 2 CSRS    │         │
+│                  │                      │ Security Officer        │ TOKEN INITIALIZED     │          │ LOGIN NO    │          │           │         │
+├──────────────────┼──────────────────────┼─────────────────────────┼───────────────────────┼──────────┼─────────────┼──────────┼───────────┼─────────┤
+│ FAIL (INTERNAL)  │ ss4                  │ System Administrator    │ TOKEN NOT_INITIALIZED │          │             │ 0 KEYS   │ 0 CSRS    │         │
+│ LAST 131217 0202 │ VER 6.25.0           │ Security Officer        │                       │          │             │          │           │         │
+│ NEXT 131317 0202 │                      │                         │                       │          │             │          │           │         │
+├──────────────────┼──────────────────────┼─────────────────────────┼───────────────────────┼──────────┼─────────────┼──────────┼───────────┼─────────┤
+│                  │ ss9                  │ NO ACCESS               │                       │          │             │          │           │         │
+╘══════════════════╧══════════════════════╧═════════════════════════╧═══════════════════════╧══════════╧═════════════╧══════════╧═══════════╧═════════╛
+```
 
 ### 3.1 The automatic configuration of security servers listed in configuration file
 

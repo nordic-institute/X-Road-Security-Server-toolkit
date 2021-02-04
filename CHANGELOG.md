@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2-alpha.0] - 2021-02-03
+- Add examination of configured server statuses with ``xrdsst status``
+
 ## [0.2.1-alpha.0] - 2021-01-27
 
 - move adding and enabling of service descriptions to ServiceController

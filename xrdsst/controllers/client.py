@@ -22,6 +22,7 @@ class ClientController(BaseController):
     def register(self):
         self.register_client(self.load_config())
 
+    # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
@@ -30,6 +31,7 @@ class ClientController(BaseController):
             for client in security_server["clients"]:
                 self.remote_add_client(ss_configuration, client)
 
+    # This operation fails when global status is not up to date.
     def register_client(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:

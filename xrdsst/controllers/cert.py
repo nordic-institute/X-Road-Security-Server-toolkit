@@ -8,6 +8,7 @@ from xrdsst.api import KeysApi
 from xrdsst.api.token_certificates_api import TokenCertificatesApi
 from xrdsst.controllers.base import BaseController
 from xrdsst.core.api_util import remote_get_token
+from xrdsst.core.util import default_auth_key_label, default_sign_key_label
 from xrdsst.models import SecurityServerAddress, CsrFormat
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts
@@ -148,8 +149,8 @@ class CertController(BaseController):
 
     def remote_download_csrs(self, ss_configuration, security_server):
         key_labels = {
-            'auth': BaseController.default_auth_key_label(security_server),
-            'sign': BaseController.default_sign_key_label(security_server)
+            'auth': default_auth_key_label(security_server),
+            'sign': default_sign_key_label(security_server)
         }
 
         token = remote_get_token(ss_configuration, security_server)
@@ -197,7 +198,7 @@ class CertController(BaseController):
     def find_actionable_auth_certificate(ss_configuration, security_server, cert_action):
         token = remote_get_token(ss_configuration, security_server)
         # Find the authentication certificate by conventional name
-        auth_key_label = BaseController.default_auth_key_label(security_server)
+        auth_key_label = default_auth_key_label(security_server)
         auth_keys = list(filter(lambda key: key.label == auth_key_label, token.keys))
         found_auth_key_count = len(auth_keys)
         if found_auth_key_count == 0:

@@ -322,9 +322,9 @@ class TestCert(unittest.TestCase):
                     assert cert_controller.app._last_rendered[1].count('ssX-sign') == 1
                     # Check file creation
                     auth_csr_file = list(filter(lambda s: s.count('ssX-auth') > 0,
-                                                map(lambda s: s.strip(), cert_controller.app._last_rendered[1].split('|')))).pop()
+                                                map(lambda s: s.strip(), cert_controller.app._last_rendered[1].split('│')))).pop()
                     sign_csr_file = list(filter(lambda s: s.count('ssX-sign') > 0,
-                                                map(lambda s: s.strip(), cert_controller.app._last_rendered[1].split('|')))).pop()
+                                                map(lambda s: s.strip(), cert_controller.app._last_rendered[1].split('│')))).pop()
                     assert auth_csr_file == reported_downloads[0].fs_loc or auth_csr_file == reported_downloads[1].fs_loc
                     assert sign_csr_file == reported_downloads[0].fs_loc or auth_csr_file == reported_downloads[1].fs_loc
                     assert auth_csr_file != sign_csr_file

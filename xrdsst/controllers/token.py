@@ -4,6 +4,7 @@ from xrdsst.api.security_servers_api import SecurityServersApi
 from xrdsst.api.certificate_authorities_api import CertificateAuthoritiesApi
 from xrdsst.core.api_util import remote_get_token
 from xrdsst.controllers.base import BaseController
+from xrdsst.core.util import default_auth_key_label, default_sign_key_label
 from xrdsst.models import CsrGenerate, KeyUsageType, CsrFormat, KeyLabelWithCsrGenerate
 from xrdsst.rest.rest import ApiException
 from xrdsst.api_client.api_client import ApiClient
@@ -132,8 +133,8 @@ class TokenController(BaseController):
         dn_common_name = security_server['owner_member_code']
         dn_org = security_server['owner_dn_org']
 
-        auth_key_label = BaseController.default_auth_key_label(security_server)
-        sign_key_label = BaseController.default_sign_key_label(security_server)
+        auth_key_label = default_auth_key_label(security_server)
+        sign_key_label = default_sign_key_label(security_server)
 
         try:
             ssi = remote_get_security_server_instance(ss_configuration)

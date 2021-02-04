@@ -3,14 +3,19 @@ import subprocess
 import sys
 import time
 import unittest
+from unittest import mock
+
 import urllib3
 
-from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description
+from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
+    assert_server_statuses_transitioned
+from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.service import ServiceController
+from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
@@ -194,7 +199,32 @@ class EndToEndTest(unittest.TestCase):
         description = get_service_description(self.config, client_id)
         assert description["disabled"] is False
 
+    def step_autoconf(self):
+        with XRDSSTTest() as app:
+            with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
+                auto_controller = AutoController()
+                auto_controller.app = app
+                auto_controller._default()
+
+    def query_status(self):
+        with XRDSSTTest() as app:
+            status_controller = StatusController()
+            status_controller.app = app
+            status_controller.load_config = (lambda: self.config)
+
+            servers = status_controller._default()
+
+            # Must not throw exception, must produce output, test with global status only -- should be ALWAYS present
+            # in the configuration that integration test will be run, even when it is still failing as security server
+            # has only recently been started up.
+            assert status_controller.app._last_rendered[0][1][0].count('LAST') == 1
+            assert status_controller.app._last_rendered[0][1][0].count('NEXT') == 1
+
+            return servers
+
     def test_run_configuration(self):
+        unconfigured_servers_at_start = self.query_status()
+
         self.step_init()
         self.step_timestamp_init()
         self.step_token_login()
@@ -217,3 +247,8 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
+        self.step_autoconf()  # Idempotent
+
+        configured_servers_at_end = self.query_status()
+
+        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

@@ -69,7 +69,7 @@ class BaseController(Controller):
     # Render arguments differ for back-ends, one approach.
     def render(self, render_data):
         if self.is_output_tabulated():
-            self.app.render(render_data, headers="firstrow")
+            self.app.render(render_data, headers="firstrow", tablefmt="fancy_grid")
         else:
             self.app.render(render_data)
 
@@ -115,7 +115,7 @@ class BaseController(Controller):
                 raise IsADirectoryError
             # 2nd condition allows for relative log file path spec
             if os.path.exists(os.path.dirname(log_file_name)) or not os.path.dirname(log_file_name):
-                logging.basicConfig(filename=log_file_name, level=log_level, force=False, format=log_format)
+                logging.basicConfig(filename=log_file_name, level=log_level, format=log_format)
         except IsADirectoryError:
             exit_messages.append("Log configuration referred to directory: '" + log_file_name + "'.")
             log_file_name = auto_log_file_name
@@ -127,7 +127,7 @@ class BaseController(Controller):
 
         if auto_log:
             if not logging.getLogger().handlers: # auto_log enabled due to errors, needs setting up
-                logging.basicConfig(filename=log_file_name, level=log_level, force=False, format=log_format)
+                logging.basicConfig(filename=log_file_name, level=log_level, format=log_format)
             exit_messages.append("Activities logged into '" + log_file_name + "'.")
             atexit.register(lambda: print(*exit_messages, sep='\n'))
 
@@ -161,15 +161,6 @@ class BaseController(Controller):
     def log_info(message):
         logging.info(message)
         print(message)
-
-    # TODO: these are very useful, but they might be better off migrated into some utility from base controller
-    @staticmethod
-    def default_auth_key_label(security_server):
-        return security_server['name'] + '-default-auth-key'
-
-    @staticmethod
-    def default_sign_key_label(security_server):
-        return security_server['name'] + '-default-sign-key'
 
     @staticmethod
     def security_server_address(security_server):
