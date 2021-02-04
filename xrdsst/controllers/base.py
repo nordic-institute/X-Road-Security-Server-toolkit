@@ -115,7 +115,7 @@ class BaseController(Controller):
                 raise IsADirectoryError
             # 2nd condition allows for relative log file path spec
             if os.path.exists(os.path.dirname(log_file_name)) or not os.path.dirname(log_file_name):
-                logging.basicConfig(filename=log_file_name, level=log_level, force=False, format=log_format)
+                logging.basicConfig(filename=log_file_name, level=log_level, format=log_format)
         except IsADirectoryError:
             exit_messages.append("Log configuration referred to directory: '" + log_file_name + "'.")
             log_file_name = auto_log_file_name
