@@ -1,4 +1,4 @@
-# X-Road Security Server Toolkit user guide
+# X-Road Security Server Toolkit User Guide <!-- omit in toc -->
 
 **Technical Specification**
 
@@ -37,6 +37,7 @@ Doc. ID: XRDSST-CONF
 - [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
   - [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
   - [3.2 Format of configuration file](#32-format-of-configuration-file)
+  - [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)  
 - [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
   - [4.1 The automatic configuration of a single security server](#41-the-automatic-configuration-of-a-single-security-server)
   - [4.2 Logging in a single software token](#42-logging-in-a-single-software-token)
@@ -152,6 +153,11 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SERVICE_DESCRIPTION_URL> URL for service description
 * <REST_SERVICE_CODE> rest service code, not used for WSDL services
 * <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
+
+### 3.3 Different ways of using the configuration file
+
+* default configuration in config/base.yaml
+* overriding the default configuration by providing an extra parameter ``-c configfile`` when running the X-Road Security Server Toolkit
 
 ## 4 Running the X-Road Security Server Toolkit
 
