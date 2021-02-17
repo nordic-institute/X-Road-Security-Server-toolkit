@@ -28,7 +28,3 @@ security_server:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
           type: <SERVICE_TYPE>
-          service_clients:
-            - name: <SERVICE_CLIENT_NAME>
-              local_group_code: <LOCAL_GROUP_CODE>
-              type: <SERVICE_CLIENT_TYPE>
