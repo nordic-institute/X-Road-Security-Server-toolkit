@@ -1,9 +1,11 @@
+from datetime import datetime
+
 from cement import ex
-from xrdsst.api import ClientsApi, ServiceDescriptionsApi
+from xrdsst.api import ClientsApi, ServiceDescriptionsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
-from xrdsst.models import ServiceDescriptionAdd
+from xrdsst.models import ServiceDescriptionAdd, ServiceClient
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 
@@ -22,6 +24,10 @@ class ServiceController(BaseController):
     @ex(label='enable-description', help="Enable service description", arguments=[])
     def enable_description(self):
         self.enable_service_description(self.load_config())
+
+    @ex(label='access-rights', help="Add access rights for service", arguments=[])
+    def add_rights(self):
+        self.add_access_rights(self.load_config())
 
     def add_service_description(self, configuration):
         self.init_logging(configuration)
@@ -44,6 +50,19 @@ class ServiceController(BaseController):
                     if "service_descriptions" in client:
                         for service_description in client["service_descriptions"]:
                             self.remote_enable_service_description(ss_configuration, security_server, client, service_description)
+
+    def add_access_rights(self, configuration):
+        self.init_logging(configuration)
+        for security_server in configuration["security_server"]:
+            BaseController.log_info('Starting service description enabling process for security server: ' + security_server['name'])
+            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
+            if "clients" in security_server:
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        for service_description in client["service_descriptions"]:
+                            if "service_clients" in service_description:
+                                for service_client in service_description["service_clients"]:
+                                    self.remote_add_access_rights(ss_configuration, security_server, client, service_description, service_client)
 
     @staticmethod
     def remote_add_service_description(ss_configuration, security_server_conf, client_conf, service_description_conf):
@@ -97,6 +116,40 @@ class ServiceController(BaseController):
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
 
+
+    def remote_add_access_rights(self, ss_configuration, security_server_conf, client_conf, service_description_conf, service_client_conf):
+        clients_api = ClientsApi(ApiClient(ss_configuration))
+        try:
+            client_controller = ClientController()
+            client = client_controller.find_client(clients_api, security_server_conf, client_conf)
+            if client:
+                try:
+                    service_description = self.get_client_service_description(clients_api, client, service_description_conf)
+                    if service_description:
+                        services_api = ServicesApi(ApiClient(ss_configuration))
+                        for service in service_description.services:
+                             try:
+                                 local_code = service_client_conf['local_group_code'] if service_client_conf['local_group_code'] else None
+                                 service_client = ServiceClient(id=client.id,
+                                                                name=service_client_conf['name'],
+                                                                local_group_code=local_code,
+                                                                service_client_type=service_client_conf['type'],
+                                                                rights_given_at=datetime.now())
+                                 response = services_api.add_service_service_clients(service.id, body=service_client)
+                                 if response:
+                                     BaseController.log_info("Added service client access rights with name '" + response[0].name +
+                                                         "' and type '" + response[0].service_client_type + "' (got full id " + response[0].id + ")")
+                             except ApiException as err:
+                                 if err.status == 409:
+                                     BaseController.log_info("Access rights for '" + client_controller.partial_client_id(client_conf) +
+                                                             "' with id: '" + response[0].id + "' already added.")
+                                 else:
+                                     BaseController.log_api_error('ServicesApi->add_service_service_clients', err)
+                except ApiException as find_err:
+                    BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+        except ApiException as find_err:
+            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+
     @staticmethod
     def get_client_service_description(clients_api, client, service_description_conf):
         url = service_description_conf['url']
@@ -105,3 +158,4 @@ class ServiceController(BaseController):
         for service_description in service_descriptions:
             if service_description.url == url and service_description.type == service_type:
                 return service_description
+
