@@ -21,7 +21,7 @@ Doc. ID: XRDSST-CONF
 | 20.01.2021 | 1.1.7       | Notes on adding service descriptions                                         | Bert Viikmäe       |
 | 27.01.2021 | 1.1.8       | Notes on enabling service descriptions                                       | Bert Viikmäe       |
 | 03.02.2021 | 1.1.9       | Notes on server status query                                                 | Taimo Peelo        |
-| 17.02.2021 | 1.2.0       | Notes on server status query                                                 | Taimo Peelo        |
+| 17.02.2021 | 1.2.0       | Updates to the user guide                                                    | Bert Viikmäe        |
 
 ## Table of Contents <!-- omit in toc -->
 
