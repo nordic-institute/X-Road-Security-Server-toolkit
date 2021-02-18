@@ -10,7 +10,7 @@ This repository contains information about the X-Road Security Server Toolkit, s
 
 ## Introduction to X-Road Security Server Toolkit
 
-User Guide [X-Road Security Server Toolkit User Guide](https://github.com/nordic-institute/X-Road-Security-Server-toolkit/docs/xroad_security_server_toolkit_user_guide.md)
+[X-Road Security Server Toolkit User Guide](https://github.com/nordic-institute/X-Road-Security-Server-toolkit/blob/master/docs/xroad_security_server_toolkit_user_guide.md)
 
 
 ## Installation
