@@ -1,17 +1,50 @@
-# A toolkit for configuring security server
+# X-Road Security Server Toolkit
+
+## About the repository 
+
+This repository contains information about the X-Road Security Server Toolkit, source code, its development, installation and documentation.
+
+## X-Road Security Server Toolkit source code
+
+[Source code](https://github.com/nordic-institute/X-Road-Security-Server-toolkit) of X-Road Security Server Toolkit is open for all and it is licenced under MIT licence.
+
+## Introduction to X-Road Security Server Toolkit
+
+User Guide [X-Road Security Server Toolkit User Guide](https://github.com/nordic-institute/X-Road-Security-Server-toolkit/docs/xroad_security_server_toolkit_user_guide.md)
+
 
 ## Installation
 
 ```
-$ pip3 install -r requirements.txt
+$ pip install -r requirements.txt
 
-$ pip3 install setup.py
+$ pip install setup.py
 ```
 
 ## Development
 
 This project includes a number of helpers in the `Makefile` to streamline common development tasks.
 
+## Testing
+
+In order to run unit tests with code coverage the following target in the `Makefile` should be run:
+```
+$ make test
+
+```
+
+In order to run unit tests with integration tests the following target in the `Makefile` should be run:
+```
+$ make test-all
+
+```
+
+End to end tests are run using the following script:
+```
+$ run_end_to_end_tests.sh
+
+More details about the required input parameters are provided in the script file
+```
 
 ### Environment Setup
 
@@ -24,67 +57,28 @@ $ make virtualenv
 
 $ source env/bin/activate
 
-
-### run sstoolkit cli application
-
-$ xrdsst --help
-
-
-### run pytest with coverage and pylint to check code formatting
-
-$ make test
 ```
 
 ### Updating project version
 
+* Update patch/minor/major/release/build (major.minor.patch-release.build)
 ```
-### Update patch (major.minor.patch-release.build)
-
-$ bump2version patch
-
-### Update minor (major.minor.patch-release.build)
-
-$ bump2version minor
-
-### Update major (major.minor.patch-release.build)
-
-$ bump2version major
-
-### Update release (major.minor.patch-release.build)
-
-$ bump2version release
-
-### Update build (major.minor.patch-release.build)
-
-$ bump2version build
-
+$ bump2version patch/minor/major/release/build (e.g. bump2version minor)
 ```
 
-### Releasing to PyPi
+### Releasing
 
-Before releasing to PyPi, you must configure your login credentials:
-
-**~/.pypirc**:
-
-```
-[pypi]
-username = YOUR_USERNAME
-password = YOUR_PASSWORD
-```
-
-Then use the included helper function via the `Makefile`:
+Use the included helper function via the `Makefile`:
 
 ```
 $ make dist
-
-$ make dist-upload
 ```
 
 ## Deployments
 
 ### Docker
 
-Included is a basic `Dockerfile` for building and distributing `Security Server Toolkit`,
+Included is a basic `Dockerfile` for building and distributing `X-Road Security Server Toolkit`,
 and can be built with the included `make` helper:
 
 ```

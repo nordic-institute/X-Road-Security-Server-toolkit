@@ -1,10 +1,13 @@
-# X-Road Security Server Toolkit configuration guide
+# X-Road Security Server Toolkit User Guide
 
 **Technical Specification**
 
-Version: 1.1.9
+Version: 1.2.0
 Doc. ID: XRDSST-CONF
 
+---
+
+## Version history <!-- omit in toc -->
 | Date       | Version     | Description                                                                  | Author             |
 |------------|-------------|------------------------------------------------------------------------------|--------------------|
 | 10.11.2020 | 1.0.0       | Initial draft                                                                | Bert Viikmäe       |
@@ -18,45 +21,81 @@ Doc. ID: XRDSST-CONF
 | 20.01.2021 | 1.1.7       | Notes on adding service descriptions                                         | Bert Viikmäe       |
 | 27.01.2021 | 1.1.8       | Notes on enabling service descriptions                                       | Bert Viikmäe       |
 | 03.02.2021 | 1.1.9       | Notes on server status query                                                 | Taimo Peelo        |
+| 17.02.2021 | 1.2.0       | Updates to the user guide                                                    | Bert Viikmäe        |
 
-## Table of Contents
+## Table of Contents <!-- omit in toc -->
 
-
-
+<!-- toc -->
 <!-- vim-markdown-toc GFM -->
 
-* [License](#license)
-* [1 Introduction](#1-introduction)
-* [2 Configuration of X-Road Security Server](#2-configuration-of-x-road-security-server)
-	* [2.1 General](#21-general)
-	* [2.2 Format of configuration file](#22-format-of-configuration-file)
-* [3 Running the X-Road Security Server Toolkit](#3-running-the-x-road-security-server-toolkit)
-	* [3.1 The automatic configuration of a single security server](#31-the-automatic-configuration-of-a-single-security-server)
-	* [3.2 Logging in a single software token](#32-logging-in-a-single-software-token)
-	* [3.3 Listing security server tokens](#33-listing-security-server-tokens)
-	* [3.4 Configuring security server to use single approved timestamping service](#34-configuring-security-server-to-use-single-approved-timestamping-service)
-	* [3.5 Initializing token keys and corresponding certificate signing requests](#35-initializing-token-keys-and-corresponding-certificate-signing-requests)
-	* [3.6 Certificate management](#36-certificate-management)
-	* [3.7 Client management](#37-client-management)
-	* [3.8 Service management](#38-service-management)
+- [License](#license)
+- [1. Introduction](#1-introduction)
+  - [1.1 Target Audience](#11-target-audience)
+- [2. Installation](#2-installation)
+  - [2.1 Prerequisites to Installation](#21-prerequisites-to-installation) 
+  - [2.2 Installation procedure](#22-installation-procedure)  
+- [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
+  - [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
+  - [3.2 Format of configuration file](#32-format-of-configuration-file)
+  - [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)  
+- [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
+  - [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
+  - [4.2 Initializing the security server](#42-initializing-the-security-server)
+  - [4.3 Logging in a single software token](#43-logging-in-a-single-software-token)
+  - [4.4 Listing security server tokens](#44-listing-security-server-tokens)
+  - [4.5 Configuring security server to use single approved timestamping service](#45-configuring-security-server-to-use-single-approved-timestamping-service)
+  - [4.6 Initializing token keys and corresponding certificate signing requests](#46-initializing-token-keys-and-corresponding-certificate-signing-requests)
+  - [4.7 Certificate management](#47-certificate-management)
+  - [4.8 Client management](#48-client-management)
+  - [4.9 Service management](#49-service-management)
 	
 <!-- vim-markdown-toc -->
+<!-- tocstop -->
 
 ## License
 
 This document is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/.
 
-## 1 Introduction
+## 1. Introduction
 
-This specification describes automatic configuration of X-Road security servers using X-Road Security Server Toolkit
+### 1.1 Target Audience
 
-## 2 Configuration of X-Road Security Server
+The intended audience of this installation guide are the X-Road security server administrators responsible for installing and configuring the X-Road security server software.
+The document is intended for readers with a good knowledge of Linux server management, computer networks, and the X-Road functioning principles.
 
-### 2.1 General
+## 2. Installation
 
-The automatic configuration of X-Road security servers using the X-Road Security Server Toolkit relies on configuration files, where exact configuration values have to be specified
+### 2.1 Prerequisites to Installation
 
-### 2.2 Format of configuration file
+* Python version 3.6+
+* PIP
+
+### 2.2 Installation procedure
+
+The X-Road Security Server Toolkit package can be installed using PIP:
+
+```
+$ pip install xrdsst --extra-index-url https://xroad-toolkit.s3-eu-west-1.amazonaws.com/xrdsst
+```
+
+After the packages are installed, the following commands from the command line need to be run:
+```
+$ pip install -r requirements-dev.txt
+
+$ pip install setup.py
+```
+
+## 3 Configuration of X-Road Security Server
+
+### 3.1 Prerequisites to Configuration
+
+* a central server running the Ubuntu 18.04 LTS or 20.04 LTS operating system, on an x86-64bit platform. 
+* a security server providing management services. 
+* single or multiple security servers(to be configured by the X-Road Security Server Toolkit) running the Ubuntu version 18.04 LTS or 20.04 LTS 
+  or Redhat version 7 or 8 operating system, on an x86-64bit platform or X-Road Security Server Sidecar running in a Docker container
+* configuration file in YAML format for configuring security server
+  
+### 3.2 Format of configuration file
 ```
 logging:
   file: /path/to/xrdsst.log
@@ -122,7 +161,12 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <REST_SERVICE_CODE> rest service code, not used for WSDL services
 * <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
 
-## 3 Running the X-Road Security Server Toolkit
+### 3.3 Different ways of using the configuration file
+
+* default configuration in config/base.yaml
+* overriding the default configuration by providing an extra parameter ``-c configfile`` when running the X-Road Security Server Toolkit
+
+## 4 Running the X-Road Security Server Toolkit
 
 The X-Road Security Server Toolkit is run from the command line by typing:
 
@@ -158,47 +202,46 @@ $ xrdsst status
 ╘══════════════════╧══════════════════════╧═════════════════════════╧═══════════════════════╧══════════╧═════════════╧══════════╧═══════════╧═════════╛
 ```
 
-### 3.1 The automatic configuration of security servers listed in configuration file
+### 4.1 The single command fully automatic configuration of security servers listed in configuration file
 
-```
-$ xrdsst apply
-```
+The whole security server configuration in a fully automatic mode (all configuration from configuration file) can be run with ``xrdsst apply``
+For performing the configuration step by step instead, please start from [4.2 Initializing the security server](#42-initializing-the-security-server)
 
-In the first stage of the automatic process, the security server(s) will be initialized according to the configuration data specified
-in the configuration file (base.yaml). First, a configuration anchor is uploaded and then the initialization of the security server
-is performed with respective <MEMBER_CLASS>, <MEMBER_CODE>, <SERVER_CODE> and <SOFT_TOKEN_PIN> values.
+### 4.2 Initializing the security server
 
-### 3.2 Logging in a single software token
+Configuration anchor is added and the security server is initialized with ``xrdsst init``
+
+### 4.3 Logging in a single software token
 
 Default software token login can be logged on with ``xrdsst token login``
 
-### 3.3 Listing security server tokens
+### 4.4 Listing security server tokens
 
 All tokens known to security server can be listed with ``xrdsst token list``
 
-### 3.4 Configuring security server to use single approved timestamping service
+### 4.5 Configuring security server to use single approved timestamping service
 
 Single timestamping service approved for use in central server can be configured for security server by invoking ``timestamp`` subcommand
 as ``xrdsst timestamp init``.
 
-### 3.5 Initializing token keys and corresponding certificate signing requests
+### 4.6 Initializing token keys and corresponding certificate signing requests
 
 Token keys for authentication and signatures can be created with ``xrdsst token init-keys``, which creates
 two keys and generates corresponding certificate signing requests (one for authentication, other for signing).
 The key labels used are conventionally with suffixes ``default-auth-key`` and ``default-sign-key``, if
 those already exist, they will not be duplicated and command acts as no-op for such security server.
 
-### 3.6 Certificate management
+### 4.7 Certificate management
 Certificate signing requests can be downloaded with ``xrdsst cert download-csrs``, suitably signed
 certificates can be imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
 from being attached to key labelled with suffix ``default-auth-key`` at central server can be initiated with ``xrdsst
 cert register``, final activation with ``xrdsst cert activate``.
 
-### 3.7 Client management
+### 4.8 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
 ``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
 Further subsystem registration can proceed with ``xrdsst client register``. 
 
-### 3.8 Service management
+### 4.9 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
