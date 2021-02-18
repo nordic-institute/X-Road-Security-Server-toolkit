@@ -61,7 +61,7 @@ $ source env/bin/activate
 
 ### Updating project version
 
-* Update patch/minor/major/releaae/build (major.minor.patch-release.build)
+* Update patch/minor/major/release/build (major.minor.patch-release.build)
 ```
 $ bump2version patch/minor/major/release/build (e.g. bump2version minor)
 ```
