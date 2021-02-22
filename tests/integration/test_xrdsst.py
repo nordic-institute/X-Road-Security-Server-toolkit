@@ -303,6 +303,13 @@ class TestXRDSST(unittest.TestCase):
             service_description = get_service_description(self.config, client_id)
             assert service_description["disabled"] is False
 
+    def step_add_service_access_rights(self):
+        with XRDSSTTest() as app:
+            service_controller = ServiceController()
+            service_controller.app = app
+            service_controller.load_config = (lambda: self.config)
+            service_controller.add_rights
+
     def step_autoconf(self):
         with XRDSSTTest() as app:
             with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
@@ -365,6 +372,9 @@ class TestXRDSST(unittest.TestCase):
         self.query_status()
 
         self.step_enable_service_description(client_id)
+        self.query_status()
+
+        self.step_add_service_access_rights()
         configured_servers_at_end = self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

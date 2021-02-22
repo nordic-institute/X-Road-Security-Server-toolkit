@@ -1,11 +1,13 @@
+from datetime import datetime
 import sys
 import unittest
 from unittest import mock
 
 import pytest
+import pytz
 
 from xrdsst.controllers.service import ServiceController
-from xrdsst.models import Client, ConnectionType, ClientStatus, ServiceDescription, ServiceType
+from xrdsst.models import Client, ConnectionType, ClientStatus, ServiceDescription, ServiceType, ServiceClient, ServiceClientType, Service
 from xrdsst.main import XRDSSTTest
 from xrdsst.rest.rest import ApiException
 
@@ -18,7 +20,16 @@ class ServiceTestData:
         disabled=True,
         disabled_notice='',
         refreshed_at='2021-01-01T09:10:00',
-        services=[],
+        services=[Service(
+        id='DEV:GOV:9876:SUB1:Petstore',
+        full_service_code='DEV:GOV:9876:SUB1:Petstore',
+        service_code='Petstore',
+        timeout=60,
+        title='title',
+        ssl_auth=False,
+        subjects_count=0,
+        url='url',
+        endpoints=[])],
         client_id='DEV:GOV:9876:SUB1'
     )
 
@@ -236,6 +247,78 @@ class TestService(unittest.TestCase):
 
                         out, err = self.capsys.readouterr()
                         assert out.count("already enabled") > 0
+
+                        with self.capsys.disabled():
+                            sys.stdout.write(out)
+                            sys.stderr.write(err)
+
+    def test_service_add_access_rights(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                    id='DEV:GOV:9876:SUB1',
+                    instance_id='DEV',
+                    member_name='ACME',
+                    member_class='GOV',
+                    member_code='9876',
+                    subsystem_code='SUB1',
+                    connection_type=ConnectionType.HTTP,
+                    status=ClientStatus.REGISTERED,
+                    owner=True,
+                    has_valid_local_sign_cert=True
+            )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                                return_value=[ServiceTestData.add_description_response]):
+                    with mock.patch('xrdsst.api.services_api.ServicesApi.add_service_service_clients',
+                                    return_value=[ServiceClient(
+                                        id='DEV:GOV:9876:SUB1',
+                                        name='ACME',
+                                        local_group_code=None,
+                                        service_client_type=ServiceClientType.SUBSYSTEM,
+                                        rights_given_at=datetime.now(pytz.utc).isoformat())]):
+                        service_controller = ServiceController()
+                        service_controller.app = app
+                        service_controller.load_config = (lambda: self.ss_config)
+                        service_controller.add_rights()
+
+                        out, err = self.capsys.readouterr()
+                        assert out.count("Added access rights") > 0
+
+                        with self.capsys.disabled():
+                            sys.stdout.write(out)
+                            sys.stderr.write(err)
+
+    def test_service_add_access_rights_already_added(self):
+        class AlreadyAddedResponse:
+            status = 409
+            data = '{"status":409,"error":{"code":"duplicate_accessright"}}'
+            reason = None
+
+            def getheaders(self): return None
+
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                    id='DEV:GOV:9876:SUB1',
+                    instance_id='DEV',
+                    member_name='ACME',
+                    member_class='GOV',
+                    member_code='9876',
+                    subsystem_code='SUB1',
+                    connection_type=ConnectionType.HTTP,
+                    status=ClientStatus.REGISTERED,
+                    owner=True,
+                    has_valid_local_sign_cert=True
+            )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                                return_value=[ServiceTestData.add_description_response]):
+                    with mock.patch('xrdsst.api.services_api.ServicesApi.add_service_service_clients',
+                                    side_effect=ApiException(http_resp=AlreadyAddedResponse())):
+                        service_controller = ServiceController()
+                        service_controller.app = app
+                        service_controller.load_config = (lambda: self.ss_config)
+                        service_controller.add_rights()
+
+                        out, err = self.capsys.readouterr()
+                        assert out.count("already added") > 0
 
                         with self.capsys.disabled():
                             sys.stdout.write(out)
