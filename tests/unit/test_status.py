@@ -8,7 +8,7 @@ import pytest
 
 from datetime import datetime, timedelta
 from definitions import ROOT_DIR
-from tests.util.test_util import ObjectStruct
+from tests.util.test_util import ObjectStruct, DiagnosticsTestData, InitTestData
 from xrdsst.api import UserApi, SystemApi, DiagnosticsApi, InitializationApi, SecurityServersApi, TokensApi
 from xrdsst.controllers.status import StatusController
 from xrdsst.main import XRDSSTTest
@@ -31,12 +31,12 @@ class TestStatus(unittest.TestCase):
                      'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security_server':
             [{'name': 'longServerName',
-              'url': 'https://non.existing.url.blah:8999/api/v1',
+              'url': 'https://google.com:443',
               'certificates': [
                   '/some/where/authcert',
                   '/some/where/signcert',
               ],
-              'api_key': 'X-Road-apikey token=api-key',
+              'api_key': 'X-Road-apikey token=86668888-8000-4000-a000-277727227272',
               'owner_dn_country': 'FI',
               'owner_dn_org': 'UNSERE',
               'owner_member_class': 'VOG',
@@ -128,12 +128,8 @@ class TestStatus(unittest.TestCase):
 
     @mock.patch.object(UserApi, 'get_user', sysadm_secoff)
     @mock.patch.object(SystemApi, 'system_version', (lambda x: Version(info="6.25.0")))
-    @mock.patch.object(DiagnosticsApi, 'get_global_conf_diagnostics', (lambda x:
-        GlobalConfDiagnostics(status_class="OK", status_code="SUCCESS", prev_update_at=datetime.now(), next_update_at=datetime.now() + timedelta(minutes=5))
-    ))
-    @mock.patch.object(InitializationApi, 'get_initialization_status', (lambda x:
-        InitializationStatus(is_anchor_imported=True, is_server_owner_initialized=True, is_server_code_initialized=True, software_token_init_status=TokenStatus.OK)
-    ))
+    @mock.patch.object(DiagnosticsApi, 'get_global_conf_diagnostics', (lambda x: DiagnosticsTestData.global_ok_success))
+    @mock.patch.object(InitializationApi, 'get_initialization_status', (lambda x: InitTestData.all_initialized))
     @mock.patch.object(SecurityServersApi, 'get_security_servers', (lambda x, **kwargs: [
         SecurityServer(id="TEST:GOV:8672:SSLONG", instance_id="TEST", member_class="GOV", server_address="4.2.2.1", server_code="SSLONG")
     ]))
@@ -173,7 +169,7 @@ class TestStatus(unittest.TestCase):
             assert status_controller.app._last_rendered[0][1][3].count('ANCHOR INITIALIZED') == 1
             assert status_controller.app._last_rendered[0][1][3].count('CODE INITIALIZED') == 1
             assert status_controller.app._last_rendered[0][1][3].count('OWNER INITIALIZED') == 1
-            assert status_controller.app._last_rendered[0][1][3].count('TOKEN OK') == 1
+            assert status_controller.app._last_rendered[0][1][3].count('TOKEN INITIALIZED') == 1
 
             # TSA list
             assert status_controller.app._last_rendered[0][1][4].count('one tsa') == 1

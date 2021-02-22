@@ -1,40 +1,10 @@
+import xrdsst
+
 from cement import ex
 
-from xrdsst.core.api_util import status_global, status_system_version, status_roles, \
-    status_server_initialization, status_timestamping, status_token, status_token_keys_and_certs, \
-    StatusRoles, StatusVersion, StatusGlobal, StatusServerInitialization, StatusServerTimestamping, StatusToken, \
-    StatusKeys, StatusCerts, StatusCsrs
 from xrdsst.controllers.base import BaseController
+from xrdsst.core.api_util import ServerStatus
 from xrdsst.resources.texts import texts
-
-
-class ServerStatus:
-    security_server_name: str = None
-    roles_status: StatusRoles = None
-    version_status: StatusVersion
-    global_status: StatusGlobal
-    server_init_status: StatusServerInitialization
-    timestamping_status: [StatusServerTimestamping]
-    token_status: StatusToken
-    status_keys: StatusKeys
-    status_csrs: StatusCsrs
-    status_certs: StatusCerts
-
-    def __init__(self, security_server_name: str = None, roles_status: StatusRoles = None,
-                 version_status=StatusVersion(), global_status=StatusGlobal(),
-                 server_init_status= StatusServerInitialization(),
-                 timestamping_status=[], token_status=StatusToken(),
-                 status_keys=StatusKeys(), status_csrs=StatusCsrs(), status_certs=StatusCerts()):
-        self.security_server_name = security_server_name
-        self.roles_status = roles_status
-        self.version_status = version_status
-        self.global_status = global_status
-        self.server_init_status = server_init_status
-        self.timestamping_status = timestamping_status
-        self.token_status = token_status
-        self.status_keys = status_keys
-        self.status_csrs = status_csrs
-        self.status_certs = status_certs
 
 
 class StatusListMapper:
@@ -160,42 +130,11 @@ class StatusController(BaseController):
 
         self.render(render_data)
         if self.is_output_tabulated() and not configuration.get("security_server"):
-            print("No security servers defined.")
+            print(texts['message.config.serverless'])
 
         return servers
 
     @staticmethod
     def remote_status(ss_configuration, security_server):
-        roles_status = status_roles(ss_configuration)
-        if not roles_status.permitted:
-            return ServerStatus(
-                security_server_name=security_server["name"],
-                roles_status=roles_status
-            )
-
-        version_status = status_system_version(ss_configuration)
-        glob_status = status_global(ss_configuration)
-        server_init_status = status_server_initialization(ss_configuration)
-
-        # If server has not been initialized, the following calls return errors a'la "Server conf is not initialized!"
-        if server_init_status.has_anchor:
-            timestamping_status = status_timestamping(ss_configuration)
-            token_status = status_token(ss_configuration, security_server)
-            status_keys, status_csrs, status_certs = status_token_keys_and_certs(ss_configuration, security_server)
-        else:
-            timestamping_status = []
-            token_status = StatusToken()
-            status_keys, status_csrs, status_certs = (StatusKeys(), StatusCsrs(), StatusCerts())
-
-        return ServerStatus(
-            security_server_name=security_server["name"],
-            roles_status=roles_status,
-            version_status=version_status,
-            global_status=glob_status,
-            server_init_status=server_init_status,
-            timestamping_status=timestamping_status,
-            token_status=token_status,
-            status_keys=status_keys,
-            status_csrs=status_csrs,
-            status_certs=status_certs
-        )
+        # TODO: maybe should do some wiggle with reachability / accessibility here in this place???
+        return xrdsst.core.api_util.status_server(ss_configuration, security_server)

@@ -1,8 +1,10 @@
 from datetime import datetime
+from typing import List, Tuple
 
 from xrdsst.api import TokensApi, DiagnosticsApi, SystemApi, UserApi, InitializationApi, SecurityServersApi
 from xrdsst.api_client.api_client import ApiClient
-from xrdsst.core.util import default_auth_key_label, default_sign_key_label
+from xrdsst.core.conf_keys import ConfKeysSecurityServer
+from xrdsst.core.util import default_auth_key_label, default_sign_key_label, is_ss_connectable
 from xrdsst.models import KeyUsageType, CertificateStatus
 from xrdsst.rest.rest import ApiException
 
@@ -71,7 +73,7 @@ class StatusAnchor:
 
     def __init__(self, has_anchor: bool = False, hash_: str = None, created_at: datetime = None):
         self.has_anchor = has_anchor
-        self.hash_ = hash
+        self.hash_ = hash_
         self.created_at = created_at
 
     def __repr__(self):
@@ -253,19 +255,25 @@ class StatusCerts:
     has_sign_cert: bool = False
 
     has_toolkit_auth_cert: bool = False
+
     toolkit_auth_cert_hash: str = None
+    toolkit_auth_cert_actions: List[str] = None
     has_auth_cert: bool = False
+    auth_cert_actions: List[str] = None
     has_registered_auth_cert: bool = False
 
     def __init__(self, has_toolkit_sign_cert: bool = False, toolkit_sign_cert_hash: str = None,
                  has_sign_cert: bool = False, has_toolkit_auth_cert: bool = False, toolkit_auth_cert_hash: str = None,
-                 has_auth_cert: bool = False, has_registered_auth_cert: bool = False):
+                 toolkit_auth_cert_actions: List[str] = None, has_auth_cert: bool = False, auth_cert_actions: List[str] = None,
+                 has_registered_auth_cert: bool = False):
         self.has_toolkit_sign_cert = has_toolkit_sign_cert
         self.toolkit_sign_cert_hash = toolkit_sign_cert_hash
         self.has_sign_cert = has_sign_cert
         self.has_toolkit_auth_cert = has_toolkit_auth_cert
         self.toolkit_auth_cert_hash = toolkit_auth_cert_hash
+        self.toolkit_auth_cert_actions = toolkit_auth_cert_actions
         self.has_auth_cert = has_auth_cert
+        self.auth_cert_actions = auth_cert_actions
         self.has_registered_auth_cert = has_registered_auth_cert
 
     def __repr__(self):
@@ -275,7 +283,9 @@ class StatusCerts:
             f'has_sign_cert={self.has_sign_cert},' \
             f'has_toolkit_auth_cert={self.has_toolkit_auth_cert},' \
             f'toolkit_auth_cert_hash="{self.toolkit_auth_cert_hash}",' \
+            f'toolkit_auth_cert_actions={self.toolkit_auth_cert_actions},' \
             f'has_auth_cert={self.has_auth_cert},' \
+            f'auth_cert_actions={self.auth_cert_actions},' \
             f'has_registered_auth_cert={self.has_registered_auth_cert})'
 
     def to_status_str(self):
@@ -284,16 +294,48 @@ class StatusCerts:
             (("AUTH" + ("*" if not self.has_toolkit_sign_cert else '')) if self.has_sign_cert else "") + '\n'
 
 
-def remote_get_token(ss_configuration, security_server):
+class ServerStatus:
+    security_server_name: str = None
+    connectivity_status: Tuple[bool, str] = None
+    roles_status: StatusRoles = None
+    version_status: StatusVersion
+    global_status: StatusGlobal
+    server_init_status: StatusServerInitialization
+    timestamping_status: [StatusServerTimestamping]
+    token_status: StatusToken
+    status_keys: StatusKeys
+    status_csrs: StatusCsrs
+    status_certs: StatusCerts
+
+    def __init__(self, security_server_name: str = None, connectivity_status: Tuple[bool, str] = None,
+                 roles_status: StatusRoles = None,
+                 version_status=StatusVersion(), global_status=StatusGlobal(),
+                 server_init_status=StatusServerInitialization(),
+                 timestamping_status=[], token_status=StatusToken(),
+                 status_keys=StatusKeys(), status_csrs=StatusCsrs(), status_certs=StatusCerts()):
+        self.security_server_name = security_server_name
+        self.connectivity_status = connectivity_status
+        self.roles_status = roles_status
+        self.version_status = version_status
+        self.global_status = global_status
+        self.server_init_status = server_init_status
+        self.timestamping_status = timestamping_status
+        self.token_status = token_status
+        self.status_keys = status_keys
+        self.status_csrs = status_csrs
+        self.status_certs = status_certs
+
+
+def remote_get_token(api_config, security_server):
     token_id = security_server['software_token_id']
-    token_api = TokensApi(ApiClient(ss_configuration))
+    token_api = TokensApi(ApiClient(api_config))
     token = token_api.get_token(token_id)
     return token
 
 
 # Returns 'global status' of X-Road according to security servers knowledge
-def status_global(ss_configuration):
-    diagnostics_api = DiagnosticsApi(ApiClient(ss_configuration))
+def status_global(api_config):
+    diagnostics_api = DiagnosticsApi(ApiClient(api_config))
     glob_conf_diag = diagnostics_api.get_global_conf_diagnostics()
 
     glob_status = StatusGlobal(
@@ -306,15 +348,15 @@ def status_global(ss_configuration):
 
 
 # Returns security server version reported by server itself
-def status_system_version(ss_configuration):
-    system_api = SystemApi(ApiClient(ss_configuration))
+def status_system_version(api_config):
+    system_api = SystemApi(ApiClient(api_config))
     sys_ver = system_api.system_version()
     return StatusVersion(sys_ver.info)
 
 
 # Returns roles of the user doing the API call in human readable form
-def status_roles(ss_configuration):
-    user_api = UserApi(ApiClient(ss_configuration))
+def status_roles(api_config):
+    user_api = UserApi(ApiClient(api_config))
     try:
         user = user_api.get_user()
     except ApiException as aex:
@@ -324,9 +366,9 @@ def status_roles(ss_configuration):
 
 
 # Returns security server anchor information, if available
-def status_anchor(ss_configuration):
-    initialization_api = InitializationApi(ApiClient(ss_configuration))
-    system_api = SystemApi(ApiClient(ss_configuration))
+def status_anchor(api_config):
+    initialization_api = InitializationApi(ApiClient(api_config))
+    system_api = SystemApi(ApiClient(api_config))
 
     init_response = initialization_api.get_initialization_status()
 
@@ -342,9 +384,9 @@ def status_anchor(ss_configuration):
 
 
 # Returns security server basic initialization settings
-def status_server_initialization(ss_configuration):
-    initialization_api = InitializationApi(ApiClient(ss_configuration))
-    security_servers_api = SecurityServersApi(ApiClient(ss_configuration))
+def status_server_initialization(api_config):
+    initialization_api = InitializationApi(ApiClient(api_config))
+    security_servers_api = SecurityServersApi(ApiClient(api_config))
 
     init_response = initialization_api.get_initialization_status()
 
@@ -369,8 +411,8 @@ def status_server_initialization(ss_configuration):
 
 
 # Returns /configured/ (active) timestamping services for the security server
-def status_timestamping(ss_configuration):
-    system_api = SystemApi(ApiClient(ss_configuration))
+def status_timestamping(api_config):
+    system_api = SystemApi(ApiClient(api_config))
     ts_list_response = system_api.get_configured_timestamping_services()
     return list(map(lambda tss: StatusServerTimestamping(
         name=tss.name,
@@ -379,8 +421,8 @@ def status_timestamping(ss_configuration):
 
 
 # Returns token status information for security server token specified in the configuration file.
-def status_token(ss_configuration, security_server):
-    token = remote_get_token(ss_configuration, security_server)
+def status_token(api_config, security_server):
+    token = remote_get_token(api_config, security_server)
     return StatusToken(
         id_=token.id,
         name=token.name,
@@ -390,7 +432,7 @@ def status_token(ss_configuration, security_server):
 
 
 # Returns triple of (key, csr, cert) statuses for security server token specified in the configuration file.
-def status_token_keys_and_certs(ss_configuration, security_server):
+def status_token_keys_and_certs(api_config, security_server):
     # From among multiple certificates, returns first that is closest to being in REGISTERED
     def best_cert(certs):
         return next(
@@ -407,7 +449,7 @@ def status_token_keys_and_certs(ss_configuration, security_server):
             )
         )
 
-    token = remote_get_token(ss_configuration, security_server)
+    token = remote_get_token(api_config, security_server)
     token_key_count = len(token.keys)
 
     toolkit_auth_key_label = default_auth_key_label(security_server)
@@ -458,6 +500,7 @@ def status_token_keys_and_certs(ss_configuration, security_server):
 
     registered_auth_key_certs = list(
         filter(lambda cert: CertificateStatus.REGISTERED == cert.status, certs_of_auth_keys))
+    auth_cert = best_cert(certs_of_auth_keys) if certs_of_auth_keys else None
 
     has_toolkit_sign_cert: bool = (has_toolkit_sign_key and len(toolkit_sign_keys[0].certificates) > 0)
     toolkit_sign_cert = best_cert(toolkit_sign_keys[0].certificates) if has_toolkit_sign_cert else None
@@ -471,9 +514,58 @@ def status_token_keys_and_certs(ss_configuration, security_server):
         toolkit_sign_cert_hash=toolkit_sign_cert.certificate_details.hash if toolkit_sign_cert else None,
 
         has_auth_cert=len(certs_of_auth_keys) > 0,
+        auth_cert_actions=auth_cert.possible_actions if auth_cert else None,
         has_toolkit_auth_cert=has_toolkit_auth_cert,
         toolkit_auth_cert_hash=toolkit_auth_cert.certificate_details.hash if toolkit_auth_cert else None,
+        toolkit_auth_cert_actions=toolkit_auth_cert.possible_actions if toolkit_auth_cert else None,
         has_registered_auth_cert=len(registered_auth_key_certs) > 0
     )
 
     return status_keys, status_csrs, status_certs
+
+
+# Return as much as possible about the server status in a given central+security server statuses.
+def status_server(api_config, security_server):
+    is_connectable, conn_err_msg = is_ss_connectable(security_server[ConfKeysSecurityServer.CONF_KEY_URL])
+    if not is_connectable:
+        return ServerStatus(
+            connectivity_status=(is_connectable, conn_err_msg),
+            security_server_name=security_server["name"],
+            roles_status=StatusRoles(permitted=False, roles=None)
+        )
+
+    roles_status = status_roles(api_config)
+    if not roles_status.permitted:
+        return ServerStatus(
+            connectivity_status=(is_connectable, conn_err_msg),
+            security_server_name=security_server["name"],
+            roles_status=roles_status
+        )
+
+    version_status = status_system_version(api_config)
+    glob_status = status_global(api_config)
+    server_init_status = status_server_initialization(api_config)
+
+    # If server has not been initialized, the following calls return errors a'la "Server conf is not initialized!"
+    if server_init_status.has_anchor:
+        timestamping_status = status_timestamping(api_config)
+        token_status = status_token(api_config, security_server)
+        status_keys, status_csrs, status_certs = status_token_keys_and_certs(api_config, security_server)
+    else:
+        timestamping_status = []
+        token_status = StatusToken()
+        status_keys, status_csrs, status_certs = (StatusKeys(), StatusCsrs(), StatusCerts())
+
+    return ServerStatus(
+        connectivity_status=(is_connectable, conn_err_msg),
+        security_server_name=security_server["name"],
+        roles_status=roles_status,
+        version_status=version_status,
+        global_status=glob_status,
+        server_init_status=server_init_status,
+        timestamping_status=timestamping_status,
+        token_status=token_status,
+        status_keys=status_keys,
+        status_csrs=status_csrs,
+        status_certs=status_certs
+    )

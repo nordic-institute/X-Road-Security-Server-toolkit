@@ -1,13 +1,17 @@
 import os
+import sys
 import unittest
 from datetime import datetime
 from unittest import mock
 
+import pytest
 from dateutil.tz import tzutc
 
 import urllib3
 
 from definitions import ROOT_DIR
+from tests.util.test_util import StatusTestData, ObjectStruct
+from xrdsst.api import TokensApi
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import Token, TokenStatus, TokenType, Key, KeyUsageType, TokenCertificate, \
     CertificateOcspStatus, CertificateStatus, CertificateDetails, KeyUsage, CertificateAuthority, \
@@ -99,7 +103,7 @@ class TokenTestData:
         )
     ]
 
-    add_key_with_csr_response = KeyWithCertificateSigningRequestId(
+    add_auth_key_with_csr_response = KeyWithCertificateSigningRequestId(
         csr_id="16F2B5A9D76B790EE3DD7544152E333FC57F57FF",
         key=Key(
             available=True,
@@ -112,11 +116,32 @@ class TokenTestData:
             ],
             certificates=[],
             id="D1969303DB4B2CB5A5E0596CF6E4EA9E77D4C405",
-            label="ss1-default-auth-key",
-            name="ss1-default-auth-key",
+            label="ssX-default-auth-key",
+            name="ssX-default-auth-key",
             possible_actions=None,
             saved_to_configuration=True,
             usage=KeyUsageType.AUTHENTICATION
+        )
+    )
+
+    add_sign_key_with_csr_response = KeyWithCertificateSigningRequestId(
+        csr_id="0487B3C6213F790A8FD426AF6DE0210DEFA66620",
+        key=Key(
+            available=True,
+            certificate_signing_requests=[
+                TokenCertificateSigningRequest(
+                    id="0487B3C6213F790A8FD426AF6DE0210DEFA66620",
+                    owner_id=None,
+                    possible_actions=[]
+                )
+            ],
+            certificates=[],
+            id="988F2CEA9492F5FEC10088BD7E53B9D16C988EB3",
+            label="ssX-default-sign-key",
+            name="ssX-default-sign-key",
+            possible_actions=None,
+            saved_to_configuration=True,
+            usage=KeyUsageType.SIGNING
         )
     )
 
@@ -132,7 +157,7 @@ class TestToken(unittest.TestCase):
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': 'X-Road-apikey token=api-key',
+              'api_key': 'X-Road-apikey token=86668888-8000-4000-a000-277727227272',
               'configuration_anchor': configuration_anchor,
               'owner_dn_country': 'FI',
               'owner_dn_org': 'UNSERE',
@@ -141,6 +166,10 @@ class TestToken(unittest.TestCase):
               'security_server_code': 'SS3',
               'software_token_id': '0',
               'software_token_pin': '1122'}]}
+
+    @pytest.fixture(autouse=True)
+    def capsys(self, capsys):
+        self.capsys = capsys
 
     def test_token_list(self):
         with XRDSSTTest() as app:
@@ -176,13 +205,68 @@ class TestToken(unittest.TestCase):
                     self.assertRaises(ApiException)
 
     def test_token_login(self):
-        with mock.patch('xrdsst.api.tokens_api.TokensApi.login_token',
-                        return_value=TokenTestData.token_login_response):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.tokens_api.TokensApi.login_token',
+                            return_value=TokenTestData.token_login_response):
+                token_controller = TokenController()
+                token_controller.app = app
+                token_controller.load_config = (lambda: self.ss_config)
+                token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                token_controller.login()
+
+                out, err = self.capsys.readouterr()
+                assert 1 == out.count("Security server 'ssX' token 0 logged in.")
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    @mock.patch.object(TokensApi, 'login_token', side_effect=ApiException(http_resp=ObjectStruct(status=409, reason=None, data='{"status":409,"error":{"code":"action_not_possible"}}', getheaders=(lambda: None))))
+    def test_token_login_already_logged_in(self, tokens_api_mock):
+        with XRDSSTTest() as app:
             token_controller = TokenController()
+            token_controller.app = app
             token_controller.load_config = (lambda: self.ss_config)
+            token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
             token_controller.login()
 
+            out, err = self.capsys.readouterr()
+            assert 1 == out.count("Token 0 already logged in for 'ssX'")
+
+            with self.capsys.disabled():
+                sys.stdout.write(out)
+                sys.stderr.write(err)
+
+    @staticmethod
+    def mock_add_key_and_csr_test_token_init_keys(id_, **kwargs):
+        if kwargs['body'].csr_generate_request.key_usage_type == KeyUsageType.AUTHENTICATION:
+            return TokenTestData.add_auth_key_with_csr_response
+        return TokenTestData.add_sign_key_with_csr_response
+
+    @mock.patch.object(TokensApi, 'get_token', (lambda x, y: TokenTestData.token_login_response))
+    @mock.patch.object(TokensApi, 'add_key_and_csr', mock_add_key_and_csr_test_token_init_keys)
     def test_token_init_keys(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.certificate_authorities_api.CertificateAuthoritiesApi.get_approved_certificate_authorities') as mock_get_cas:
+                mock_get_cas.return_value.__enter__.return_value = TokenTestData.ca_list_response
+                with mock.patch(
+                        'xrdsst.api.security_servers_api.SecurityServersApi.get_security_servers',
+                        return_value=TokenTestData.security_servers_current_server_response):
+                    token_controller = TokenController()
+                    token_controller.app = app
+                    token_controller.load_config = (lambda: self.ss_config)
+                    token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    token_controller.init_keys()
+
+                    out, err = self.capsys.readouterr()
+                    assert 1 == out.count("Created AUTHENTICATION CSR")
+                    assert 1 == out.count("Created SIGNING CSR")
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_token_init_keys_without_token_logged_in(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.certificate_authorities_api.CertificateAuthoritiesApi.get_approved_certificate_authorities') as mock_get_cas:
                 mock_get_cas.return_value.__enter__.return_value = TokenTestData.ca_list_response
@@ -192,11 +276,22 @@ class TestToken(unittest.TestCase):
                     with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
                                     return_value=TokenTestData.token_login_response):
                         with mock.patch('xrdsst.api.tokens_api.TokensApi.add_key_and_csr',
-                                        return_value=TokenTestData.add_key_with_csr_response):
+                                        return_value=TokenTestData.add_auth_key_with_csr_response):
                             token_controller = TokenController()
                             token_controller.app = app
                             token_controller.load_config = (lambda: self.ss_config)
+                            token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete_token_logged_out())
                             token_controller.init_keys()
+
+                            out, err = self.capsys.readouterr()
+                            assert 1 == out.count(
+                                "SKIPPED 'ssX': has ['init'] performed but also needs ['token login'] completion before continuing with requested ['token init-keys']"
+                            )
+
+                            with self.capsys.disabled():
+                                sys.stdout.write(out)
+                                sys.stderr.write(err)
+
 
     def test_token_init_keys_without_cas_available(self):
         with XRDSSTTest() as app:
@@ -208,6 +303,7 @@ class TestToken(unittest.TestCase):
                     token_controller = TokenController()
                     token_controller.app = app
                     token_controller.load_config = (lambda: self.ss_config)
+                    token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     self.assertRaises(IndexError, lambda: token_controller.init_keys())
 
     def test_token_list_nonresolving_url(self):
@@ -216,11 +312,17 @@ class TestToken(unittest.TestCase):
         self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.list())
 
     def test_token_login_nonresolving_url(self):
-        token_controller = TokenController()
-        token_controller.load_config = (lambda: self.ss_config)
-        self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.login())
+        with XRDSSTTest() as app:
+            token_controller = TokenController()
+            token_controller.app = app
+            token_controller.load_config = (lambda: self.ss_config)
+            token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+            self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.login())
 
     def test_token_init_keys_nonresolving_url(self):
-        token_controller = TokenController()
-        token_controller.load_config = (lambda: self.ss_config)
-        self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.init_keys())
+        with XRDSSTTest() as app:
+            token_controller = TokenController()
+            token_controller.app = app
+            token_controller.load_config = (lambda: self.ss_config)
+            token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+            self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.init_keys())
