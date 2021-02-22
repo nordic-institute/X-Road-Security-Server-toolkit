@@ -134,8 +134,8 @@ class ServiceController(BaseController):
                                 service_clients = ServiceClients(items=[service_client])
                                 response = services_api.add_service_service_clients(service.id, body=service_clients)
                                 if response:
-                                        BaseController.log_info("Added access rights for client '" + client.id +
-                                                                "' to use service '" + service.id + "' (got full id " + response[0].id + ")")
+                                    BaseController.log_info("Added access rights for client '" + client.id +
+                                                            "' to use service '" + service.id + "' (got full id " + response[0].id + ")")
                             except ApiException as err:
                                 if err.status == 409:
                                     BaseController.log_info("Added access rights for client '" + client.id +

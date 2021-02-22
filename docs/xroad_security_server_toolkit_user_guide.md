@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.0
+Version: 1.2.1
 Doc. ID: XRDSST-CONF
 
 ---
@@ -21,7 +21,8 @@ Doc. ID: XRDSST-CONF
 | 20.01.2021 | 1.1.7       | Notes on adding service descriptions                                         | Bert Viikmäe       |
 | 27.01.2021 | 1.1.8       | Notes on enabling service descriptions                                       | Bert Viikmäe       |
 | 03.02.2021 | 1.1.9       | Notes on server status query                                                 | Taimo Peelo        |
-| 17.02.2021 | 1.2.0       | Updates to the user guide                                                    | Bert Viikmäe        |
+| 17.02.2021 | 1.2.0       | Updates to the user guide                                                    | Bert Viikmäe       |
+| 22.02.2021 | 1.2.1       | Update service management                                                    | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -245,3 +246,4 @@ Further subsystem registration can proceed with ``xrdsst client register``.
 ### 4.9 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
+Adding access rights to services is performed  with ``xrdsst service add-rights``.
