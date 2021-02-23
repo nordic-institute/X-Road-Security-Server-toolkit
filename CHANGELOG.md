@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4-alpha.0] - 2021-02-23
+- add ``xrdsst service`` subcommand ``update-parameters``
+
 ## [0.2.3-alpha.0] - 2021-02-22
 - add ``xrdsst service`` subcommand ``add-rights``
 
