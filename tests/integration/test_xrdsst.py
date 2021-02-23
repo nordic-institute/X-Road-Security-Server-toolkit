@@ -86,7 +86,13 @@ class TestXRDSST(unittest.TestCase):
                       'service_descriptions': [{
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
                           'rest_service_code': 'Petstore',
-                          'type': 'OPENAPI3'
+                          'type': 'OPENAPI3',
+                          'timeout': 120,
+                          'ssl_auth': False,
+                          'url_all': False,
+                          'timeout_all': False,
+                          'ssl_auth_all': False,
+                          'ignore_warnings': True
                       }
                       ]
                   }]
@@ -310,6 +316,13 @@ class TestXRDSST(unittest.TestCase):
             service_controller.load_config = (lambda: self.config)
             service_controller.add_rights
 
+    def step_update_service_parameters(self):
+        with XRDSSTTest() as app:
+            service_controller = ServiceController()
+            service_controller.app = app
+            service_controller.load_config = (lambda: self.config)
+            service_controller.update_parameters
+
     def step_autoconf(self):
         with XRDSSTTest() as app:
             with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
@@ -375,6 +388,9 @@ class TestXRDSST(unittest.TestCase):
         self.query_status()
 
         self.step_add_service_access_rights()
+        self.query_status()
+
+        self.step_update_service_parameters()
         configured_servers_at_end = self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

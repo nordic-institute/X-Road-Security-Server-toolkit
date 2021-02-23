@@ -28,3 +28,9 @@ security_server:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
           type: <SERVICE_TYPE>
+          timeout: <SERVICE_TIMEOUT>
+          ssl_auth: <SERVICE_USE_SSL_AUTH>
+          url_all: <SERVICE_URL_FOR_ALL>
+          timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
+          ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
+          ignore_warnings: <SERVICE_IGNORE_WARNINGS>

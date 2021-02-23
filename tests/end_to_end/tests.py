@@ -207,6 +207,14 @@ class EndToEndTest(unittest.TestCase):
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
 
+    def step_update_service_parameters(self):
+        service_controller = ServiceController()
+        for security_server in self.config["security_server"]:
+            configuration = service_controller.initialize_basic_config_values(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
+
     def step_autoconf(self):
         with XRDSSTTest() as app:
             with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
@@ -256,6 +264,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
         self.step_add_service_access_rights()
+        self.step_update_service_parameters()
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()

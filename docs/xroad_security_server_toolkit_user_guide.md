@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.1
+Version: 1.2.2
 Doc. ID: XRDSST-CONF
 
 ---
@@ -23,6 +23,7 @@ Doc. ID: XRDSST-CONF
 | 03.02.2021 | 1.1.9       | Notes on server status query                                                 | Taimo Peelo        |
 | 17.02.2021 | 1.2.0       | Updates to the user guide                                                    | Bert Viikmäe       |
 | 22.02.2021 | 1.2.1       | Update service management                                                    | Bert Viikmäe       |
+| 23.02.2021 | 1.2.2       | Update service management                                                    | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -131,6 +132,12 @@ security-server:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
           type: <SERVICE_TYPE>
+          timeout: <SERVICE_TIMEOUT>
+          ssl_auth: <SERVICE_USE_SSL_AUTH>
+          url_all: <SERVICE_URL_FOR_ALL>
+          timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
+          ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
+          ignore_warnings: <SERVICE_IGNORE_WARNINGS>
 ```
 
 The ``api-key`` section is for configuring the automatic api key generation parameters for security server
@@ -161,6 +168,12 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SERVICE_DESCRIPTION_URL> URL for service description
 * <REST_SERVICE_CODE> rest service code, not used for WSDL services
 * <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
+* <SERVICE_TIMEOUT> timeout for service in seconds
+* <SERVICE_USE_SSL_AUTH> boolean value for specifying whether SSL authentication should be used
+* <SERVICE_URL_FOR_ALL> use same URL for all services for a given service description
+* <SERVICE_TIMEOUT_FOR_ALL> use same timeout value for all services for a given service description
+* <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description
+* <SERVICE_IGNORE_WARNINGS> boolean value for indicating whether service related warnings should be ignored
 
 ### 3.3 Different ways of using the configuration file
 
@@ -246,4 +259,4 @@ Further subsystem registration can proceed with ``xrdsst client register``.
 ### 4.9 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
-Adding access rights to services is performed  with ``xrdsst service add-rights``.
+Adding access rights to services is performed  with ``xrdsst service add-rights``. Service parameters are updated with ``xrdsst service update-parameters``.
