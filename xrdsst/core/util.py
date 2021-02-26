@@ -60,6 +60,7 @@ def is_ss_connectable(ss_url, sock_timeout=1):
     from socket import SOCK_STREAM, SHUT_RDWR, socket, AF_INET, error
     from urllib.parse import urlparse
     from urllib.error import URLError
+    from xrdsst.api_client.rate_limit import limit_rate
 
     def has_protocol_host_port(url):
         try:
@@ -78,6 +79,8 @@ def is_ss_connectable(ss_url, sock_timeout=1):
     url_netloc = urlparse(ss_url).netloc
     parts = url_netloc.split(':')
     host, port = parts[0], int(parts[1])
+
+    limit_rate('/'.join(ss_url.split('/')[:3]))
     try:
         s = socket(AF_INET, SOCK_STREAM)
         s.settimeout(sock_timeout)
