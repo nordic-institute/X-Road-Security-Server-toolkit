@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.3-alpha.0] - 2021-02-22
 - Autoconfiguration to be sequential per-security server.
-- Defined operation completion criterias.
+- Defined operation completion criteria.
 - Operations made aware of operational context.
 - Configuration file validated on global level (keys) and operation level (required keys, value sanity)
 - Autoconfiguration stops after operation that could not be completed
