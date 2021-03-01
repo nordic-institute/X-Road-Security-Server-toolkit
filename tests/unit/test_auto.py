@@ -77,7 +77,7 @@ class TestAuto(unittest.TestCase):
     @mock.patch.object(TimestampController, 'init')
     @mock.patch.object(InitServerController, '_default')
     def test_autoconfig_token_login_fails(self,
-                        init_mock, timestamp_init_mock, token_login_mock, token_initkey_mock):
+                                          init_mock, timestamp_init_mock, token_login_mock, token_initkey_mock):
         with XRDSSTTest() as app:
             auto_controller = AutoController()
             auto_controller.app = app

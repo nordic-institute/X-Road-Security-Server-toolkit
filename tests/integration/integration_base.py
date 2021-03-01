@@ -3,18 +3,11 @@ import os
 import subprocess
 import time
 import unittest
-from unittest import mock
 
 import docker
 import git
 
 from definitions import ROOT_DIR
-from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign
-from xrdsst.controllers.auto import AutoController
-from xrdsst.controllers.base import BaseController
-from xrdsst.controllers.cert import CertController
-from xrdsst.controllers.status import StatusController
-from xrdsst.main import XRDSSTTest
 
 
 # Make less of many evils and use one abstract test class base for encapsulating rather involved Docker setup.

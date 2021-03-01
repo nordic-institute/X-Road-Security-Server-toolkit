@@ -22,8 +22,8 @@ class TestBaseController(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
-         'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
-                      'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
+        'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
+                     'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',

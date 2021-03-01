@@ -101,13 +101,13 @@ def opdep_init(app):
         sss = OP_GRAPH.nodes[OPS.GENKEYS_CSRS]['servers'][ssn]['status']
 
         keys_done = (
-            (sss.status_keys.has_toolkit_sign_key and sss.status_keys.has_toolkit_auth_key) or
-            (sss.status_keys.has_sign_key and sss.status_keys.has_auth_key)
+                (sss.status_keys.has_toolkit_sign_key and sss.status_keys.has_toolkit_auth_key) or
+                (sss.status_keys.has_sign_key and sss.status_keys.has_auth_key)
         )
 
         csrs_done = (
-            (sss.status_csrs.has_toolkit_sign_csr and sss.status_csrs.has_toolkit_auth_csr) or
-            (sss.status_certs.has_sign_cert and sss.status_certs.has_auth_cert)
+                (sss.status_csrs.has_toolkit_sign_csr and sss.status_csrs.has_toolkit_auth_csr) or
+                (sss.status_certs.has_sign_cert and sss.status_certs.has_auth_cert)
         )
 
         return keys_done and csrs_done
@@ -119,17 +119,17 @@ def opdep_init(app):
     def is_done_auth_cert_register(ssn):
         sss = OP_GRAPH.nodes[OPS.REGISTER_AUTH_CERT]['servers'][ssn]['status']
         return (
-            sss.status_certs.has_auth_cert and
-            sss.status_certs.auth_cert_actions and
-            PossibleAction.UNREGISTER in sss.status_certs.auth_cert_actions
+                sss.status_certs.has_auth_cert and
+                sss.status_certs.auth_cert_actions and
+                PossibleAction.UNREGISTER in sss.status_certs.auth_cert_actions
         )
 
     def is_done_auth_cert_activate(ssn):
         sss = OP_GRAPH.nodes[OPS.ACTIVATE_AUTH_CERT]['servers'][ssn]['status']
         return (
-            sss.status_certs.has_auth_cert and
-            sss.status_certs.auth_cert_actions and
-            PossibleAction.DISABLE in sss.status_certs.auth_cert_actions
+                sss.status_certs.has_auth_cert and
+                sss.status_certs.auth_cert_actions and
+                PossibleAction.DISABLE in sss.status_certs.auth_cert_actions
         )
 
     g = OP_GRAPH
@@ -180,7 +180,7 @@ def revoke_api_key(app):
                 curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
                            config["api_key"][0]["url"] + "/" + str(api_key_id[ssn]) + " -k"
                 cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                    config["api_key"][0]["key"] + "\" root@" + ssn + " \"" + curl_cmd + "\""
+                      config["api_key"][0]["key"] + "\" root@" + ssn + " \"" + curl_cmd + "\""
                 process = subprocess.run(cmd, shell=True, check=True, capture_output=True)
                 api_key_token = app.api_keys[ssn].split('=')[1]
                 if process.returncode == 0:
@@ -247,6 +247,7 @@ def main_excepthook(type_, value, traceback_):
         print(message, file=sys.stderr)
     else:
         sys.__excepthook__(type_, value, traceback_)
+
 
 def main():
     sys.excepthook = main_excepthook
