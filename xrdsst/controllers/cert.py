@@ -52,47 +52,81 @@ class CertController(BaseController):
 
     @ex(help="Import certificate(s)", label="import", arguments=[])
     def import_(self):
-        self.import_certificates(self.load_config())
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, insufficient_state_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, insufficient_state_servers)
+
+        self.import_certificates(active_config)
 
     @ex(help="Register authentication certificate(s)", arguments=[])
     def register(self):
-        self.register_certificate(self.load_config())
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, insufficient_state_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, insufficient_state_servers)
+
+        self.register_certificate(active_config)
 
     @ex(help="Activate registered centrally approved authentication certificate", arguments=[])
     def activate(self):
-        self.activate_certificate(self.load_config())
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, insufficient_state_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, insufficient_state_servers)
+
+        self.activate_certificate(active_config)
 
     @ex(help="Download certificate requests for sign and auth keys, if any.", arguments=[])
     def download_csrs(self):
-        return self._download_csrs(self.load_config())
+        active_config = self.load_config()
+
+        return self._download_csrs(active_config)
 
     def import_certificates(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting certificate import process for security server: ' + security_server['name'])
+            BaseController.log_debug('Starting certificate import process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_import_certificates(ss_configuration, security_server)
 
     def register_certificate(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting certificate registration process for security server: ' + security_server['name'])
+            BaseController.log_debug('Starting certificate registration process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_register_certificate(ss_configuration, security_server)
 
     def activate_certificate(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting certificate activation for security server: ' + security_server['name'])
+            BaseController.log_debug('Starting certificate activation for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_activate_certificate(ss_configuration, security_server)
 
     def _download_csrs(self, configuration):
         self.init_logging(configuration)
+        downloaded_csrs = []
         for security_server in configuration["security_server"]:
             BaseController.log_info('Starting CSR download from security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-            return self.remote_download_csrs(ss_configuration, security_server)
+            downloaded_csrs.extend(self.remote_download_csrs(ss_configuration, security_server))
+        return downloaded_csrs
 
     # requires token to be logged in
     @staticmethod
@@ -108,9 +142,8 @@ class CertController(BaseController):
                     cert_file = open(cert_file_loc, "rb")
                     cert_data = cert_file.read()
                     cert_file.close()
-                    response = token_cert_api.import_certificate(body=cert_data)
+                    token_cert_api.import_certificate(body=cert_data)
                     BaseController.log_info("Imported certificate '" + cert_file_loc + "'")
-                    return response
                 except ApiException as err:
                     if err.status == 409 and err.body.count("certificate_already_exists"):
                         BaseController.log_info("Certificate '" + cert_file_loc + "' already imported.")
@@ -121,7 +154,7 @@ class CertController(BaseController):
     def remote_register_certificate(ss_configuration, security_server):
         registrable_cert = CertController.find_actionable_auth_certificate(ss_configuration, security_server, 'REGISTER')
         if not registrable_cert:
-            return
+            return None
 
         token_cert_api = TokenCertificatesApi(ApiClient(ss_configuration))
         ss_address = SecurityServerAddress(BaseController.security_server_address(security_server))
@@ -136,7 +169,7 @@ class CertController(BaseController):
     def remote_activate_certificate(ss_configuration, security_server):
         activatable_cert = CertController.find_actionable_auth_certificate(ss_configuration, security_server, 'ACTIVATE')
         if not activatable_cert:
-            return
+            return None
 
         token_cert_api = TokenCertificatesApi(ApiClient(ss_configuration))
         token_cert_api.activate_certificate(activatable_cert.certificate_details.hash)  # responseless PUT

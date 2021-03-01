@@ -41,15 +41,36 @@ class TokenController(BaseController):
 
     @ex(help='List tokens', arguments=[])
     def list(self):
-        self.token_list(self.load_config())
+        active_config = self.load_config()
+        self.token_list(active_config)
 
     @ex(help='Login token', arguments=[])
     def login(self):
-        self.token_login(self.load_config())
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, insufficient_state_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, insufficient_state_servers)
+
+        self.token_login(active_config)
 
     @ex(help="Initializes two token keys with corresponding AUTH and SIGN CSR generated")
     def init_keys(self):
-        self.token_add_keys_with_csrs(self.load_config())
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, insufficient_state_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, insufficient_state_servers)
+
+        self.token_add_keys_with_csrs(active_config)
 
     def token_list(self, config):
         self.init_logging(config)
@@ -85,7 +106,7 @@ class TokenController(BaseController):
     def token_login(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting token login process for security server: ' + security_server['name'])
+            BaseController.log_debug('Starting token login process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_login(ss_configuration, security_server)
 
@@ -100,17 +121,17 @@ class TokenController(BaseController):
                 id=token_id,
                 body=TokenPassword(token_pin)
             )
-            BaseController.log_info('Security server \"' + security_server["name"] + '\" token ' + str(token_id) + ' logged in')
+            BaseController.log_info("Security server '" + security_server['name'] + "' token " + str(token_id) + " logged in.")
         except ApiException as err:
             if err.status == 409:
-                BaseController.log_info("Token already logged in.")
+                BaseController.log_info("Token " + str(token_id) + " already logged in for '" + security_server['name'] + "'.")
             else:
                 BaseController.log_api_error('TokensApi->login_token', err)
 
     def token_add_keys_with_csrs(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting token key creation process for security server: ' + security_server['name'])
+            BaseController.log_debug('Starting token key creation process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             self.remote_token_add_keys_with_csrs(ss_configuration, security_server)
 

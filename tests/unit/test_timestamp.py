@@ -1,8 +1,14 @@
+import os
+import sys
 import unittest
+from pathlib import Path
 from unittest import mock, TestCase
-import urllib3
 
-from tests.unit.test_base_controller import TestBaseController
+import pytest
+
+from definitions import ROOT_DIR
+from tests.util.test_util import StatusTestData
+from xrdsst.api import TimestampingServicesApi, SystemApi
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import TimestampingService
@@ -21,8 +27,25 @@ class TimestampTestData:
 
 
 class TestTimestamp(unittest.TestCase):
-    base_controller = TestBaseController()
-    ss_config = base_controller.get_ss_config()
+    configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
+    ss_config = {
+        'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
+         'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
+                      'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
+        'security_server':
+            [{'name': 'ss',
+              'url': 'https://ss:4000/api/v1',
+              'api_key': 'X-Road-apikey token=api-key',
+              'configuration_anchor': configuration_anchor,
+              'owner_member_class': 'GOV',
+              'owner_member_code': '1234',
+              'security_server_code': 'SS',
+              'software_token_pin': '1234',
+              'software_token_id': 0}]}
+
+    @pytest.fixture(autouse=True)
+    def capsys(self, capsys):
+        self.capsys = capsys
 
     def test_timestamp_service_approved_list(self):
         with XRDSSTTest() as app:
@@ -67,17 +90,15 @@ class TestTimestamp(unittest.TestCase):
                     timestamp_controller.remote_get_configured(configuration)
                     self.assertRaises(ApiException)
 
+    @mock.patch.object(TimestampingServicesApi, 'get_approved_timestamping_services', (lambda x, **kwargs: TimestampTestData.timestamp_service_list_response))
+    @mock.patch.object(SystemApi, 'add_configured_timestamping_service', (lambda x, **kwargs: TimestampTestData.timestamp_service_response))
     def test_timestamp_service_init(self):
         with XRDSSTTest() as app:
-            with mock.patch(
-                    'xrdsst.api.timestamping_services_api.TimestampingServicesApi.get_approved_timestamping_services',
-                    return_value=TimestampTestData.timestamp_service_list_response):
-                with mock.patch('xrdsst.api.system_api.SystemApi.add_configured_timestamping_service',
-                                return_value=TimestampTestData.timestamp_service_response):
-                    timestamp_controller = TimestampController()
-                    timestamp_controller.app = app
-                    timestamp_controller.load_config = (lambda: self.ss_config)
-                    timestamp_controller.init()
+            timestamp_controller = TimestampController()
+            timestamp_controller.app = app
+            timestamp_controller.load_config = (lambda: self.ss_config)
+            timestamp_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+            timestamp_controller.init()
 
     def test_timestamp_service_init_nonresolving_url(self):
         with XRDSSTTest() as app:
@@ -87,5 +108,7 @@ class TestTimestamp(unittest.TestCase):
                 timestamp_controller = TimestampController()
                 timestamp_controller.app = app
                 timestamp_controller.load_config = (lambda: self.ss_config)
-                TestCase.assertRaises(self, urllib3.exceptions.MaxRetryError,
-                                      lambda: timestamp_controller.init())
+                timestamp_controller.init()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("SKIPPED 'ss': no connectivity") > 0

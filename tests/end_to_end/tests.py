@@ -1,14 +1,13 @@
 import os
 import subprocess
 import sys
-import time
 import unittest
 from unittest import mock
 
 import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
-    assert_server_statuses_transitioned
+    assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor
 from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -26,17 +25,20 @@ class EndToEndTest(unittest.TestCase):
     config = None
 
     def setUp(self):
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        idx = 0
-        for arg in sys.argv:
-            idx += 1
-            if arg == "-c":
-                self.config_file = sys.argv[idx]
-        base = BaseController()
-        self.config = base.load_config(baseconfig=self.config_file)
-        for security_server in self.config["security_server"]:
-            api_key = base.get_api_key(self.config, security_server)
-            self.create_api_key(api_key)
+        with XRDSSTTest() as app:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+            idx = 0
+            for arg in sys.argv:
+                idx += 1
+                if arg == "-c":
+                    self.config_file = sys.argv[idx]
+            base = BaseController()
+            base.app = app
+            self.config = base.load_config(baseconfig=self.config_file)
+            for security_server in self.config["security_server"]:
+                api_key = base.get_api_key(self.config, security_server)
+                self.create_api_key(api_key)
 
     def tearDown(self):
         self.revoke_api_key()
@@ -69,32 +71,36 @@ class EndToEndTest(unittest.TestCase):
                 assert len(response[0].url) > 0
 
     def step_token_login(self):
-        token_controller = TokenController()
-        for security_server in self.config["security_server"]:
-            configuration = token_controller.initialize_basic_config_values(security_server, self.config)
-            response = token_controller.remote_get_tokens(configuration)
-            assert len(response) > 0
-            assert response[0].logged_in is False
-            token_controller.remote_token_login(configuration, security_server)
-            response = token_controller.remote_get_tokens(configuration)
-            assert len(response) > 0
-            assert response[0].logged_in is True
+        with XRDSSTTest() as app:
+            token_controller = TokenController()
+            token_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = token_controller.initialize_basic_config_values(security_server, self.config)
+                response = token_controller.remote_get_tokens(configuration)
+                assert len(response) > 0
+                assert response[0].logged_in is False
+                token_controller.remote_token_login(configuration, security_server)
+                response = token_controller.remote_get_tokens(configuration)
+                assert len(response) > 0
+                assert response[0].logged_in is True
 
     def step_token_init_keys(self):
-        token_controller = TokenController()
-        for security_server in self.config["security_server"]:
-            configuration = token_controller.initialize_basic_config_values(security_server, self.config)
-            response = token_controller.remote_get_tokens(configuration)
-            assert len(response) > 0
-            assert len(response[0].keys) == 0
-            token_controller.remote_token_add_keys_with_csrs(configuration, security_server)
-            response = token_controller.remote_get_tokens(configuration)
-            assert len(response) > 0
-            assert len(response[0].keys) == 2
-            auth_key_label = security_server['name'] + '-default-auth-key'
-            sign_key_label = security_server['name'] + '-default-sign-key'
-            assert str(response[0].keys[0].label) == auth_key_label
-            assert str(response[0].keys[1].label) == sign_key_label
+        with XRDSSTTest() as app:
+            token_controller = TokenController()
+            token_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = token_controller.initialize_basic_config_values(security_server, self.config)
+                response = token_controller.remote_get_tokens(configuration)
+                assert len(response) > 0
+                assert len(response[0].keys) == 0
+                token_controller.remote_token_add_keys_with_csrs(configuration, security_server)
+                response = token_controller.remote_get_tokens(configuration)
+                assert len(response) > 0
+                assert len(response[0].keys) == 2
+                auth_key_label = security_server['name'] + '-default-auth-key'
+                sign_key_label = security_server['name'] + '-default-sign-key'
+                assert str(response[0].keys[0].label) == auth_key_label
+                assert str(response[0].keys[1].label) == sign_key_label
 
     def step_cert_download_csrs(self):
         with XRDSSTTest() as app:
@@ -249,12 +255,11 @@ class EndToEndTest(unittest.TestCase):
         signed_certs = self.step_acquire_certs(downloaded_csrs)
         self.apply_cert_config(signed_certs)
         self.step_cert_import()
-        self.step_cert_import()
         self.step_cert_register()
         self.step_cert_activate()
 
         # Wait for global configuration status updates
-        time.sleep(120)
+        waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), 1, 300)
 
         self.step_subsystem_add_client()
         self.step_subsystem_register()

@@ -6,6 +6,7 @@ from unittest import mock
 import pytest
 import pytz
 
+from tests.util.test_util import StatusTestData
 from xrdsst.controllers.service import ServiceController
 from xrdsst.models import Client, ConnectionType, ClientStatus, ServiceDescription, ServiceType, ServiceClient, ServiceClientType, Service
 from xrdsst.main import XRDSSTTest
@@ -21,15 +22,15 @@ class ServiceTestData:
         disabled_notice='',
         refreshed_at='2021-01-01T09:10:00',
         services=[Service(
-        id='DEV:GOV:9876:SUB1:Petstore',
-        full_service_code='DEV:GOV:9876:SUB1:Petstore',
-        service_code='Petstore',
-        timeout=60,
-        title='title',
-        ssl_auth=False,
-        subjects_count=0,
-        url='url',
-        endpoints=[])],
+            id='DEV:GOV:9876:SUB1:Petstore',
+            full_service_code='DEV:GOV:9876:SUB1:Petstore',
+            service_code='Petstore',
+            timeout=60,
+            title='title',
+            ssl_auth=False,
+            subjects_count=0,
+            url='url',
+            endpoints=[])],
         client_id='DEV:GOV:9876:SUB1'
     )
 
@@ -99,6 +100,7 @@ class TestService(unittest.TestCase):
                     service_controller = ServiceController()
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     service_controller.add_description()
 
                     out, err = self.capsys.readouterr()
@@ -122,10 +124,11 @@ class TestService(unittest.TestCase):
                 service_controller = ServiceController()
                 service_controller.app = app
                 service_controller.load_config = (lambda: self.ss_config)
+                service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                 service_controller.add_description()
 
                 out, err = self.capsys.readouterr()
-                assert out.count("ClientsApi->find_clients") > 0
+                assert err.count("ClientsApi->find_clients") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
@@ -156,6 +159,7 @@ class TestService(unittest.TestCase):
                     service_controller = ServiceController()
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     service_controller.add_description()
 
                     out, err = self.capsys.readouterr()
@@ -190,10 +194,11 @@ class TestService(unittest.TestCase):
                     service_controller = ServiceController()
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     service_controller.add_description()
 
                     out, err = self.capsys.readouterr()
-                    assert out.count("ClientsApi->add_client_service_description") > 0
+                    assert err.count("ClientsApi->add_client_service_description") > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
@@ -219,6 +224,7 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
+                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                         service_controller.enable_description()
 
                         out, err = self.capsys.readouterr()
@@ -255,6 +261,7 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
+                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                         service_controller.enable_description()
 
                         out, err = self.capsys.readouterr()
