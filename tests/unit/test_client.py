@@ -4,6 +4,7 @@ from unittest import mock
 
 import pytest
 
+from tests.util.test_util import StatusTestData
 from xrdsst.controllers.client import ClientController
 from xrdsst.models import Client, ConnectionType, ClientStatus
 from xrdsst.main import XRDSSTTest
@@ -67,6 +68,7 @@ class TestClient(unittest.TestCase):
                 client_controller = ClientController()
                 client_controller.app = app
                 client_controller.load_config = (lambda: self.ss_config)
+                client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                 client_controller.add()
 
                 out, err = self.capsys.readouterr()
@@ -90,6 +92,7 @@ class TestClient(unittest.TestCase):
                 client_controller = ClientController()
                 client_controller.app = app
                 client_controller.load_config = (lambda: self.ss_config)
+                client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                 client_controller.add()
 
                 out, err = self.capsys.readouterr()
@@ -105,6 +108,7 @@ class TestClient(unittest.TestCase):
                 client_controller = ClientController()
                 client_controller.app = app
                 client_controller.load_config = (lambda: self.ss_config)
+                client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                 client_controller.register()
 
                 out, err = self.capsys.readouterr()
@@ -131,6 +135,7 @@ class TestClient(unittest.TestCase):
                     client_controller = ClientController()
                     client_controller.app = app
                     client_controller.load_config = (lambda: self.ss_config)
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     client_controller.register()
 
                     out, err = self.capsys.readouterr()
@@ -157,6 +162,7 @@ class TestClient(unittest.TestCase):
                     client_controller = ClientController()
                     client_controller.app = app
                     client_controller.load_config = (lambda: self.ss_config)
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     client_controller.register()
 
                     out, err = self.capsys.readouterr()

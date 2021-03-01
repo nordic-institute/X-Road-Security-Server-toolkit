@@ -17,13 +17,22 @@ class InitServerController(BaseController):
 
     @ex(help='Initialize security server', hide=True)
     def _default(self):
-        config_file = self.load_config()
-        self.initialize_server(config_file)
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():  # Even though this operation is very likely to remain first ... forever
+            active_config, insufficient_state_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, insufficient_state_servers)
+
+        self.initialize_server(active_config)
 
     def initialize_server(self, config_file):
         self.init_logging(config_file)
         for security_server in config_file["security_server"]:
-            self.log_info('Starting configuration process for security server: ' + security_server['name'])
+            self.log_debug('Starting initialization process for security server: ' + security_server['name'])
             configuration = self.initialize_basic_config_values(security_server, config_file)
             configuration_check = self.check_init_status(configuration)
             if configuration_check.is_anchor_imported:
