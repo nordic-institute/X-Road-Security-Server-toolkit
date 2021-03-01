@@ -332,6 +332,7 @@ class TestCert(unittest.TestCase):
                 sys.stdout.write(out)
                 sys.stderr.write(err)
 
+    @mock.patch('xrdsst.core.api_util.is_ss_connectable', lambda x: (False, 'connection error (test injected)'))
     def test_cert_import_nonresolving_url(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
@@ -392,6 +393,7 @@ class TestCert(unittest.TestCase):
                         sys.stdout.write(out)
                         sys.stderr.write(err)
 
+    @mock.patch('xrdsst.core.api_util.is_ss_connectable', lambda x: (False, 'connection error (test injected)'))
     def test_cert_register_nonresolving_url(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()

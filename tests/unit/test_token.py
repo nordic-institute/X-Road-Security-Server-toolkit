@@ -307,22 +307,7 @@ class TestToken(unittest.TestCase):
                     self.assertRaises(IndexError, lambda: token_controller.init_keys())
 
     def test_token_list_nonresolving_url(self):
+        urllib3.util.retry.Retry.DEFAULT = urllib3.util.retry.Retry(0)
         token_controller = TokenController()
         token_controller.load_config = (lambda: self.ss_config)
         self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.list())
-
-    def test_token_login_nonresolving_url(self):
-        with XRDSSTTest() as app:
-            token_controller = TokenController()
-            token_controller.app = app
-            token_controller.load_config = (lambda: self.ss_config)
-            token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-            self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.login())
-
-    def test_token_init_keys_nonresolving_url(self):
-        with XRDSSTTest() as app:
-            token_controller = TokenController()
-            token_controller.app = app
-            token_controller.load_config = (lambda: self.ss_config)
-            token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-            self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.init_keys())

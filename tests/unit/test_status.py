@@ -31,7 +31,7 @@ class TestStatus(unittest.TestCase):
                      'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security_server':
             [{'name': 'longServerName',
-              'url': 'https://google.com:443',
+              'url': 'https://unrealz5BAlxpy9yo0XpplIQbPC.com:443',
               'certificates': [
                   '/some/where/authcert',
                   '/some/where/signcert',
@@ -70,6 +70,7 @@ class TestStatus(unittest.TestCase):
                 sys.stdout.write(out)
                 sys.stderr.write(err)
 
+    @mock.patch('xrdsst.core.api_util.is_ss_connectable', lambda x: (True, 'good connectivity (test injected)'))
     @mock.patch.object(UserApi, 'get_user', side_effect=ApiException(http_resp=ObjectStruct(status=401, reason=None, data='{"status":401}', getheaders=(lambda: None))))
     def test_status_api_key_not_accepted(self, userapi_mock):
         with XRDSSTTest() as app:
@@ -86,6 +87,7 @@ class TestStatus(unittest.TestCase):
                 sys.stdout.write(out)
                 sys.stderr.write(err)
 
+    @mock.patch('xrdsst.core.api_util.is_ss_connectable', lambda x: (True, 'good connectivity (test injected)'))
     @mock.patch.object(UserApi, 'get_user', sysadm_secoff)
     @mock.patch.object(SystemApi, 'system_version', (lambda x: Version(info="6.25.0")))
     @mock.patch.object(DiagnosticsApi, 'get_global_conf_diagnostics', (lambda x:
@@ -98,8 +100,6 @@ class TestStatus(unittest.TestCase):
             status_controller.app = app
             status_controller.load_config = (lambda: self.ss_config)
             status_controller._default()
-
-            out, err = self.capsys.readouterr()
 
             # Global status
             assert status_controller.app._last_rendered[0][1][0].count('FAIL') == 1
@@ -122,10 +122,7 @@ class TestStatus(unittest.TestCase):
             for col in range(4, 9):
                 assert '' == status_controller.app._last_rendered[0][1][col].strip()
 
-            with self.capsys.disabled():
-                sys.stdout.write(out)
-                sys.stderr.write(err)
-
+    @mock.patch('xrdsst.core.api_util.is_ss_connectable', lambda x: (True, 'good connectivity (test injected)'))
     @mock.patch.object(UserApi, 'get_user', sysadm_secoff)
     @mock.patch.object(SystemApi, 'system_version', (lambda x: Version(info="6.25.0")))
     @mock.patch.object(DiagnosticsApi, 'get_global_conf_diagnostics', (lambda x: DiagnosticsTestData.global_ok_success))

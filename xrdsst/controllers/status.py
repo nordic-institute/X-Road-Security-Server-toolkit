@@ -1,9 +1,7 @@
-import xrdsst
-
 from cement import ex
 
 from xrdsst.controllers.base import BaseController
-from xrdsst.core.api_util import ServerStatus
+from xrdsst.core.api_util import ServerStatus, status_server
 from xrdsst.resources.texts import texts
 
 
@@ -136,5 +134,4 @@ class StatusController(BaseController):
 
     @staticmethod
     def remote_status(ss_configuration, security_server):
-        # TODO: maybe should do some wiggle with reachability / accessibility here in this place???
-        return xrdsst.core.api_util.status_server(ss_configuration, security_server)
+        return status_server(ss_configuration, security_server)
