@@ -91,4 +91,4 @@ def is_ss_connectable(ss_url, sock_timeout=1):
         s.close()
         return True, ''
     except error as err:
-        return False, os.strerror(err.errno)
+        return False, os.strerror(err.errno) if err.errno else str(err)

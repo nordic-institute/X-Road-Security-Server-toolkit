@@ -16,6 +16,7 @@ from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.main import XRDSSTTest
 
+
 class TestAuto(unittest.TestCase):
     ss_config = {
         'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
