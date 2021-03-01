@@ -17,31 +17,51 @@ class ServiceController(BaseController):
 
     @ex(label='add-description', help="Add service description", arguments=[])
     def add_description(self):
-        self.add_service_description(self.load_config())
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+
+        self.add_service_description(active_config)
 
     @ex(label='enable-description', help="Enable service description", arguments=[])
     def enable_description(self):
-        self.enable_service_description(self.load_config())
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+
+        self.enable_service_description(active_config)
 
     def add_service_description(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting service description add process for security server: ' + security_server['name'])
+            BaseController.log_debug('Starting service description add process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             if "clients" in security_server:
                 for client in security_server["clients"]:
-                    if "service_descriptions" in client:
+                    if client.get("service_descriptions"):
                         for service_description in client["service_descriptions"]:
                             self.remote_add_service_description(ss_configuration, security_server, client, service_description)
 
     def enable_service_description(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
-            BaseController.log_info('Starting service description enabling process for security server: ' + security_server['name'])
+            BaseController.log_debug('Starting service description enabling process for security server: ' + security_server['name'])
             ss_configuration = self.initialize_basic_config_values(security_server, configuration)
             if "clients" in security_server:
                 for client in security_server["clients"]:
-                    if "service_descriptions" in client:
+                    if client.get("service_descriptions"):
                         for service_description in client["service_descriptions"]:
                             self.remote_enable_service_description(ss_configuration, security_server, client, service_description)
 

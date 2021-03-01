@@ -6,10 +6,10 @@ from datetime import datetime
 from unittest import mock
 
 import pytest
-import urllib3
 from dateutil.tz import tzutc
 
 from definitions import ROOT_DIR
+from tests.util.test_util import TokenTestData, StatusTestData
 from xrdsst.controllers.cert import CertController
 from xrdsst.models import Token, TokenStatus, TokenType, KeyUsageType, Key, TokenCertificate, CertificateOcspStatus, \
     CertificateStatus, CertificateDetails, KeyUsage, PossibleAction, TokenCertificateSigningRequest
@@ -127,21 +127,6 @@ class CertTestData:
         usage=KeyUsageType.AUTHENTICATION,
         certificate_signing_requests=[],
         certificates=[]
-    )
-
-    keyless_token_response = Token(
-        available=True,
-        id=0,
-        logged_in=True,
-        name='softToken-0',
-        possible_actions=None,
-        read_only=False,
-        saved_to_configuration=True,
-        serial_number=None,
-        status=TokenStatus.OK,
-        token_infos=[{'key': 'Type'}, {'value': 'Software'}],
-        type=TokenType.SOFTWARE,
-        keys=[]
     )
 
     token_with_two_csrs_response = Token(
@@ -268,7 +253,7 @@ class TestCert(unittest.TestCase):
                   '/some/where/authcert',
                   '/some/where/signcert',
               ],
-              'api_key': 'X-Road-apikey token=api-key',
+              'api_key': 'X-Road-apikey token=88888888-8000-4000-a000-727272727272',
               'owner_dn_country': 'FI',
               'owner_dn_org': 'UNSERE',
               'owner_member_class': 'VOG',
@@ -314,6 +299,7 @@ class TestCert(unittest.TestCase):
                     cert_controller = CertController()
                     cert_controller.app = app
                     cert_controller.load_config = (lambda: self.ss_config)
+                    cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     reported_downloads = cert_controller.download_csrs()
 
                     assert len(reported_downloads) == 2
@@ -332,21 +318,30 @@ class TestCert(unittest.TestCase):
                     assert os.path.exists(sign_csr_file)
 
     def test_cert_import_nonexisting_certs(self):
-        cert_controller = CertController()
-        cert_controller.load_config = (lambda: self.ss_config)
-        cert_controller.import_()
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.ss_config)
+            cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+            cert_controller.import_()
 
-        out, err = self.capsys.readouterr()
-        assert out.count("does not exist") > 0
+            out, err = self.capsys.readouterr()
+            assert out.count("references non-existent file") > 0
 
-        with self.capsys.disabled():
-            sys.stdout.write(out)
-            sys.stderr.write(err)
+            with self.capsys.disabled():
+                sys.stdout.write(out)
+                sys.stderr.write(err)
 
+    @mock.patch('xrdsst.core.api_util.is_ss_connectable', lambda x: (False, 'connection error (test injected)'))
     def test_cert_import_nonresolving_url(self):
-        cert_controller = CertController()
-        cert_controller.load_config = (lambda: self.ss_config_with_authcert())
-        self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: cert_controller.import_())
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+            cert_controller.import_()
+
+            out, err = self.capsys.readouterr()
+            assert out.count("SKIPPED 'ssX': no connectivity") > 0
 
     def test_cert_import_already_existing(self):
         class AlreadyExistingResponse:
@@ -363,6 +358,7 @@ class TestCert(unittest.TestCase):
                     cert_controller = CertController()
                     cert_controller.app = app
                     cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+                    cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     cert_controller.import_()
 
                     out, err = self.capsys.readouterr()
@@ -387,27 +383,35 @@ class TestCert(unittest.TestCase):
                     cert_controller = CertController()
                     cert_controller.app = app
                     cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+                    cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     cert_controller.import_()
 
                     out, err = self.capsys.readouterr()
-                    assert out.count("permission") > 0
+                    assert err.count("permission") > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
                         sys.stderr.write(err)
 
+    @mock.patch('xrdsst.core.api_util.is_ss_connectable', lambda x: (False, 'connection error (test injected)'))
     def test_cert_register_nonresolving_url(self):
-        cert_controller = CertController()
-        cert_controller.load_config = (lambda: self.ss_config)
-        self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: cert_controller.register())
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.ss_config)
+            cert_controller.register()
+
+            out, err = self.capsys.readouterr()
+            assert out.count("SKIPPED 'ssX': no connectivity") > 0
 
     def test_cert_register_no_auth_key(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
-                            return_value=CertTestData.keyless_token_response):
+                            return_value=TokenTestData.token_keyless):
                 cert_controller = CertController()
                 cert_controller.app = app
                 cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+                cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                 cert_controller.register()
 
                 out, err = self.capsys.readouterr()
@@ -424,6 +428,7 @@ class TestCert(unittest.TestCase):
                 cert_controller = CertController()
                 cert_controller.app = app
                 cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+                cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                 cert_controller.register()
 
                 out, err = self.capsys.readouterr()
@@ -440,6 +445,7 @@ class TestCert(unittest.TestCase):
                 cert_controller = CertController()
                 cert_controller.app = app
                 cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+                cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                 cert_controller.register()
 
                 out, err = self.capsys.readouterr()
@@ -456,6 +462,7 @@ class TestCert(unittest.TestCase):
                 cert_controller = CertController()
                 cert_controller.app = app
                 cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+                cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                 cert_controller.register()
 
                 out, err = self.capsys.readouterr()
@@ -476,6 +483,7 @@ class TestCert(unittest.TestCase):
                         cert_controller = CertController()
                         cert_controller.app = app
                         cert_controller.load_config = (lambda: self.ss_config_with_authcert())
+                        cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                         cert_controller.activate()
 
                         out, err = self.capsys.readouterr()

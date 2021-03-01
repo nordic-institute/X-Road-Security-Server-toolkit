@@ -42,16 +42,28 @@ class TimestampController(BaseController):
     # Protobonus: approved timestamp services list
     @ex(label='list-approved', help='List approved timestamping services.', arguments=[])
     def list_approved(self):
-        self.timestamp_service_list_approved(self.load_config())
+        active_config = self.load_config()
+        self.timestamp_service_list_approved(active_config)
 
     # Protobonus: configured timestamp services list
     @ex(label='list-configured', help='List configured timestamping services', arguments=[])
     def list_configured(self):
-        self.timestamp_service_list(self.load_config())
+        active_config = self.load_config()
+        self.timestamp_service_list(active_config)
 
     @ex(help='Select and activate single approved timestamping service.', arguments=[])
     def init(self):
-        self.timestamp_service_init(self.load_config())
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, insufficient_state_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, insufficient_state_servers)
+
+        self.timestamp_service_init(active_config)
 
     # Since this is read-only operation, do not log anything, only console output
     def timestamp_service_list(self, configuration):

@@ -4,7 +4,9 @@ from unittest import mock
 
 import pytest
 
+from tests.util.test_util import StatusTestData
 from xrdsst.controllers.service import ServiceController
+from xrdsst.controllers.status import StatusController
 from xrdsst.models import Client, ConnectionType, ClientStatus, ServiceDescription, ServiceType
 from xrdsst.main import XRDSSTTest
 from xrdsst.rest.rest import ApiException
@@ -76,6 +78,7 @@ class TestService(unittest.TestCase):
                     service_controller = ServiceController()
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     service_controller.add_description()
 
                     out, err = self.capsys.readouterr()
@@ -99,10 +102,11 @@ class TestService(unittest.TestCase):
                 service_controller = ServiceController()
                 service_controller.app = app
                 service_controller.load_config = (lambda: self.ss_config)
+                service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                 service_controller.add_description()
 
                 out, err = self.capsys.readouterr()
-                assert out.count("ClientsApi->find_clients") > 0
+                assert err.count("ClientsApi->find_clients") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
@@ -133,6 +137,7 @@ class TestService(unittest.TestCase):
                     service_controller = ServiceController()
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     service_controller.add_description()
 
                     out, err = self.capsys.readouterr()
@@ -167,10 +172,11 @@ class TestService(unittest.TestCase):
                     service_controller = ServiceController()
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     service_controller.add_description()
 
                     out, err = self.capsys.readouterr()
-                    assert out.count("ClientsApi->add_client_service_description") > 0
+                    assert err.count("ClientsApi->add_client_service_description") > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
@@ -196,6 +202,7 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
+                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                         service_controller.enable_description()
 
                         out, err = self.capsys.readouterr()
@@ -232,6 +239,7 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
+                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                         service_controller.enable_description()
 
                         out, err = self.capsys.readouterr()
