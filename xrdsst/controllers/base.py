@@ -52,10 +52,10 @@ class BaseController(Controller):
         # Top level configuration file specification only
         if (issubclass(BaseController, self.__class__)) and issubclass(self.__class__, BaseController):
             parser.add_argument('-c', '--configfile',
-                           # TODO after the conventional name and location for config file gets figured out, extract to texts
-                           help="Specify configuration file to use instead of default 'config/base.yaml'",
-                           metavar='file',
-                           default=os.path.join(ROOT_DIR, "config/base.yaml"))  # TODO extract to consts after settling on naming
+                                # TODO after the conventional name and location for config file gets figured out, extract to texts
+                                help="Specify configuration file to use instead of default 'config/base.yaml'",
+                                metavar='file',
+                                default=os.path.join(ROOT_DIR, "config/base.yaml"))  # TODO extract to consts after settling on naming
 
     def create_api_key(self, roles_list, config, security_server):
         self.log_debug('Creating API key for security server: ' + security_server['name'])
@@ -236,8 +236,8 @@ class BaseController(Controller):
         exit_messages = ['']
 
         auto_log_file_name = str(Path.home()) + "/" + texts['app.label'] + "-" + \
-            datetime.now().strftime("%Y%m%d-%H%M-%S") + \
-            '-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(4)) + '.log'
+                             datetime.now().strftime("%Y%m%d-%H%M-%S") + \
+                             '-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(4)) + '.log'
 
         log_format = "%(asctime)-15s: %(levelname)s - %(message)s"
         log_level = "INFO"
@@ -264,7 +264,7 @@ class BaseController(Controller):
             auto_log = True
 
         if auto_log:
-            if not logging.getLogger().handlers: # auto_log enabled due to errors, needs setting up
+            if not logging.getLogger().handlers:  # auto_log enabled due to errors, needs setting up
                 logging.basicConfig(filename=log_file_name, level=log_level, format=log_format)
             exit_messages.append("Activities logged into '" + log_file_name + "'.")
             atexit.register(lambda: print(*exit_messages, sep='\n'))

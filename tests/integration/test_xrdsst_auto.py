@@ -53,7 +53,6 @@ def assert_client_service_descs_transitioned(api_url, api_key):
     assert (csds['type'] == 'OPENAPI3')
     assert (csds['url'] == 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml')
 
-
     sd = csds['services'][0]
     assert (0 < len(sd['endpoints']))
     assert (sd['full_service_code'] == 'Petstore')

@@ -1,6 +1,5 @@
 import copy
 import os
-import sys
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -29,12 +28,13 @@ UNINITIALIZED_STATUS = InitializationStatus(is_anchor_imported=False, is_server_
                                             is_server_owner_initialized=False,
                                             software_token_init_status=TokenInitStatus.NOT_INITIALIZED)
 
+
 class TestInit(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
-         'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
-                      'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
+        'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
+                     'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security_server':
             [{'name': 'ss',
               'url': 'https://no.there.com:4000/api/v1',
