@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import pytz
 from cement import ex
 from xrdsst.api import ClientsApi, ServiceDescriptionsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
@@ -149,8 +148,7 @@ class ServiceController(BaseController):
                                 services_api = ServicesApi(ApiClient(ss_configuration))
                                 service_client = ServiceClient(id=client.id,
                                                                name=client.member_name,
-                                                               service_client_type=ServiceClientType.SUBSYSTEM,
-                                                               rights_given_at=datetime.now(pytz.utc).isoformat())
+                                                               service_client_type=ServiceClientType.SUBSYSTEM)
                                 service_clients = ServiceClients(items=[service_client])
                                 response = services_api.add_service_service_clients(service.id, body=service_clients)
                                 if response:
