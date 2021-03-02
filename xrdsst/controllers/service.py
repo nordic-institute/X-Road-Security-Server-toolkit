@@ -18,7 +18,7 @@ class ServiceController(BaseController):
         stacked_type = 'nested'
         description = texts['service.controller.description']
 
-    @ex(label='add-description', help="Add service description", arguments=[])
+    @ex(help="Add service description", arguments=[])
     def add_description(self):
         active_config = self.load_config()
         full_op_path = self.op_path()
@@ -32,7 +32,7 @@ class ServiceController(BaseController):
 
         self.add_service_description(active_config)
 
-    @ex(label='enable-description', help="Enable service description", arguments=[])
+    @ex(help="Enable service description", arguments=[])
     def enable_description(self):
         active_config = self.load_config()
         full_op_path = self.op_path()
@@ -46,8 +46,8 @@ class ServiceController(BaseController):
 
         self.enable_service_description(active_config)
 
-    @ex(label='access-rights', help="Add access rights for service", arguments=[])
-    def add_rights(self):
+    @ex(help="Add access rights for service", arguments=[])
+    def add_access(self):
         self.add_access_rights(self.load_config())
 
     def add_service_description(self, configuration):

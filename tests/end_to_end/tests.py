@@ -205,7 +205,7 @@ class EndToEndTest(unittest.TestCase):
         description = get_service_description(self.config, client_id)
         assert description["disabled"] is False
 
-    def step_add_service_access_rights(self):
+    def step_add_service_access(self):
         service_controller = ServiceController()
         for security_server in self.config["security_server"]:
             configuration = service_controller.initialize_basic_config_values(security_server, self.config)
@@ -260,7 +260,7 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
-        self.step_add_service_access_rights()
+        self.step_add_service_access()
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()

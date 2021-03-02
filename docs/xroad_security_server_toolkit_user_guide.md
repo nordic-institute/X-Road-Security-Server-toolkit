@@ -246,4 +246,4 @@ Further subsystem registration can proceed with ``xrdsst client register``.
 ### 4.9 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
-Adding access rights to services is performed  with ``xrdsst service add-rights``.
+Adding access to services is performed  with ``xrdsst service add-access``.

@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.2.4-alpha.0] - 2021-02-22
-- add ``xrdsst service`` subcommand ``add-rights``
+- add ``xrdsst service`` subcommand ``add-access``
 
 ## [0.2.3-alpha.0] - 2021-02-22
 - Autoconfiguration to be sequential per-security server.

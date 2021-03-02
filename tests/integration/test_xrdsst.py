@@ -123,12 +123,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             service_description = get_service_description(self.config, client_id)
             assert service_description["disabled"] is False
 
-    def step_add_service_access_rights(self):
+    def step_add_service_access(self):
         with XRDSSTTest() as app:
             service_controller = ServiceController()
             service_controller.app = app
             service_controller.load_config = (lambda: self.config)
-            service_controller.add_rights
+            service_controller.add_access
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -184,7 +184,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_enable_service_description(client_id)
         self.query_status()
 
-        self.step_add_service_access_rights()
+        self.step_add_service_access()
         configured_servers_at_end = self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

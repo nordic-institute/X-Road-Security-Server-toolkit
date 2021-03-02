@@ -258,7 +258,7 @@ class TestService(unittest.TestCase):
                             sys.stdout.write(out)
                             sys.stderr.write(err)
 
-    def test_service_add_access_rights(self):
+    def test_service_add_access(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
                     id='DEV:GOV:9876:SUB1',
@@ -284,7 +284,7 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
-                        service_controller.add_rights()
+                        service_controller.add_access()
 
                         out, err = self.capsys.readouterr()
                         assert out.count("Added access rights") > 0
@@ -293,7 +293,7 @@ class TestService(unittest.TestCase):
                             sys.stdout.write(out)
                             sys.stderr.write(err)
 
-    def test_service_add_access_rights_already_added(self):
+    def test_service_add_access_already_added(self):
         class AlreadyAddedResponse:
             status = 409
             data = '{"status":409,"error":{"code":"duplicate_accessright"}}'
@@ -321,7 +321,7 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
-                        service_controller.add_rights()
+                        service_controller.add_access()
 
                         out, err = self.capsys.readouterr()
                         assert out.count("already added") > 0
