@@ -3,7 +3,8 @@ import os
 
 import cement.utils.fs
 
-from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients, ConfKeysSecServerClientServiceDesc
+from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients, ConfKeysSecServerClientServiceDesc, \
+    ConfKeysSecServerClientServiceDescService
 from xrdsst.core.util import convert_swagger_enum
 from xrdsst.models import ConnectionType, ServiceType
 
@@ -188,7 +189,7 @@ def validate_config_client_add_or_register(ss_config, operation, errors):
     return len(errors) <= err_cnt
 
 
-def validate_config_service_desc_add_or_enable(ss_config, operation, errors):
+def validate_config_service_desc(ss_config, operation, errors):
     if not ss_config.get(ConfKeysSecurityServer.CONF_KEY_CLIENTS):
         return True
 
@@ -222,6 +223,14 @@ def validate_config_service_desc_add_or_enable(ss_config, operation, errors):
 
             require_fill(
                 ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS,
+                service_desc_config[service_desc_ix], operation, errors)
+
+            require_fill(
+                ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES,
+                service_desc_config[service_desc_ix], operation, errors)
+
+            require_fill(
+                ConfKeysSecServerClientServiceDescService.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICE_CLIENT_ACCESS,
                 service_desc_config[service_desc_ix], operation, errors)
 
             if ServiceType.REST == service_desc_config[service_desc_ix].get(ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_TYPE):

@@ -142,23 +142,25 @@ class ServiceController(BaseController):
                     service_description = self.get_client_service_description(clients_api, client, service_description_conf)
                     if service_description:
                         for service in service_description.services:
-                            client_id = None
                             try:
+                                client_id = None
                                 services_api = ServicesApi(ApiClient(ss_configuration))
-                                if "client_access" in service_description_conf:
-                                    for client_access in service_description_conf["client_access"]:
-                                        client_id = client.instance_id + ':' + \
-                                                    client.member_class + ':' + \
-                                                    client.member_code + ':' + \
-                                                    client_access
-                                        service_client = ServiceClient(id=client_id,
-                                                                       name=client.member_name,
-                                                                       service_client_type=ServiceClientType.SUBSYSTEM)
-                                        service_clients = ServiceClients(items=[service_client])
-                                        response = services_api.add_service_service_clients(service.id, body=service_clients)
-                                        if response:
-                                            BaseController.log_info("Added access rights for client '" + client_id +
-                                                                    "' to use service '" + service.id + "' (full id " + response[0].id + ")")
+                                access_list = service_description_conf["access"]
+                                for configurable_service in service_description_conf["services"]:
+                                    if service.service_code == configurable_service["service_code"]:
+                                        access_list = configurable_service["access"]
+                                for access in access_list:
+                                    client_id = client.instance_id + ':' + \
+                                                client.member_class + ':' + \
+                                                client.member_code + ':' + \
+                                                access
+                                    service_client = ServiceClient(id=client_id,
+                                                                   name=client.member_name,
+                                                                   service_client_type=ServiceClientType.SUBSYSTEM)
+                                    response = services_api.add_service_service_clients(service.id, body=ServiceClients(items=[service_client]))
+                                    if response:
+                                        BaseController.log_info("Added access rights for client '" + client_id +
+                                                                "' to use service '" + service.id + "' (full id " + response[0].id + ")")
                             except ApiException as err:
                                 if err.status == 409:
                                     BaseController.log_info("Access rights for client '" + client_id +

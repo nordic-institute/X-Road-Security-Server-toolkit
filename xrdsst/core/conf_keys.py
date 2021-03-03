@@ -113,7 +113,19 @@ class ConfKeysSecServerClientServiceDesc:
     CONF_KEY_SS_CLIENT_SERVICE_DESC_URL = 'url'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_REST_SERVICE_CODE = 'rest_service_code'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_TYPE = 'type'
-    CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS = 'client_access'
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS = 'access'
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES = 'services'
+
+    @staticmethod
+    def descendant_conf_keys():
+        return [
+            (ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SERVICE_DESCS, ConfKeysSecServerClientServiceDescService)
+        ]
+
+
+# Known keys for xrdsst configuration file security server client service descriptions services configuration section.
+class ConfKeysSecServerClientServiceDescService:
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICE_CLIENT_ACCESS = 'access'
 
     @staticmethod
     def descendant_conf_keys():
