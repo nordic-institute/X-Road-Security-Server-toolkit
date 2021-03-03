@@ -45,7 +45,7 @@ OP_ADD_CLIENT = "ADD CLIENT"
 OP_REGISTER_CLIENT = "REGISTER CLIENT"
 OP_ADD_SERVICE_DESC = "ADD SERVICE\nDESCRIPTION"
 OP_ENABLE_SERVICE_DESC = "ENABLE SERVICE\nDESCRIPTION"
-
+OP_ADD_SERVICE_ACCESS = "ADD SERVICE\nACCESS"
 
 # Operations supported and known at the dependency graph level
 class OPS:
@@ -60,7 +60,7 @@ class OPS:
     REGISTER_CLIENT = OP_REGISTER_CLIENT
     ADD_SERVICE_DESC = OP_ADD_SERVICE_DESC
     ENABLE_SERVICE_DESC = OP_ENABLE_SERVICE_DESC
-
+    ADD_SERVICE_ACCESS = OP_ADD_SERVICE_ACCESS
 
 VALIDATORS = {
     OPS.INIT: validate_config_init,
@@ -73,7 +73,8 @@ VALIDATORS = {
     OPS.ADD_CLIENT: validate_config_client_add_or_register,
     OPS.REGISTER_CLIENT: validate_config_client_add_or_register,
     OPS.ADD_SERVICE_DESC: validate_config_service_desc_add_or_enable,
-    OPS.ENABLE_SERVICE_DESC: validate_config_service_desc_add_or_enable
+    OPS.ENABLE_SERVICE_DESC: validate_config_service_desc_add_or_enable,
+    OPS.ADD_SERVICE_ACCESS: validate_config_service_desc_add_or_enable
 }
 
 

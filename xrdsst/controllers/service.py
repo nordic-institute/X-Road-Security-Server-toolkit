@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from cement import ex
 from xrdsst.api import ClientsApi, ServiceDescriptionsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
@@ -144,19 +142,26 @@ class ServiceController(BaseController):
                     service_description = self.get_client_service_description(clients_api, client, service_description_conf)
                     if service_description:
                         for service in service_description.services:
+                            client_id = None
                             try:
                                 services_api = ServicesApi(ApiClient(ss_configuration))
-                                service_client = ServiceClient(id=client.id,
-                                                               name=client.member_name,
-                                                               service_client_type=ServiceClientType.SUBSYSTEM)
-                                service_clients = ServiceClients(items=[service_client])
-                                response = services_api.add_service_service_clients(service.id, body=service_clients)
-                                if response:
-                                    BaseController.log_info("Added access rights for client '" + client.id +
-                                                            "' to use service '" + service.id + "' (got full id " + response[0].id + ")")
+                                if "client_access" in service_description_conf:
+                                    for client_access in service_description_conf["client_access"]:
+                                        client_id = client.instance_id + ':' + \
+                                                    client.member_class + ':' + \
+                                                    client.member_code + ':' + \
+                                                    client_access
+                                        service_client = ServiceClient(id=client_id,
+                                                                       name=client.member_name,
+                                                                       service_client_type=ServiceClientType.SUBSYSTEM)
+                                        service_clients = ServiceClients(items=[service_client])
+                                        response = services_api.add_service_service_clients(service.id, body=service_clients)
+                                        if response:
+                                            BaseController.log_info("Added access rights for client '" + client_id +
+                                                                    "' to use service '" + service.id + "' (full id " + response[0].id + ")")
                             except ApiException as err:
                                 if err.status == 409:
-                                    BaseController.log_info("Added access rights for client '" + client.id +
+                                    BaseController.log_info("Access rights for client '" + client_id +
                                                             "' to use service '" + service.id + "' already added")
                                 else:
                                     BaseController.log_api_error('ServicesApi->add_service_service_clients', err)

@@ -4,7 +4,6 @@ import unittest
 from unittest import mock
 
 import pytest
-import pytz
 
 from tests.util.test_util import StatusTestData
 from xrdsst.controllers.service import ServiceController
@@ -54,12 +53,14 @@ class TestService(unittest.TestCase):
                       'service_descriptions': [{
                           'url': 'https://openapi3',
                           'rest_service_code': 'RestService',
-                          'type': 'OPENAPI3'
+                          'type': 'OPENAPI3',
+                          'client_access': ['SUB1']
                       },
                           {
                               'url': 'https://wsdl',
                               'rest_service_code': '',
-                              'type': 'WSDL'
+                              'type': 'WSDL',
+                              'client_access': ['SUB1']
                           }
                       ]
                   }
@@ -280,7 +281,7 @@ class TestService(unittest.TestCase):
                                         name='ACME',
                                         local_group_code=None,
                                         service_client_type=ServiceClientType.SUBSYSTEM,
-                                        rights_given_at=datetime.now(pytz.utc).isoformat())]):
+                                        rights_given_at=datetime.now().isoformat())]):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)

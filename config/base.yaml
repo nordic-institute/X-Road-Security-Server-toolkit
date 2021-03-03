@@ -28,3 +28,5 @@ security_server:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
           type: <SERVICE_TYPE>
+          client_access:
+            - <SUBSYSTEM_CODE>

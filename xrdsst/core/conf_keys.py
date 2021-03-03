@@ -113,6 +113,7 @@ class ConfKeysSecServerClientServiceDesc:
     CONF_KEY_SS_CLIENT_SERVICE_DESC_URL = 'url'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_REST_SERVICE_CODE = 'rest_service_code'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_TYPE = 'type'
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS = 'client_access'
 
     @staticmethod
     def descendant_conf_keys():

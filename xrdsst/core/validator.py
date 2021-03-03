@@ -220,6 +220,10 @@ def validate_config_service_desc_add_or_enable(ss_config, operation, errors):
                 ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_URL,
                 service_desc_config[service_desc_ix], operation, errors)
 
+            require_fill(
+                ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS,
+                service_desc_config[service_desc_ix], operation, errors)
+
             if ServiceType.REST == service_desc_config[service_desc_ix].get(ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_TYPE):
                 require_fill(
                     ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_REST_SERVICE_CODE,

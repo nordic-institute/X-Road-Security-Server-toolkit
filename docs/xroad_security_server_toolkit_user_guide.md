@@ -131,6 +131,8 @@ security-server:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
           type: <SERVICE_TYPE>
+          client_access: 
+          - <SUBSYSTEM_CODE>
 ```
 
 The ``api-key`` section is for configuring the automatic api key generation parameters for security server
