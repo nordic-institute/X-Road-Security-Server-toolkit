@@ -36,8 +36,8 @@ security_server:
           type: OPENAPI3
           access:
             - TEST
-          url_all: http://petstore
-          timeout_all: 60
+          url_all: False
+          timeout_all: False
           ssl_auth_all: False
           services:
             - service_code: Petstore

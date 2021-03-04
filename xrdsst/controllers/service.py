@@ -218,11 +218,11 @@ class ServiceController(BaseController):
                                 for configurable_service in service_description_conf["services"]:
                                     if service.service_code == configurable_service["service_code"]:
                                         timeout = configurable_service["timeout"]
-                                        timeout_all = None
+                                        timeout_all = False
                                         ssl_auth = configurable_service["ssl_auth"]
-                                        ssl_auth_all = None
+                                        ssl_auth_all = False
                                         url = configurable_service["url"]
-                                        url_all = None
+                                        url_all = False
                                 service_update = ServiceUpdate(url=url,
                                                                timeout=timeout,
                                                                ssl_auth=ssl_auth,

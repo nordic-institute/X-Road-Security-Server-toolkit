@@ -173,8 +173,8 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
 * <SERVICE_TIMEOUT> timeout for service in seconds
 * <SERVICE_USE_SSL_AUTH> boolean value for specifying whether SSL authentication should be used
-* <SERVICE_URL_FOR_ALL> use same URL for all services for a given service description
-* <SERVICE_TIMEOUT_FOR_ALL> use same timeout value for all services for a given service description
+* <SERVICE_URL_FOR_ALL> boolean value for specifying URL for all services for a given service description
+* <SERVICE_TIMEOUT_FOR_ALL> boolean value for specifying timeout for all services for a given service description
 * <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description
 * <SERVICE_URL> URL for single service
 * <SERVICE_CODE> code for single service.
@@ -182,7 +182,7 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 In section ``service_descriptions`` service with type ``OPENAPI3``, ``REST``, ``WSDL`` can be configured by adding a service description
 with parameters ``url``, ``rest_service_code``, ``type`` and ``access``. In order to provide access to the services added with that
 service description to different subsystems, the parameter ``access`` should contain a list of subsystem codes. To configure specific services
-described with the service description, the paramers ``service_code`` and ``access`` must be configured in the section ``services``. 
+described with the service description, the parameters ``service_code`` and ``access`` must be configured in the section ``services``. 
 
 
 ### 3.3 Different ways of using the configuration file
