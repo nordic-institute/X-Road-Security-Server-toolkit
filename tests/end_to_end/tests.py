@@ -220,7 +220,7 @@ class EndToEndTest(unittest.TestCase):
         service_controller = ServiceController()
         description = get_service_description(self.config, client_id)
         assert description["services"][0]["timeout"] == 60
-        assert description["services"][0]["ssl_auth"] is False
+        assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
         for security_server in self.config["security_server"]:
             configuration = service_controller.initialize_basic_config_values(security_server, self.config)
             for client in security_server["clients"]:
@@ -228,7 +228,8 @@ class EndToEndTest(unittest.TestCase):
                     service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
         description = get_service_description(self.config, client_id)
         assert description["services"][0]["timeout"] == 120
-        assert description["services"][0]["ssl_auth"] is True
+        assert description["services"][0]["url"] == 'http://petstore.xxx'
+
 
     def step_autoconf(self):
         with XRDSSTTest() as app:

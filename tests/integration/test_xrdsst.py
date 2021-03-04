@@ -138,13 +138,13 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             service_controller = ServiceController()
             description = get_service_description(self.config, client_id)
             assert description["services"][0]["timeout"] == 60
-            assert description["services"][0]["ssl_auth"] is False
+            assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
             service_controller.app = app
             service_controller.load_config = (lambda: self.config)
             service_controller.update_parameters()
             description = get_service_description(self.config, client_id)
             assert description["services"][0]["timeout"] == 120
-            assert description["services"][0]["ssl_auth"] is True
+            assert description["services"][0]["url"] == 'http://petstore.xxx'
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

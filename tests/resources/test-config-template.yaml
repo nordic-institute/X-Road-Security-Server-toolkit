@@ -44,5 +44,5 @@ security_server:
               access:
                 - TEST
               timeout: 120
-              ssl_auth: True
-              url: http://petstore.swagger.io/v1
+              ssl_auth: False
+              url: http://petstore.xxx

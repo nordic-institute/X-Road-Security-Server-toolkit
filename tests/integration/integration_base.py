@@ -64,8 +64,8 @@ class IntegrationTestBase(unittest.TestCase):
                                   'service_code': 'Petstore',
                                   'access': ['BUS'],
                                   'timeout': 120,
-                                  'ssl_auth': True,
-                                  'url': 'http://petstore.swagger.io/v1'
+                                  'ssl_auth': False,
+                                  'url': 'http://petstore.xxx'
                               }
                           ]
                       }
