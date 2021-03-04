@@ -128,7 +128,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             service_controller = ServiceController()
             service_controller.app = app
             service_controller.load_config = (lambda: self.config)
-            service_controller.add_access
+            service_controller.add_access()
             description = get_service_description(self.config, client_id)
             service_clients = get_service_clients(self.config, description["services"][0]["id"])
             assert len(service_clients) == 1
@@ -141,7 +141,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             assert description["services"][0]["ssl_auth"] is False
             service_controller.app = app
             service_controller.load_config = (lambda: self.config)
-            service_controller.update_parameters
+            service_controller.update_parameters()
             description = get_service_description(self.config, client_id)
             assert description["services"][0]["timeout"] == 120
             assert description["services"][0]["ssl_auth"] is True
