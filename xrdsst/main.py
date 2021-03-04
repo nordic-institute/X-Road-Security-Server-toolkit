@@ -159,7 +159,7 @@ def opdep_init(app):
     g.add_edge(OPS.ADD_CLIENT, OPS.REGISTER_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.ADD_SERVICE_DESC)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ENABLE_SERVICE_DESC)
-    g.add_edge(OPS.ENABLE_SERVICE_DESC, OPS.ADD_SERVICE_ACCESS)
+    g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_SERVICE_ACCESS)
 
     topologically_sorted = list(networkx.topological_sort(g))
     app.OP_GRAPH = g
