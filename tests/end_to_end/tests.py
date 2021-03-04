@@ -7,7 +7,7 @@ from unittest import mock
 import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
-    assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor
+    assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients
 from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -205,13 +205,16 @@ class EndToEndTest(unittest.TestCase):
         description = get_service_description(self.config, client_id)
         assert description["disabled"] is False
 
-    def step_add_service_access(self):
+    def step_add_service_access(self, client_id):
         service_controller = ServiceController()
         for security_server in self.config["security_server"]:
             configuration = service_controller.initialize_basic_config_values(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
+        description = get_service_description(self.config, client_id)
+        service_clients = get_service_clients(self.config, description["services"][0]["id"])
+        assert len(service_clients) == 1
 
     def step_autoconf(self):
         with XRDSSTTest() as app:
@@ -260,7 +263,7 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
-        self.step_add_service_access()
+        self.step_add_service_access(client_id)
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()

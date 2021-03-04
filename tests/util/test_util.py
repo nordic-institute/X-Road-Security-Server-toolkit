@@ -269,6 +269,13 @@ def get_service_description(config, client_id):
             config["security_server"][0]["api_key"]
         )[0]
 
+# Returns service clients for given service
+def get_service_clients(config, service_id):
+    return api_GET(
+            config["security_server"][0]["url"],
+            "services/" + service_id + "/service-clients",
+            config["security_server"][0]["api_key"]
+        )
 
 # Returns client
 def get_client(config):
