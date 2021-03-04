@@ -99,9 +99,6 @@ $ pip install setup.py
   
 ### 3.2 Format of configuration file
 ```
-logging:
-  file: /path/to/xrdsst.log
-  level: <LOG_LEVEL>
 api-key:
 - credentials: <SECURITTY_SERVER_CREDENTIALS>
   key: /path/to/ssh_private_key
@@ -132,12 +129,18 @@ security-server:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
           type: <SERVICE_TYPE>
-          timeout: <SERVICE_TIMEOUT>
-          ssl_auth: <SERVICE_USE_SSL_AUTH>
+          access:
+            - <SUBSYSTEM_CODE>
           url_all: <SERVICE_URL_FOR_ALL>
           timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
           ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
-          ignore_warnings: <SERVICE_IGNORE_WARNINGS>
+          services:
+            - service_code: <SERVICE_CODE>
+              access:
+                - <SUBSYSTEM_CODE>
+              timeout: <SERVICE_TIMEOUT>
+              ssl_auth: <SERVICE_USE_SSL_AUTH>
+              url: <SERVICE_URL>
 ```
 
 The ``api-key`` section is for configuring the automatic api key generation parameters for security server
@@ -173,7 +176,14 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SERVICE_URL_FOR_ALL> use same URL for all services for a given service description
 * <SERVICE_TIMEOUT_FOR_ALL> use same timeout value for all services for a given service description
 * <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description
-* <SERVICE_IGNORE_WARNINGS> boolean value for indicating whether service related warnings should be ignored
+* <SERVICE_URL> URL for single service
+* <SERVICE_CODE> code for single service.
+
+In section ``service_descriptions`` service with type ``OPENAPI3``, ``REST``, ``WSDL`` can be configured by adding a service description
+with parameters ``url``, ``rest_service_code``, ``type`` and ``access``. In order to provide access to the services added with that
+service description to different subsystems, the parameter ``access`` should contain a list of subsystem codes. To configure specific services
+described with the service description, the paramers ``service_code`` and ``access`` must be configured in the section ``services``. 
+
 
 ### 3.3 Different ways of using the configuration file
 
@@ -259,4 +269,4 @@ Further subsystem registration can proceed with ``xrdsst client register``.
 ### 4.9 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
-Adding access rights to services is performed  with ``xrdsst service add-rights``. Service parameters are updated with ``xrdsst service update-parameters``.
+Adding access to services is performed  with ``xrdsst service add-access``. Service parameters are updated with ``xrdsst service update-parameters``.

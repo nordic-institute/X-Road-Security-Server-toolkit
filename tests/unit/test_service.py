@@ -4,7 +4,6 @@ import unittest
 from unittest import mock
 
 import pytest
-import pytz
 
 from tests.util.test_util import StatusTestData
 from xrdsst.controllers.service import ServiceController
@@ -21,16 +20,15 @@ class ServiceTestData:
         disabled=True,
         disabled_notice='',
         refreshed_at='2021-01-01T09:10:00',
-        services=[Service(
-            id='DEV:GOV:9876:SUB1:Petstore',
-            full_service_code='DEV:GOV:9876:SUB1:Petstore',
-            service_code='Petstore',
-            timeout=60,
-            title='title',
-            ssl_auth=False,
-            subjects_count=0,
-            url='url',
-            endpoints=[])],
+        services=[Service(id='DEV:GOV:9876:SUB1:Petstore',
+                          full_service_code='DEV:GOV:9876:SUB1:Petstore',
+                          service_code='Petstore',
+                          timeout=60,
+                          title='title',
+                          ssl_auth=False,
+                          subjects_count=0,
+                          url='url',
+                          endpoints=[])],
         client_id='DEV:GOV:9876:SUB1'
     )
 
@@ -56,23 +54,34 @@ class TestService(unittest.TestCase):
                           'url': 'https://openapi3',
                           'rest_service_code': 'RestService',
                           'type': 'OPENAPI3',
-                          'timeout': 120,
-                          'ssl_auth': False,
-                          'url_all': False,
-                          'timeout_all': False,
+                          'access': ['SUB1'],
+                          'url_all': 'http://petstore',
+                          'timeout_all': 60,
                           'ssl_auth_all': False,
-                          'ignore_warnings': True
+                          'services': [
+                              {
+                                  'service_code': 'Petstore',
+                                  'access': ['SUB1'],
+                                  'timeout': 120,
+                                  'ssl_auth': True,
+                                  'url': 'http://petstore.swagger.io/v1'
+                              }
+                          ]
                       },
                           {
                               'url': 'https://wsdl',
                               'rest_service_code': '',
                               'type': 'WSDL',
-                              'timeout': 120,
-                              'ssl_auth': False,
-                              'url_all': False,
-                              'timeout_all': False,
-                              'ssl_auth_all': False,
-                              'ignore_warnings': True
+                              'access': ['SUB1'],
+                              'services': [
+                                  {
+                                      'service_code': 'service',
+                                      'access': ['SUB1'],
+                                      'timeout': 120,
+                                      'ssl_auth': True,
+                                      'url': 'https://wsdl'
+                                  }
+                              ]
                           }
                       ]
                   }
@@ -271,7 +280,7 @@ class TestService(unittest.TestCase):
                             sys.stdout.write(out)
                             sys.stderr.write(err)
 
-    def test_service_add_access_rights(self):
+    def test_service_add_access(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
                     id='DEV:GOV:9876:SUB1',
@@ -293,11 +302,12 @@ class TestService(unittest.TestCase):
                                         name='ACME',
                                         local_group_code=None,
                                         service_client_type=ServiceClientType.SUBSYSTEM,
-                                        rights_given_at=datetime.now(pytz.utc).isoformat())]):
+                                        rights_given_at=datetime.now().isoformat())]):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
-                        service_controller.add_rights()
+                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                        service_controller.add_access()
 
                         out, err = self.capsys.readouterr()
                         assert out.count("Added access rights") > 0
@@ -306,7 +316,7 @@ class TestService(unittest.TestCase):
                             sys.stdout.write(out)
                             sys.stderr.write(err)
 
-    def test_service_add_access_rights_already_added(self):
+    def test_service_add_access_already_added(self):
         class AlreadyAddedResponse:
             status = 409
             data = '{"status":409,"error":{"code":"duplicate_accessright"}}'
@@ -334,7 +344,8 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
-                        service_controller.add_rights()
+                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                        service_controller.add_access()
 
                         out, err = self.capsys.readouterr()
                         assert out.count("already added") > 0
@@ -373,6 +384,7 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
+                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                         service_controller.update_parameters()
 
                         out, err = self.capsys.readouterr()

@@ -34,9 +34,15 @@ security_server:
         - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
           rest_service_code: Petstore
           type: OPENAPI3
-          timeout: 120
-          ssl_auth: False
-          url_all: False
-          timeout_all: True
+          access:
+            - TEST
+          url_all: http://petstore
+          timeout_all: 60
           ssl_auth_all: False
-          ignore_warnings: True
+          services:
+            - service_code: Petstore
+              access:
+                - TEST
+              timeout: 120
+              ssl_auth: True
+              url: http://petstore.swagger.io/v1

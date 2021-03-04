@@ -53,7 +53,6 @@ def assert_client_service_descs_transitioned(api_url, api_key):
     assert (csds['type'] == 'OPENAPI3')
     assert (csds['url'] == 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml')
 
-
     sd = csds['services'][0]
     assert (0 < len(sd['endpoints']))
     assert (sd['full_service_code'] == 'Petstore')
@@ -61,10 +60,16 @@ def assert_client_service_descs_transitioned(api_url, api_key):
     assert (sd['id'] == 'DEV:GOV:1234:BUS:Petstore')
     # Skip 'ssl_auth' & 'timeout'
 
+def assert_client_service_clients_transitioned(api_url, api_key):
+    client_service_clients = api_GET(api_url, "services/DEV:GOV:1234:BUS:Petstore/service-clients", api_key)
+
+    assert (1 == len(client_service_clients))
+    # Skip 'ssl_auth' & 'timeout'
 
 def assert_non_status_ops_transitioned(api_url, api_key):
     assert_clients_transitioned(api_url, api_key)
     assert_client_service_descs_transitioned(api_url, api_key)
+    assert_client_service_clients_transitioned(api_url, api_key)
 
 
 class TestXrdsstAuto(IntegrationTestBase, IntegrationOpBase):
