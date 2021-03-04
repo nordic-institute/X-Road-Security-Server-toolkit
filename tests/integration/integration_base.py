@@ -55,7 +55,13 @@ class IntegrationTestBase(unittest.TestCase):
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
                           'rest_service_code': 'Petstore',
                           'type': 'OPENAPI3',
-                          'client_access': ['BUS']
+                          'access': ['BUS'],
+                          'services': [
+                              {
+                                  'service_code': 'Petstore',
+                                  'access': ['BUS']
+                              }
+                          ]
                       }
                       ]
                   }]

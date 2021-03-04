@@ -54,13 +54,25 @@ class TestService(unittest.TestCase):
                           'url': 'https://openapi3',
                           'rest_service_code': 'RestService',
                           'type': 'OPENAPI3',
-                          'client_access': ['SUB1']
+                          'access': ['SUB1'],
+                          'services': [
+                              {
+                                  'service_code': 'service',
+                                  'access': ['SUB1']
+                              }
+                          ]
                       },
                           {
                               'url': 'https://wsdl',
                               'rest_service_code': '',
                               'type': 'WSDL',
-                              'client_access': ['SUB1']
+                              'access': ['SUB1'],
+                              'services': [
+                                  {
+                                      'service_code': 'service',
+                                      'access': ['SUB1']
+                                  }
+                              ]
                           }
                       ]
                   }

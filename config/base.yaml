@@ -1,36 +1,42 @@
 api_key:
 - credentials: xrd:secret
-  key: /path/to/ssh_private_key
+  key: /home/bertvi/x/work/gofore_private_key
   roles:
-  - <SECURITY_SERVER_ROLE_NAME>
+  - XROAD_SYSTEM_ADMINISTRATOR
+  - XROAD_SERVICE_ADMINISTRATOR
+  - XROAD_SECURITY_OFFICER
+  - XROAD_REGISTRATION_OFFICER
   url: https://localhost:4000/api/v1/api-keys
+logging:
+  file: /var/log/xroad/xrdsst.log
+  level: INFO
 security_server:
 - api_key: X-Road-apikey token=<API_KEY>
   certificates:
-    - /path/to/signcert
-    - /path/to/authcert
-  configuration_anchor: /path/to/configuration-anchor.xml
-  name: <SECURITY_SERVER_NAME>
-  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
-  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
-  owner_member_class: <MEMBER_CLASS>
-  owner_member_code: <MEMBER_CODE>
-  security_server_code: <SERVER_CODE>
-  software_token_id: <SOFT_TOKEN_ID>
-  software_token_pin: <SOFT_TOKEN_PIN>
-  url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
+    - /home/bertvi/x/ss3-sign.pem
+    - /home/bertvi/x/ss3-auth.pem
+  configuration_anchor: /etc/xroad/configuration-anchor3.xml
+  name: ss3
+  owner_dn_country: EE
+  owner_dn_org: ACME
+  owner_member_class: GOV
+  owner_member_code: 1234
+  security_server_code: ss3
+  software_token_id: 0
+  software_token_pin: 1234
+  url: https://ss3:4000/api/v1
   clients:
-    - member_class: <MEMBER_CLASS>
-      member_code: <MEMBER_CODE>
-      subsystem_code: <SUBSYSTEM_CODE>
-      connection_type: <CONNECTION_TYPE>
+    - member_class: GOV
+      member_code: 1234
+      subsystem_code: TEST
+      connection_type: HTTP
       service_descriptions:
-        - url: <SERVICE_DESCRIPTION_URL>
-          rest_service_code: <REST_SERVICE_CODE>
-          type: <SERVICE_TYPE>
+        - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
+          rest_service_code: Petstore
+          type: OPENAPI3
           access:
-            - <SUBSYSTEM_CODE>
+            - TEST
           services:
-            - service_code: <SERVICE_CODE>
+            - service_code: Petstore
               access:
-                - <SUBSYSTEM_CODE>
+                - TEST
