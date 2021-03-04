@@ -174,6 +174,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_register()
         self.query_status()
 
+        self.step_subsystem_register()
+        self.query_status()
+
         client = get_client(self.config)
         client_id = client['id']
 

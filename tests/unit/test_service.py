@@ -297,6 +297,7 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
+                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                         service_controller.add_access()
 
                         out, err = self.capsys.readouterr()
@@ -334,6 +335,7 @@ class TestService(unittest.TestCase):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
+                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                         service_controller.add_access()
 
                         out, err = self.capsys.readouterr()

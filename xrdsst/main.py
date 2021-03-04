@@ -147,6 +147,7 @@ def opdep_init(app):
     add_op_node(g, OPS.REGISTER_CLIENT, ClientController, ClientController.register, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_SERVICE_DESC, ServiceController, ServiceController.add_description, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ENABLE_SERVICE_DESC, ServiceController, ServiceController.enable_description, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.ADD_SERVICE_ACCESS, ServiceController, ServiceController.add_access, is_done=(lambda ssn: True))
 
     g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
     g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
@@ -158,6 +159,7 @@ def opdep_init(app):
     g.add_edge(OPS.ADD_CLIENT, OPS.REGISTER_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.ADD_SERVICE_DESC)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ENABLE_SERVICE_DESC)
+    g.add_edge(OPS.ENABLE_SERVICE_DESC, OPS.ADD_SERVICE_ACCESS)
 
     topologically_sorted = list(networkx.topological_sort(g))
     app.OP_GRAPH = g

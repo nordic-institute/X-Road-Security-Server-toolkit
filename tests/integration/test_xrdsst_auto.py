@@ -60,10 +60,16 @@ def assert_client_service_descs_transitioned(api_url, api_key):
     assert (sd['id'] == 'DEV:GOV:1234:BUS:Petstore')
     # Skip 'ssl_auth' & 'timeout'
 
+def assert_client_service_clients_transitioned(api_url, api_key):
+    client_service_clients = api_GET(api_url, "services/DEV:GOV:1234:BUS:Petstore/service-clients", api_key)
+
+    assert (1 == len(client_service_clients))
+    # Skip 'ssl_auth' & 'timeout'
 
 def assert_non_status_ops_transitioned(api_url, api_key):
     assert_clients_transitioned(api_url, api_key)
     assert_client_service_descs_transitioned(api_url, api_key)
+    assert_client_service_clients_transitioned(api_url, api_key)
 
 
 class TestXrdsstAuto(IntegrationTestBase, IntegrationOpBase):
