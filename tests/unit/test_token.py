@@ -221,7 +221,8 @@ class TestToken(unittest.TestCase):
                     sys.stdout.write(out)
                     sys.stderr.write(err)
 
-    @mock.patch.object(TokensApi, 'login_token', side_effect=ApiException(http_resp=ObjectStruct(status=409, reason=None, data='{"status":409,"error":{"code":"action_not_possible"}}', getheaders=(lambda: None))))
+    @mock.patch.object(TokensApi, 'login_token', side_effect=ApiException(
+        http_resp=ObjectStruct(status=409, reason=None, data='{"status":409,"error":{"code":"action_not_possible"}}', getheaders=(lambda: None))))
     def test_token_login_already_logged_in(self, tokens_api_mock):
         with XRDSSTTest() as app:
             token_controller = TokenController()
@@ -291,7 +292,6 @@ class TestToken(unittest.TestCase):
                             with self.capsys.disabled():
                                 sys.stdout.write(out)
                                 sys.stderr.write(err)
-
 
     def test_token_init_keys_without_cas_available(self):
         with XRDSSTTest() as app:

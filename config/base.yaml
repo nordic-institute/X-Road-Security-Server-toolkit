@@ -30,7 +30,13 @@ security_server:
           type: <SERVICE_TYPE>
           access:
             - <SUBSYSTEM_CODE>
+          url_all: <SERVICE_URL_FOR_ALL>
+          timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
+          ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
           services:
             - service_code: <SERVICE_CODE>
               access:
                 - <SUBSYSTEM_CODE>
+              timeout: <SERVICE_TIMEOUT>
+              ssl_auth: <SERVICE_USE_SSL_AUTH>
+              url: <SERVICE_URL>

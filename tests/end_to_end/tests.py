@@ -216,6 +216,21 @@ class EndToEndTest(unittest.TestCase):
         service_clients = get_service_clients(self.config, description["services"][0]["id"])
         assert len(service_clients) == 1
 
+    def step_update_service_parameters(self, client_id):
+        service_controller = ServiceController()
+        description = get_service_description(self.config, client_id)
+        assert description["services"][0]["timeout"] == 60
+        assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
+        for security_server in self.config["security_server"]:
+            configuration = service_controller.initialize_basic_config_values(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
+        description = get_service_description(self.config, client_id)
+        assert description["services"][0]["timeout"] == 120
+        assert description["services"][0]["url"] == 'http://petstore.xxx'
+
+
     def step_autoconf(self):
         with XRDSSTTest() as app:
             with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
@@ -264,6 +279,8 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
         self.step_add_service_access(client_id)
+        self.step_update_service_parameters(client_id)
+
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()

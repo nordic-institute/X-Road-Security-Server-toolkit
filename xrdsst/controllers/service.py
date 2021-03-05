@@ -3,7 +3,7 @@ from xrdsst.api import ClientsApi, ServiceDescriptionsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
-from xrdsst.models import ServiceDescriptionAdd, ServiceClient, ServiceClientType, ServiceClients
+from xrdsst.models import ServiceDescriptionAdd, ServiceClient, ServiceClientType, ServiceClients, ServiceUpdate
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 
@@ -57,6 +57,10 @@ class ServiceController(BaseController):
 
         self.add_access_rights(active_config)
 
+    @ex(label='update-parameters', help="Update service parameters", arguments=[])
+    def update_parameters(self):
+        self.update_service_parameters(self.load_config())
+
     def add_service_description(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
@@ -89,6 +93,17 @@ class ServiceController(BaseController):
                     if "service_descriptions" in client:
                         for service_description in client["service_descriptions"]:
                             self.remote_add_access_rights(ss_configuration, security_server, client, service_description)
+
+    def update_service_parameters(self, configuration):
+        self.init_logging(configuration)
+        for security_server in configuration["security_server"]:
+            BaseController.log_info('Starting service description enabling process for security server: ' + security_server['name'])
+            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
+            if "clients" in security_server:
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        for service_description in client["service_descriptions"]:
+                            self.remote_update_service_parameters(ss_configuration, security_server, client, service_description)
 
     @staticmethod
     def remote_add_service_description(ss_configuration, security_server_conf, client_conf, service_description_conf):
@@ -178,6 +193,49 @@ class ServiceController(BaseController):
                                                             "' to use service '" + service.id + "' already added")
                                 else:
                                     BaseController.log_api_error('ServicesApi->add_service_service_clients', err)
+                except ApiException as find_err:
+                    BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+        except ApiException as find_err:
+            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+
+    def remote_update_service_parameters(self, ss_configuration, security_server_conf, client_conf, service_description_conf):
+        clients_api = ClientsApi(ApiClient(ss_configuration))
+        try:
+            client_controller = ClientController()
+            client = client_controller.find_client(clients_api, security_server_conf, client_conf)
+            if client:
+                try:
+                    service_description = self.get_client_service_description(clients_api, client, service_description_conf)
+                    if service_description:
+                        for service in service_description.services:
+                            try:
+                                services_api = ServicesApi(ApiClient(ss_configuration))
+                                timeout = None
+                                timeout_all = service_description_conf["timeout_all"]
+                                ssl_auth = None
+                                ssl_auth_all = service_description_conf["ssl_auth_all"]
+                                url = None
+                                url_all = service_description_conf["url_all"]
+                                for configurable_service in service_description_conf["services"]:
+                                    if service.service_code == configurable_service["service_code"]:
+                                        timeout = configurable_service["timeout"]
+                                        timeout_all = False
+                                        ssl_auth = configurable_service["ssl_auth"]
+                                        ssl_auth_all = False
+                                        url = configurable_service["url"]
+                                        url_all = False
+                                service_update = ServiceUpdate(url=url,
+                                                               timeout=timeout,
+                                                               ssl_auth=ssl_auth,
+                                                               url_all=url_all,
+                                                               timeout_all=timeout_all,
+                                                               ssl_auth_all=ssl_auth_all)
+                                response = services_api.update_service(service.id, body=service_update)
+                                if response:
+                                    BaseController.log_info("Updated service parameters for service '" + service.id +
+                                                            "' (got full id " + response.id + ")")
+                            except ApiException as err:
+                                BaseController.log_api_error('ServicesApi->update_service', err)
                 except ApiException as find_err:
                     BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
         except ApiException as find_err:

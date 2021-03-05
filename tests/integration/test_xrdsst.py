@@ -133,6 +133,19 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             service_clients = get_service_clients(self.config, description["services"][0]["id"])
             assert len(service_clients) == 1
 
+    def step_update_service_parameters(self, client_id):
+        with XRDSSTTest() as app:
+            service_controller = ServiceController()
+            description = get_service_description(self.config, client_id)
+            assert description["services"][0]["timeout"] == 60
+            assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
+            service_controller.app = app
+            service_controller.load_config = (lambda: self.config)
+            service_controller.update_parameters()
+            description = get_service_description(self.config, client_id)
+            assert description["services"][0]["timeout"] == 120
+            assert description["services"][0]["url"] == 'http://petstore.xxx'
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         # Uninitialized security server can already have functioning API interface and status query must function
@@ -188,6 +201,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.query_status()
 
         self.step_add_service_access(client_id)
+        self.query_status()
+
+        self.step_update_service_parameters(client_id)
         configured_servers_at_end = self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

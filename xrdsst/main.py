@@ -21,8 +21,8 @@ from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
-    validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, \
-    validate_config_cert_activate, validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access
+    validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, validate_config_cert_activate, \
+    validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access, validate_config_service_desc_service
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
 
@@ -46,6 +46,8 @@ OP_REGISTER_CLIENT = "REGISTER CLIENT"
 OP_ADD_SERVICE_DESC = "ADD SERVICE\nDESCRIPTION"
 OP_ENABLE_SERVICE_DESC = "ENABLE SERVICE\nDESCRIPTION"
 OP_ADD_SERVICE_ACCESS = "ADD SERVICE\nACCESS"
+OP_UPDATE_SERVICE = "UPDATE\nSERVICE"
+
 
 # Operations supported and known at the dependency graph level
 class OPS:
@@ -61,6 +63,8 @@ class OPS:
     ADD_SERVICE_DESC = OP_ADD_SERVICE_DESC
     ENABLE_SERVICE_DESC = OP_ENABLE_SERVICE_DESC
     ADD_SERVICE_ACCESS = OP_ADD_SERVICE_ACCESS
+    UPDATE_SERVICE = OP_UPDATE_SERVICE
+
 
 VALIDATORS = {
     OPS.INIT: validate_config_init,
@@ -74,7 +78,8 @@ VALIDATORS = {
     OPS.REGISTER_CLIENT: validate_config_client_add_or_register,
     OPS.ADD_SERVICE_DESC: validate_config_service_desc,
     OPS.ENABLE_SERVICE_DESC: validate_config_service_desc,
-    OPS.ADD_SERVICE_ACCESS: validate_config_service_access
+    OPS.ADD_SERVICE_ACCESS: validate_config_service_access,
+    OPS.UPDATE_SERVICE: validate_config_service_desc_service
 }
 
 
@@ -102,13 +107,13 @@ def opdep_init(app):
         sss = OP_GRAPH.nodes[OPS.GENKEYS_CSRS]['servers'][ssn]['status']
 
         keys_done = (
-            (sss.status_keys.has_toolkit_sign_key and sss.status_keys.has_toolkit_auth_key) or
-            (sss.status_keys.has_sign_key and sss.status_keys.has_auth_key)
+                (sss.status_keys.has_toolkit_sign_key and sss.status_keys.has_toolkit_auth_key) or
+                (sss.status_keys.has_sign_key and sss.status_keys.has_auth_key)
         )
 
         csrs_done = (
-            (sss.status_csrs.has_toolkit_sign_csr and sss.status_csrs.has_toolkit_auth_csr) or
-            (sss.status_certs.has_sign_cert and sss.status_certs.has_auth_cert)
+                (sss.status_csrs.has_toolkit_sign_csr and sss.status_csrs.has_toolkit_auth_csr) or
+                (sss.status_certs.has_sign_cert and sss.status_certs.has_auth_cert)
         )
 
         return keys_done and csrs_done
@@ -120,17 +125,17 @@ def opdep_init(app):
     def is_done_auth_cert_register(ssn):
         sss = OP_GRAPH.nodes[OPS.REGISTER_AUTH_CERT]['servers'][ssn]['status']
         return (
-            sss.status_certs.has_auth_cert and
-            sss.status_certs.auth_cert_actions and
-            PossibleAction.UNREGISTER in sss.status_certs.auth_cert_actions
+                sss.status_certs.has_auth_cert and
+                sss.status_certs.auth_cert_actions and
+                PossibleAction.UNREGISTER in sss.status_certs.auth_cert_actions
         )
 
     def is_done_auth_cert_activate(ssn):
         sss = OP_GRAPH.nodes[OPS.ACTIVATE_AUTH_CERT]['servers'][ssn]['status']
         return (
-            sss.status_certs.has_auth_cert and
-            sss.status_certs.auth_cert_actions and
-            PossibleAction.DISABLE in sss.status_certs.auth_cert_actions
+                sss.status_certs.has_auth_cert and
+                sss.status_certs.auth_cert_actions and
+                PossibleAction.DISABLE in sss.status_certs.auth_cert_actions
         )
 
     g = OP_GRAPH
@@ -148,6 +153,7 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_SERVICE_DESC, ServiceController, ServiceController.add_description, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ENABLE_SERVICE_DESC, ServiceController, ServiceController.enable_description, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_SERVICE_ACCESS, ServiceController, ServiceController.add_access, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.UPDATE_SERVICE, ServiceController, ServiceController.update_parameters, is_done=(lambda ssn: True))
 
     g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
     g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
@@ -160,6 +166,7 @@ def opdep_init(app):
     g.add_edge(OPS.ADD_CLIENT, OPS.ADD_SERVICE_DESC)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ENABLE_SERVICE_DESC)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_SERVICE_ACCESS)
+    g.add_edge(OPS.ADD_SERVICE_DESC, OPS.UPDATE_SERVICE)
 
     topologically_sorted = list(networkx.topological_sort(g))
     app.OP_GRAPH = g
@@ -183,7 +190,7 @@ def revoke_api_key(app):
                 curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
                            config["api_key"][0]["url"] + "/" + str(api_key_id[ssn]) + " -k"
                 cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                    config["api_key"][0]["key"] + "\" root@" + ssn + " \"" + curl_cmd + "\""
+                      config["api_key"][0]["key"] + "\" root@" + ssn + " \"" + curl_cmd + "\""
                 process = subprocess.run(cmd, shell=True, check=True, capture_output=True)
                 api_key_token = app.api_keys[ssn].split('=')[1]
                 if process.returncode == 0:
@@ -250,6 +257,7 @@ def main_excepthook(type_, value, traceback_):
         print(message, file=sys.stderr)
     else:
         sys.__excepthook__(type_, value, traceback_)
+
 
 def main():
     sys.excepthook = main_excepthook
