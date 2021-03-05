@@ -221,16 +221,48 @@ def validate_config_service_desc(ss_config, operation, errors):
                 ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_URL,
                 service_desc_config[service_desc_ix], operation, errors)
 
+            if ServiceType.REST == service_desc_config[service_desc_ix].get(ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_TYPE):
+                require_fill(
+                    ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_REST_SERVICE_CODE,
+                    service_desc_config[service_desc_ix], operation, errors)
+
+    return len(errors) <= err_cnt
+
+def validate_config_service_access(ss_config, operation, errors):
+    if not ss_config.get(ConfKeysSecurityServer.CONF_KEY_CLIENTS):
+        return True
+
+    err_cnt = len(errors)
+
+    clients_config = copy.deepcopy(ss_config[ConfKeysSecurityServer.CONF_KEY_CLIENTS])
+    for client_ix in range(0, len(clients_config)):
+        if not clients_config[client_ix].get(ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SERVICE_DESCS):
+            continue
+
+        # Make readable reference
+        clients_config[client_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
+            ss_config[ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
+            ConfKeysSecurityServer.CONF_KEY_CLIENTS + '[' + str(client_ix + 1) + ']'
+        )
+
+        service_desc_config = copy.deepcopy(clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SERVICE_DESCS])
+        for service_desc_ix in range(0, len(service_desc_config)):
+            service_desc_config[service_desc_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
+                    clients_config[client_ix][ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
+                    ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SERVICE_DESCS + '[' + str(service_desc_ix + 1) + ']'
+            )
+
+            require_swagger_enum_fill(ServiceType,
+                                      ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_TYPE,
+                                      service_desc_config[service_desc_ix], operation, errors)
+
+            require_fill(
+                ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_URL,
+                service_desc_config[service_desc_ix], operation, errors)
+
+
             require_fill(
                 ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS,
-                service_desc_config[service_desc_ix], operation, errors)
-
-            require_fill(
-                ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES,
-                service_desc_config[service_desc_ix], operation, errors)
-
-            require_fill(
-                ConfKeysSecServerClientServiceDescService.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICE_CLIENT_ACCESS,
                 service_desc_config[service_desc_ix], operation, errors)
 
             if ServiceType.REST == service_desc_config[service_desc_ix].get(ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_TYPE):

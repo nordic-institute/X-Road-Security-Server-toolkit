@@ -22,7 +22,7 @@ from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
     validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, \
-    validate_config_cert_activate, validate_config_client_add_or_register, validate_config_service_desc
+    validate_config_cert_activate, validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
 
@@ -74,7 +74,7 @@ VALIDATORS = {
     OPS.REGISTER_CLIENT: validate_config_client_add_or_register,
     OPS.ADD_SERVICE_DESC: validate_config_service_desc,
     OPS.ENABLE_SERVICE_DESC: validate_config_service_desc,
-    OPS.ADD_SERVICE_ACCESS: validate_config_service_desc
+    OPS.ADD_SERVICE_ACCESS: validate_config_service_access
 }
 
 

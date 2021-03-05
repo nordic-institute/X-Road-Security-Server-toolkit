@@ -155,10 +155,11 @@ class ServiceController(BaseController):
                             try:
                                 client_id = None
                                 services_api = ServicesApi(ApiClient(ss_configuration))
-                                access_list = service_description_conf["access"]
-                                for configurable_service in service_description_conf["services"]:
+                                access_list = service_description_conf["access"] if service_description_conf["access"] else []
+                                configurable_services = service_description_conf["services"] if service_description_conf["services"] else []
+                                for configurable_service in configurable_services:
                                     if service.service_code == configurable_service["service_code"]:
-                                        access_list = configurable_service["access"]
+                                        access_list = configurable_service["access"] if configurable_service["access"] else []
                                 for access in access_list:
                                     client_id = client.instance_id + ':' + \
                                                 client.member_class + ':' + \
