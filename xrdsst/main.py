@@ -21,8 +21,8 @@ from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
-    validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, \
-    validate_config_cert_activate, validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_desc_service
+    validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, validate_config_cert_activate, \
+    validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access, validate_config_service_desc_service
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
 
@@ -48,6 +48,7 @@ OP_ENABLE_SERVICE_DESC = "ENABLE SERVICE\nDESCRIPTION"
 OP_ADD_SERVICE_ACCESS = "ADD SERVICE\nACCESS"
 OP_UPDATE_SERVICE = "UPDATE\nSERVICE"
 
+
 # Operations supported and known at the dependency graph level
 class OPS:
     INIT = OP_INIT
@@ -64,6 +65,7 @@ class OPS:
     ADD_SERVICE_ACCESS = OP_ADD_SERVICE_ACCESS
     UPDATE_SERVICE = OP_UPDATE_SERVICE
 
+
 VALIDATORS = {
     OPS.INIT: validate_config_init,
     OPS.TIMESTAMP_ENABLE: validate_config_timestamp_init,
@@ -76,7 +78,7 @@ VALIDATORS = {
     OPS.REGISTER_CLIENT: validate_config_client_add_or_register,
     OPS.ADD_SERVICE_DESC: validate_config_service_desc,
     OPS.ENABLE_SERVICE_DESC: validate_config_service_desc,
-    OPS.ADD_SERVICE_ACCESS: validate_config_service_desc,
+    OPS.ADD_SERVICE_ACCESS: validate_config_service_access,
     OPS.UPDATE_SERVICE: validate_config_service_desc_service
 }
 
