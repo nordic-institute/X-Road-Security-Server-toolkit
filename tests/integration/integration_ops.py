@@ -70,4 +70,3 @@ class IntegrationOpBase:
                 auto_controller = AutoController()
                 auto_controller.app = app
                 auto_controller._default()
-

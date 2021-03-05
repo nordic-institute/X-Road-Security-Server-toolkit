@@ -23,7 +23,7 @@ def validate_conf_keys(xrdsst_conf):
         elif isinstance(xrdsst_conf_fragment, list):
             for i in range(0, len(xrdsst_conf_fragment)):
                 result.extend(map(
-                    lambda key: ('[' + str(i+1) + ']' + str(key[0]), key[1], key[2]),
+                    lambda key: ('[' + str(i + 1) + ']' + str(key[0]), key[1], key[2]),
                     _validate_conf_keys(xrdsst_conf_fragment[i], conf_key_X)
                 ))
 
@@ -113,6 +113,20 @@ class ConfKeysSecServerClientServiceDesc:
     CONF_KEY_SS_CLIENT_SERVICE_DESC_URL = 'url'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_REST_SERVICE_CODE = 'rest_service_code'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_TYPE = 'type'
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS = 'access'
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES = 'services'
+
+    @staticmethod
+    def descendant_conf_keys():
+        return [
+            (ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES, ConfKeysSecServerClientServiceDescService)
+        ]
+
+
+# Known keys for xrdsst configuration file security server client service descriptions services configuration section.
+class ConfKeysSecServerClientServiceDescService:
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICE_SERVICE_CODE = 'service_code'
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICE_CLIENT_ACCESS = 'access'
 
     @staticmethod
     def descendant_conf_keys():

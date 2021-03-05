@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.0
+Version: 1.2.1
 Doc. ID: XRDSST-CONF
 
 ---
@@ -21,7 +21,8 @@ Doc. ID: XRDSST-CONF
 | 20.01.2021 | 1.1.7       | Notes on adding service descriptions                                         | Bert Viikmäe       |
 | 27.01.2021 | 1.1.8       | Notes on enabling service descriptions                                       | Bert Viikmäe       |
 | 03.02.2021 | 1.1.9       | Notes on server status query                                                 | Taimo Peelo        |
-| 17.02.2021 | 1.2.0       | Updates to the user guide                                                    | Bert Viikmäe        |
+| 17.02.2021 | 1.2.0       | Updates to the user guide                                                    | Bert Viikmäe       |
+| 22.02.2021 | 1.2.1       | Update service management                                                    | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -130,6 +131,12 @@ security-server:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
           type: <SERVICE_TYPE>
+          access:
+            - <SUBSYSTEM_CODE>
+          services:
+            - service_code: <SERVICE_CODE>
+              access:
+                - <SUBSYSTEM_CODE>
 ```
 
 The ``api-key`` section is for configuring the automatic api key generation parameters for security server
@@ -160,6 +167,13 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SERVICE_DESCRIPTION_URL> URL for service description
 * <REST_SERVICE_CODE> rest service code, not used for WSDL services
 * <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
+* <SERVICE_CODE> code for single service.
+
+In section ``service_descriptions`` service with type ``OPENAPI3``, ``REST``, ``WSDL`` can be configured by adding a service description
+with parameters ``url``, ``rest_service_code``, ``type`` and ``access``. In order to provide access to the services added with that
+service description to different subsystems, the parameter ``access`` should contain a list of subsystem codes. To configure specific services
+described with the service description, the paramers ``service_code`` and ``access`` must be configured in the section ``services``. 
+
 
 ### 3.3 Different ways of using the configuration file
 
@@ -245,3 +259,4 @@ Further subsystem registration can proceed with ``xrdsst client register``.
 ### 4.9 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
+Adding access to services is performed  with ``xrdsst service add-access``.

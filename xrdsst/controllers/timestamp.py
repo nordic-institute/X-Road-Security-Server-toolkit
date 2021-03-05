@@ -128,7 +128,7 @@ class TimestampController(BaseController):
                 ts_init_response = system_api.add_configured_timestamping_service(
                     body=TimestampingService(name=approved_ts[0].name, url=approved_ts[0].url)
                 )
-                if ts_init_response: # single timestamping service added is also returned
+                if ts_init_response:  # single timestamping service added is also returned
                     print(security_server['name'])
                     self.render_timestamping_services([ts_init_response])
         except ApiException as excn:
@@ -137,4 +137,4 @@ class TimestampController(BaseController):
             else:
                 tsiferr_msg = "Timestamping service initialization configuration failure"
                 print(security_server['name'], tsiferr_msg, excn)
-                logging.error(security_server['name'] + ' '  + tsiferr_msg, excn)
+                logging.error(security_server['name'] + ' ' + tsiferr_msg, excn)

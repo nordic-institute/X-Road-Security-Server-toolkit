@@ -87,7 +87,7 @@ class StatusListMapper:
                     'has_toolkit_auth_csr': server_status.status_csrs.has_toolkit_auth_csr,
                     'has_auth_csr': server_status.status_csrs.has_auth_csr
                 },
-                'certificates' : {
+                'certificates': {
                     'has_toolkit_sign_cert': server_status.status_certs.has_toolkit_sign_cert,
                     'toolkit_sign_cert_hash': server_status.status_certs.toolkit_sign_cert_hash,
                     'has_sign_cert': server_status.status_certs.has_sign_cert,

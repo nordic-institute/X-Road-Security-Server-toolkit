@@ -22,7 +22,7 @@ from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
     validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, \
-    validate_config_cert_activate, validate_config_client_add_or_register, validate_config_service_desc_add_or_enable
+    validate_config_cert_activate, validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
 
@@ -45,7 +45,7 @@ OP_ADD_CLIENT = "ADD CLIENT"
 OP_REGISTER_CLIENT = "REGISTER CLIENT"
 OP_ADD_SERVICE_DESC = "ADD SERVICE\nDESCRIPTION"
 OP_ENABLE_SERVICE_DESC = "ENABLE SERVICE\nDESCRIPTION"
-
+OP_ADD_SERVICE_ACCESS = "ADD SERVICE\nACCESS"
 
 # Operations supported and known at the dependency graph level
 class OPS:
@@ -60,7 +60,7 @@ class OPS:
     REGISTER_CLIENT = OP_REGISTER_CLIENT
     ADD_SERVICE_DESC = OP_ADD_SERVICE_DESC
     ENABLE_SERVICE_DESC = OP_ENABLE_SERVICE_DESC
-
+    ADD_SERVICE_ACCESS = OP_ADD_SERVICE_ACCESS
 
 VALIDATORS = {
     OPS.INIT: validate_config_init,
@@ -72,8 +72,9 @@ VALIDATORS = {
     OPS.ACTIVATE_AUTH_CERT: validate_config_cert_activate,
     OPS.ADD_CLIENT: validate_config_client_add_or_register,
     OPS.REGISTER_CLIENT: validate_config_client_add_or_register,
-    OPS.ADD_SERVICE_DESC: validate_config_service_desc_add_or_enable,
-    OPS.ENABLE_SERVICE_DESC: validate_config_service_desc_add_or_enable
+    OPS.ADD_SERVICE_DESC: validate_config_service_desc,
+    OPS.ENABLE_SERVICE_DESC: validate_config_service_desc,
+    OPS.ADD_SERVICE_ACCESS: validate_config_service_access
 }
 
 
@@ -146,6 +147,7 @@ def opdep_init(app):
     add_op_node(g, OPS.REGISTER_CLIENT, ClientController, ClientController.register, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_SERVICE_DESC, ServiceController, ServiceController.add_description, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ENABLE_SERVICE_DESC, ServiceController, ServiceController.enable_description, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.ADD_SERVICE_ACCESS, ServiceController, ServiceController.add_access, is_done=(lambda ssn: True))
 
     g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
     g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
@@ -157,6 +159,7 @@ def opdep_init(app):
     g.add_edge(OPS.ADD_CLIENT, OPS.REGISTER_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.ADD_SERVICE_DESC)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ENABLE_SERVICE_DESC)
+    g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_SERVICE_ACCESS)
 
     topologically_sorted = list(networkx.topological_sort(g))
     app.OP_GRAPH = g

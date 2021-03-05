@@ -1,9 +1,9 @@
 from cement import ex
-from xrdsst.api import ClientsApi, ServiceDescriptionsApi
+from xrdsst.api import ClientsApi, ServiceDescriptionsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
-from xrdsst.models import ServiceDescriptionAdd
+from xrdsst.models import ServiceDescriptionAdd, ServiceClient, ServiceClientType, ServiceClients
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 
@@ -15,7 +15,7 @@ class ServiceController(BaseController):
         stacked_type = 'nested'
         description = texts['service.controller.description']
 
-    @ex(label='add-description', help="Add service description", arguments=[])
+    @ex(help="Add service description", arguments=[])
     def add_description(self):
         active_config = self.load_config()
         full_op_path = self.op_path()
@@ -29,7 +29,7 @@ class ServiceController(BaseController):
 
         self.add_service_description(active_config)
 
-    @ex(label='enable-description', help="Enable service description", arguments=[])
+    @ex(help="Enable service description", arguments=[])
     def enable_description(self):
         active_config = self.load_config()
         full_op_path = self.op_path()
@@ -42,6 +42,20 @@ class ServiceController(BaseController):
             self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
 
         self.enable_service_description(active_config)
+
+    @ex(help="Add access rights for service", arguments=[])
+    def add_access(self):
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+
+        self.add_access_rights(active_config)
 
     def add_service_description(self, configuration):
         self.init_logging(configuration)
@@ -64,6 +78,17 @@ class ServiceController(BaseController):
                     if client.get("service_descriptions"):
                         for service_description in client["service_descriptions"]:
                             self.remote_enable_service_description(ss_configuration, security_server, client, service_description)
+
+    def add_access_rights(self, configuration):
+        self.init_logging(configuration)
+        for security_server in configuration["security_server"]:
+            BaseController.log_info('Starting service description enabling process for security server: ' + security_server['name'])
+            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
+            if "clients" in security_server:
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        for service_description in client["service_descriptions"]:
+                            self.remote_add_access_rights(ss_configuration, security_server, client, service_description)
 
     @staticmethod
     def remote_add_service_description(ss_configuration, security_server_conf, client_conf, service_description_conf):
@@ -112,6 +137,47 @@ class ServiceController(BaseController):
                                                         "' with id: '" + service_description.id + "' already enabled.")
                             else:
                                 BaseController.log_api_error('ServiceDescriptionsApi->enable_service_description', err)
+                except ApiException as find_err:
+                    BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+        except ApiException as find_err:
+            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+
+    def remote_add_access_rights(self, ss_configuration, security_server_conf, client_conf, service_description_conf):
+        clients_api = ClientsApi(ApiClient(ss_configuration))
+        try:
+            client_controller = ClientController()
+            client = client_controller.find_client(clients_api, security_server_conf, client_conf)
+            if client:
+                try:
+                    service_description = self.get_client_service_description(clients_api, client, service_description_conf)
+                    if service_description:
+                        for service in service_description.services:
+                            try:
+                                client_id = None
+                                services_api = ServicesApi(ApiClient(ss_configuration))
+                                access_list = service_description_conf["access"] if service_description_conf["access"] else []
+                                configurable_services = service_description_conf["services"] if service_description_conf["services"] else []
+                                for configurable_service in configurable_services:
+                                    if service.service_code == configurable_service["service_code"]:
+                                        access_list = configurable_service["access"] if configurable_service["access"] else []
+                                for access in access_list:
+                                    client_id = client.instance_id + ':' + \
+                                                client.member_class + ':' + \
+                                                client.member_code + ':' + \
+                                                access
+                                    service_client = ServiceClient(id=client_id,
+                                                                   name=client.member_name,
+                                                                   service_client_type=ServiceClientType.SUBSYSTEM)
+                                    response = services_api.add_service_service_clients(service.id, body=ServiceClients(items=[service_client]))
+                                    if response:
+                                        BaseController.log_info("Added access rights for client '" + client_id +
+                                                                "' to use service '" + service.id + "' (full id " + response[0].id + ")")
+                            except ApiException as err:
+                                if err.status == 409:
+                                    BaseController.log_info("Access rights for client '" + client_id +
+                                                            "' to use service '" + service.id + "' already added")
+                                else:
+                                    BaseController.log_api_error('ServicesApi->add_service_service_clients', err)
                 except ApiException as find_err:
                     BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
         except ApiException as find_err:

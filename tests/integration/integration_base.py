@@ -3,18 +3,11 @@ import os
 import subprocess
 import time
 import unittest
-from unittest import mock
 
 import docker
 import git
 
 from definitions import ROOT_DIR
-from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign
-from xrdsst.controllers.auto import AutoController
-from xrdsst.controllers.base import BaseController
-from xrdsst.controllers.cert import CertController
-from xrdsst.controllers.status import StatusController
-from xrdsst.main import XRDSSTTest
 
 
 # Make less of many evils and use one abstract test class base for encapsulating rather involved Docker setup.
@@ -61,7 +54,14 @@ class IntegrationTestBase(unittest.TestCase):
                       'service_descriptions': [{
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
                           'rest_service_code': 'Petstore',
-                          'type': 'OPENAPI3'
+                          'type': 'OPENAPI3',
+                          'access': ['BUS'],
+                          'services': [
+                              {
+                                  'service_code': 'Petstore',
+                                  'access': ['BUS']
+                              }
+                          ]
                       }
                       ]
                   }]
