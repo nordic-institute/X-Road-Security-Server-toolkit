@@ -55,7 +55,7 @@ class TestService(unittest.TestCase):
                           'rest_service_code': 'RestService',
                           'type': 'OPENAPI3',
                           'access': ['SUB1'],
-                          'url_all': 'http://petstore',
+                          'url_all': False,
                           'timeout_all': 60,
                           'ssl_auth_all': False,
                           'services': [
@@ -73,6 +73,9 @@ class TestService(unittest.TestCase):
                               'rest_service_code': '',
                               'type': 'WSDL',
                               'access': ['SUB1'],
+                              'url_all': False,
+                              'timeout_all': 60,
+                              'ssl_auth_all': False,
                               'services': [
                                   {
                                       'service_code': 'service',
