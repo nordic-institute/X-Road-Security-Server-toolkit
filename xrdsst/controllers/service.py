@@ -59,7 +59,17 @@ class ServiceController(BaseController):
 
     @ex(label='update-parameters', help="Update service parameters", arguments=[])
     def update_parameters(self):
-        self.update_service_parameters(self.load_config())
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+
+        self.update_service_parameters(active_config)
 
     def add_service_description(self, configuration):
         self.init_logging(configuration)
