@@ -40,7 +40,7 @@ class IntegrationTestBase(unittest.TestCase):
                   'api_key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
                   'owner_dn_country': 'FI',
-                  'owner_dn_org': 'NIIS',
+                  'owner_dn_org': 'X-Road Test',
                   'owner_member_class': 'ORG',
                   'owner_member_code': '111',
                   'security_server_code': 'SS',
