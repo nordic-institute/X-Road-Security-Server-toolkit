@@ -21,34 +21,34 @@ def assert_clients_transitioned(api_url, api_key):
     sub = subsystems[0]
 
     assert (owner['has_valid_local_sign_cert'] is True)
-    assert (owner['id'] == 'DEV:GOV:1234')  # This DEV prefix unfortunately does depend on central server.
+    assert (owner['id'] == 'DEV:ORG:111')  # This DEV prefix unfortunately does depend on central server.
     assert (owner['instance_id'] == 'DEV')
-    assert (owner['member_class'] == 'GOV')
-    assert (owner['member_code'] == '1234')
-    assert (owner['member_name'] == 'ORG')
-    assert (owner['member_class'] == 'GOV')
+    assert (owner['member_class'] == 'ORG')
+    assert (owner['member_code'] == '111')
+    assert (owner['member_name'] == 'NIIS')
+    assert (owner['member_class'] == 'ORG')
     # Registration, ownership asserted already
 
     assert (sub['has_valid_local_sign_cert'] is True)
     assert (sub['connection_type'] == 'HTTP')
-    assert (sub['id'] == 'DEV:GOV:1234:BUS')  # This DEV prefix unfortunately does depend on central server.
+    assert (sub['id'] == 'DEV:ORG:111:BUS')  # This DEV prefix unfortunately does depend on central server.
     assert (sub['instance_id'] == 'DEV')
-    assert (sub['member_class'] == 'GOV')
-    assert (sub['member_code'] == '1234')
-    assert (sub['member_name'] == 'ORG')
+    assert (sub['member_class'] == 'ORG')
+    assert (sub['member_code'] == '111')
+    assert (sub['member_name'] == 'NIIS')
     assert (sub['owner'] is False)
     assert (sub['subsystem_code'] == 'BUS')
     # Registration asserted already
 
 
 def assert_client_service_descs_transitioned(api_url, api_key):
-    client_service_descs = api_GET(api_url, "clients/DEV:GOV:1234:BUS/service-descriptions", api_key)
+    client_service_descs = api_GET(api_url, "clients/DEV:ORG:111:BUS/service-descriptions", api_key)
 
     assert (1 == len(client_service_descs))
 
     csds = client_service_descs[0]
     assert (1 == len(csds['services']))
-    assert (csds['client_id'] == 'DEV:GOV:1234:BUS')
+    assert (csds['client_id'] == 'DEV:ORG:111:BUS')
     assert (csds['disabled'] is False)
     assert (csds['type'] == 'OPENAPI3')
     assert (csds['url'] == 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml')
@@ -57,11 +57,11 @@ def assert_client_service_descs_transitioned(api_url, api_key):
     assert (0 < len(sd['endpoints']))
     assert (sd['full_service_code'] == 'Petstore')
     assert (sd['service_code'] == 'Petstore')
-    assert (sd['id'] == 'DEV:GOV:1234:BUS:Petstore')
+    assert (sd['id'] == 'DEV:ORG:111:BUS:Petstore')
     # Skip 'ssl_auth' & 'timeout'
 
 def assert_client_service_clients_transitioned(api_url, api_key):
-    client_service_clients = api_GET(api_url, "services/DEV:GOV:1234:BUS:Petstore/service-clients", api_key)
+    client_service_clients = api_GET(api_url, "services/DEV:ORG:111:BUS:Petstore/service-clients", api_key)
 
     assert (1 == len(client_service_clients))
     # Skip 'ssl_auth' & 'timeout'
