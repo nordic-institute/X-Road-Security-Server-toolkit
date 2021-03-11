@@ -42,6 +42,7 @@ test-all: clean
 		--cov-report=html:coverage-report \
 		tests\
 
+
 docker: clean
 	docker build -t xrdsst:latest .
 
