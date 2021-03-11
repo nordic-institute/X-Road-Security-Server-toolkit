@@ -178,9 +178,6 @@ class TokenController(BaseController):
                 'serialNumber': '/'.join([ssi.member_class, ss_code, member_class])
             }
 
-            distinguished_name_fi_auth = copy.deepcopy(distinguished_name)
-            distinguished_name_fi_auth['CN'] = BaseController.security_server_address(security_server)
-
             auth_key_req_param = KeyLabelWithCsrGenerate(
                 key_label=auth_key_label,
                 csr_generate_request=CsrGenerate(
@@ -188,7 +185,7 @@ class TokenController(BaseController):
                     ca_name=auth_ca.name,
                     csr_format=CsrFormat.DER,  # Test CA setup at least only works with DER
                     member_id=':'.join([ssi.instance_id, ssi.member_class, ssi.member_code]),
-                    subject_field_values=distinguished_name_fi_auth
+                    subject_field_values=distinguished_name
                 )
             )
 
