@@ -72,7 +72,9 @@ class BaseController(Controller):
                 #process = subprocess.run(cmd, shell=True, check=False, capture_output=True)
                 #api_key_json = json.loads(str(process.stdout, 'utf-8').strip())
                 process = subprocess.check_output(cmd, shell=True)
+                self.log_info("PROCESS=" + str(process))
                 api_key_json = json.loads(str(process, 'utf-8').strip())
+                self.log_info("API_KEY_JSON=" + str(api_key_json))
                 self.api_key_id[security_server['name']] = api_key_json["id"]
                 self.log_info('API key \"' + api_key_json["key"] + '\" for security server ' + security_server['name'] +
                               ' created.')
