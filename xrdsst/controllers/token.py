@@ -1,5 +1,3 @@
-import copy
-
 from cement import ex
 
 from xrdsst.api.security_servers_api import SecurityServersApi
