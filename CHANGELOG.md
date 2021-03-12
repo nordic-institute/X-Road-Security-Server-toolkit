@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.6-alpha.0] - 2021-03-12
+- Extended proxy error handling and feedback, ASCII diagrams included.
+
 ## [0.2.5-alpha.0] - 2021-02-23
 - add ``xrdsst service`` subcommand ``update-parameters``
 

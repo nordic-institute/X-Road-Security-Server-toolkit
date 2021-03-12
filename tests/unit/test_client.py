@@ -3,11 +3,13 @@ import unittest
 from unittest import mock
 
 import pytest
+from urllib3._collections import HTTPHeaderDict
 
 from tests.util.test_util import StatusTestData
 from xrdsst.controllers.client import ClientController
 from xrdsst.models import Client, ConnectionType, ClientStatus
 from xrdsst.main import XRDSSTTest
+from xrdsst.resources.texts import server_error_map, ascii_art
 from xrdsst.rest.rest import ApiException
 
 
@@ -36,7 +38,7 @@ class TestClient(unittest.TestCase):
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': 'X-Road-apikey token=api-key',
+              'api_key': 'X-Road-apikey token=55555555-5000-4000-a000-707070707070',
               'clients': [
                   {
                       'member_class': 'GOV',
@@ -171,3 +173,53 @@ class TestClient(unittest.TestCase):
                     with self.capsys.disabled():
                         sys.stdout.write(out)
                         sys.stderr.write(err)
+
+    @mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', lambda x, **kx: [ClientTestData.add_response])
+    def test_registration_disabled_at_management_services_provider(self):
+        class ServerProxyHasServiceDisabledResponse:
+            status = 500
+            data = '{"status":500,"error":{"code":"core.Server.ServerProxy.ServiceDisabled","metadata":["Service SERVICE:DEV/GOV/9876/MANAGEMENT/clientReg is disabled: BOFH"]}}'
+            reason = ''
+
+            def getheaders(self):
+                headers = HTTPHeaderDict()
+                headers.add('x-road-ui-correlation-id', 'ddddaaaa0011ffff')
+                headers.add('Content-Type', 'application/json')
+
+                return headers
+
+            @staticmethod
+            def as_extended_exception():
+                api_ex = ApiException(http_resp=ServerProxyHasServiceDisabledResponse())
+                api_ex.api_call = {
+                    'method': 'PUT',
+                    'resource_path': '/clients/{id}/register',
+                    'path_params': 'GOV:9876:SUB1',
+                    'query_params': '',
+                    'header_params': '',
+                    'controller_func': 'client.py#remote_register_client',
+                    'module_func': 'clients_api.py#register_client'
+                }
+
+                return api_ex
+
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.register_client',
+                            side_effect=ServerProxyHasServiceDisabledResponse.as_extended_exception()):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                client_controller.register()
+
+                out, err = self.capsys.readouterr()
+                assert err.count("FAILED") > 0
+                assert err.count("PUT /clients/{id}/register @ clients_api.py#register_client <- client.py#remote_register_client") == 1
+                assert err.count("INTERNAL_SERVER_ERROR (500)") == 1
+                assert err.count("error_code 'core.Server.ServerProxy.ServiceDisabled'") == 1
+                assert err.count("Service SERVICE:DEV/GOV/9876/MANAGEMENT/clientReg is disabled: BOFH") == 1
+                assert err.count(server_error_map.get('core.Server.ServerProxy.ServiceDisabled')) == 1
+
+                assert err.count(ascii_art['message_flow'][2]) == 1
+                assert err.count(ascii_art['message_flow'][3]) == 1
+                assert err.count(ascii_art['message_flow'][4]) == 1

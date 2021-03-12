@@ -23,9 +23,10 @@ import six
 from six.moves.urllib.parse import quote
 
 from xrdsst import models
-from xrdsst.api_client.rate_limit import limit_rate
+from xrdsst.api_client.extensions import limit_rate, extended_api_ex
 from xrdsst.configuration.configuration import Configuration
 from xrdsst.rest import rest
+from xrdsst.rest.rest import ApiException
 
 
 class ApiClient(object):
@@ -100,10 +101,19 @@ class ApiClient(object):
 
         limit_rate('/'.join(self.configuration.host.split('/')[:3]))
 
-        return self.__ratelimited_call_api(
-            resource_path, method, path_params, query_params, header_params, body, post_params, files, response_type,
-            auth_settings, _return_http_data_only, collection_formats, _preload_content, _request_timeout
-        )
+        try:
+            return self.__ratelimited_call_api(
+                resource_path, method, path_params, query_params, header_params, body, post_params, files, response_type,
+                auth_settings, _return_http_data_only, collection_formats, _preload_content, _request_timeout
+            )
+        except ApiException as aex:
+            raise extended_api_ex(
+                aex, self, resource_path, method, path_params,
+                query_params, header_params, body, post_params,
+                files, response_type, auth_settings,
+                _return_http_data_only, collection_formats,
+                _preload_content, _request_timeout
+            )
 
     def __ratelimited_call_api(
             self, resource_path, method, path_params=None,

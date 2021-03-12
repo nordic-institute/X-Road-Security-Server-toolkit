@@ -1,4 +1,5 @@
 from xrdsst.controllers.base import BaseController
+from xrdsst.core.excplanation import http_status_code_to_text
 from xrdsst.core.util import default_sign_key_label, default_auth_key_label
 from xrdsst.main import opdep_init
 
@@ -31,3 +32,22 @@ def test_security_server_address_from_url():
     assert 'otherhost' == BaseController.security_server_address(security_server_config)
     security_server_config['url'] = 'http://192.168.1.33:4000/api/v1'
     assert '192.168.1.33' == BaseController.security_server_address(security_server_config)
+
+
+def test_http_status_code_to_text():
+    assert http_status_code_to_text(None) == ''
+
+    assert http_status_code_to_text(100) == 'CONTINUE'
+    assert http_status_code_to_text(200) == 'ALL_OKAY'  # /requests/ has more than OK.
+    assert http_status_code_to_text(307) == 'TEMPORARY_REDIRECT'
+    assert http_status_code_to_text(400) == 'BAD_REQUEST'
+    assert http_status_code_to_text(401) == 'UNAUTHORIZED'
+    assert http_status_code_to_text(403) == 'FORBIDDEN'
+    assert http_status_code_to_text(404) == 'NOT_FOUND'
+    assert http_status_code_to_text(405) == 'METHOD_NOT_ALLOWED'
+    assert http_status_code_to_text(409) == 'CONFLICT'
+    assert http_status_code_to_text(429) == 'TOO_MANY_REQUESTS'
+    assert http_status_code_to_text(451) == 'UNAVAILABLE_FOR_LEGAL_REASONS'
+    assert http_status_code_to_text(500) == 'INTERNAL_SERVER_ERROR'
+    assert http_status_code_to_text(501) == 'NOT_IMPLEMENTED'
+    assert http_status_code_to_text(511) == 'NETWORK_AUTHENTICATION_REQUIRED'
