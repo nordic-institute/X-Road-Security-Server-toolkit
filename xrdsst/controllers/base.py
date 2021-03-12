@@ -67,10 +67,13 @@ class BaseController(Controller):
                    " --header \'Content-Type: application/json\' -k"
         cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
               config["api_key"][0]["key"] + "\" niis@" + security_server["name"] + " \"" + curl_cmd + "\""
+        self.log_info("cmd: " + cmd)
         if os.path.isfile(config["api_key"][0]["key"]):
             try:
                 process = subprocess.getoutput(cmd)
+                self.log_info("PROCESS: " + str(process))
                 api_key_json = json.loads(process)
+                self.log_info("api_key: " + str(api_key_json))
                 self.api_key_id[security_server['name']] = api_key_json["id"]
                 self.log_info('API key \"' + api_key_json["key"] + '\" for security server ' + security_server['name'] +
                               ' created.')
