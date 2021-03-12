@@ -230,7 +230,6 @@ class EndToEndTest(unittest.TestCase):
         assert description["services"][0]["timeout"] == 120
         assert description["services"][0]["url"] == 'http://petstore.xxx'
 
-
     def step_autoconf(self):
         with XRDSSTTest() as app:
             with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
