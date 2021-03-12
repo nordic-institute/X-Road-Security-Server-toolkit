@@ -41,7 +41,7 @@ class EndToEndTest(unittest.TestCase):
                 self.create_api_key(api_key)
 
     def tearDown(self):
-        #self.revoke_api_key()
+        self.revoke_api_key()
         if self.config_file is not None:
             if os.path.exists(self.config_file):
                 os.remove(self.config_file)
