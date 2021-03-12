@@ -140,8 +140,8 @@ class EndToEndTest(unittest.TestCase):
         curl_cmd = "curl -X DELETE -u " + self.config["api_key"][0]["credentials"] + " --silent " + \
                    self.config["api_key"][0]["url"] + "/" + str(base.api_key_id[self.config["security_server"][0]['name']]) + " -k"
         cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-              self.config["api_key"][0]["key"] + "\" root@" + self.config["security_server"][0]["name"] + " \"" + curl_cmd + "\""
-        subprocess.run(cmd, shell=True, check=False, capture_output=True)
+              self.config["api_key"][0]["key"] + "\" niis@" + self.config["security_server"][0]["name"] + " \"" + curl_cmd + "\""
+        subprocess.getoutput(cmd)
 
     def step_cert_import(self):
         with XRDSSTTest() as app:

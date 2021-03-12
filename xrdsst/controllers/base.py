@@ -66,14 +66,10 @@ class BaseController(Controller):
                    config["api_key"][0]["url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
                    " --header \'Content-Type: application/json\' -k"
         cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-              config["api_key"][0]["key"] + "\" root@" + security_server["name"] + " \"" + curl_cmd + "\""
+              config["api_key"][0]["key"] + "\" niis@" + security_server["name"] + " \"" + curl_cmd + "\""
         if os.path.isfile(config["api_key"][0]["key"]):
             try:
-                #process = subprocess.run(cmd, shell=True, check=False, capture_output=True)
-                #api_key_json = json.loads(str(process.stdout, 'utf-8').strip())
-                #process = subprocess.check_output(cmd, shell=True)
                 process = subprocess.getoutput(cmd)
-                self.log_info("PROCESS: " + str(process))
                 api_key_json = json.loads(process)
                 self.api_key_id[security_server['name']] = api_key_json["id"]
                 self.log_info('API key \"' + api_key_json["key"] + '\" for security server ' + security_server['name'] +
