@@ -190,7 +190,7 @@ def revoke_api_key(app):
                 curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
                            config["api_key"][0]["url"] + "/" + str(api_key_id[ssn]) + " -k"
                 cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                      config["api_key"][0]["key"] + "\" root@" + ssn + " \"" + curl_cmd + "\""
+                      config["api_key"][0]["key"] + "\" niis@" + ssn + " \"" + curl_cmd + "\""
                 exitcode, data = subprocess.getstatusoutput(cmd)
                 api_key_token = app.api_keys[ssn].split('=')[1]
                 if exitcode == 0:
