@@ -69,12 +69,15 @@ class BaseController(Controller):
               config["api_key"][0]["key"] + "\" niis@" + security_server["name"] + " \"" + curl_cmd + "\""
         if os.path.isfile(config["api_key"][0]["key"]):
             try:
-                process = subprocess.getoutput(cmd)
-                api_key_json = json.loads(process)
-                self.api_key_id[security_server['name']] = api_key_json["id"]
-                self.log_info('API key \"' + api_key_json["key"] + '\" for security server ' + security_server['name'] +
-                              ' created.')
-                return api_key_json["key"]
+                exitcode, data = subprocess.getstatusoutput(cmd)
+                if exitcode == 0:
+                    api_key_json = json.loads(data)
+                    self.api_key_id[security_server['name']] = api_key_json["id"]
+                    self.log_info('API key \"' + api_key_json["key"] + '\" for security server ' + security_server['name'] +
+                                  ' created.')
+                    return api_key_json["key"]
+                else:
+                    self.log_api_error('API key creation for security server ' + security_server['name'] + ' failed.')
             except Exception as err:
                 self.log_api_error('BaseController->create_api_key:', err)
         else:

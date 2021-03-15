@@ -61,18 +61,23 @@ run_ansible_script() {
 }
 
 add_public_key() {
+    ssh_user=$2
+    ssh_key=$3
+    ssh_folder_name=$4
+    auth_keys_file_name=$5
+
     names=$(echo "$1" | tr "," "\n")
     for name in $names
     do
-        printf "\nAdding public key to LXD container %s\n" "$name"
-        lxc exec "$name" -- bash -c "useradd -c \"$2 user\" -d /home/$2 -s /bin/bash $2"
-        lxc exec "$name" -- bash -c "echo \"$2 ALL=(ALL) NOPASSWD: ALL\" > /etc/sudoers.d/$2"
-        lxc exec "$name" -- bash -c "mkdir -p /home/$2/$4"
-        lxc exec "$name" -- bash -c "echo \"$(cat "$3")\" > /home/$2/$4/$5"
-        lxc exec "$name" -- bash -c "chown -R $2:$2 /home/$2"
-        lxc exec "$name" -- bash -c "chmod 0700 /home/$2"
-        lxc exec "$name" -- bash -c "chmod 0700 /home/$2/$4"
-        lxc exec "$name" -- bash -c "chmod 0600 /home/$2/$4/$5"
+        printf "\nAdding public key to LXD container \"%s\" for user \"%s\"\n with SSH key \"%s\"\n" "$name" "$ssh_user" "$ssh_key"
+        lxc exec "$name" -- bash -c "useradd -c \"$ssh_user user\" -d /home/$ssh_user -s /bin/bash $ssh_user"
+        lxc exec "$name" -- bash -c "echo \"$ssh_user ALL=(ALL) NOPASSWD: ALL\" > /etc/sudoers.d/$ssh_user"
+        lxc exec "$name" -- bash -c "mkdir -p /home/$ssh_user/$ssh_folder_name"
+        lxc exec "$name" -- bash -c "echo \"$(cat "$ssh_key")\" > /home/$ssh_user/$ssh_folder_name/$auth_keys_file_name"
+        lxc exec "$name" -- bash -c "chown -R $ssh_user:$ssh_user /home/$ssh_user"
+        lxc exec "$name" -- bash -c "chmod 0700 /home/$ssh_user"
+        lxc exec "$name" -- bash -c "chmod 0700 /home/$ssh_user/$ssh_folder_name"
+        lxc exec "$name" -- bash -c "chmod 0600 /home/$ssh_user/$ssh_folder_name/$auth_keys_file_name"
     done
 }
 
