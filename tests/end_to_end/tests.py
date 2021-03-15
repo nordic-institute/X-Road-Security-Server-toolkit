@@ -140,8 +140,10 @@ class EndToEndTest(unittest.TestCase):
         curl_cmd = "curl -X DELETE -u " + self.config["api_key"][0]["credentials"] + " --silent " + \
                    self.config["api_key"][0]["url"] + "/" + str(base.api_key_id[self.config["security_server"][0]['name']]) + " -k"
         cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-              self.config["api_key"][0]["key"] + "\" root@" + self.config["security_server"][0]["name"] + " \"" + curl_cmd + "\""
-        subprocess.run(cmd, shell=True, check=False, capture_output=True)
+              self.config["api_key"][0]["key"] + "\" niis@" + self.config["security_server"][0]["name"] + " \"" + curl_cmd + "\""
+        exitcode, data = subprocess.getstatusoutput(cmd)
+        if exitcode != 0:
+            self.log_api_error('API key revoking for security server ' + self.config["security_server"][0]['name'] + ' failed.')
 
     def step_cert_import(self):
         with XRDSSTTest() as app:
@@ -229,7 +231,6 @@ class EndToEndTest(unittest.TestCase):
         description = get_service_description(self.config, client_id)
         assert description["services"][0]["timeout"] == 120
         assert description["services"][0]["url"] == 'http://petstore.xxx'
-
 
     def step_autoconf(self):
         with XRDSSTTest() as app:
