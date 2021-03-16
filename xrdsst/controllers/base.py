@@ -22,10 +22,12 @@ from urllib.parse import urlparse
 
 from definitions import ROOT_DIR
 from xrdsst.core.conf_keys import validate_conf_keys, ConfKeysSecurityServer, ConfKeysRoot
+from xrdsst.core.excplanation import Excplanatory
 from xrdsst.core.util import op_node_to_ctr_cmd_text, RE_API_KEY_HEADER
 from xrdsst.core.version import get_version
 from xrdsst.resources.texts import texts
 from xrdsst.configuration.configuration import Configuration
+from xrdsst.rest.rest import ApiException
 
 BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_banner()
 
@@ -408,9 +410,16 @@ class BaseController(Controller):
             self.log_info(skip_msg)
 
     @staticmethod
-    def log_api_error(api_method, exception):
-        logging.error("Exception calling " + api_method + ": " + str(exception))
-        print("Exception calling " + api_method + ": " + str(exception), file=sys.stderr)
+    def log_api_error(msg, exception):
+        if issubclass(exception.__class__, ApiException):
+            # Ignore the rudimental /msg/
+            excplanatory = Excplanatory(exception)
+            print(excplanatory.to_multiline_string(), file=sys.stderr)
+            return
+
+        # Clueless of root causes.
+        logging.error("Exception calling " + msg + ": " + str(exception))
+        print("Exception calling " + msg + ": " + str(exception), file=sys.stderr)
 
     @staticmethod
     def log_info(message):

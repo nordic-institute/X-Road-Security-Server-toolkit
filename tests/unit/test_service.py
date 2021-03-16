@@ -43,7 +43,7 @@ class TestService(unittest.TestCase):
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': 'X-Road-apikey token=api-key',
+              'api_key': 'X-Road-apikey token=33333333-3000-4000-b000-939393939393',
               'clients': [
                   {
                       'member_class': 'GOV',
@@ -125,7 +125,7 @@ class TestService(unittest.TestCase):
     def test_service_description_add_client_not_found(self):
         class ClientNotFound:
             status = 404
-            data = '{"status":404,"error":{"code":"service_description_client_not_foubd"}}'
+            data = '{"status":404,"error":{"code":"service_description_client_not_found"}}'
             reason = None
 
             def getheaders(self): return None
@@ -140,7 +140,7 @@ class TestService(unittest.TestCase):
                 service_controller.add_description()
 
                 out, err = self.capsys.readouterr()
-                assert err.count("ClientsApi->find_clients") > 0
+                assert err.count("service_description_client_not_found") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
@@ -184,7 +184,7 @@ class TestService(unittest.TestCase):
     def test_service_description_add_other_exception(self):
         class PermissionDeniedResponse:
             status = 403
-            data = '{"status":409,"error":{"code":"service_description_permission_denied"}}'
+            data = '{"status":403,"error":{"code":"service_description_permission_denied"}}'
             reason = None
 
             def getheaders(self): return None
@@ -210,7 +210,7 @@ class TestService(unittest.TestCase):
                     service_controller.add_description()
 
                     out, err = self.capsys.readouterr()
-                    assert err.count("ClientsApi->add_client_service_description") > 0
+                    assert err.count("service_description_permission_denied") > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)

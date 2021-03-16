@@ -60,7 +60,7 @@ def is_ss_connectable(ss_url, sock_timeout=1):
     from socket import SOCK_STREAM, SHUT_RDWR, socket, AF_INET, error
     from urllib.parse import urlparse
     from urllib.error import URLError
-    from xrdsst.api_client.rate_limit import limit_rate
+    from xrdsst.api_client.extensions import limit_rate
 
     def has_protocol_host_port(url):
         try:
