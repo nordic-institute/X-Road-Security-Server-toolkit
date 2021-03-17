@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.7-alpha.0] - 2021-03-17
+- added failure handling / error interpretation and recovery section to user guide
+- output tuning for 'token init-keys' reporting
+- mention 'cert downloads-csrs' directly when 'cert import' execution is reached
+  but missing 'certificates' element for security server
+
 ## [0.2.6-alpha.0] - 2021-03-12
 - Extended proxy error handling and feedback, ASCII diagrams included.
 
