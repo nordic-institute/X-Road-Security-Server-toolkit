@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.2
+Version: 1.2.3
 Doc. ID: XRDSST-CONF
 
 ---
@@ -24,33 +24,41 @@ Doc. ID: XRDSST-CONF
 | 17.02.2021 | 1.2.0       | Updates to the user guide                                                    | Bert Viikmäe       |
 | 22.02.2021 | 1.2.1       | Update service management                                                    | Bert Viikmäe       |
 | 23.02.2021 | 1.2.2       | Update service management                                                    | Bert Viikmäe       |
+| 17.03.2021 | 1.2.3       | Describe failure interpretation and recovery                                 | Taimo Peelo        |
 
 ## Table of Contents <!-- omit in toc -->
 
 <!-- toc -->
 <!-- vim-markdown-toc GFM -->
 
-- [License](#license)
-- [1. Introduction](#1-introduction)
-  - [1.1 Target Audience](#11-target-audience)
-- [2. Installation](#2-installation)
-  - [2.1 Prerequisites to Installation](#21-prerequisites-to-installation) 
-  - [2.2 Installation procedure](#22-installation-procedure)  
-- [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
-  - [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
-  - [3.2 Format of configuration file](#32-format-of-configuration-file)
-  - [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)  
-- [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
-  - [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
-  - [4.2 Initializing the security server](#42-initializing-the-security-server)
-  - [4.3 Logging in a single software token](#43-logging-in-a-single-software-token)
-  - [4.4 Listing security server tokens](#44-listing-security-server-tokens)
-  - [4.5 Configuring security server to use single approved timestamping service](#45-configuring-security-server-to-use-single-approved-timestamping-service)
-  - [4.6 Initializing token keys and corresponding certificate signing requests](#46-initializing-token-keys-and-corresponding-certificate-signing-requests)
-  - [4.7 Certificate management](#47-certificate-management)
-  - [4.8 Client management](#48-client-management)
-  - [4.9 Service management](#49-service-management)
-	
+* [License](#license)
+* [1. Introduction](#1-introduction)
+	* [1.1 Target Audience](#11-target-audience)
+* [2. Installation](#2-installation)
+	* [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
+	* [2.2 Installation procedure](#22-installation-procedure)
+* [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
+	* [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
+	* [3.2 Format of configuration file](#32-format-of-configuration-file)
+	* [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
+* [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
+	* [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
+	* [4.2 Initializing the security server](#42-initializing-the-security-server)
+	* [4.3 Logging in a single software token](#43-logging-in-a-single-software-token)
+	* [4.4 Listing security server tokens](#44-listing-security-server-tokens)
+	* [4.5 Configuring security server to use single approved timestamping service](#45-configuring-security-server-to-use-single-approved-timestamping-service)
+	* [4.6 Initializing token keys and corresponding certificate signing requests](#46-initializing-token-keys-and-corresponding-certificate-signing-requests)
+	* [4.7 Certificate management](#47-certificate-management)
+	* [4.8 Client management](#48-client-management)
+	* [4.9 Service management](#49-service-management)
+* [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
+	* [5.1 Configuration flow](#51-configuration-flow)
+	* [5.2 First-run failures](#52-first-run-failures)
+	* [5.3 Configuration file errors](#53-configuration-file-errors)
+		* [5.3.1 Malformed YAML](#531-malformed-yaml)
+		* [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
+	* [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
+
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
 
@@ -270,3 +278,209 @@ Further subsystem registration can proceed with ``xrdsst client register``.
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
 Adding access to services is performed  with ``xrdsst service add-access``. Service parameters are updated with ``xrdsst service update-parameters``.
+
+## 5 Failure recovery and interpretation of errors
+> "In failure, software reveals its structure" -- Kevlin Henney
+
+It is essential to have a firm grip on both *what* is going and *where* in the
+distributed system to fix upcoming problems encountered while using the toolkit.
+For single configuration operations, it is important that those are performed in
+non-conflicting order, e.g. it is impossible to perform most token operations
+before the token has been logged in. If this order is not respected, the output
+from the application will refer to the commands which successful application
+is required to be completed beforehand, e.g.:
+
+```sh
+$ xrdsst -c brandnew.yaml client add
+SKIPPED 'ss8': has ['init', 'token login', 'token init-keys'] performed but also 
+needs ['cert import', 'cert register', 'cert activate'] completion before continuing
+with requested ['client add']
+```
+lists three certificate operations (``import``, ``register``, ``activate``)
+that should be then given in specified order, and if these have been completed
+succesfully, the desired command should also be ready for either successful execution
+or a failure for completely new reason.
+
+### 5.1 Configuration flow
+
+As demonstrated above, the operation order is most relevant to understand when
+using single-operations for (re-)applying some part of security server configuration.
+When using the ``xrdsst apply`` autoconfiguration, operations will already be performed
+in correct functional order.
+
+The operation graph in its dependency order is shown below, node names matching
+the single configuration operation commands of the toolkit. Non-continuous borders
+either mark commands that are not part of autoconfiguration (``cert download-csrs``) or
+take place entirely outside of the toolkit, like getting certificate signing requests
+(CSRs) signed at the approved certificate authority (CA).
+
+
+![Flow](img/flow.svg)
+
+### 5.2 First-run failures
+
+When autoconfiguration for the server fails at step that is required prerequisite
+for successive operations, current server configuration will be stopped with error
+message and current server status report (as from ``xrdsst status``), before
+continuing with configuration of other servers, if any are present in the used
+configuration.
+
+Typical error message for the first autoconfiguration run for a single server usually
+ends with error message that asks to download and sign the CSRs to acquire certificates
+that should be then added to the configuration file:
+
+```sh
+$ xrdsst -c brandnew.yaml apply
+API key "d8cd2476-c8dc-420a-bcc2-c8636766661b" for security server ss8 created.
+AUTO ['init']->'ss8'
+Uploading configuration anchor for security server: ss8
+Upload of configuration anchor from "/home/user/demo-anchor.xml" successful
+Initializing security server: ss8
+Security server "ss8" initialized
+# ..
+# timestamp service initialization and token login operation output omitted here
+# ...
+AUTO ['token init-keys']->'ss8'
+Generating software token 0 key labelled 'ss8-default-auth-key' and AUTH CSR:
+Generating software token 0 key labelled 'ss8-default-sign-key' and SIGN CSR:
+Created AUTHENTICATION CSR 'A75BC748F158319B7DC73FD85D9C7DBB373F91B5' for key 'D46DF41D2BE2FE2381A45DA312FA205B0531CA3C' as 'ss8-default-auth-key'
+Created SIGNING CSR '681EAB6E3A6C53448B468B4A61E1E66086FCE44A' for key '2C3C75DABE875EA1F1DBE5A7368838A861288A16' as 'ss8-default-sign-key'
+AUTO ['cert import']->'ss8'
+SKIPPED 'ss8':
+        'ss8' [cert import]: 'certificates' missing required value. Get CSRs ['cert download-csrs'] signed at approved CA and fill element accordingly.
+AUTO ['cert import'] completion was NOT detected.
+Some operations require waiting for global configuration renewal.
+Next AUTO operation would have been ['cert register'].
+AUTO ['status']->'ss8' AT THE END OF AUTOCONFIGURATION.
+
+╒══════════════════╤═════════════════════════╤══════════════════════╤════════════════════╤══════════╤═════════════╤══════════╤══════════╤═════════╕
+│ GLOBAL           │ SERVER                  │ ROLES                │ INIT               │ TSAS     │ TOKEN       │ KEYS     │ CSRS     │ CERTS   │
+╞══════════════════╪═════════════════════════╪══════════════════════╪════════════════════╪══════════╪═════════════╪══════════╪══════════╪═════════╡
+│ FAIL (INTERNAL)  │ ss8                     │ System Administrator │ ANCHOR INITIALIZED │ Test TSA │ ID 0        │ SIGN (1) │ SIGN (1) │         │
+│ LAST 130913 0317 │ VER 6.25.0              │ Service Administrator│ CODE INITIALIZED   │          │ softToken-0 │ AUTH (1) │ AUTH (1) │         │
+│ NEXT 131013 0317 │ DEV:GOV:9876:UNS-BRNDNW │ Registration Officer │ OWNER INITIALIZED  │          │ STATUS OK   │ 2 KEYS   │ 2 CSRS   │         │
+│                  │                         │ Security Officer     │ TOKEN INITIALIZED  │          │ LOGIN YES   │          │          │         │
+╘══════════════════╧═════════════════════════╧══════════════════════╧════════════════════╧══════════╧═════════════╧══════════╧══════════╧═════════╛
+```
+
+To continue from there, ``xrdsst cert download-csrs`` single operation should be
+used to download certificate signing requests, which should then be submitted to
+X-Road approved CA for signing. Global status failure (``INTERNAL``) reported in
+the first status column here is also typical of the first run, as the state
+synchronizations have not been completed yet, which should resolve in short time, at
+the ``NEXT`` update time reported -- in any case long before the signed CSRs are
+acquired from the approved CA.
+
+Other columns in the given sample indicate that all operations have been success:
+ * ``SERVER`` shows server information successfully acquired.
+ * ``ROLES`` lists four roles for used API key, enough to execute all toolkit operations.
+ * ``INIT`` lists four successful initializations.
+ * ``TSAS`` shows single timestamping service selected successfully.
+ * ``TOKEN`` lists sofware token ID 0, its name, functioning status and succesful login.
+ * ``KEYS`` shows that token does have both SIGN and AUTH keys generated.
+ * ``CSRS`` shows that certificate signing requests for corresponding token keys were created.
+
+### 5.3 Configuration file errors
+
+#### 5.3.1 Malformed YAML
+
+Badly formed YAML results in parse error which gives exact line and column numbers to
+indicate the error location. With hierarchical configuration, several of these can be given,
+usually the last one reported refers to the actual error, e.g. misaligned client block at
+line 32 below:
+
+```yaml
+# ... SNIPPED
+security_server:                                                     # line 11
+- api_key: X-Road-apikey token=8d527381-80c1-4910-a259-7e3c23253397  # line 12
+# ... SNIPPED
+  clients:                                                           # line 27
+    - member_class: GOV                                              # line 28
+      member_code: 9876                                              # line 29
+      subsystem_code: GOOD_SUB                                       # line 30
+      connection_type: HTTPS                                         # line 31
+   - member_class: GOV                                               # line 32
+      member_code: 9876                                              # line 33
+      subsystem_code: FAILED_SUB                                     # line 34
+      connection_type: HTTPS                                         # line 35
+# ... SNIPPED
+```
+
+is reported as:
+
+```sh
+Error parsing config: while parsing a block mapping
+  in "block-err.yaml", line 12, column 3
+expected <block end>, but found '<block sequence start>'
+  in "block-err.yaml", line 32, column 4
+```
+
+indicating that object starting in 3rd column of line 12 could not be formed
+successfully, concrete error being misaligned block at 4th column of line 32.
+
+#### 5.3.2 Other configuration file errors
+
+Configuration can also be rejected for syntax errors (misspelled elements) or
+due to violation of logical constraints (e.g. multiple servers defined with the
+same URL).
+
+These messages should be mostly self-explanatory. In case of multiple elements,
+missing some required fields, the **one**-based index of the erroneous element is
+given, e.g:
+
+```
+security_server[1] missing required 'name' definition.
+security_server[1] missing required 'url' definition.
+security_server[3] missing required 'url' definition.
+```
+indicates that 1st and 3rd security server definitions with specified errors,
+(NOT 2nd and 4th).
+
+### 5.4 Errors from internal and external systems
+
+As base configuration for the server gets sorted out, the likelihood of encountering
+errors originating from other parts of the distributed system increases. Unless these
+parts also happen to be under the control of the toolkit user, it means that failure
+usually cannot be addressed immediately (though it might resolve with time) and most
+direct way to proceed towards resolve will be to contact the IT-department or
+administrators of the organization responsible for the X-Road system from where the error
+originates.
+
+Toolkit itself tries to point out the error source, CLIENT proxy errors happen straight
+at the configured server and can be often addressed immediately, but SERVER proxy 
+or Service PROVIDER errors will require reaching out externally. For client proxy errors
+that are more common, there are sometimes messages given about their possible causes and
+sometimes even hints of possible solutions. For server proxy errors, as much of the
+information is shown as acquired from SERVER proxy or service PROVIDER information
+system behind SERVER proxy:
+
+```sh
+$ xrdsst client register
+# ... SNIPPED ...
+FAILED
+  PUT /clients/{id}/register @ clients_api.py#register_client <- client.py#remote_register_client
+  INTERNAL_SERVER_ERROR (500), error_code 'core.Server.ServerProxy.ServiceDisabled'
+  ['Service SERVICE:DEV/GOV/9876/MANAGEMENT/clientReg is disabled: some reason']
+  Security server (SERVER Proxy) has disabled the service, maybe temporarily.
+
+
+  ╒═Trusted Network═╕                          . INTERNET .                         ╒═Trusted Network══╕
+  │                 │      ╒══════════╕       .             .     ╒══════════╕      │                  │
+  │                 │      │ Security │      |               |    │ Security │      │/ Service (REST)  │
+  │  xrdsst (REST) -│- ->- │\ Server /│- ->- | - - ->- - - - | ->-│\ Server /│- ->- │                  │
+  │                 │      │ - ->- -  │       .             .     │ - ->- -  │      │\ Service (SOAP)  │
+  │                 │      ╘══════════╛        .          .       ╘══════════╛      │                  │
+  ╘═════════════════╛                            INTRANET                           ╘══════════════════╛
+  
+   Service CONSUMER        CLIENT Proxy                           SERVER Proxy        Service PROVIDER
+
+```
+
+Above is example toolkit output for a case where management services in separate
+security server have been disabled and ``xrdsst client register`` unable proceed.
+This is one of these cases where management services security server is somewhat 
+likely to belong to the same organization and thus the error might be able to be 
+sorted out inside organization, getting the services enabled again. In any case,
+the key to successfully resolving such situations is to pay careful attention
+to the error messages and accompanying ASCII diagram with message flow, to not
+spend time at searching for the problem in the wrong places.
