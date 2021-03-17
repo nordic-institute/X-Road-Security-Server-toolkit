@@ -205,7 +205,7 @@ class TokenController(BaseController):
             token_api = TokensApi(ApiClient(ss_configuration))
             if not has_auth_key:
                 try:
-                    BaseController.log_info('Generating software token ' + str(token_id) + ' key labelled ' + auth_key_label + ' and AUTH CSR: ')
+                    BaseController.log_info('Generating software token ' + str(token_id) + " key labelled '" + auth_key_label + "' and AUTH CSR: ")
                     response = token_api.add_key_and_csr(token_id, body=auth_key_req_param)
                     responses.append(response)
                 except ApiException as err:
