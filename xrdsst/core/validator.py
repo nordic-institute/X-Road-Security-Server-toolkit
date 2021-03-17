@@ -110,7 +110,7 @@ def validate_config_cert_import(ss_config, operation, errors):
 
     if not require_fill(ConfKeysSecurityServer.CONF_KEY_CERTS, ss_config, operation, errors):
         # Since this is such a special case, amend the error message slightly for further clues.
-        errors.append(errors.pop() + " Submit downloaded CSRs for signing and specify received certificates accordingly.")
+        errors.append(errors.pop() + " Get CSRs ['cert download-csrs'] signed at approved CA and fill element accordingly.")
     else:
         # List conversion to dict is bit stupid here, but at the moment sufficient, if similar crops up, go multi-type with require_*.
         certs_config = copy.deepcopy(ss_config[ConfKeysSecurityServer.CONF_KEY_CERTS])
