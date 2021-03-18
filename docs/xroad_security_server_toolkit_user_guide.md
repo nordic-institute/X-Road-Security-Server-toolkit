@@ -321,13 +321,13 @@ take place entirely outside of the toolkit, like getting certificate signing req
 
 When autoconfiguration for the server fails at step that is required prerequisite
 for successive operations, current server configuration will be stopped with error
-message and current server status report (as from ``xrdsst status``), before
+message and current server status report shown (as from ``xrdsst status``), before
 continuing with configuration of other servers, if any are present in the used
 configuration.
 
-Typical error message for the first autoconfiguration run for a single server usually
-ends with error message that asks to download and sign the CSRs to acquire certificates
-that should be then added to the configuration file:
+Typical end for the first autoconfiguration run for a single server usually
+is an error message that asks to download and sign the CSRs to acquire certificates
+that are to be added to the configuration file:
 
 ```sh
 $ xrdsst -c brandnew.yaml apply
@@ -477,9 +477,9 @@ FAILED
 ```
 
 Above is example toolkit output for a case where management services in separate
-security server have been disabled and ``xrdsst client register`` unable proceed.
+security server have been disabled and ``xrdsst client register`` unable to proceed.
 This is one of these cases where management services security server is somewhat 
-likely to belong to the same organization and thus the error might be able to be 
+likely to belong to the same organization, and thus the error might be
 sorted out inside organization, getting the services enabled again. In any case,
 the key to successfully resolving such situations is to pay careful attention
 to the error messages and accompanying ASCII diagram with message flow, to not
