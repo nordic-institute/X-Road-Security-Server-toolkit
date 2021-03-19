@@ -41,10 +41,16 @@ class EndToEndTest(unittest.TestCase):
                 self.create_api_key(api_key)
 
     def tearDown(self):
-        self.revoke_api_key()
-        if self.config_file is not None:
-            if os.path.exists(self.config_file):
-                os.remove(self.config_file)
+        with XRDSSTTest() as app:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            base = BaseController()
+            base.app = app
+            api_key_id = app.Meta.handlers[0].api_key_id
+            if api_key_id:
+                self.revoke_api_key()
+            if self.config_file is not None:
+                if os.path.exists(self.config_file):
+                    os.remove(self.config_file)
 
     def step_init(self):
         init = InitServerController()
@@ -143,7 +149,7 @@ class EndToEndTest(unittest.TestCase):
               self.config["api_key"][0]["key"] + "\" niis@" + self.config["security_server"][0]["name"] + " \"" + curl_cmd + "\""
         exitcode, data = subprocess.getstatusoutput(cmd)
         if exitcode != 0:
-            self.log_api_error('API key revoking for security server ' + self.config["security_server"][0]['name'] + ' failed.')
+            base.log_api_error('EndtoEndTest.revoke_api_key', 'API key revoking for security server ' + self.config["security_server"][0]['name'] + ' failed.')
 
     def step_cert_import(self):
         with XRDSSTTest() as app:
