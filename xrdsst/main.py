@@ -184,7 +184,7 @@ def revoke_api_key(app):
             if not os.path.exists(config_file):
                 config_file = os.path.join("..", config_file)
             with open(config_file, "r") as yml_file:
-                config = yaml.load(yml_file, Loader=yaml.FullLoader)
+                config = yaml.safe_load(yml_file)
             for ssn in api_key_id.keys():
                 logging.debug('Revoking API key for security server ' + ssn)
                 curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
