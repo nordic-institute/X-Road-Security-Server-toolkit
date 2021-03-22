@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8-alpha.0] - 2021-03-22
+- default configuration file config/(base.yaml) -> (xrdsst.yml)
+- replace security server 'name' use for SSH connection attempts with /host/
+- remove all YAML loading not done via safe_load (SafeLoader)
+
 ## [0.2.7-alpha.0] - 2021-03-17
 - added failure handling / error interpretation and recovery section to user guide
 - output tuning for 'token init-keys' reporting
