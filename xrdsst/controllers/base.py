@@ -61,22 +61,22 @@ class BaseController(Controller):
 
     def create_api_key(self, roles_list, config, security_server):
         self.log_debug('Creating API key for security server: ' + security_server['name'])
-        roles = []
-        for role in roles_list:
-            roles.append(role)
+        roles = list(roles_list)
         curl_cmd = "curl -X POST -u " + config["api_key"][0]["credentials"] + " --silent " + \
                    config["api_key"][0]["url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
                    " --header \'Content-Type: application/json\' -k"
-        cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-              config["api_key"][0]["key"] + "\" niis@" + security_server["name"] + " \"" + curl_cmd + "\""
+        cmd = 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" niis@{} "{}"'.format(
+            config["api_key"][0]["key"], self.security_server_address(security_server), curl_cmd
+        )
         if os.path.isfile(config["api_key"][0]["key"]):
             try:
                 exitcode, data = subprocess.getstatusoutput(cmd)
                 if exitcode == 0:
                     api_key_json = json.loads(data)
-                    self.api_key_id[security_server['name']] = api_key_json["id"]
+                    self.api_key_id[security_server['name']] = api_key_json["id"], self.security_server_address(security_server)
                     self.log_info('API key \"' + api_key_json["key"] + '\" for security server ' + security_server['name'] +
-                                  ' created.')
+                                  ' created')
+
                     return api_key_json["key"]
                 else:
                     self.log_api_error('API key creation for security server ' + security_server['name'] + ' failed.')
