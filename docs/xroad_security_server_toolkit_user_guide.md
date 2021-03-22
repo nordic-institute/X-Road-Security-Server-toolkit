@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.3
+Version: 1.2.4
 Doc. ID: XRDSST-CONF
 
 ---
@@ -25,6 +25,8 @@ Doc. ID: XRDSST-CONF
 | 22.02.2021 | 1.2.1       | Update service management                                                    | Bert Viikmäe       |
 | 23.02.2021 | 1.2.2       | Update service management                                                    | Bert Viikmäe       |
 | 17.03.2021 | 1.2.3       | Describe failure interpretation and recovery                                 | Taimo Peelo        |
+| 22.03.2021 | 1.2.4       | Default configuration from config/base.yaml -> config/xrdsst.yml             | Taimo Peelo        |
+
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -195,7 +197,7 @@ described with the service description, the parameters ``service_code`` and ``ac
 
 ### 3.3 Different ways of using the configuration file
 
-* default configuration in config/base.yaml
+* default configuration in ``config/xrdsst.yml``
 * overriding the default configuration by providing an extra parameter ``-c configfile`` when running the X-Road Security Server Toolkit
 
 ## 4 Running the X-Road Security Server Toolkit

@@ -33,6 +33,7 @@ BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_ban
 
 
 class BaseController(Controller):
+    _DEFAULT_CONFIG_FILE = "config/xrdsst.yml"
     class Meta:
         label = 'base'
         stacked_on = 'base'
@@ -45,7 +46,7 @@ class BaseController(Controller):
     def get_server_status(api_config, ss_config):
         return xrdsst.core.api_util.status_server(api_config, ss_config)  # Allow somewhat sane mocking.
 
-    config_file = os.path.join(ROOT_DIR, "config/base.yaml")
+    config_file = os.path.join(ROOT_DIR, _DEFAULT_CONFIG_FILE)
     config = None
     api_key_id = {}
 
@@ -54,10 +55,9 @@ class BaseController(Controller):
         # Top level configuration file specification only
         if (issubclass(BaseController, self.__class__)) and issubclass(self.__class__, BaseController):
             parser.add_argument('-c', '--configfile',
-                                # TODO after the conventional name and location for config file gets figured out, extract to texts
-                                help="Specify configuration file to use instead of default 'config/base.yaml'",
+                                help=texts['root.parameter.configfile.description'],
                                 metavar='file',
-                                default=os.path.join(ROOT_DIR, "config/base.yaml"))  # TODO extract to consts after settling on naming
+                                default=os.path.join(ROOT_DIR, BaseController._DEFAULT_CONFIG_FILE))
 
     def create_api_key(self, roles_list, config, security_server):
         self.log_debug('Creating API key for security server: ' + security_server['name'])
@@ -75,8 +75,7 @@ class BaseController(Controller):
                     api_key_json = json.loads(data)
                     self.api_key_id[security_server['name']] = api_key_json["id"], self.security_server_address(security_server)
                     self.log_info('API key \"' + api_key_json["key"] + '\" for security server ' + security_server['name'] +
-                                  ' created')
-
+                                  ' created.')
                     return api_key_json["key"]
                 else:
                     self.log_api_error('API key creation for security server ' + security_server['name'] + ' failed.')

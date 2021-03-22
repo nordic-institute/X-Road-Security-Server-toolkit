@@ -3,6 +3,9 @@ texts = {
     'app.description': 'A toolkit for configuring security server',
     'app.label': 'xrdsst',
 
+    # Root application parameters
+    'root.parameter.configfile.description': "Specify configuration file to use instead of default 'config/xrdsst.yml'",
+
     # Controllers
     'auto.controller.description': 'Automatically performs all operations possible with configuration.',
     'cert.controller.description': 'Commands for performing certificate operations.',
