@@ -33,6 +33,7 @@ BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_ban
 
 
 class BaseController(Controller):
+    _DEFAULT_CONFIG_FILE = "config/xrdsst.yml"
     class Meta:
         label = 'base'
         stacked_on = 'base'
@@ -45,7 +46,7 @@ class BaseController(Controller):
     def get_server_status(api_config, ss_config):
         return xrdsst.core.api_util.status_server(api_config, ss_config)  # Allow somewhat sane mocking.
 
-    config_file = os.path.join(ROOT_DIR, "config/base.yaml")
+    config_file = os.path.join(ROOT_DIR, _DEFAULT_CONFIG_FILE)
     config = None
     api_key_id = {}
 
@@ -54,27 +55,25 @@ class BaseController(Controller):
         # Top level configuration file specification only
         if (issubclass(BaseController, self.__class__)) and issubclass(self.__class__, BaseController):
             parser.add_argument('-c', '--configfile',
-                                # TODO after the conventional name and location for config file gets figured out, extract to texts
-                                help="Specify configuration file to use instead of default 'config/base.yaml'",
+                                help=texts['root.parameter.configfile.description'],
                                 metavar='file',
-                                default=os.path.join(ROOT_DIR, "config/base.yaml"))  # TODO extract to consts after settling on naming
+                                default=os.path.join(ROOT_DIR, BaseController._DEFAULT_CONFIG_FILE))
 
     def create_api_key(self, roles_list, config, security_server):
         self.log_debug('Creating API key for security server: ' + security_server['name'])
-        roles = []
-        for role in roles_list:
-            roles.append(role)
+        roles = list(roles_list)
         curl_cmd = "curl -X POST -u " + config["api_key"][0]["credentials"] + " --silent " + \
                    config["api_key"][0]["url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
                    " --header \'Content-Type: application/json\' -k"
-        cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-              config["api_key"][0]["key"] + "\" niis@" + security_server["name"] + " \"" + curl_cmd + "\""
+        cmd = 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" niis@{} "{}"'.format(
+            config["api_key"][0]["key"], self.security_server_address(security_server), curl_cmd
+        )
         if os.path.isfile(config["api_key"][0]["key"]):
             try:
                 exitcode, data = subprocess.getstatusoutput(cmd)
                 if exitcode == 0:
                     api_key_json = json.loads(data)
-                    self.api_key_id[security_server['name']] = api_key_json["id"]
+                    self.api_key_id[security_server['name']] = api_key_json["id"], self.security_server_address(security_server)
                     self.log_info('API key \"' + api_key_json["key"] + '\" for security server ' + security_server['name'] +
                                   ' created.')
                     return api_key_json["key"]

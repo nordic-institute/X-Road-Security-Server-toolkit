@@ -57,7 +57,7 @@ class TestBaseController(unittest.TestCase):
             yaml.dump(TestBaseController._ss_config, yml_file)
         base_controller = BaseController()
         with open(temp_file_name, "r") as yml_file:
-            cfg = yaml.load(yml_file, Loader=yaml.FullLoader)
+            cfg = yaml.safe_load(yml_file)
 
         assert cfg is not None
 

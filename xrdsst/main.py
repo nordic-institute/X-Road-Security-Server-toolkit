@@ -184,13 +184,13 @@ def revoke_api_key(app):
             if not os.path.exists(config_file):
                 config_file = os.path.join("..", config_file)
             with open(config_file, "r") as yml_file:
-                config = yaml.load(yml_file, Loader=yaml.FullLoader)
+                config = yaml.safe_load(yml_file)
             for ssn in api_key_id.keys():
                 logging.debug('Revoking API key for security server ' + ssn)
                 curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
-                           config["api_key"][0]["url"] + "/" + str(api_key_id[ssn]) + " -k"
+                           config["api_key"][0]["url"] + "/" + str(api_key_id[ssn][0]) + " -k"
                 cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                      config["api_key"][0]["key"] + "\" niis@" + ssn + " \"" + curl_cmd + "\""
+                      config["api_key"][0]["key"] + "\" niis@" + api_key_id[ssn][1] + " \"" + curl_cmd + "\""
                 exitcode, data = subprocess.getstatusoutput(cmd)
                 api_key_token = app.api_keys[ssn].split('=')[1]
                 if exitcode == 0:
