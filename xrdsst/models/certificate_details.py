@@ -496,8 +496,9 @@ class CertificateDetails(object):
         :param subject_alternative_names: The subject_alternative_names of this CertificateDetails.  # noqa: E501
         :type: str
         """
-        if subject_alternative_names is None:
-            raise ValueError("Invalid value for `subject_alternative_names`, must not be `None`")  # noqa: E501
+        #if subject_alternative_names is None:
+        #   raise ValueError("Invalid value for `subject_alternative_names`, must not be `None`")  # noqa: E501
+        # TEST CA does not fill SAN
 
         self._subject_alternative_names = subject_alternative_names
 
