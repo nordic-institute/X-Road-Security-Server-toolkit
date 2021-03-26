@@ -24,6 +24,7 @@ security_server:
   security_server_code: <SERVER_CODE>
   software_token_id: 0
   software_token_pin: 1234
+  fqdn: client_only
   url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
   clients:
     - member_class: ORG

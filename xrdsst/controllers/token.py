@@ -1,9 +1,12 @@
+import copy
+
 from cement import ex
 
 from xrdsst.api.security_servers_api import SecurityServersApi
 from xrdsst.api.certificate_authorities_api import CertificateAuthoritiesApi
 from xrdsst.core.api_util import remote_get_token
 from xrdsst.controllers.base import BaseController
+from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.util import default_auth_key_label, default_sign_key_label
 from xrdsst.models import CsrGenerate, KeyUsageType, CsrFormat, KeyLabelWithCsrGenerate
 from xrdsst.rest.rest import ApiException
@@ -147,12 +150,13 @@ class TokenController(BaseController):
 
         responses = []
 
-        token_id = security_server['software_token_id']
-        ss_code = security_server['security_server_code']
-        member_class = security_server['owner_member_class']
-        dn_country = security_server['owner_dn_country']
-        dn_common_name = security_server['owner_member_code']
-        dn_org = security_server['owner_dn_org']
+        token_id = security_server[ConfKeysSecurityServer.CONF_KEY_SOFT_TOKEN_ID]
+        ss_code = security_server[ConfKeysSecurityServer.CONF_KEY_SERVER_CODE]
+        member_class = security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CLASS]
+        dn_country = security_server[ConfKeysSecurityServer.CONF_KEY_DN_C]
+        dn_common_name = security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CODE]
+        dn_org = security_server[ConfKeysSecurityServer.CONF_KEY_DN_ORG]
+        fqdn = security_server[ConfKeysSecurityServer.CONF_KEY_FQDN]
 
         auth_key_label = default_auth_key_label(security_server)
         sign_key_label = default_sign_key_label(security_server)
@@ -167,14 +171,15 @@ class TokenController(BaseController):
             has_auth_key = auth_key_label in token_key_labels
             has_sign_key = sign_key_label in token_key_labels
 
-            # It is not entirely clear how we should approach the formulation of DN, we use sample conventions here,
-            # but it is entirely possible that better conventions or even more configuration should be done. TODO??
-            distinguished_name = {
+            sign_cert_subject = {
                 'C': dn_country,
                 'O': dn_org,
                 'CN': dn_common_name,
                 'serialNumber': '/'.join([ssi.member_class, ss_code, member_class])
             }
+
+            auth_cert_subject = copy.deepcopy(sign_cert_subject)
+            auth_cert_subject['CN'] = fqdn
 
             auth_key_req_param = KeyLabelWithCsrGenerate(
                 key_label=auth_key_label,
@@ -183,7 +188,7 @@ class TokenController(BaseController):
                     ca_name=auth_ca.name,
                     csr_format=CsrFormat.DER,  # Test CA setup at least only works with DER
                     member_id=':'.join([ssi.instance_id, ssi.member_class, ssi.member_code]),
-                    subject_field_values=distinguished_name
+                    subject_field_values=sign_cert_subject
                 )
             )
 
@@ -194,7 +199,7 @@ class TokenController(BaseController):
                     ca_name=sign_ca.name,
                     csr_format=CsrFormat.DER,  # Test CA setup at least only works with DER
                     member_id=':'.join([ssi.instance_id, ssi.member_class, ssi.member_code]),
-                    subject_field_values=distinguished_name
+                    subject_field_values=auth_cert_subject
                 )
             )
 

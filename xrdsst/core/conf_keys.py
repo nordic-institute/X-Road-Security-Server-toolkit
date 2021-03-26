@@ -85,6 +85,7 @@ class ConfKeysSecurityServer:
     CONF_KEY_SOFT_TOKEN_ID = 'software_token_id'
     CONF_KEY_SOFT_TOKEN_PIN = 'software_token_pin'
     CONF_KEY_URL = 'url'
+    CONF_KEY_FQDN = 'fqdn'
 
     @staticmethod
     def descendant_conf_keys():
