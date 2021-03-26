@@ -188,7 +188,7 @@ class TokenController(BaseController):
                     ca_name=auth_ca.name,
                     csr_format=CsrFormat.DER,  # Test CA setup at least only works with DER
                     member_id=':'.join([ssi.instance_id, ssi.member_class, ssi.member_code]),
-                    subject_field_values=sign_cert_subject
+                    subject_field_values=auth_cert_subject
                 )
             )
 
@@ -199,7 +199,7 @@ class TokenController(BaseController):
                     ca_name=sign_ca.name,
                     csr_format=CsrFormat.DER,  # Test CA setup at least only works with DER
                     member_id=':'.join([ssi.instance_id, ssi.member_class, ssi.member_code]),
-                    subject_field_values=auth_cert_subject
+                    subject_field_values=sign_cert_subject
                 )
             )
 
