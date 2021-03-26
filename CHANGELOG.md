@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1-alpha.0] - 2021-03-26
+- Add the external FQDN specification support for certificates and service providers.
+
 ## [0.2.8-alpha.0] - 2021-03-22
 - default configuration file config/(base.yaml) -> (xrdsst.yml)
 - replace security server 'name' use for SSH connection attempts with /host/
