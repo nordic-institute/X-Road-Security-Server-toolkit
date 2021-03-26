@@ -186,7 +186,7 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
 * <SERVICE_TIMEOUT> timeout for service in seconds
 * <SERVICE_USE_SSL_AUTH> boolean value for specifying whether SSL authentication should be used
-* <SERVICE_URL_FOR_ALL> string value determining URL prefix of services in service description, e.g. ``https://cs:4002/managementservice/manage/``
+* <SERVICE_URL_FOR_ALL> string value determining URL prefix of services in service description, e.g. https://cs:4002/managementservice/manage/
 * <SERVICE_TIMEOUT_FOR_ALL> integer value specifying timeout (in seconds) for services in service description
 * <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description
 * <SERVICE_URL> URL for single service
