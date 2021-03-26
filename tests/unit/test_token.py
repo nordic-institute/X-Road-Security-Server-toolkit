@@ -158,6 +158,7 @@ class TestToken(unittest.TestCase):
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
+              'fqdn': 'client_only',
               'api_key': 'X-Road-apikey token=86668888-8000-4000-a000-277727227272',
               'configuration_anchor': configuration_anchor,
               'owner_dn_country': 'FI',

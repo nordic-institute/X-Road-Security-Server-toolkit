@@ -37,6 +37,7 @@ class IntegrationTestBase(unittest.TestCase):
             'security_server':
                 [{'name': 'ss',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
+                  'fqdn': 'client_only',
                   'api_key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
                   'owner_dn_country': 'FI',

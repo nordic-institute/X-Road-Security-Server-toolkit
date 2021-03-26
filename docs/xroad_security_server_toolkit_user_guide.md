@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.4
+Version: 1.2.5
 Doc. ID: XRDSST-CONF
 
 ---
@@ -26,6 +26,7 @@ Doc. ID: XRDSST-CONF
 | 23.02.2021 | 1.2.2       | Update service management                                                    | Bert Viikmäe       |
 | 17.03.2021 | 1.2.3       | Describe failure interpretation and recovery                                 | Taimo Peelo        |
 | 22.03.2021 | 1.2.4       | Default configuration from config/base.yaml -> config/xrdsst.yml             | Taimo Peelo        |
+| 26.03.2021 | 1.2.5       | Add 'fqdn' key for security server, fix service field descriptions           | Taimo Peelo        |
 
 
 ## Table of Contents <!-- omit in toc -->
@@ -129,7 +130,8 @@ security-server:
   security_server_code: <SERVER_CODE>
   software_token_id: <SOFT_TOKEN_ID>
   software_token_pin: <SOFT_TOKEN_PIN>
-  url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
+  fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
+  url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
@@ -172,7 +174,8 @@ The ``security-server`` section is for configuring security server parameters
 * <SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
 * <SOFT_TOKEN_ID> default software token ID, normally 0 (zero).
 * <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code
-* <SECURITY_SERVER_FQDN_OR_IP> should be substituted with the IP address or host name of the installed security server, e.g. ss1
+* <SECURITY_SERVER_EXTERNAL_FQDN> externally accessible FQDN for security server, propagates to security server certificates
+* <SECURITY_SERVER_INTERNAL_FQDN_OR_IP> should be substituted with internal IP address or host name of the installed security server, e.g. ``ss1``
 * ``/path/to/signcert`` and ``/path/to/authcert`` should be given as paths referring to certificate locations,
 in fact any number of certificates can be imported for the keys labelled ``default-auth-key`` and ``default-sign-key``
 (but not all of them can be in use / registered)
@@ -183,8 +186,8 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
 * <SERVICE_TIMEOUT> timeout for service in seconds
 * <SERVICE_USE_SSL_AUTH> boolean value for specifying whether SSL authentication should be used
-* <SERVICE_URL_FOR_ALL> boolean value for specifying URL for all services for a given service description
-* <SERVICE_TIMEOUT_FOR_ALL> boolean value for specifying timeout for all services for a given service description
+* <SERVICE_URL_FOR_ALL> string value determining URL prefix of services in service description, e.g. https://cs:4002/managementservice/manage/
+* <SERVICE_TIMEOUT_FOR_ALL> integer value specifying timeout (in seconds) for services in service description
 * <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description
 * <SERVICE_URL> URL for single service
 * <SERVICE_CODE> code for single service.

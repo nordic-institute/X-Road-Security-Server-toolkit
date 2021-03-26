@@ -101,6 +101,7 @@ def validate_config_token_init_keys(ss_config, operation, errors):
     require_fill(ConfKeysSecurityServer.CONF_KEY_DN_C, ss_config, operation, errors)
     require_fill(ConfKeysSecurityServer.CONF_KEY_DN_ORG, ss_config, operation, errors)
     require_fill(ConfKeysSecurityServer.CONF_KEY_SOFT_TOKEN_ID, ss_config, operation, errors)
+    require_fill(ConfKeysSecurityServer.CONF_KEY_FQDN, ss_config, operation, errors)
 
     return len(errors) <= err_cnt
 
