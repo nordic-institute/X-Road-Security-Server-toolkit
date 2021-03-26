@@ -40,6 +40,7 @@ class CertTestData:
             signature_algorithm='SHA256withRSA',
             serial=5,
             version=3,
+            subject_alternative_names=''
         )
     )
 
@@ -63,6 +64,7 @@ class CertTestData:
             rsa_public_key_exponent=65537,
             hash="E1A9054439514C2ABBDE3CFC4107BD9429487756",
             key_usages=[KeyUsage.DIGITAL_SIGNATURE, KeyUsage.KEY_ENCIPHERMENT, KeyUsage.DATA_ENCIPHERMENT, KeyUsage.KEY_AGREEMENT],
+            subject_alternative_names=''
         ),
         status=CertificateStatus.SAVED,
         possible_actions=[PossibleAction.DELETE, PossibleAction.ACTIVATE, PossibleAction.REGISTER],

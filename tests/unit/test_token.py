@@ -67,7 +67,8 @@ class TokenTestData:
                         signature='30eb0bde826774031726',
                         signature_algorithm='SHA256withRSA',
                         serial=5,
-                        version=3
+                        version=3,
+                        subject_alternative_names=''
                     )
                 )
             ]

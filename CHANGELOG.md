@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0-alpha.0] - 2021-03-24
+- Update security server API client to current spec, 1.0.31 (was 1.0.30)
+
 ## [0.2.8-alpha.0] - 2021-03-22
 - default configuration file config/(base.yaml) -> (xrdsst.yml)
 - replace security server 'name' use for SSH connection attempts with /host/
