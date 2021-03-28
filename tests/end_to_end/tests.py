@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 import unittest
 from unittest import mock
@@ -17,6 +16,7 @@ from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
+from xrdsst.core.util import revoke_api_key
 from xrdsst.main import XRDSSTTest
 
 
@@ -47,7 +47,7 @@ class EndToEndTest(unittest.TestCase):
             base.app = app
             api_key_id = app.Meta.handlers[0].api_key_id
             if api_key_id:
-                self.revoke_api_key()
+                revoke_api_key(app)
             if self.config_file is not None:
                 if os.path.exists(self.config_file):
                     os.remove(self.config_file)
@@ -140,16 +140,6 @@ class EndToEndTest(unittest.TestCase):
 
     def create_api_key(self, api_key):
         self.config["security_server"][0]["api_key"] = api_key
-
-    def revoke_api_key(self):
-        base = BaseController()
-        curl_cmd = "curl -X DELETE -u " + self.config["api_key"][0]["credentials"] + " --silent " + \
-                   self.config["api_key"][0]["url"] + "/" + str(base.api_key_id[self.config["security_server"][0]['name']]) + " -k"
-        cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-              self.config["api_key"][0]["key"] + "\" niis@" + self.config["security_server"][0]["name"] + " \"" + curl_cmd + "\""
-        exitcode, data = subprocess.getstatusoutput(cmd)
-        if exitcode != 0:
-            base.log_api_error('EndtoEndTest.revoke_api_key', 'API key revoking for security server ' + self.config["security_server"][0]['name'] + ' failed.')
 
     def step_cert_import(self):
         with XRDSSTTest() as app:

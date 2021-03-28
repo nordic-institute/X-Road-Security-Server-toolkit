@@ -19,15 +19,18 @@ from xrdsst.main import XRDSSTTest
 
 class TestAuto(unittest.TestCase):
     ss_config = {
-        'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
-                     'key': 'private key',
-                     'credentials': 'user:pass',
-                     'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': 'X-Road-apikey token=66666666-8000-4011-a000-333336633333'
-              }]}
+              'api_key': [{
+                'key': 'X-Road-apikey token=66666666-8000-4011-a000-333336633333',
+                'credentials': 'user:pass',
+                'ssh_user': 'user',
+                'ssh_key': 'key',
+                'roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
+                'url': 'https://localhost:4000/api/v1/api-keys'
+              }]
+            }]}
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):

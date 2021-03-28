@@ -43,7 +43,14 @@ class TestService(unittest.TestCase):
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': 'X-Road-apikey token=33333333-3000-4000-b000-939393939393',
+              'api_key': [{
+                  'key': 'X-Road-apikey token=33333333-3000-4000-b000-939393939393',
+                  'credentials': 'user:pass',
+                  'ssh_user': 'user',
+                  'ssh_key': 'key',
+                  'roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
+                  'url': 'https://localhost:4000/api/v1/api-keys'
+              }],
               'clients': [
                   {
                       'member_class': 'GOV',

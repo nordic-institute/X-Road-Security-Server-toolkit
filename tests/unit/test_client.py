@@ -31,14 +31,17 @@ class ClientTestData:
 class TestClient(unittest.TestCase):
     ss_config = {
         'logging': [{'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'}],
-        'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
-                     'key': 'private key',
-                     'credentials': 'user:pass',
-                     'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': 'X-Road-apikey token=55555555-5000-4000-a000-707070707070',
+              'api_key': [{
+                  'key': 'X-Road-apikey token=55555555-5000-4000-a000-707070707070',
+                  'credentials': 'user:pass',
+                  'ssh_user': 'user',
+                  'ssh_key': 'key',
+                  'roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
+                  'url': 'https://localhost:4000/api/v1/api-keys'
+              }],
               'clients': [
                   {
                       'member_class': 'GOV',

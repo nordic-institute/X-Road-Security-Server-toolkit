@@ -266,7 +266,7 @@ def get_service_description(config, client_id):
     return api_GET(
             config["security_server"][0]["url"],
             "clients/" + client_id + "/service-descriptions",
-            config["security_server"][0]["api_key"]
+            config["security_server"][0]["api_key"][0]["key"]
         )[0]
 
 # Returns service clients for given service
@@ -274,7 +274,7 @@ def get_service_clients(config, service_id):
     return api_GET(
             config["security_server"][0]["url"],
             "services/" + service_id + "/service-clients",
-            config["security_server"][0]["api_key"]
+            config["security_server"][0]["api_key"][0]["key"]
         )
 
 # Returns client
@@ -289,7 +289,7 @@ def get_client(config):
          'member_code': member_code,
          'subsystem_code': subsystem_code,
          'connection_type': conn_type},
-        headers={'Authorization': config["security_server"][0]["api_key"], 'accept': 'application/json'},
+        headers={'Authorization': config["security_server"][0]["api_key"][0]["key"], 'accept': 'application/json'},
         verify=False)
     client_json = json.loads(str(client.content, 'utf-8').strip())
     return client_json[0]
@@ -319,7 +319,7 @@ def auth_cert_registration_global_configuration_update_received(config):
         config["security_server"][0]["url"] + "/tokens/" + str(config["security_server"][0]['software_token_id']),
         None,
         headers={
-            'Authorization': config["security_server"][0]["api_key"],
+            'Authorization': config["security_server"][0]["api_key"][0]["key"],
             'accept': 'application/json'
         },
         verify=False

@@ -34,7 +34,6 @@ def validate_conf_keys(xrdsst_conf):
 
 # Known keys for xrdsst configuration file root.
 class ConfKeysRoot:
-    CONF_KEY_ROOT_API_KEY = 'api_key'
     CONF_KEY_ROOT_SERVER = 'security_server'
     CONF_KEY_ROOT_LOGGING = 'logging'
 
@@ -42,22 +41,9 @@ class ConfKeysRoot:
     @staticmethod
     def descendant_conf_keys():
         return [
-            (ConfKeysRoot.CONF_KEY_ROOT_API_KEY, ConfKeysApiKey),
             (ConfKeysRoot.CONF_KEY_ROOT_SERVER, ConfKeysSecurityServer),
             (ConfKeysRoot.CONF_KEY_ROOT_LOGGING, ConfKeysLogging)
         ]
-
-
-# Known keys for xrdsst configuration file security server API key creation section.
-class ConfKeysApiKey:
-    CONF_KEY_API_KEY_CREDENTIALS = 'credentials'
-    CONF_KEY_API_KEY_KEY = 'key'
-    CONF_KEY_API_KEY_ROLES = 'roles'
-    CONF_KEY_API_KEY_URL = 'url'
-
-    @staticmethod
-    def descendant_conf_keys():
-        return []
 
 
 # Known keys for xrdsst configuration file logging section.
@@ -90,8 +76,22 @@ class ConfKeysSecurityServer:
     @staticmethod
     def descendant_conf_keys():
         return [
+            (ConfKeysSecurityServer.CONF_KEY_API_KEY, ConfKeysSecServerApiKey),
             (ConfKeysSecurityServer.CONF_KEY_CLIENTS, ConfKeysSecServerClients)
         ]
+
+
+class ConfKeysSecServerApiKey:
+    CONF_KEY_SS_API_KEY_KEY = 'key'
+    CONF_KEY_SS_API_KEY_CREDENTIALS = 'credentials'
+    CONF_KEY_SS_API_KEY_SSH_USER = 'ssh_user'
+    CONF_KEY_SS_API_KEY_SSH_KEY = 'ssh_key'
+    CONF_KEY_SS_API_KEY_ROLES = 'roles'
+    CONF_KEY_SS_API_KEY_URL = 'url'
+
+    @staticmethod
+    def descendant_conf_keys():
+        return []
 
 
 # Known keys for xrdsst configuration file security server client configuration section.

@@ -1,15 +1,16 @@
-api_key:
-- credentials: xrd:secret
-  key: /path/to/ssh_private_key
-  roles:
-  - <SECURITY_SERVER_ROLE_NAME>
-  url: https://localhost:4000/api/v1/api-keys
 security_server:
-- api_key: X-Road-apikey token=<API_KEY>
+- api_key:
+  - key: X-Road-apikey token=<API_KEY>
+    credentials: <SECURITTY_SERVER_CREDENTIALS>
+    ssh_user: <SSH_USER>
+    ssh_key: /path/to/ssh_private_key
+    roles:
+    - <SECURITY_SERVER_ROLE_NAME>
+    url: https://localhost:4000/api/v1/api-keys
+  configuration_anchor: /path/to/configuration-anchor.xml
   certificates:
     - /path/to/signcert
     - /path/to/authcert
-  configuration_anchor: /path/to/configuration-anchor.xml
   name: <SECURITY_SERVER_NAME>
   owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
   owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>

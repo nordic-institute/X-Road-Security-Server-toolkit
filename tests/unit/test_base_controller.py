@@ -22,12 +22,17 @@ class TestBaseController(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
-        'api_key': [{'url': 'https://localhost:4000/api/v1/api-keys',
-                     'roles': 'XROAD_SYSTEM_ADMINISTRATOR'}],
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
-              'api_key': 'X-Road-apikey token=api-key',
+              'api_key': [{
+               'key': 'X-Road-apikey token=<API_KEY>',
+               'credentials': 'user:pass',
+               'ssh_user': 'user',
+               'ssh_key': 'key',
+               'roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
+               'url': 'https://localhost:4000/api/v1/api-keys'
+              }],
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
               'owner_member_code': '1234',
@@ -327,10 +332,10 @@ class TestBaseController(unittest.TestCase):
                 temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
                 config = self.create_temp_conf(base_controller, temp_file_name)
                 security_server = config["security_server"][0]
-                security_server["api_key"] = 'X-Road-apikey token=some key'
+                security_server["api_key"][0]["key"] = 'X-Road-apikey token=some key'
                 key = base_controller.get_api_key(config, security_server)
                 assert key != 'X-Road-apikey token=api-key-123'
-                security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+                security_server["api_key"][0]["key"] = 'X-Road-apikey token=<API_KEY>'
                 key = base_controller.get_api_key(config, security_server)
                 os.remove(temp_file_name)
                 assert key == 'X-Road-apikey token=88888888-8000-4000-a000-727272727272'
@@ -342,7 +347,7 @@ class TestBaseController(unittest.TestCase):
             temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
             config = self.create_temp_conf(base_controller, temp_file_name)
             security_server = config["security_server"][0]
-            security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+            security_server["api_key"][0]["key"] = 'X-Road-apikey token=<API_KEY>'
             base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             self.assertRaises(Exception)
@@ -355,9 +360,9 @@ class TestBaseController(unittest.TestCase):
             config = self.create_temp_conf(base_controller, temp_file_name)
             temp_key_file = open("my_key", "w")
             temp_key_file.close()
-            config["api_key"][0]["key"] = "my_key"
             security_server = config["security_server"][0]
-            security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+            security_server["api_key"][0]["ssh_key"] = 'my_key'
+            security_server["api_key"][0]["key"] = 'X-Road-apikey token=<API_KEY>'
             base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             os.remove("my_key")

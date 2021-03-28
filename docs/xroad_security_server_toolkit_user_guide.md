@@ -110,14 +110,15 @@ $ pip install setup.py
   
 ### 3.2 Format of configuration file
 ```
-api-key:
-- credentials: <SECURITTY_SERVER_CREDENTIALS>
-  key: /path/to/ssh_private_key
-  roles:
-  - <SECURITY_SERVER_ROLE_NAME>
-  url: https://localhost:4000/api/v1/api-keys
 security-server:
-- api_key: X-Road-apikey token=<API_KEY>
+- api_key:
+  - key: X-Road-apikey token=<API_KEY>
+    credentials: <SECURITTY_SERVER_CREDENTIALS>
+    ssh_user: <SSH_USER>
+    ssh_key: /path/to/ssh_private_key
+    roles:
+    - <SECURITY_SERVER_ROLE_NAME>
+    url: https://localhost:4000/api/v1/api-keys
   configuration_anchor: /path/to/configuration-anchor.xml
   certificates:
     - /path/to/signcert
@@ -160,6 +161,7 @@ The ``logging`` section is for configuring the logging parameters of the X-Road 
 The ``security-server`` section is for configuring security server parameters
 
 * <SECURITY_SERVER_CREDENTIALS> X-Road Security Server credentials, e.g. xrd:secret
+* <SSH_USER> SSH username
 * ``/path/to/ssh_private_key`` should be substituted with the correct path to the ssh private key file, e.g. home/user/id_rsa
 * <SECURITY_SERVER_ROLE_NAME> parameter required for security server api key, should be substituted with a security server role name, e.g. XROAD_SYSTEM_ADMINISTRATOR    
 * ``/path/to/xrdsst.log`` should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"

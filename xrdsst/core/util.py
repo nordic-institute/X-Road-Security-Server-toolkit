@@ -1,5 +1,9 @@
+import logging
 import os
 import re
+import subprocess
+
+import yaml
 
 # Regex of X-Road security server header for API key.
 RE_API_KEY_HEADER = re.compile(r"""
@@ -92,3 +96,36 @@ def is_ss_connectable(ss_url, sock_timeout=1):
         return True, ''
     except error as err:
         return False, os.strerror(err.errno) if err.errno else str(err)
+
+
+def revoke_api_key(app):
+    if len(app.argv) > 1:
+        api_key_id = app.Meta.handlers[0].api_key_id
+        if api_key_id:
+            config_file = app.pargs.configfile if app.pargs.configfile else app.Meta.handlers[0].config_file
+            if not os.path.exists(config_file):
+                config_file = os.path.join("..", config_file)
+            with open(config_file, "r") as yml_file:
+                config = yaml.safe_load(yml_file)
+            for ssn in api_key_id.keys():
+                logging.debug('Revoking API key for security server ' + ssn)
+                for security_server in config["security_server"]:
+                    if ssn == security_server["name"]:
+                        credentials = security_server["api_key"][0]["credentials"]
+                        url = security_server["api_key"][0]["url"]
+                        ssh_key = security_server["api_key"][0]["ssh_key"]
+                        ssh_user = security_server["api_key"][0]["ssh_user"]
+                        curl_cmd = "curl -X DELETE -u " + credentials + " --silent " + url + "/" + str(api_key_id[ssn][0]) + " -k"
+                        cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
+                              ssh_key + "\" " + ssh_user + "@" + api_key_id[ssn][1] + " \"" + curl_cmd + "\""
+                        exitcode, data = subprocess.getstatusoutput(cmd)
+                        api_key_token = app.api_keys[ssn].split('=')[1]
+                        if exitcode == 0:
+                            log_info("API key '" + api_key_token + "' for security server " + ssn + " revoked.")
+                        else:
+                            logging.warning("Revocation of API key '" + api_key_token + "' for security server ' + ssn + ' failed")
+
+
+def log_info(message):
+    logging.info(message)
+    print(message)

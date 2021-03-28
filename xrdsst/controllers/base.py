@@ -21,7 +21,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from definitions import ROOT_DIR
-from xrdsst.core.conf_keys import validate_conf_keys, ConfKeysSecurityServer, ConfKeysRoot
+from xrdsst.core.conf_keys import validate_conf_keys, ConfKeysSecurityServer, ConfKeysRoot, ConfKeysSecServerApiKey
 from xrdsst.core.excplanation import Excplanatory
 from xrdsst.core.util import op_node_to_ctr_cmd_text, RE_API_KEY_HEADER
 from xrdsst.core.version import get_version
@@ -59,16 +59,16 @@ class BaseController(Controller):
                                 metavar='file',
                                 default=os.path.join(ROOT_DIR, BaseController._DEFAULT_CONFIG_FILE))
 
-    def create_api_key(self, roles_list, config, security_server):
+    def create_api_key(self, roles_list, security_server):
         self.log_debug('Creating API key for security server: ' + security_server['name'])
         roles = list(roles_list)
-        curl_cmd = "curl -X POST -u " + config["api_key"][0]["credentials"] + " --silent " + \
-                   config["api_key"][0]["url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
+        curl_cmd = "curl -X POST -u " + security_server["api_key"][0]["credentials"] + " --silent " + \
+                   security_server["api_key"][0]["url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
                    " --header \'Content-Type: application/json\' -k"
-        cmd = 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" niis@{} "{}"'.format(
-            config["api_key"][0]["key"], self.security_server_address(security_server), curl_cmd
+        cmd = 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(
+            security_server["api_key"][0]["ssh_key"], security_server["api_key"][0]["ssh_user"], self.security_server_address(security_server), curl_cmd
         )
-        if os.path.isfile(config["api_key"][0]["key"]):
+        if os.path.isfile(security_server["api_key"][0]["ssh_key"]):
             try:
                 exitcode, data = subprocess.getstatusoutput(cmd)
                 if exitcode == 0:
@@ -208,7 +208,7 @@ class BaseController(Controller):
 
     def get_api_key(self, conf, security_server):
         # Use API key configured for security server, if valid.
-        ss_api_key = security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY)
+        ss_api_key = security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY)[0].get(ConfKeysSecServerApiKey.CONF_KEY_SS_API_KEY_KEY)
         has_valid_ss_api_key = RE_API_KEY_HEADER.fullmatch(ss_api_key)
         if has_valid_ss_api_key:
             self.log_debug("Using existing API key for security server: '" + security_server['name'] + "'")
@@ -222,10 +222,10 @@ class BaseController(Controller):
         api_key = None
         config = conf if conf else self.config
 
-        if config.get(ConfKeysRoot.CONF_KEY_ROOT_API_KEY):
-            roles_list = config[ConfKeysRoot.CONF_KEY_ROOT_API_KEY][0]["roles"]
+        if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
+            roles_list = security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY)[0].get(ConfKeysSecServerApiKey.CONF_KEY_SS_API_KEY_ROLES)
             try:
-                api_key = 'X-Road-apikey token=' + self.create_api_key(roles_list, conf, security_server)
+                api_key = 'X-Road-apikey token=' + self.create_api_key(roles_list, security_server)
                 self.app.api_keys[security_server[ConfKeysSecurityServer.CONF_KEY_NAME]] = api_key
             except Exception as err:
                 self.log_api_error('BaseController->get_api_key:', err)
