@@ -139,7 +139,7 @@ class EndToEndTest(unittest.TestCase):
         self.config['security_server'][0]['certificates'] = signed_certs
 
     def create_api_key(self, api_key):
-        self.config["security_server"][0]["api_key"] = api_key
+        self.config["security_server"][0]["api_key"][0]["key"] = api_key
 
     def step_cert_import(self):
         with XRDSSTTest() as app:
