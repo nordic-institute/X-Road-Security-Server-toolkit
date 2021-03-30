@@ -130,8 +130,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             service_controller.load_config = (lambda: self.config)
             service_controller.add_access()
             description = get_service_description(self.config, client_id)
-            #service_clients = get_service_clients(self.config, description["services"][0]["id"])
-            #assert len(service_clients) == 1
+            service_clients = get_service_clients(self.config, description["services"][0]["id"])
+            assert len(service_clients) == 1
 
     def step_update_service_parameters(self, client_id):
         with XRDSSTTest() as app:
