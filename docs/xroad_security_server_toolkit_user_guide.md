@@ -111,9 +111,10 @@ $ pip install setup.py
 ### 3.2 Format of configuration file
 ```
 ssh_access:
+  admin_credentials: <SECURITTY_SERVER_CREDENTIALS>
   user: <SSH_USER>
   private_key: /path/to/ssh_private_key
-security-server:
+security_server:
 - api_key: X-Road-apikey token=<API_KEY>
   api_key_roles:
     - <SECURITY_SERVER_ROLE_NAME>
@@ -158,9 +159,8 @@ security-server:
               url: <SERVICE_URL>
 ```
 
-The ``api-key`` section is for configuring the automatic api key generation parameters for security server
-The ``logging`` section is for configuring the logging parameters of the X-Road Security Server Toolkit
-The ``security-server`` section is for configuring security server parameters
+The ``ssh_access`` section is for configuring the SSH access parameters of the X-Road Security Server Toolkit
+The ``security_server`` section is for configuring security server parameters
 
 * <SECURITY_SERVER_CREDENTIALS> X-Road Security Server admin credentials, e.g. xrd:secret (if specified in ``ssh_access`` section, one value will be 
   used for all configurable security servers, but if specified in the ``security_server`` section, the value will be overridden for specific 

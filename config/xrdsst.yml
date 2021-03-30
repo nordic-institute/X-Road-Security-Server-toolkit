@@ -2,7 +2,7 @@ ssh_access:
   admin_credentials: <SECURITTY_SERVER_CREDENTIALS>
   user: <SSH_USER>
   private_key: /path/to/ssh_private_key
-security-server:
+security_server:
 - api_key: X-Road-apikey token=<API_KEY>
   api_key_roles:
     - <SECURITY_SERVER_ROLE_NAME>
