@@ -1,18 +1,19 @@
+ssh_access:
+  admin_credentials: <SECURITTY_SERVER_CREDENTIALS>
+  user: <SSH_USER>
+  private_key: /path/to/ssh_private_key
 security_server:
-- api_key:
-  - key: X-Road-apikey token=<API_KEY>
-    credentials: <SECURITTY_SERVER_CREDENTIALS>
-    ssh_user: <SSH_USER>
-    ssh_key: /path/to/ssh_private_key
-    roles:
-    - XROAD_SYSTEM_ADMINISTRATOR
-    - XROAD_SERVICE_ADMINISTRATOR
-    - XROAD_SECURITY_OFFICER
-    - XROAD_REGISTRATION_OFFICER
-    url: https://localhost:4000/api/v1/api-keys
+- api_key: X-Road-apikey token=<API_KEY>
+  api_key_roles:
+  - XROAD_SYSTEM_ADMINISTRATOR
+  - XROAD_SERVICE_ADMINISTRATOR
+  - XROAD_SECURITY_OFFICER
+  - XROAD_REGISTRATION_OFFICER
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials:
   certificates:
-    - /path/to/signcert
-    - /path/to/authcert
+    - /home/bertvi/x/ss3-sign.pem
+    - /home/bertvi/x/ss3-auth.pem
   configuration_anchor: /path/to/configuration-anchor.xml
   name: <SECURITY_SERVER_NAME>
   owner_dn_country: FI
@@ -24,6 +25,8 @@ security_server:
   software_token_pin: 1234
   fqdn: client_only
   url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
+  ssh_user:
+  ssh_private_key:
   clients:
     - member_class: ORG
       member_code: 111

@@ -111,10 +111,10 @@ def revoke_api_key(app):
                 logging.debug('Revoking API key for security server ' + ssn)
                 for security_server in config["security_server"]:
                     if ssn == security_server["name"]:
-                        credentials = security_server["api_key"][0]["credentials"]
-                        url = security_server["api_key"][0]["url"]
-                        ssh_key = security_server["api_key"][0]["ssh_key"]
-                        ssh_user = security_server["api_key"][0]["ssh_user"]
+                        credentials = security_server["admin_credentials"] if security_server["admin_credentials"] else config["ssh_access"]["admin_credentials"]
+                        url = security_server["api_key_url"]
+                        ssh_key = security_server["ssh_private_key"] if security_server["ssh_private_key"] else config["ssh_access"]["private_key"]
+                        ssh_user = security_server["ssh_user"] if security_server["ssh_user"] else config["ssh_access"]["user"]
                         curl_cmd = "curl -X DELETE -u " + credentials + " --silent " + url + "/" + str(api_key_id[ssn][0]) + " -k"
                         cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
                               ssh_key + "\" " + ssh_user + "@" + api_key_id[ssn][1] + " \"" + curl_cmd + "\""

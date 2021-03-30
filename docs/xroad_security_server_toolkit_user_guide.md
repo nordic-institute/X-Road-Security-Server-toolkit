@@ -110,15 +110,15 @@ $ pip install setup.py
   
 ### 3.2 Format of configuration file
 ```
+ssh_access:
+  user: <SSH_USER>
+  private_key: /path/to/ssh_private_key
 security-server:
-- api_key:
-  - key: X-Road-apikey token=<API_KEY>
-    credentials: <SECURITTY_SERVER_CREDENTIALS>
-    ssh_user: <SSH_USER>
-    ssh_key: /path/to/ssh_private_key
-    roles:
+- api_key: X-Road-apikey token=<API_KEY>
+  api_key_roles:
     - <SECURITY_SERVER_ROLE_NAME>
-    url: https://localhost:4000/api/v1/api-keys
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials: <SECURITTY_SERVER_CREDENTIALS>
   configuration_anchor: /path/to/configuration-anchor.xml
   certificates:
     - /path/to/signcert
@@ -133,6 +133,8 @@ security-server:
   software_token_pin: <SOFT_TOKEN_PIN>
   fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
   url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
+  ssh_user: <SSH_USER>
+  ssh_private_key: /path/to/ssh_private_key
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
@@ -160,13 +162,19 @@ The ``api-key`` section is for configuring the automatic api key generation para
 The ``logging`` section is for configuring the logging parameters of the X-Road Security Server Toolkit
 The ``security-server`` section is for configuring security server parameters
 
-* <SECURITY_SERVER_CREDENTIALS> X-Road Security Server credentials, e.g. xrd:secret
-* <SSH_USER> SSH username
+* <SECURITY_SERVER_CREDENTIALS> X-Road Security Server admin credentials, e.g. xrd:secret (if specified in ``ssh_access`` section, one value will be 
+  used for all configurable security servers, but if specified in the ``security_server`` section, the value will be overridden for specific 
+  configurable security server)
+* <SSH_USER> SSH username (if specified in ``ssh_access`` section, one value will be used for all configurable security servers, 
+  but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)
 * ``/path/to/ssh_private_key`` should be substituted with the correct path to the ssh private key file, e.g. home/user/id_rsa
+  (if specified in ``ssh_access`` section, one value will be used for all configurable security servers, 
+  but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)
 * <SECURITY_SERVER_ROLE_NAME> parameter required for security server api key, should be substituted with a security server role name, e.g. XROAD_SYSTEM_ADMINISTRATOR    
 * ``/path/to/xrdsst.log`` should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
 * <LOG_LEVEL> parameter for configuring the logging level for the X-Road Security Server Toolkit, e.g INFO
-* <API_KEY> will be automatically substituted with the api-key of the installed security server
+* <API_KEY> if un-filled, a temporary api key will be automatically created and revoked in the end of a single operation, if filled with value in
+  the format of ``X-Road-apikey token=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx``, that key will be used and a temporary key will not be created
 * ``/path/to/configuration-anchor.xml`` should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
 * <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
 * <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.

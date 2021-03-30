@@ -1,12 +1,13 @@
-security_server:
-- api_key:
-  - key: X-Road-apikey token=<API_KEY>
-    credentials: <SECURITTY_SERVER_CREDENTIALS>
-    ssh_user: <SSH_USER>
-    ssh_key: /path/to/ssh_private_key
-    roles:
+ssh_access:
+  admin_credentials: <SECURITTY_SERVER_CREDENTIALS>
+  user: <SSH_USER>
+  private_key: /path/to/ssh_private_key
+security-server:
+- api_key: X-Road-apikey token=<API_KEY>
+  api_key_roles:
     - <SECURITY_SERVER_ROLE_NAME>
-    url: https://localhost:4000/api/v1/api-keys
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials:
   configuration_anchor: /path/to/configuration-anchor.xml
   certificates:
     - /path/to/signcert
@@ -21,6 +22,8 @@ security_server:
   software_token_pin: <SOFT_TOKEN_PIN>
   fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
   url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
+  ssh_user: <SSH_USER>
+  ssh_private_key: /path/to/ssh_private_key
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>

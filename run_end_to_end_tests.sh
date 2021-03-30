@@ -46,9 +46,9 @@ exit_abnormal() {
 update_config() {
   local cmd
   cmd=""
-  cmd=".security_server[0].api_key[0].ssh_key=\"$5\""
-  cmd="${cmd}|.security_server[0].api_key[0].credentials=\"$6\""
-  cmd="${cmd}|.security_server[0].api_key[0].ssh_user=\"$8\""
+  cmd=".security_server[0].ssh_private_key=\"$5\""
+  cmd="${cmd}|.security_server[0].admin_credentials=\"$6\""
+  cmd="${cmd}|.security_server[0].ssh_user=\"$8\""
   cmd="${cmd}|.security_server[0].configuration_anchor=\"$2\""
   cmd="${cmd}|.security_server[0].name=\"$4\""
   cmd="${cmd}|.security_server[0].security_server_code=\"$4\""

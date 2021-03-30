@@ -31,29 +31,25 @@ class IntegrationTestBase(unittest.TestCase):
     def init_config(self):
         self.config = {
             'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
+            'ssh_access': [{'admin_credentials': self.credentials, 'user': 'user', 'private_key': 'key'}],
             'security_server':
                 [{'name': 'ss',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
                   'fqdn': 'client_only',
-                  'api_key': [{
-                      'key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
-                      'credentials': self.credentials,
-                      'ssh_user': 'user',
-                      'ssh_key': 'key',
-                      'roles': json.loads(self.roles),
-                      'url': self.url
-                  }],
+                  'api_key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
+                  'api_key_roles': json.loads(self.roles),
+                  'api_key_url': self.url,
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
-                  'owner_dn_country': 'EE',
+                  'owner_dn_country': 'FI',
                   'owner_dn_org': 'NIIS',
-                  'owner_member_class': 'GOV',
-                  'owner_member_code': '1234',
+                  'owner_member_class': 'ORG',
+                  'owner_member_code': '111',
                   'security_server_code': 'SS',
                   'software_token_id': 0,
                   'software_token_pin': '1234',
                   'clients': [{
-                      'member_class': 'GOV',
-                      'member_code': '1234',
+                      'member_class': 'ORG',
+                      'member_code': '111',
                       'subsystem_code': 'BUS',
                       'connection_type': 'HTTP',
                       'service_descriptions': [{
@@ -85,7 +81,7 @@ class IntegrationTestBase(unittest.TestCase):
         return self.config
 
     def set_api_key(self, api_key):
-        self.config["security_server"][0]["api_key"][0]["key"] = 'X-Road-apikey token=' + api_key
+        self.config["security_server"][0]["api_key"] = 'X-Road-apikey token=' + api_key
 
     def set_ip_url(self, ip_address):
         local_url = self.config["security_server"][0]["url"]
