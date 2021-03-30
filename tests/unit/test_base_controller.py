@@ -320,6 +320,38 @@ class TestBaseController(unittest.TestCase):
         base_controller.init_logging(self.get_ss_config())
         assert len(logging.getLogger().handlers) == 1
 
+    def test_no_plain_api_key_logging(self):
+        # Given
+        temp_log_file = tempfile.NamedTemporaryFile(mode="wb", prefix="xrdsst-", suffix='.yaml', delete=False)
+        temp_log_file.close()
+
+        logfile_name = temp_log_file.name
+
+        import logging
+        logging.getLogger().handlers.clear()
+        assert not logging.getLogger().handlers
+
+        self._ss_config["logging"]["file"] = logfile_name
+        base_controller = BaseController()
+        base_controller.init_logging(self.get_ss_config())
+
+        the_api_key = '460ad0b9-d023-4087-a291-dc97eddcb7d8'
+
+        # When
+        BaseController.log_info("printf style with dict: API key '%(api_key)s' for security server %(ssn)s revoked." %
+                 {'api_key': the_api_key, 'ssn': 'madeup-ss'})
+        BaseController.log_info("plain concatenated string style: API key '" + the_api_key + "' for security server " + 'madeup-ss' + " revoked.")
+        BaseController.log_info("percent style string formation: API key '%s' for revoked." % the_api_key)
+        logging.info("direct log of api_key (info) " + the_api_key)
+        logging.warning("direct log of api_key (warning)" + the_api_key)
+
+        # Then
+        with open(logfile_name, "r") as log_file_r:
+            log_lines = log_file_r.readlines()
+            assert 5 == len(log_lines)
+            assert all(map(lambda s: s.count('********-****-4087-****-************') == 1, log_lines))
+            assert all(map(lambda s: s.count(the_api_key) == 0, log_lines))
+
     def test_get_api_key(self):
         with XRDSSTTest() as app:
             with patch.object(BaseController, 'create_api_key', return_value='88888888-8000-4000-a000-727272727272'):

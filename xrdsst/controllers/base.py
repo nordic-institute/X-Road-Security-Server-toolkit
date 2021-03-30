@@ -3,6 +3,7 @@ import copy
 import functools
 import inspect
 import json
+import re
 import sys
 
 import networkx
@@ -35,6 +36,14 @@ BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_ban
 class BaseController(Controller):
     _TRANSIENT_API_KEY_ROLES = ['XROAD_SYSTEM_ADMINISTRATOR', 'XROAD_SERVICE_ADMINISTRATOR', 'XROAD_SECURITY_OFFICER', 'XROAD_REGISTRATION_OFFICER']
     _DEFAULT_CONFIG_FILE = "config/xrdsst.yml"
+    _RE_API_KEY = re.compile(r"""
+        ([a-f0-9]{8}-
+        [a-f0-9]{4}-)
+        ([a-f0-9]{4})-  # UUID version + 3 hexdecimal digits, only part retained
+        ([a-f0-9]{4}-  # Do no validate first character separately
+        [a-f0-9]{12})
+    """, re.VERBOSE | re.IGNORECASE)
+
     class Meta:
         label = 'base'
         stacked_on = 'base'
@@ -42,6 +51,11 @@ class BaseController(Controller):
         arguments = [
             (['-v', '--version'], {'action': 'version', 'version': BANNER})
         ]
+
+    @staticmethod
+    def api_key_scrambler(log_record):
+        log_record.msg = re.sub(BaseController._RE_API_KEY, '********-****-\\2-****-************', str(log_record.msg))  # clear ~108 bits from ~120
+        return 1
 
     @staticmethod
     def get_server_status(api_config, ss_config):
@@ -239,10 +253,13 @@ class BaseController(Controller):
 
     @staticmethod
     def init_logging(configuration):
-        if logging.getLogger().handlers:
-            return
+        curr_handlers = logging.getLogger().handlers
+        if curr_handlers:
+            if any(map(lambda h: h.level != logging.NOTSET, curr_handlers)):  # Skip init ONLY if ANY handler levels set.
+                return
 
         exit_messages = ['']
+        logging.getLogger().handlers = []
 
         auto_log_file_name = str(Path.home()) + "/" + texts['app.label'] + "-" + \
                              datetime.now().strftime("%Y%m%d-%H%M-%S") + \
@@ -277,6 +294,10 @@ class BaseController(Controller):
                 logging.basicConfig(filename=log_file_name, level=log_level, format=log_format)
             exit_messages.append("Activities logged into '" + log_file_name + "'.")
             atexit.register(lambda: print(*exit_messages, sep='\n'))
+
+        for handler in logging.getLogger().handlers:
+            handler.addFilter(BaseController.api_key_scrambler)
+            handler.setLevel(log_level)
 
     def load_config(self, baseconfig=None):
         # Add errors to /dict_err_lists/ at given key for /sec_server_configs/ that do not have required /key/ defined.
