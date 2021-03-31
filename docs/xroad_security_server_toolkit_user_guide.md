@@ -27,7 +27,7 @@ Doc. ID: XRDSST-CONF
 | 17.03.2021 | 1.2.3       | Describe failure interpretation and recovery                                 | Taimo Peelo        |
 | 22.03.2021 | 1.2.4       | Default configuration from config/base.yaml -> config/xrdsst.yml             | Taimo Peelo        |
 | 26.03.2021 | 1.2.5       | Add 'fqdn' key for security server, fix service field descriptions           | Taimo Peelo        |
-| 31.03.2021 | 1.2.6       | Move api_key section into security server section                            | Bert Viikmäe       |
+| 31.03.2021 | 1.2.6       | Refactorization of configuration file related to SSH and api key parameters  | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
