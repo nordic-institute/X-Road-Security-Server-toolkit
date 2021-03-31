@@ -68,7 +68,7 @@ class BaseController(Controller):
         curl_cmd = "curl -X POST -u " + admin_credentials + " --silent " + \
                    security_server["api_key_url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
                    " --header \'Content-Type: application/json\' -k"
-        cmd = 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(
+        cmd = 'ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(
             ssh_key, ssh_user, self.security_server_address(security_server), curl_cmd
         )
         if os.path.isfile(ssh_key):
