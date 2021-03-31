@@ -62,9 +62,9 @@ class BaseController(Controller):
     def create_api_key(self, roles_list, security_server):
         self.log_debug('Creating API key for security server: ' + security_server['name'])
         roles = list(roles_list)
-        admin_credentials = security_server["admin_credentials"] if security_server["admin_credentials"] else self.config["admin_credentials"]
-        ssh_key = security_server["ssh_private_key"] if security_server["ssh_private_key"] else self.config["ssh_access"]["private_key"]
-        ssh_user = security_server["ssh_user"] if security_server["ssh_user"] else self.config["ssh_access"]["user"]
+        admin_credentials = security_server["admin_credentials"] if security_server.get("admin_credentials", "") else self.config["admin_credentials"]
+        ssh_key = security_server["ssh_private_key"] if security_server.get("ssh_private_key", "") else self.config["ssh_access"]["private_key"]
+        ssh_user = security_server["ssh_user"] if security_server.get("ssh_user", "") else self.config["ssh_access"]["user"]
         curl_cmd = "curl -X POST -u " + admin_credentials + " --silent " + \
                    security_server["api_key_url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
                    " --header \'Content-Type: application/json\' -k"
