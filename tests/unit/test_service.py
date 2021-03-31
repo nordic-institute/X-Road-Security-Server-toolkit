@@ -36,8 +36,8 @@ class ServiceTestData:
 class TestService(unittest.TestCase):
     ss_config = {
         'admin_credentials': 'user:pass',
-        'logging': [{'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'}],
-        'ssh_access': [{'user': 'user', 'private_key': 'key'}],
+        'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
+        'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',

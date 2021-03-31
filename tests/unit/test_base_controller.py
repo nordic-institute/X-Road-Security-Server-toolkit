@@ -23,7 +23,7 @@ class TestBaseController(unittest.TestCase):
     _ss_config = {
         'admin_credentials': 'user:pass',
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
-        'ssh_access': [{'user': 'user', 'private_key': 'key'}],
+        'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
@@ -357,7 +357,7 @@ class TestBaseController(unittest.TestCase):
             config = self.create_temp_conf(base_controller, temp_file_name)
             temp_key_file = open("my_key", "w")
             temp_key_file.close()
-            ssh_access = config["ssh_access"][0]
+            ssh_access = config["ssh_access"]
             security_server = config["security_server"][0]
             ssh_access["private_key"] = 'my_key'
             security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'

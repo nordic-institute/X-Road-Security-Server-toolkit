@@ -31,8 +31,8 @@ class IntegrationTestBase(unittest.TestCase):
     def init_config(self):
         self.config = {
             'admin_credentials': self.credentials,
-            'logging': [{'file': '/var/log/xrdsst_test.log', 'level': 'INFO'}],
-            'ssh_access': [{'user': 'user', 'private_key': 'key'}],
+            'logging': {'file': '/var/log/xrdsst_test.log', 'level': 'INFO'},
+            'ssh_access': {'user': 'user', 'private_key': 'key'},
             'security_server':
                 [{'name': 'ss',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',

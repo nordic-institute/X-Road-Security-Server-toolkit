@@ -30,7 +30,7 @@ class TestTimestamp(unittest.TestCase):
     ss_config = {
         'admin_credentials': 'user:pass',
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
-        'ssh_access': [{'user': 'user', 'private_key': 'key'}],
+        'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
