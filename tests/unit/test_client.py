@@ -31,13 +31,13 @@ class ClientTestData:
 class TestClient(unittest.TestCase):
     ss_config = {
         'admin_credentials': 'user:pass',
+        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
         'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'api_key': 'X-Road-apikey token=55555555-5000-4000-a000-707070707070',
-              'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'clients': [
                   {

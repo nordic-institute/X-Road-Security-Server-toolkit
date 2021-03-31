@@ -1,14 +1,14 @@
 admin_credentials: <SECURITY_SERVER_CREDENTIALS>
+api_key_roles:
+- XROAD_SYSTEM_ADMINISTRATOR
+- XROAD_SERVICE_ADMINISTRATOR
+- XROAD_SECURITY_OFFICER
+- XROAD_REGISTRATION_OFFICER
 ssh_access:
   user: <SSH_USER>
   private_key: /path/to/ssh_private_key
 security_server:
 - api_key: X-Road-apikey token=<API_KEY>
-  api_key_roles:
-  - XROAD_SYSTEM_ADMINISTRATOR
-  - XROAD_SERVICE_ADMINISTRATOR
-  - XROAD_SECURITY_OFFICER
-  - XROAD_REGISTRATION_OFFICER
   api_key_url: https://localhost:4000/api/v1/api-keys
   admin_credentials:
   configuration_anchor: /path/to/configuration-anchor.xml

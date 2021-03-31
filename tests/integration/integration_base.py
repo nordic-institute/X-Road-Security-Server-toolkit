@@ -31,6 +31,7 @@ class IntegrationTestBase(unittest.TestCase):
     def init_config(self):
         self.config = {
             'admin_credentials': self.credentials,
+            'api_key_roles': json.loads(self.roles),
             'logging': {'file': '/var/log/xrdsst_test.log', 'level': 'INFO'},
             'ssh_access': {'user': 'user', 'private_key': 'key'},
             'security_server':
@@ -38,7 +39,6 @@ class IntegrationTestBase(unittest.TestCase):
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
                   'fqdn': 'client_only',
                   'api_key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
-                  'api_key_roles': json.loads(self.roles),
                   'api_key_url': self.url,
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
                   'owner_dn_country': 'FI',
