@@ -34,30 +34,20 @@ def validate_conf_keys(xrdsst_conf):
 
 # Known keys for xrdsst configuration file root.
 class ConfKeysRoot:
-    CONF_KEY_ROOT_API_KEY = 'api_key'
     CONF_KEY_ROOT_SERVER = 'security_server'
+    CONF_KEY_ROOT_ADMIN_CREDENTIALS = 'admin_credentials'
+    CONF_KEY_ROOT_API_KEY_ROLES = 'api_key_roles'
+    CONF_KEY_ROOT_SSH_ACCESS = 'ssh_access'
     CONF_KEY_ROOT_LOGGING = 'logging'
 
     # Return the tuples ('child key', child conf keys class) for keys with descendants of their own
     @staticmethod
     def descendant_conf_keys():
         return [
-            (ConfKeysRoot.CONF_KEY_ROOT_API_KEY, ConfKeysApiKey),
             (ConfKeysRoot.CONF_KEY_ROOT_SERVER, ConfKeysSecurityServer),
+            (ConfKeysRoot.CONF_KEY_ROOT_SSH_ACCESS, ConfKeysSSHAccess),
             (ConfKeysRoot.CONF_KEY_ROOT_LOGGING, ConfKeysLogging)
         ]
-
-
-# Known keys for xrdsst configuration file security server API key creation section.
-class ConfKeysApiKey:
-    CONF_KEY_API_KEY_CREDENTIALS = 'credentials'
-    CONF_KEY_API_KEY_KEY = 'key'
-    CONF_KEY_API_KEY_ROLES = 'roles'
-    CONF_KEY_API_KEY_URL = 'url'
-
-    @staticmethod
-    def descendant_conf_keys():
-        return []
 
 
 # Known keys for xrdsst configuration file logging section.
@@ -69,11 +59,20 @@ class ConfKeysLogging:
     def descendant_conf_keys():
         return []
 
+class ConfKeysSSHAccess:
+    CONF_KEY_USER = 'user'
+    CONF_KEY_PRIVATE_KEY = 'private_key'
+
+    @staticmethod
+    def descendant_conf_keys():
+        return []
 
 # Known keys for xrdsst configuration file security server configuration section.
 class ConfKeysSecurityServer:
     CONF_KEY_ANCHOR = 'configuration_anchor'
     CONF_KEY_API_KEY = 'api_key'
+    CONF_KEY_API_KEY_URL = 'api_key_url'
+    CONF_KEY_ADMIN_CREDENTIALS = 'admin_credentials'
     CONF_KEY_CERTS = 'certificates'
     CONF_KEY_CLIENTS = 'clients'
     CONF_KEY_DN_C = 'owner_dn_country'
@@ -86,6 +85,8 @@ class ConfKeysSecurityServer:
     CONF_KEY_SOFT_TOKEN_PIN = 'software_token_pin'
     CONF_KEY_URL = 'url'
     CONF_KEY_FQDN = 'fqdn'
+    CONF_KEY_SSH_USER = 'ssh_user'
+    CONF_KEY_SSH_PRIVATE_KEY = 'ssh_private_key'
 
     @staticmethod
     def descendant_conf_keys():

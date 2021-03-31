@@ -1,12 +1,8 @@
 import logging
-import os
-import subprocess
 import sys
 import traceback
-
 import networkx
 import urllib3
-import yaml
 
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
@@ -20,6 +16,7 @@ from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
+from xrdsst.core.util import revoke_api_key
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
     validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, validate_config_cert_activate, \
     validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access, validate_config_service_desc_service
@@ -174,34 +171,6 @@ def opdep_init(app):
 
     # Do not presume autoconfig, activated on explicit invocation.
     app.auto_apply = False
-
-
-def revoke_api_key(app):
-    if len(app.argv) > 1:
-        api_key_id = app.Meta.handlers[0].api_key_id
-        if api_key_id:
-            config_file = app.pargs.configfile if app.pargs.configfile else app.Meta.handlers[0].config_file
-            if not os.path.exists(config_file):
-                config_file = os.path.join("..", config_file)
-            with open(config_file, "r") as yml_file:
-                config = yaml.safe_load(yml_file)
-            for ssn in api_key_id.keys():
-                logging.debug('Revoking API key for security server ' + ssn)
-                curl_cmd = "curl -X DELETE -u " + config["api_key"][0]["credentials"] + " --silent " + \
-                           config["api_key"][0]["url"] + "/" + str(api_key_id[ssn][0]) + " -k"
-                cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                      config["api_key"][0]["key"] + "\" niis@" + api_key_id[ssn][1] + " \"" + curl_cmd + "\""
-                exitcode, data = subprocess.getstatusoutput(cmd)
-                api_key_token = app.api_keys[ssn].split('=')[1]
-                if exitcode == 0:
-                    log_info("API key '" + api_key_token + "' for security server " + ssn + " revoked.")
-                else:
-                    logging.warning("Revocation of API key '" + api_key_token + "' for security server ' + ssn + ' failed")
-
-
-def log_info(message):
-    logging.info(message)
-    print(message)
 
 
 def less_verbose_urllib():

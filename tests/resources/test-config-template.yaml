@@ -1,17 +1,16 @@
-api_key:
-- credentials: xrd:secret
-  key: /path/to/ssh_private_key
-  roles:
-  - XROAD_SYSTEM_ADMINISTRATOR
-  - XROAD_SERVICE_ADMINISTRATOR
-  - XROAD_SECURITY_OFFICER
-  - XROAD_REGISTRATION_OFFICER
-  url: https://localhost:4000/api/v1/api-keys
-logging:
-  file: /var/log/xroad/xrdsst.log
-  level: INFO
+admin_credentials: <SECURITY_SERVER_CREDENTIALS>
+api_key_roles:
+- XROAD_SYSTEM_ADMINISTRATOR
+- XROAD_SERVICE_ADMINISTRATOR
+- XROAD_SECURITY_OFFICER
+- XROAD_REGISTRATION_OFFICER
+ssh_access:
+  user: <SSH_USER>
+  private_key: /path/to/ssh_private_key
 security_server:
 - api_key: X-Road-apikey token=<API_KEY>
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials:
   certificates:
     - /path/to/signcert
     - /path/to/authcert
@@ -26,6 +25,8 @@ security_server:
   software_token_pin: 1234
   fqdn: client_only
   url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
+  ssh_user:
+  ssh_private_key:
   clients:
     - member_class: ORG
       member_code: 111

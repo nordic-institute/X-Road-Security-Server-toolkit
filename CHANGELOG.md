@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2-alpha.0] - 2021-03-29
+- Make SSH user configurable for api key creation
+
 ## [0.3.1-alpha.0] - 2021-03-26
 - Add the external FQDN specification support for certificates and service providers.
 

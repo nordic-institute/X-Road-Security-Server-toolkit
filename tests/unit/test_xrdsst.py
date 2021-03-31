@@ -1,6 +1,6 @@
 from xrdsst.controllers.base import BaseController
 from xrdsst.core.excplanation import http_status_code_to_text
-from xrdsst.core.util import default_sign_key_label, default_auth_key_label
+from xrdsst.core.util import default_sign_key_label, default_auth_key_label, get_admin_credentials, get_ssh_user, get_ssh_key
 from xrdsst.main import opdep_init
 
 
@@ -14,6 +14,77 @@ def test_opdep_init_adds_app_opdep():
     assert mock_app.OP_DEPENDENCY_LIST
     assert mock_app.OP_GRAPH.number_of_nodes() == len(mock_app.OP_DEPENDENCY_LIST)
 
+def test_admin_credentials_from_root_level_when_empty_at_security_server_section():
+    config = {
+        'admin_credentials': 'admin:pass',
+        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'security_server':
+            [{'admin_credentials': 'another_admin:another_pass',
+              'ssh_user': 'ssh_user',
+              'ssh_private_key': 'private_key'}]}
+    security_server = {
+            'admin_credentials': '',
+            'ssh_user': '',
+            'ssh_private_key': ''}
+    assert 'admin:pass' == get_admin_credentials(security_server, config)
+
+def test_admin_credentials_from_root_level_when_missing_at_security_server_section():
+    config = {
+        'admin_credentials': 'admin:pass',
+        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'security_server':
+            [{'admin_credentials': 'another_admin:another_pass',
+              'ssh_user': 'ssh_user',
+              'ssh_private_key': 'private_key'}]}
+    security_server = {}
+    assert 'admin:pass' == get_admin_credentials(security_server, config)
+
+def test_admin_credentials_from_security_server_section_when_empty_at_root_level():
+    config = {
+        'admin_credentials': '',
+        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'security_server':
+            [{'admin_credentials': 'another_admin:another_pass',
+              'ssh_user': 'ssh_user',
+              'ssh_private_key': 'private_key'}]}
+    security_server = {
+            'admin_credentials': 'another_admin:another_pass',
+            'ssh_user': '',
+            'ssh_private_key': ''}
+    assert 'another_admin:another_pass' == get_admin_credentials(security_server, config)
+
+def test_ssh_values_from_root_level_when_empty_at_security_server_section():
+    config = {
+        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'security_server':
+            [{'ssh_user': 'ssh_user',
+              'ssh_private_key': 'private_key'}]}
+    security_server = {
+            'ssh_user': '',
+            'ssh_private_key': ''}
+    assert 'user' == get_ssh_user(security_server, config)
+    assert 'key' == get_ssh_key(security_server, config)
+
+def test_ssh_values_from_root_level_when_missing_at_security_server_section():
+    config = {
+        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'security_server':
+            [{'ssh_user': 'ssh_user',
+              'ssh_private_key': 'private_key'}]}
+    security_server = {}
+    assert 'user' == get_ssh_user(security_server, config)
+    assert 'key' == get_ssh_key(security_server, config)
+
+def test_ssh_values_from_security_server_section_when_missing_at_root_level():
+    config = {
+        'security_server':
+            [{'ssh_user': 'ssh_user',
+              'ssh_private_key': 'private_key'}]}
+    security_server = {
+            'ssh_user': 'another_user',
+            'ssh_private_key': 'another_key'}
+    assert 'another_user' == get_ssh_user(security_server, config)
+    assert 'another_key' == get_ssh_key(security_server, config)
 
 def test_default_sign_key_label():
     security_server_config = {'name': 'ss-name1'}
