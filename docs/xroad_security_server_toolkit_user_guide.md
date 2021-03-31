@@ -117,7 +117,10 @@ ssh_access:
 security_server:
 - api_key: X-Road-apikey token=<API_KEY>
   api_key_roles:
-    - <SECURITY_SERVER_ROLE_NAME>
+  - XROAD_SYSTEM_ADMINISTRATOR
+  - XROAD_SERVICE_ADMINISTRATOR
+  - XROAD_SECURITY_OFFICER
+  - XROAD_REGISTRATION_OFFICER
   api_key_url: https://localhost:4000/api/v1/api-keys
   admin_credentials: <SECURITY_SERVER_CREDENTIALS>
   configuration_anchor: /path/to/configuration-anchor.xml
@@ -169,8 +172,7 @@ The ``security_server`` section is for configuring security server parameters
   but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)
 * ``/path/to/ssh_private_key`` should be substituted with the correct path to the ssh private key file, e.g. home/user/id_rsa
   (if specified in ``ssh_access`` section, one value will be used for all configurable security servers, 
-  but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)
-* <SECURITY_SERVER_ROLE_NAME> parameter required for security server api key, should be substituted with a security server role name, e.g. XROAD_SYSTEM_ADMINISTRATOR    
+  but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)  
 * ``/path/to/xrdsst.log`` should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
 * <LOG_LEVEL> parameter for configuring the logging level for the X-Road Security Server Toolkit, e.g INFO
 * <API_KEY> if un-filled, a temporary api key will be automatically created and revoked in the end of a single operation, if filled with value in
