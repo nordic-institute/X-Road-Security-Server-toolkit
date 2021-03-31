@@ -27,7 +27,7 @@ Doc. ID: XRDSST-CONF
 | 17.03.2021 | 1.2.3       | Describe failure interpretation and recovery                                 | Taimo Peelo        |
 | 22.03.2021 | 1.2.4       | Default configuration from config/base.yaml -> config/xrdsst.yml             | Taimo Peelo        |
 | 26.03.2021 | 1.2.5       | Add 'fqdn' key for security server, fix service field descriptions           | Taimo Peelo        |
-| 29.03.2021 | 1.2.6       | Move api_key section into security server section                            | Bert Viikmäe       |
+| 31.03.2021 | 1.2.6       | Move api_key section into security server section                            | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -111,7 +111,7 @@ $ pip install setup.py
 ### 3.2 Format of configuration file
 ```
 ssh_access:
-  admin_credentials: <SECURITTY_SERVER_CREDENTIALS>
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS>
   user: <SSH_USER>
   private_key: /path/to/ssh_private_key
 security_server:
@@ -119,7 +119,7 @@ security_server:
   api_key_roles:
     - <SECURITY_SERVER_ROLE_NAME>
   api_key_url: https://localhost:4000/api/v1/api-keys
-  admin_credentials: <SECURITTY_SERVER_CREDENTIALS>
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS>
   configuration_anchor: /path/to/configuration-anchor.xml
   certificates:
     - /path/to/signcert
