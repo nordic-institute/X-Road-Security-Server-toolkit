@@ -21,8 +21,9 @@ from xrdsst.models import ConnectionType
 class TestBaseController(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
+        'admin_credentials': 'user:pass',
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
-        'ssh_access': [{'admin_credentials': 'user:pass', 'user': 'user', 'private_key': 'key'}],
+        'ssh_access': [{'user': 'user', 'private_key': 'key'}],
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',

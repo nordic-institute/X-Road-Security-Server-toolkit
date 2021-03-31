@@ -19,7 +19,8 @@ from xrdsst.main import XRDSSTTest
 
 class TestAuto(unittest.TestCase):
     ss_config = {
-        'ssh_access': [{'admin_credentials': 'user:pass', 'user': 'user', 'private_key': 'key'}],
+        'admin_credentials': 'user:pass',
+        'ssh_access': [{'user': 'user', 'private_key': 'key'}],
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',

@@ -62,7 +62,7 @@ class BaseController(Controller):
     def create_api_key(self, roles_list, security_server):
         self.log_debug('Creating API key for security server: ' + security_server['name'])
         roles = list(roles_list)
-        admin_credentials = security_server["admin_credentials"] if security_server["admin_credentials"] else self.config["ssh_access"]["admin_credentials"]
+        admin_credentials = security_server["admin_credentials"] if security_server["admin_credentials"] else self.config["admin_credentials"]
         ssh_key = security_server["ssh_private_key"] if security_server["ssh_private_key"] else self.config["ssh_access"]["private_key"]
         ssh_user = security_server["ssh_user"] if security_server["ssh_user"] else self.config["ssh_access"]["user"]
         curl_cmd = "curl -X POST -u " + admin_credentials + " --silent " + \
@@ -81,7 +81,8 @@ class BaseController(Controller):
                                   ' created.')
                     return api_key_json["key"]
                 else:
-                    self.log_api_error('API key creation for security server ' + security_server['name'] + ' failed.')
+                    self.log_api_error('BaseController->create_api_key:', 'API key creation for security server ' \
+                                       + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
             except Exception as err:
                 self.log_api_error('BaseController->create_api_key:', err)
         else:

@@ -1,5 +1,5 @@
+admin_credentials: <SECURITY_SERVER_CREDENTIALS>
 ssh_access:
-  admin_credentials: <SECURITY_SERVER_CREDENTIALS>
   user: <SSH_USER>
   private_key: /path/to/ssh_private_key
 security_server:

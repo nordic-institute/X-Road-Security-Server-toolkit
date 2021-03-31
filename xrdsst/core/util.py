@@ -111,7 +111,7 @@ def revoke_api_key(app):
                 logging.debug('Revoking API key for security server ' + ssn)
                 for security_server in config["security_server"]:
                     if ssn == security_server["name"]:
-                        credentials = security_server["admin_credentials"] if security_server["admin_credentials"] else config["ssh_access"]["admin_credentials"]
+                        credentials = security_server["admin_credentials"] if security_server["admin_credentials"] else config["admin_credentials"]
                         url = security_server["api_key_url"]
                         ssh_key = security_server["ssh_private_key"] if security_server["ssh_private_key"] else config["ssh_access"]["private_key"]
                         ssh_user = security_server["ssh_user"] if security_server["ssh_user"] else config["ssh_access"]["user"]
