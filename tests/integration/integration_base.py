@@ -39,7 +39,7 @@ class IntegrationTestBase(unittest.TestCase):
                 [{'name': 'ss',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
                   'fqdn': 'client_only',
-                  'api_key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
+                  'api_key': 'a2e9dea1-de53-4ebc-a750-6be6461d91f0',
                   'api_key_url': self.url,
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
                   'owner_dn_country': 'FI',
@@ -83,7 +83,7 @@ class IntegrationTestBase(unittest.TestCase):
         return self.config
 
     def set_api_key(self, api_key):
-        self.config["security_server"][0]["api_key"] = 'X-Road-apikey token=' + api_key
+        self.config["security_server"][0]["api_key"] = api_key
 
     def set_ip_url(self, ip_address):
         local_url = self.config["security_server"][0]["url"]

@@ -5,18 +5,6 @@ import subprocess
 
 import yaml
 
-# Regex of X-Road security server header for API key.
-RE_API_KEY_HEADER = re.compile(r"""
-    ^
-    X-Road-apikey[ ]token=
-    [a-f0-9]{8}-
-    [a-f0-9]{4}-
-    [a-f0-9]{4}-  # Do not fix UUID version
-    [a-f0-9]{4}-  # Do no validate first character separately
-    [a-f0-9]{12}
-    $
-""", re.VERBOSE | re.IGNORECASE)
-
 def get_admin_credentials(security_server, config):
     admin_credentials = security_server["admin_credentials"] if security_server.get("admin_credentials", "") else config["admin_credentials"]
     return admin_credentials

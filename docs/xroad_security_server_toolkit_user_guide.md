@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.7
+Version: 1.2.8
 Doc. ID: XRDSST-CONF
 
 ---
@@ -29,6 +29,7 @@ Doc. ID: XRDSST-CONF
 | 26.03.2021 | 1.2.5       | Add 'fqdn' key for security server, fix service field descriptions           | Taimo Peelo        |
 | 31.03.2021 | 1.2.6       | Refactorization of configuration file related to SSH and api key parameters  | Bert Viikmäe       |
 | 01.04.2021 | 1.2.7       | Describe backup use, clarify toolkits' error interpretation role, remove undocumented ``api_key_roles`` configuration element | Taimo Peelo        |
+| 05.04.2021 | 1.2.8       | Remove HTTP header value prefix from 'api_key' configuration element         | Taimo Peelo        |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -122,7 +123,7 @@ ssh_access:
   user: <SSH_USER>
   private_key: /path/to/ssh_private_key
 security_server:
-- api_key: X-Road-apikey token=<API_KEY>
+- api_key: <API_KEY>
   api_key_url: https://localhost:4000/api/v1/api-keys
   admin_credentials: <SECURITY_SERVER_CREDENTIALS>
   configuration_anchor: /path/to/configuration-anchor.xml
@@ -177,8 +178,7 @@ The ``security_server`` section is for configuring security server parameters
   but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)  
 * ``/path/to/xrdsst.log`` should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
 * <LOG_LEVEL> parameter for configuring the logging level for the X-Road Security Server Toolkit, e.g INFO
-* <API_KEY> if un-filled, a temporary api key will be automatically created and revoked in the end of a single operation, if filled with value in
-  the format of ``X-Road-apikey token=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx``, that key will be used and a temporary key will not be created
+* <API_KEY> filled with API key for security server or left as-is/any for toolkit to attempt creation of transient API key
 * ``/path/to/configuration-anchor.xml`` should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
 * <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
 * <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
@@ -411,7 +411,7 @@ line 32 below:
 ```yaml
 # ... SNIPPED
 security_server:                                                     # line 11
-- api_key: X-Road-apikey token=8d527381-80c1-4910-a259-7e3c23253397  # line 12
+- api_key: 8d527381-80c1-4910-a259-7e3c23253397                      # line 12
 # ... SNIPPED
   clients:                                                           # line 27
     - member_class: GOV                                              # line 28

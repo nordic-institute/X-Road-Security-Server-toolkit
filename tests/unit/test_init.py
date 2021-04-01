@@ -38,7 +38,7 @@ class TestInit(unittest.TestCase):
         'security_server':
             [{'name': 'ss',
               'url': 'https://no.there.com:4000/api/v1',
-              'api_key': 'X-Road-apikey token=<API_KEY>',
+              'api_key': '<API_KEY>',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',

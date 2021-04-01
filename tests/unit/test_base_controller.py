@@ -27,7 +27,7 @@ class TestBaseController(unittest.TestCase):
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
-              'api_key': 'X-Road-apikey token=f160830d-d75a-476e-a9ad-9c12abff00d3',
+              'api_key': 'f160830d-d75a-476e-a9ad-9c12abff00d3',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
@@ -360,13 +360,13 @@ class TestBaseController(unittest.TestCase):
                 temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
                 config = self.create_temp_conf(base_controller, temp_file_name)
                 security_server = config["security_server"][0]
-                security_server["api_key"] = 'X-Road-apikey token=some key'
+                security_server["api_key"] = 'some key'
                 key = base_controller.get_api_key(config, security_server)
-                assert key != 'X-Road-apikey token=api-key-123'
-                security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+                assert key != 'api-key-123'
+                security_server["api_key"] = '<API_KEY>'
                 key = base_controller.get_api_key(config, security_server)
                 os.remove(temp_file_name)
-                assert key == 'X-Road-apikey token=88888888-8000-4000-a000-727272727272'
+                assert key == '88888888-8000-4000-a000-727272727272'
 
     def test_get_api_key_ssh_key_exception(self):
         with XRDSSTTest() as app:
@@ -375,7 +375,7 @@ class TestBaseController(unittest.TestCase):
             temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
             config = self.create_temp_conf(base_controller, temp_file_name)
             security_server = config["security_server"][0]
-            security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+            security_server["api_key"] = '<API_KEY>'
             base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             self.assertRaises(Exception)
@@ -391,7 +391,7 @@ class TestBaseController(unittest.TestCase):
             ssh_access = config["ssh_access"]
             security_server = config["security_server"][0]
             ssh_access["private_key"] = 'my_key'
-            security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+            security_server["api_key"] = '<API_KEY>'
             base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             os.remove("my_key")
