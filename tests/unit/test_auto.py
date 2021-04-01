@@ -19,12 +19,13 @@ from xrdsst.main import XRDSSTTest
 
 class TestAuto(unittest.TestCase):
     ss_config = {
-        'ssh_access': [{'admin_credentials': 'user:pass', 'user': 'user', 'private_key': 'key'}],
+        'admin_credentials': 'user:pass',
+        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
+        'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'api_key': 'X-Road-apikey token=66666666-8000-4011-a000-333336633333',
-              'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
               'api_key_url': 'https://localhost:4000/api/v1/api-keys'
             }]}
 

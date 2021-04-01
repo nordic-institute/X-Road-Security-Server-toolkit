@@ -23,7 +23,7 @@ from urllib.parse import urlparse
 from definitions import ROOT_DIR
 from xrdsst.core.conf_keys import validate_conf_keys, ConfKeysSecurityServer, ConfKeysRoot
 from xrdsst.core.excplanation import Excplanatory
-from xrdsst.core.util import op_node_to_ctr_cmd_text, RE_API_KEY_HEADER
+from xrdsst.core.util import op_node_to_ctr_cmd_text, RE_API_KEY_HEADER, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.core.version import get_version
 from xrdsst.resources.texts import texts
 from xrdsst.configuration.configuration import Configuration
@@ -59,16 +59,16 @@ class BaseController(Controller):
                                 metavar='file',
                                 default=os.path.join(ROOT_DIR, BaseController._DEFAULT_CONFIG_FILE))
 
-    def create_api_key(self, roles_list, security_server):
+    def create_api_key(self, config, roles_list, security_server):
         self.log_debug('Creating API key for security server: ' + security_server['name'])
         roles = list(roles_list)
-        admin_credentials = security_server["admin_credentials"] if security_server["admin_credentials"] else self.config["ssh_access"]["admin_credentials"]
-        ssh_key = security_server["ssh_private_key"] if security_server["ssh_private_key"] else self.config["ssh_access"]["private_key"]
-        ssh_user = security_server["ssh_user"] if security_server["ssh_user"] else self.config["ssh_access"]["user"]
+        admin_credentials = get_admin_credentials(security_server, config)
+        ssh_key = get_ssh_key(security_server, config)
+        ssh_user = get_ssh_user(security_server, config)
         curl_cmd = "curl -X POST -u " + admin_credentials + " --silent " + \
                    security_server["api_key_url"] + " --data \'" + json.dumps(roles).replace('"', '\\"') + "\'" + \
                    " --header \'Content-Type: application/json\' -k"
-        cmd = 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(
+        cmd = 'ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(
             ssh_key, ssh_user, self.security_server_address(security_server), curl_cmd
         )
         if os.path.isfile(ssh_key):
@@ -81,7 +81,8 @@ class BaseController(Controller):
                                   ' created.')
                     return api_key_json["key"]
                 else:
-                    self.log_api_error('API key creation for security server ' + security_server['name'] + ' failed.')
+                    self.log_api_error('BaseController->create_api_key:', 'API key creation for security server ' \
+                                       + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
             except Exception as err:
                 self.log_api_error('BaseController->create_api_key:', err)
         else:
@@ -223,11 +224,12 @@ class BaseController(Controller):
 
         # Fallback attempt to create the (temporary) API key, if there seems to be SSH access configured.
         api_key = None
+        config = conf if conf else self.config
 
         if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
-            roles_list = security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY_ROLES)
+            roles_list = config.get(ConfKeysRoot.CONF_KEY_ROOT_API_KEY_ROLES)
             try:
-                api_key = 'X-Road-apikey token=' + self.create_api_key(roles_list, security_server)
+                api_key = 'X-Road-apikey token=' + self.create_api_key(config, roles_list, security_server)
                 self.app.api_keys[security_server[ConfKeysSecurityServer.CONF_KEY_NAME]] = api_key
             except Exception as err:
                 self.log_api_error('BaseController->get_api_key:', err)
