@@ -33,6 +33,7 @@ BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_ban
 
 
 class BaseController(Controller):
+    _TRANSIENT_API_KEY_ROLES = ['XROAD_SYSTEM_ADMINISTRATOR', 'XROAD_SERVICE_ADMINISTRATOR', 'XROAD_SECURITY_OFFICER', 'XROAD_REGISTRATION_OFFICER']
     _DEFAULT_CONFIG_FILE = "config/xrdsst.yml"
     class Meta:
         label = 'base'
@@ -227,9 +228,8 @@ class BaseController(Controller):
         config = conf if conf else self.config
 
         if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
-            roles_list = config.get(ConfKeysRoot.CONF_KEY_ROOT_API_KEY_ROLES)
             try:
-                api_key = 'X-Road-apikey token=' + self.create_api_key(config, roles_list, security_server)
+                api_key = 'X-Road-apikey token=' + self.create_api_key(config, BaseController._TRANSIENT_API_KEY_ROLES, security_server)
                 self.app.api_keys[security_server[ConfKeysSecurityServer.CONF_KEY_NAME]] = api_key
             except Exception as err:
                 self.log_api_error('BaseController->get_api_key:', err)

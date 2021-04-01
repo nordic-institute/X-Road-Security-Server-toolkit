@@ -36,7 +36,6 @@ def validate_conf_keys(xrdsst_conf):
 class ConfKeysRoot:
     CONF_KEY_ROOT_SERVER = 'security_server'
     CONF_KEY_ROOT_ADMIN_CREDENTIALS = 'admin_credentials'
-    CONF_KEY_ROOT_API_KEY_ROLES = 'api_key_roles'
     CONF_KEY_ROOT_SSH_ACCESS = 'ssh_access'
     CONF_KEY_ROOT_LOGGING = 'logging'
 
