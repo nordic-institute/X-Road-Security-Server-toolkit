@@ -24,7 +24,21 @@ create_user() {
     pass=$2
     host=$3
     ssh_key=$4
-    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i $ssh_key root@$host "adduser $user --group sudo -p $pass"
+    os_name=$(ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "grep '^NAME' /etc/os-release")
+
+    if echo "$os_name" | grep 'Ubuntu'; then
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "adduser $user --group sudo -p $pass"
+    fi
+    if echo "$os_name" | grep 'Centos'; then
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "useradd --system --home /var/lib/xroad --no-create-home --shell /bin/bash --user-group --comment \"X-Road system user\" xroad"
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "mkdir /etc/xroad"
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "chown xroad:xroad /etc/xroad"
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "chmod 751 /etc/xroad"
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "touch /etc/xroad/db.properties"
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "chown xroad:xroad /etc/xroad/db.properties"
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "chmod 640 /etc/xroad/db.properties"
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "adduser $user --group sudo -p $pass"
+    fi
 }
 
 while getopts ":u:p:h:k:" options; do
