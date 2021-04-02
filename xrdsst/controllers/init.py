@@ -33,29 +33,29 @@ class InitServerController(BaseController):
         self.init_logging(config_file)
         for security_server in config_file["security_server"]:
             self.log_debug('Starting initialization process for security server: ' + security_server['name'])
-            configuration = self.initialize_basic_config_values(security_server, config_file)
-            configuration_check = self.check_init_status(configuration)
+            ss_api_config = self.create_api_config(security_server, config_file)
+            configuration_check = self.check_init_status(ss_api_config)
             if configuration_check.is_anchor_imported:
                 self.log_info('Configuration anchor for \"' + security_server['name'] + '\" already imported')
             else:
-                self.upload_anchor(configuration, security_server)
+                self.upload_anchor(ss_api_config, security_server)
             if configuration_check.is_server_code_initialized:
                 self.log_info('Security server \"' + security_server['name'] + '\" already initialized')
             else:
-                self.init_security_server(configuration, security_server)
+                self.init_security_server(ss_api_config, security_server)
 
-    def check_init_status(self, configuration):
+    def check_init_status(self, ss_api_config):
         try:
-            initialization_api = InitializationApi(ApiClient(configuration))
+            initialization_api = InitializationApi(ApiClient(ss_api_config))
             response = initialization_api.get_initialization_status()
             return response
         except ApiException as err:
             self.log_api_error('InitializationApi->get_initialization_status', err)
 
-    def upload_anchor(self, configuration, security_server):
+    def upload_anchor(self, ss_api_config, security_server):
         try:
             self.log_info('Uploading configuration anchor for security server: ' + security_server['name'])
-            system_api = SystemApi(ApiClient(configuration))
+            system_api = SystemApi(ApiClient(ss_api_config))
             anchor = open(security_server["configuration_anchor"], "r")
             response = system_api.upload_initial_anchor(body=anchor.read())
             self.log_info('Upload of configuration anchor from \"' + security_server["configuration_anchor"] +
@@ -64,10 +64,10 @@ class InitServerController(BaseController):
         except ApiException as err:
             self.log_api_error('SystemApi->upload_initial_anchor', err)
 
-    def init_security_server(self, configuration, security_server):
+    def init_security_server(self, ss_api_config, security_server):
         try:
             self.log_info('Initializing security server: ' + security_server['name'])
-            initialization_api = InitializationApi(ApiClient(configuration))
+            initialization_api = InitializationApi(ApiClient(ss_api_config))
             response = initialization_api.init_security_server(body=InitialServerConf(
                 owner_member_class=security_server["owner_member_class"],
                 owner_member_code=security_server["owner_member_code"],

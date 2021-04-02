@@ -117,8 +117,8 @@ class StatusController(BaseController):
         servers = []
         if configuration.get("security_server"):
             for security_server in configuration["security_server"]:
-                ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-                servers.append(self.remote_status(ss_configuration, security_server))
+                ss_api_config = self.create_api_config(security_server, configuration)
+                servers.append(self.remote_status(ss_api_config, security_server))
 
         if self.is_output_tabulated():
             render_data = [StatusListMapper.headers()]

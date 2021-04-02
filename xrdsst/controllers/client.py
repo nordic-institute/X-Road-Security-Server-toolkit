@@ -49,22 +49,22 @@ class ClientController(BaseController):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
             BaseController.log_debug('Starting client add process for security server: ' + security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
+            ss_api_config = self.create_api_config(security_server, configuration)
             if "clients" in security_server:  # Guards both against empty section (->None) & complete lack of section
                 for client in security_server["clients"]:
-                    self.remote_add_client(ss_configuration, client)
+                    self.remote_add_client(ss_api_config, client)
 
     # This operation fails when global status is not up to date.
     def register_client(self, configuration):
         self.init_logging(configuration)
         for security_server in configuration["security_server"]:
             BaseController.log_debug('Starting client registrations for security server: ' + security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
+            ss_api_config = self.create_api_config(security_server, configuration)
             if "clients" in security_server:
                 for client in security_server["clients"]:
-                    self.remote_register_client(ss_configuration, security_server, client)
+                    self.remote_register_client(ss_api_config, security_server, client)
 
-    def remote_add_client(self, ss_configuration, client_conf):
+    def remote_add_client(self, ss_api_config, client_conf):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
         client = Client(member_class=client_conf['member_class'],
                         member_code=client_conf['member_code'],
@@ -72,7 +72,7 @@ class ClientController(BaseController):
                         connection_type=conn_type)
 
         client_add = ClientAdd(client=client, ignore_warnings=True)
-        clients_api = ClientsApi(ApiClient(ss_configuration))
+        clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             response = clients_api.add_client(body=client_add)
             BaseController.log_info("Added client subsystem " + self.partial_client_id(client_conf) + " (got full id " + response.id + ")")
@@ -83,8 +83,8 @@ class ClientController(BaseController):
             else:
                 BaseController.log_api_error('ClientsApi->add_client', err)
 
-    def remote_register_client(self, ss_configuration, security_server_conf, client_conf):
-        clients_api = ClientsApi(ApiClient(ss_configuration))
+    def remote_register_client(self, ss_api_config, security_server_conf, client_conf):
+        clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             client = self.find_client(clients_api, security_server_conf, client_conf)
             if client:

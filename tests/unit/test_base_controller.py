@@ -365,7 +365,7 @@ class TestBaseController(unittest.TestCase):
             os.remove("my_key")
             self.assertRaises(Exception)
 
-    def test_initialize_basic_conf_values(self):
+    def test_create_api_config(self):
         with XRDSSTTest() as app:
             base_controller = BaseController()
             base_controller.app = app
@@ -376,7 +376,7 @@ class TestBaseController(unittest.TestCase):
             configuration.api_key['Authorization'] = security_server["api_key"]
             configuration.host = security_server["url"]
             configuration.verify_ssl = False
-            response = base_controller.initialize_basic_config_values(security_server)
+            response = base_controller.create_api_config(security_server)
             os.remove(temp_file_name)
             assert response.api_key == configuration.api_key
             assert response.host == configuration.host

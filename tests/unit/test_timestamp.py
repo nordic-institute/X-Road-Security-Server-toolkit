@@ -74,7 +74,7 @@ class TestTimestamp(unittest.TestCase):
                 timestamp_controller.app = app
                 timestamp_controller.load_config = (lambda: self.ss_config)
                 for security_server in self.ss_config["security_server"]:
-                    configuration = timestamp_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    configuration = timestamp_controller.create_api_config(security_server, self.ss_config)
                     response = timestamp_controller.remote_get_configured(configuration)
                     assert response == TimestampTestData.timestamp_service_list_response
 
@@ -86,7 +86,7 @@ class TestTimestamp(unittest.TestCase):
                 timestamp_controller.app = app
                 timestamp_controller.load_config = (lambda: self.ss_config)
                 for security_server in self.ss_config["security_server"]:
-                    configuration = timestamp_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    configuration = timestamp_controller.create_api_config(security_server, self.ss_config)
                     timestamp_controller.remote_get_configured(configuration)
                     self.assertRaises(ApiException)
 

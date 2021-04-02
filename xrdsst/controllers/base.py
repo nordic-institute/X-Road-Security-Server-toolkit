@@ -130,7 +130,7 @@ class BaseController(Controller):
 
         for security_server in active_config["security_server"]:
             ssn = security_server['name']
-            api_config = self.initialize_basic_config_values(security_server, active_config)
+            api_config = self.create_api_config(security_server, active_config)
             status = self.get_server_status(api_config, security_server)
 
             for g_node in g:
@@ -379,12 +379,12 @@ class BaseController(Controller):
 
         return self.config
 
-    def initialize_basic_config_values(self, security_server, config=None):
-        configuration = Configuration()
-        configuration.api_key['Authorization'] = self.get_api_key(config, security_server)
-        configuration.host = security_server["url"]
-        configuration.verify_ssl = False
-        return configuration
+    def create_api_config(self, security_server, config=None):
+        api_config = Configuration()
+        api_config.api_key['Authorization'] = self.get_api_key(config, security_server)
+        api_config.host = security_server["url"]
+        api_config.verify_ssl = False
+        return api_config
 
     # Produces INFO level log and console printout about unconfigured servers details when executing single operation
     # (last operation in given /full_op_path/).
