@@ -46,7 +46,6 @@ class ClientController(BaseController):
 
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
@@ -59,7 +58,6 @@ class ClientController(BaseController):
 
     # This operation fails when global status is not up to date.
     def register_client(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:

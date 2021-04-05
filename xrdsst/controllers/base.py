@@ -256,7 +256,7 @@ class BaseController(Controller):
         return api_key
 
     @staticmethod
-    def init_logging(configuration):
+    def _init_logging(configuration):
         curr_handlers = logging.getLogger().handlers
         if curr_handlers:
             if any(map(lambda h: h.level != logging.NOTSET, curr_handlers)):  # Skip init ONLY if ANY handler levels set.
@@ -303,6 +303,7 @@ class BaseController(Controller):
             handler.addFilter(BaseController.api_key_scrambler)
             handler.setLevel(log_level)
 
+    # Load the configuration, performs key level validation, finally initiates logging.
     def load_config(self, baseconfig=None):
         # Add errors to /dict_err_lists/ at given key for /sec_server_configs/ that do not have required /key/ defined.
         def require_conf_key(key, sec_server_configs, dict_err_lists):
@@ -402,6 +403,12 @@ class BaseController(Controller):
             print(*errors[ConfKeysSecurityServer.CONF_KEY_URL], sep='\n', file=sys.stderr)
             self.app.close(os.EX_CONFIG)
             return None
+
+        # Change the logging contract, per:
+        #   https://github.com/nordic-institute/X-Road-Security-Server-toolkit/pull/43#issuecomment-811850292
+        # and start logging immediately after configuration has been loaded, only detecting basic key-level
+        # errors, non-mutable operations being undifferentiated.
+        self._init_logging(self.config)
 
         return self.config
 

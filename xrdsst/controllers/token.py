@@ -76,13 +76,11 @@ class TokenController(BaseController):
         self.token_add_keys_with_csrs(active_config)
 
     def token_list(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             self.remote_token_list(ss_api_config)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    # Since this is read-only operation, do not log anything, only console output
     def remote_token_list(self, ss_api_config):
         try:
             token_api = TokensApi(ApiClient(ss_api_config))
@@ -108,7 +106,6 @@ class TokenController(BaseController):
             print("Exception when calling TokensApi->get_tokens: %s\n" % err)
 
     def token_login(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
@@ -136,7 +133,6 @@ class TokenController(BaseController):
                 BaseController.log_api_error('TokensApi->login_token', err)
 
     def token_add_keys_with_csrs(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:

@@ -72,7 +72,6 @@ class ServiceController(BaseController):
         self.update_service_parameters(active_config)
 
     def add_service_description(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
@@ -86,7 +85,6 @@ class ServiceController(BaseController):
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def enable_service_description(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
@@ -100,7 +98,6 @@ class ServiceController(BaseController):
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def add_access_rights(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
@@ -114,7 +111,6 @@ class ServiceController(BaseController):
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def update_service_parameters(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:

@@ -289,7 +289,7 @@ class TestBaseController(unittest.TestCase):
 
         self._ss_config["logging"]["file"] = temp_file_name
         base_controller = BaseController()
-        base_controller.init_logging(self.get_ss_config())
+        base_controller._init_logging(self.get_ss_config())
         assert len(logging.getLogger().handlers) == 1
         assert os.path.exists(temp_file_name)
 
@@ -305,7 +305,7 @@ class TestBaseController(unittest.TestCase):
 
         self._ss_config["logging"]["file"] = temp_file_name
         base_controller = BaseController()
-        base_controller.init_logging(self.get_ss_config())
+        base_controller._init_logging(self.get_ss_config())
         assert len(logging.getLogger().handlers) == 1
 
     def test_init_logging_directory(self):
@@ -317,7 +317,7 @@ class TestBaseController(unittest.TestCase):
 
         self._ss_config["logging"]["file"] = temp_file_name
         base_controller = BaseController()
-        base_controller.init_logging(self.get_ss_config())
+        base_controller._init_logging(self.get_ss_config())
         assert len(logging.getLogger().handlers) == 1
 
     def test_no_plain_api_key_logging(self):
@@ -333,7 +333,7 @@ class TestBaseController(unittest.TestCase):
 
         self._ss_config["logging"]["file"] = logfile_name
         base_controller = BaseController()
-        base_controller.init_logging(self.get_ss_config())
+        base_controller._init_logging(self.get_ss_config())
 
         the_api_key = '460ad0b9-d023-4087-a291-dc97eddcb7d8'
 
