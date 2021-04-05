@@ -151,7 +151,6 @@ class TestToken(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     ss_config = {
         'admin_credentials': 'user:pass',
-        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
         'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
@@ -190,7 +189,7 @@ class TestToken(unittest.TestCase):
                 token_controller.app = app
                 token_controller.load_config = (lambda: self.ss_config)
                 for security_server in self.ss_config["security_server"]:
-                    configuration = token_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    configuration = token_controller.create_api_config(security_server, self.ss_config)
                     response = token_controller.remote_get_tokens(configuration)
                     assert response == TokenTestData.token_list_response
 
@@ -202,7 +201,7 @@ class TestToken(unittest.TestCase):
                 token_controller.app = app
                 token_controller.load_config = (lambda: self.ss_config)
                 for security_server in self.ss_config["security_server"]:
-                    configuration = token_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    configuration = token_controller.create_api_config(security_server, self.ss_config)
                     token_controller.remote_get_tokens(configuration)
                     self.assertRaises(ApiException)
 

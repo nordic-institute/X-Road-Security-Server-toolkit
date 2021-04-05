@@ -244,7 +244,6 @@ class TestCert(unittest.TestCase):
     authcert_existing = os.path.join(ROOT_DIR, "tests/resources/authcert.pem")
     ss_config = {
         'admin_credentials': 'user:pass',
-        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
         'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':

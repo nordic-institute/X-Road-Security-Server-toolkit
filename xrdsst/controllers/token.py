@@ -77,14 +77,15 @@ class TokenController(BaseController):
 
     def token_list(self, config):
         self.init_logging(config)
-        for security_server in config["security_server"]:
-            configuration = self.initialize_basic_config_values(security_server, config)
-            self.remote_token_list(configuration)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+            self.remote_token_list(ss_api_config)
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     # Since this is read-only operation, do not log anything, only console output
-    def remote_token_list(self, configuration):
+    def remote_token_list(self, ss_api_config):
         try:
-            token_api = TokensApi(ApiClient(configuration))
+            token_api = TokensApi(ApiClient(ss_api_config))
             token_list_response = token_api.get_tokens()
             render_data = []
             if self.is_output_tabulated():
@@ -98,28 +99,31 @@ class TokenController(BaseController):
             print("Exception when calling TokensApi->get_tokens: %s\n" % err)
 
     @staticmethod
-    def remote_get_tokens(configuration):
+    def remote_get_tokens(ss_api_config):
         try:
-            token_api = TokensApi(ApiClient(configuration))
+            token_api = TokensApi(ApiClient(ss_api_config))
             token_list_response = token_api.get_tokens()
             return token_list_response
         except ApiException as err:
             print("Exception when calling TokensApi->get_tokens: %s\n" % err)
 
-    def token_login(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+    def token_login(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting token login process for security server: ' + security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-            self.remote_token_login(ss_configuration, security_server)
+            self.remote_token_login(ss_api_config, security_server)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     @staticmethod
-    def remote_token_login(ss_configuration, security_server):
+    def remote_token_login(ss_api_config, security_server):
         token_id = security_server['software_token_id']
         token_pin = security_server['software_token_pin']
         try:
             BaseController.log_info('Performing software token ' + str(token_id) + ' login: ')
-            token_api = TokensApi(ApiClient(ss_configuration))
+            token_api = TokensApi(ApiClient(ss_api_config))
             token_api.login_token(
                 id=token_id,
                 body=TokenPassword(token_pin)
@@ -131,16 +135,19 @@ class TokenController(BaseController):
             else:
                 BaseController.log_api_error('TokensApi->login_token', err)
 
-    def token_add_keys_with_csrs(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+    def token_add_keys_with_csrs(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting token key creation process for security server: ' + security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-            self.remote_token_add_keys_with_csrs(ss_configuration, security_server)
+            self.remote_token_add_keys_with_csrs(ss_api_config, security_server)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     # requires token to be logged in
     @staticmethod
-    def remote_token_add_keys_with_csrs(ss_configuration, security_server):
+    def remote_token_add_keys_with_csrs(ss_api_config, security_server):
         def log_creations(results):
             for result in results:
                 BaseController.log_info(
@@ -162,10 +169,10 @@ class TokenController(BaseController):
         sign_key_label = default_sign_key_label(security_server)
 
         try:
-            ssi = remote_get_security_server_instance(ss_configuration)
-            token = remote_get_token(ss_configuration, security_server)
-            auth_ca = remote_get_auth_certificate_authority(ss_configuration)
-            sign_ca = remote_get_sign_certificate_authority(ss_configuration)
+            ssi = remote_get_security_server_instance(ss_api_config)
+            token = remote_get_token(ss_api_config, security_server)
+            auth_ca = remote_get_auth_certificate_authority(ss_api_config)
+            sign_ca = remote_get_sign_certificate_authority(ss_api_config)
 
             token_key_labels = list(map(lambda key: key.label, token.keys))
             has_auth_key = auth_key_label in token_key_labels
@@ -207,7 +214,7 @@ class TokenController(BaseController):
                 BaseController.log_info("No key initialization needed.")
                 return
 
-            token_api = TokensApi(ApiClient(ss_configuration))
+            token_api = TokensApi(ApiClient(ss_api_config))
             if not has_auth_key:
                 try:
                     BaseController.log_info('Generating software token ' + str(token_id) + " key labelled '" + auth_key_label + "' and AUTH CSR: ")
@@ -232,19 +239,19 @@ class TokenController(BaseController):
         log_creations(responses)
 
 
-def remote_get_security_server_instance(ss_configuration):
-    ss_api = SecurityServersApi(ApiClient(ss_configuration))
+def remote_get_security_server_instance(ss_api_config):
+    ss_api = SecurityServersApi(ApiClient(ss_api_config))
     ss_api_response = ss_api.get_security_servers(current_server=True)
     return ss_api_response.pop()
 
 
-def remote_get_auth_certificate_authority(ss_configuration):
-    ca_api = CertificateAuthoritiesApi(ApiClient(ss_configuration))
+def remote_get_auth_certificate_authority(ss_api_config):
+    ca_api = CertificateAuthoritiesApi(ApiClient(ss_api_config))
     ca_api_response = ca_api.get_approved_certificate_authorities(key_usage_type=KeyUsageType.AUTHENTICATION)
     return ca_api_response.pop()
 
 
-def remote_get_sign_certificate_authority(ss_configuration):
-    ca_api = CertificateAuthoritiesApi(ApiClient(ss_configuration))
+def remote_get_sign_certificate_authority(ss_api_config):
+    ca_api = CertificateAuthoritiesApi(ApiClient(ss_api_config))
     ca_api_response = ca_api.get_approved_certificate_authorities(key_usage_type=KeyUsageType.SIGNING)
     return ca_api_response.pop()

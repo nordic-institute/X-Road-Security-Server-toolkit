@@ -21,6 +21,7 @@ texts = {
     'message.file.unreadable': "Could not read file '{}'.",
     'message.config.unparsable': "Error parsing config: {}",
     'message.config.serverless': "No security servers defined in '{}'.",
+    'message.server.keyless': "No API key available/acquired for '{}'.",
     'message.skipped': "SKIPPED '{}'"
 }
 

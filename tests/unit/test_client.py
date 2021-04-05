@@ -31,7 +31,6 @@ class ClientTestData:
 class TestClient(unittest.TestCase):
     ss_config = {
         'admin_credentials': 'user:pass',
-        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
         'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':

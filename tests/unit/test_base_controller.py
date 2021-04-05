@@ -22,13 +22,12 @@ class TestBaseController(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'admin_credentials': 'user:pass',
-        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
         'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
-              'api_key': 'X-Road-apikey token=<API_KEY>',
+              'api_key': 'X-Road-apikey token=f160830d-d75a-476e-a9ad-9c12abff00d3',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
@@ -366,7 +365,7 @@ class TestBaseController(unittest.TestCase):
             os.remove("my_key")
             self.assertRaises(Exception)
 
-    def test_initialize_basic_conf_values(self):
+    def test_create_api_config(self):
         with XRDSSTTest() as app:
             base_controller = BaseController()
             base_controller.app = app
@@ -377,7 +376,7 @@ class TestBaseController(unittest.TestCase):
             configuration.api_key['Authorization'] = security_server["api_key"]
             configuration.host = security_server["url"]
             configuration.verify_ssl = False
-            response = base_controller.initialize_basic_config_values(security_server)
+            response = base_controller.create_api_config(security_server)
             os.remove(temp_file_name)
             assert response.api_key == configuration.api_key
             assert response.host == configuration.host

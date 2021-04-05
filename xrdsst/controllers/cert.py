@@ -98,40 +98,53 @@ class CertController(BaseController):
 
         return self._download_csrs(active_config)
 
-    def import_certificates(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+    def import_certificates(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting certificate import process for security server: ' + security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-            self.remote_import_certificates(ss_configuration, security_server)
+            self.remote_import_certificates(ss_api_config, security_server)
 
-    def register_certificate(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def register_certificate(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting certificate registration process for security server: ' + security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-            self.remote_register_certificate(ss_configuration, security_server)
+            self.remote_register_certificate(ss_api_config, security_server)
 
-    def activate_certificate(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def activate_certificate(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting certificate activation for security server: ' + security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-            self.remote_activate_certificate(ss_configuration, security_server)
+            self.remote_activate_certificate(ss_api_config, security_server)
 
-    def _download_csrs(self, configuration):
-        self.init_logging(configuration)
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def _download_csrs(self, config):
+        self.init_logging(config)
         downloaded_csrs = []
-        for security_server in configuration["security_server"]:
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_info('Starting CSR download from security server: ' + security_server['name'])
-            ss_configuration = self.initialize_basic_config_values(security_server, configuration)
-            downloaded_csrs.extend(self.remote_download_csrs(ss_configuration, security_server))
+            downloaded_csrs.extend(self.remote_download_csrs(ss_api_config, security_server))
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
         return downloaded_csrs
 
     # requires token to be logged in
     @staticmethod
-    def remote_import_certificates(ss_configuration, security_server):
-        token_cert_api = TokenCertificatesApi(ApiClient(ss_configuration))
+    def remote_import_certificates(ss_api_config, security_server):
+        token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
         for cert in security_server["certificates"]:
             location = cement.utils.fs.join_exists(cert)
             if not location[1]:
@@ -151,12 +164,12 @@ class CertController(BaseController):
                         BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
 
     @staticmethod
-    def remote_register_certificate(ss_configuration, security_server):
-        registrable_cert = CertController.find_actionable_auth_certificate(ss_configuration, security_server, 'REGISTER')
+    def remote_register_certificate(ss_api_config, security_server):
+        registrable_cert = CertController.find_actionable_auth_certificate(ss_api_config, security_server, 'REGISTER')
         if not registrable_cert:
             return None
 
-        token_cert_api = TokenCertificatesApi(ApiClient(ss_configuration))
+        token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
         ss_address = SecurityServerAddress(BaseController.security_server_address(security_server))
         try:
             response = token_cert_api.register_certificate(registrable_cert.certificate_details.hash, body=ss_address)
@@ -166,12 +179,12 @@ class CertController(BaseController):
             BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
 
     @staticmethod
-    def remote_activate_certificate(ss_configuration, security_server):
-        activatable_cert = CertController.find_actionable_auth_certificate(ss_configuration, security_server, 'ACTIVATE')
+    def remote_activate_certificate(ss_api_config, security_server):
+        activatable_cert = CertController.find_actionable_auth_certificate(ss_api_config, security_server, 'ACTIVATE')
         if not activatable_cert:
             return None
 
-        token_cert_api = TokenCertificatesApi(ApiClient(ss_configuration))
+        token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
         token_cert_api.activate_certificate(activatable_cert.certificate_details.hash)  # responseless PUT
         cert_actions = token_cert_api.get_possible_actions_for_certificate(activatable_cert.certificate_details.hash)
         if 'ACTIVATE' not in cert_actions:
@@ -180,20 +193,20 @@ class CertController(BaseController):
             BaseController.log_info("Could not activate certificate " + activatable_cert.certificate_details.hash)
         return cert_actions
 
-    def remote_download_csrs(self, ss_configuration, security_server):
+    def remote_download_csrs(self, ss_api_config, security_server):
         key_labels = {
             'auth': default_auth_key_label(security_server),
             'sign': default_sign_key_label(security_server)
         }
 
-        token = remote_get_token(ss_configuration, security_server)
+        token = remote_get_token(ss_api_config, security_server)
         auth_keys = list(filter(lambda key: key.label == key_labels['auth'], token.keys))
         sign_keys = list(filter(lambda key: key.label == key_labels['sign'], token.keys))
 
         if not (auth_keys or sign_keys):
             return []
 
-        keys_api = KeysApi(ApiClient(ss_configuration))
+        keys_api = KeysApi(ApiClient(ss_api_config))
         downloaded_csrs = []
 
         for keytype in [(sign_keys, 'sign'), (auth_keys, 'auth')]:
@@ -228,8 +241,8 @@ class CertController(BaseController):
         return downloaded_csrs
 
     @staticmethod
-    def find_actionable_auth_certificate(ss_configuration, security_server, cert_action):
-        token = remote_get_token(ss_configuration, security_server)
+    def find_actionable_auth_certificate(ss_api_config, security_server, cert_action):
+        token = remote_get_token(ss_api_config, security_server)
         # Find the authentication certificate by conventional name
         auth_key_label = default_auth_key_label(security_server)
         auth_keys = list(filter(lambda key: key.label == auth_key_label, token.keys))

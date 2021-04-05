@@ -33,6 +33,7 @@ BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_ban
 
 
 class BaseController(Controller):
+    _TRANSIENT_API_KEY_ROLES = ['XROAD_SYSTEM_ADMINISTRATOR', 'XROAD_SERVICE_ADMINISTRATOR', 'XROAD_SECURITY_OFFICER', 'XROAD_REGISTRATION_OFFICER']
     _DEFAULT_CONFIG_FILE = "config/xrdsst.yml"
     class Meta:
         label = 'base'
@@ -129,7 +130,7 @@ class BaseController(Controller):
 
         for security_server in active_config["security_server"]:
             ssn = security_server['name']
-            api_config = self.initialize_basic_config_values(security_server, active_config)
+            api_config = self.create_api_config(security_server, active_config)
             status = self.get_server_status(api_config, security_server)
 
             for g_node in g:
@@ -149,7 +150,8 @@ class BaseController(Controller):
 
         for security_server in active_config["security_server"]:
             ssn = security_server['name']
-            conn_status = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]['status'].connectivity_status
+            g_server_node = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]
+            conn_status = g_server_node['status'].connectivity_status
             reachable_ops[ssn] = []
             unreachable_ops[ssn] = []
 
@@ -227,9 +229,8 @@ class BaseController(Controller):
         config = conf if conf else self.config
 
         if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
-            roles_list = config.get(ConfKeysRoot.CONF_KEY_ROOT_API_KEY_ROLES)
             try:
-                api_key = 'X-Road-apikey token=' + self.create_api_key(config, roles_list, security_server)
+                api_key = 'X-Road-apikey token=' + self.create_api_key(config, BaseController._TRANSIENT_API_KEY_ROLES, security_server)
                 self.app.api_keys[security_server[ConfKeysSecurityServer.CONF_KEY_NAME]] = api_key
             except Exception as err:
                 self.log_api_error('BaseController->get_api_key:', err)
@@ -379,12 +380,16 @@ class BaseController(Controller):
 
         return self.config
 
-    def initialize_basic_config_values(self, security_server, config=None):
-        configuration = Configuration()
-        configuration.api_key['Authorization'] = self.get_api_key(config, security_server)
-        configuration.host = security_server["url"]
-        configuration.verify_ssl = False
-        return configuration
+    def create_api_config(self, security_server, config=None):
+        api_key = self.get_api_key(config, security_server)
+        if not api_key:
+            return None
+
+        api_config = Configuration()
+        api_config.api_key['Authorization'] = api_key
+        api_config.host = security_server["url"]
+        api_config.verify_ssl = False
+        return api_config
 
     # Produces INFO level log and console printout about unconfigured servers details when executing single operation
     # (last operation in given /full_op_path/).
@@ -411,6 +416,11 @@ class BaseController(Controller):
                 texts['message.skipped'].format(ssn) + ":\n" + (' ' * 8) + \
                 ("\n" + (' ' * 8)).join(invalid_conf_servers[ssn]['errors'])
             self.log_info(skip_msg)
+
+    @staticmethod
+    def log_keyless_servers(ss_api_conf_tuple):
+        for security_server, ss_apic in [t for t in ss_api_conf_tuple if t[1] is None]:
+            BaseController.log_info(texts['message.server.keyless'].format(security_server['name']))
 
     @staticmethod
     def log_api_error(msg, exception):

@@ -20,7 +20,6 @@ from xrdsst.main import XRDSSTTest
 class TestAuto(unittest.TestCase):
     ss_config = {
         'admin_credentials': 'user:pass',
-        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
         'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
             [{'name': 'ssX',

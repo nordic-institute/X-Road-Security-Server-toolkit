@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.3-alpha.0] - 2021-04-05
+- remove undocumented configuration element ``api_key_roles``
+- Stop toolkits' attempts to further communicate with security server when API
+  key unavailable or access denied.
+
 ## [0.3.2-alpha.0] - 2021-03-29
 - Make SSH user configurable for api key creation
 

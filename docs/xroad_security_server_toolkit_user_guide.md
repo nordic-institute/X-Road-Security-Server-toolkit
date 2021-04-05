@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.6
+Version: 1.2.7
 Doc. ID: XRDSST-CONF
 
 ---
@@ -28,6 +28,7 @@ Doc. ID: XRDSST-CONF
 | 22.03.2021 | 1.2.4       | Default configuration from config/base.yaml -> config/xrdsst.yml             | Taimo Peelo        |
 | 26.03.2021 | 1.2.5       | Add 'fqdn' key for security server, fix service field descriptions           | Taimo Peelo        |
 | 31.03.2021 | 1.2.6       | Refactorization of configuration file related to SSH and api key parameters  | Bert Viikmäe       |
+| 01.04.2021 | 1.2.7       | Describe backup use, clarify toolkits' error interpretation role, remove undocumented ``api_key_roles`` configuration element | Taimo Peelo        |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -37,6 +38,7 @@ Doc. ID: XRDSST-CONF
 * [License](#license)
 * [1. Introduction](#1-introduction)
 	* [1.1 Target Audience](#11-target-audience)
+	* [1.2 References](#12-references)
 * [2. Installation](#2-installation)
 	* [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
 	* [2.2 Installation procedure](#22-installation-procedure)
@@ -61,6 +63,7 @@ Doc. ID: XRDSST-CONF
 		* [5.3.1 Malformed YAML](#531-malformed-yaml)
 		* [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
 	* [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
+	* [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -75,6 +78,10 @@ This document is licensed under the Creative Commons Attribution-ShareAlike 3.0 
 
 The intended audience of this installation guide are the X-Road security server administrators responsible for installing and configuring the X-Road security server software.
 The document is intended for readers with a good knowledge of Linux server management, computer networks, and the X-Road functioning principles.
+
+### 1.2 References
+
+* <a id="Ref_SS-UG" class="anchor"></a> [\[UG-SS\] Security Server User Guide](https://docs.x-road.global/Manuals/ug-ss_x-road_6_security_server_user_guide.html)
 
 ## 2. Installation
 
@@ -111,11 +118,6 @@ $ pip install setup.py
 ### 3.2 Format of configuration file
 ```
 admin_credentials: <SECURITY_SERVER_CREDENTIALS>
-api_key_roles:
-- XROAD_SYSTEM_ADMINISTRATOR
-- XROAD_SERVICE_ADMINISTRATOR
-- XROAD_SECURITY_OFFICER
-- XROAD_REGISTRATION_OFFICER
 ssh_access:
   user: <SSH_USER>
   private_key: /path/to/ssh_private_key
@@ -466,7 +468,7 @@ originates.
 Toolkit itself tries to point out the error source, CLIENT proxy errors happen straight
 at the configured server and can be often addressed immediately, but SERVER proxy 
 or Service PROVIDER errors will require reaching out externally. For client proxy errors
-that are more common, there are sometimes messages given about their possible causes and
+that are more common, toolkit offers additional messages about their possible causes and
 sometimes even hints of possible solutions. For server proxy errors, as much of the
 information is shown as acquired from SERVER proxy or service PROVIDER information
 system behind SERVER proxy:
@@ -501,3 +503,12 @@ sorted out inside organization, getting the services enabled again. In any case,
 the key to successfully resolving such situations is to pay careful attention
 to the error messages and accompanying ASCII diagram with message flow, to not
 spend time at searching for the problem in the wrong places.
+
+### 5.5 Recovery from misconfiguration
+This version of toolkit does not yet offer explicit support for backup and restore
+operations of the security server (scheduled for next release of the toolkit). In
+case something goes so wrong that way out or way back cannot be seen, it is possible
+to use nightly backups that are kept at security server to revert to earlier state.
+Overview of existing automatic backups is accessible from web administration console
+of the security server, in the "Settings" menu. More information about functionality
+can be found in [UG-SS](#Ref_SS-UG).

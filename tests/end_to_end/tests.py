@@ -55,7 +55,7 @@ class EndToEndTest(unittest.TestCase):
     def step_init(self):
         init = InitServerController()
         for security_server in self.config["security_server"]:
-            configuration = init.initialize_basic_config_values(security_server, self.config)
+            configuration = init.create_api_config(security_server, self.config)
             status = init.check_init_status(configuration)
             assert status.is_anchor_imported is False and status.is_server_code_initialized is False
             init.initialize_server(self.config)
@@ -67,7 +67,7 @@ class EndToEndTest(unittest.TestCase):
             timestamp_controller = TimestampController()
             timestamp_controller.app = app
             for security_server in self.config["security_server"]:
-                configuration = timestamp_controller.initialize_basic_config_values(security_server, self.config)
+                configuration = timestamp_controller.create_api_config(security_server, self.config)
                 response = timestamp_controller.remote_get_configured(configuration)
                 assert response == []
                 timestamp_controller.remote_timestamp_service_init(configuration, security_server)
@@ -81,7 +81,7 @@ class EndToEndTest(unittest.TestCase):
             token_controller = TokenController()
             token_controller.app = app
             for security_server in self.config["security_server"]:
-                configuration = token_controller.initialize_basic_config_values(security_server, self.config)
+                configuration = token_controller.create_api_config(security_server, self.config)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert response[0].logged_in is False
@@ -95,7 +95,7 @@ class EndToEndTest(unittest.TestCase):
             token_controller = TokenController()
             token_controller.app = app
             for security_server in self.config["security_server"]:
-                configuration = token_controller.initialize_basic_config_values(security_server, self.config)
+                configuration = token_controller.create_api_config(security_server, self.config)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert len(response[0].keys) == 0
@@ -113,7 +113,7 @@ class EndToEndTest(unittest.TestCase):
             cert_controller = CertController()
             cert_controller.app = app
             for security_server in self.config["security_server"]:
-                ss_configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                ss_configuration = cert_controller.create_api_config(security_server, self.config)
                 result = cert_controller.remote_download_csrs(ss_configuration, security_server)
                 assert len(result) == 2
                 assert result[0].fs_loc != result[1].fs_loc
@@ -146,7 +146,7 @@ class EndToEndTest(unittest.TestCase):
             cert_controller = CertController()
             cert_controller.app = app
             for security_server in self.config["security_server"]:
-                configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                configuration = cert_controller.create_api_config(security_server, self.config)
                 cert_controller.remote_import_certificates(configuration, security_server)
 
     def step_cert_register(self):
@@ -154,7 +154,7 @@ class EndToEndTest(unittest.TestCase):
             cert_controller = CertController()
             cert_controller.app = app
             for security_server in self.config["security_server"]:
-                configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                configuration = cert_controller.create_api_config(security_server, self.config)
                 cert_controller.remote_register_certificate(configuration, security_server)
 
     def step_cert_activate(self):
@@ -162,7 +162,7 @@ class EndToEndTest(unittest.TestCase):
             cert_controller = CertController()
             cert_controller.app = app
             for security_server in self.config["security_server"]:
-                configuration = cert_controller.initialize_basic_config_values(security_server, self.config)
+                configuration = cert_controller.create_api_config(security_server, self.config)
                 cert_controller.remote_activate_certificate(configuration, security_server)
 
     def step_subsystem_add_client(self):
@@ -170,7 +170,7 @@ class EndToEndTest(unittest.TestCase):
             client_controller = ClientController()
             client_controller.app = app
             for security_server in self.config["security_server"]:
-                configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+                configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
                     client_controller.remote_add_client(configuration, client)
 
@@ -179,14 +179,14 @@ class EndToEndTest(unittest.TestCase):
             client_controller = ClientController()
             client_controller.app = app
             for security_server in self.config["security_server"]:
-                configuration = client_controller.initialize_basic_config_values(security_server, self.config)
+                configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
                     client_controller.remote_register_client(configuration, security_server, client)
 
     def step_add_service_description(self, client_id):
         service_controller = ServiceController()
         for security_server in self.config["security_server"]:
-            configuration = service_controller.initialize_basic_config_values(security_server, self.config)
+            configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_add_service_description(configuration, security_server, client, service_description)
@@ -196,7 +196,7 @@ class EndToEndTest(unittest.TestCase):
     def step_enable_service_description(self, client_id):
         service_controller = ServiceController()
         for security_server in self.config["security_server"]:
-            configuration = service_controller.initialize_basic_config_values(security_server, self.config)
+            configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
@@ -206,7 +206,7 @@ class EndToEndTest(unittest.TestCase):
     def step_add_service_access(self, client_id):
         service_controller = ServiceController()
         for security_server in self.config["security_server"]:
-            configuration = service_controller.initialize_basic_config_values(security_server, self.config)
+            configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
@@ -220,7 +220,7 @@ class EndToEndTest(unittest.TestCase):
         assert description["services"][0]["timeout"] == 60
         assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
         for security_server in self.config["security_server"]:
-            configuration = service_controller.initialize_basic_config_values(security_server, self.config)
+            configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)

@@ -6,6 +6,7 @@ from xrdsst.api_client.api_client import ApiClient
 from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.util import default_auth_key_label, default_sign_key_label, is_ss_connectable
 from xrdsst.models import KeyUsageType, CertificateStatus
+from xrdsst.resources.texts import texts
 from xrdsst.rest.rest import ApiException
 
 
@@ -534,10 +535,18 @@ def status_server(api_config, security_server):
             roles_status=StatusRoles(permitted=False, roles=None)
         )
 
+    # Only after 'physical' connectivity errors are reported, consider also API KEY availability.
+    if not api_config:
+        return ServerStatus(
+            connectivity_status=(False, texts['message.server.keyless'].format(security_server[ConfKeysSecurityServer.CONF_KEY_NAME])),
+            security_server_name=security_server["name"],
+            roles_status=StatusRoles(permitted=False, roles=None)
+        )
+
     roles_status = status_roles(api_config)
     if not roles_status.permitted:
         return ServerStatus(
-            connectivity_status=(is_connectable, conn_err_msg),
+            connectivity_status=(False, 'API KEY invalid or no access permitted'),
             security_server_name=security_server["name"],
             roles_status=roles_status
         )
