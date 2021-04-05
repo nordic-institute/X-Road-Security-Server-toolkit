@@ -66,15 +66,21 @@ class TimestampController(BaseController):
         self.timestamp_service_init(active_config)
 
     # Since this is read-only operation, do not log anything, only console output
-    def timestamp_service_list(self, configuration):
-        for security_server in configuration["security_server"]:
-            ss_api_config = self.create_api_config(security_server, configuration)
+    def timestamp_service_list(self, config):
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             self.remote_timestamp_service_list(ss_api_config)
 
-    def timestamp_service_list_approved(self, configuration):
-        for security_server in configuration["security_server"]:
-            ss_api_config = self.create_api_config(security_server, configuration)
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def timestamp_service_list_approved(self, config):
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             self.remote_timestamp_service_list_approved(ss_api_config)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def render_timestamping_services(self, ts_list):
         render_data = []
@@ -114,11 +120,14 @@ class TimestampController(BaseController):
         except ApiException as e:
             print("Exception when listing timestamping services: %s\n", e)
 
-    def timestamp_service_init(self, configuration):  # logging required
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
-            ss_api_config = self.create_api_config(security_server, configuration)
+    def timestamp_service_init(self, config):  # logging required
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             self.remote_timestamp_service_init(ss_api_config, security_server)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def remote_timestamp_service_init(self, ss_api_config, security_server):
         try:

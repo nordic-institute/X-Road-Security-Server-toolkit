@@ -34,6 +34,11 @@ class AutoController(BaseController):
 
         self.update_op_statuses(active_config)
 
+        ss_api_config = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]['api_config']
+        if not ss_api_config:
+            self.log_info("SKIPPED AUTO ->'" + ssn + "'. " + texts['message.server.keyless'].format(ssn))
+            return
+
         first_status = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]['status']
         if not first_status.connectivity_status[0]:
             self.log_info("SKIPPED AUTO ->'" + ssn + "' no connectivity, (" + first_status.connectivity_status[1] + ").")

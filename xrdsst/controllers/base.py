@@ -150,7 +150,8 @@ class BaseController(Controller):
 
         for security_server in active_config["security_server"]:
             ssn = security_server['name']
-            conn_status = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]['status'].connectivity_status
+            g_server_node = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]
+            conn_status = g_server_node['status'].connectivity_status
             reachable_ops[ssn] = []
             unreachable_ops[ssn] = []
 
@@ -380,8 +381,12 @@ class BaseController(Controller):
         return self.config
 
     def create_api_config(self, security_server, config=None):
+        api_key = self.get_api_key(config, security_server)
+        if not api_key:
+            return None
+
         api_config = Configuration()
-        api_config.api_key['Authorization'] = self.get_api_key(config, security_server)
+        api_config.api_key['Authorization'] = api_key
         api_config.host = security_server["url"]
         api_config.verify_ssl = False
         return api_config
@@ -411,6 +416,11 @@ class BaseController(Controller):
                 texts['message.skipped'].format(ssn) + ":\n" + (' ' * 8) + \
                 ("\n" + (' ' * 8)).join(invalid_conf_servers[ssn]['errors'])
             self.log_info(skip_msg)
+
+    @staticmethod
+    def log_keyless_servers(ss_api_conf_tuple):
+        for security_server, ss_apic in [t for t in ss_api_conf_tuple if t[1] is None]:
+            BaseController.log_info(texts['message.server.keyless'].format(security_server['name']))
 
     @staticmethod
     def log_api_error(msg, exception):

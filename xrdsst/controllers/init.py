@@ -29,11 +29,12 @@ class InitServerController(BaseController):
 
         self.initialize_server(active_config)
 
-    def initialize_server(self, config_file):
-        self.init_logging(config_file)
-        for security_server in config_file["security_server"]:
+    def initialize_server(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             self.log_debug('Starting initialization process for security server: ' + security_server['name'])
-            ss_api_config = self.create_api_config(security_server, config_file)
             configuration_check = self.check_init_status(ss_api_config)
             if configuration_check.is_anchor_imported:
                 self.log_info('Configuration anchor for \"' + security_server['name'] + '\" already imported')
@@ -43,6 +44,8 @@ class InitServerController(BaseController):
                 self.log_info('Security server \"' + security_server['name'] + '\" already initialized')
             else:
                 self.init_security_server(ss_api_config, security_server)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def check_init_status(self, ss_api_config):
         try:

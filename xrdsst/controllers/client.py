@@ -45,24 +45,30 @@ class ClientController(BaseController):
         self.register_client(active_config)
 
     # This operation can (at least sometimes) also be performed when global status is FAIL.
-    def add_client(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+    def add_client(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting client add process for security server: ' + security_server['name'])
-            ss_api_config = self.create_api_config(security_server, configuration)
             if "clients" in security_server:  # Guards both against empty section (->None) & complete lack of section
                 for client in security_server["clients"]:
                     self.remote_add_client(ss_api_config, client)
 
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
     # This operation fails when global status is not up to date.
-    def register_client(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+    def register_client(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting client registrations for security server: ' + security_server['name'])
-            ss_api_config = self.create_api_config(security_server, configuration)
             if "clients" in security_server:
                 for client in security_server["clients"]:
                     self.remote_register_client(ss_api_config, security_server, client)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def remote_add_client(self, ss_api_config, client_conf):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])

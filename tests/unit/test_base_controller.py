@@ -27,7 +27,7 @@ class TestBaseController(unittest.TestCase):
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
-              'api_key': 'X-Road-apikey token=<API_KEY>',
+              'api_key': 'X-Road-apikey token=f160830d-d75a-476e-a9ad-9c12abff00d3',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',

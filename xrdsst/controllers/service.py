@@ -71,49 +71,61 @@ class ServiceController(BaseController):
 
         self.update_service_parameters(active_config)
 
-    def add_service_description(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+    def add_service_description(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting service description add process for security server: ' + security_server['name'])
-            ss_api_config = self.create_api_config(security_server, configuration)
             if "clients" in security_server:
                 for client in security_server["clients"]:
                     if client.get("service_descriptions"):
                         for service_description in client["service_descriptions"]:
                             self.remote_add_service_description(ss_api_config, security_server, client, service_description)
 
-    def enable_service_description(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def enable_service_description(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting service description enabling process for security server: ' + security_server['name'])
-            ss_api_config = self.create_api_config(security_server, configuration)
             if "clients" in security_server:
                 for client in security_server["clients"]:
                     if client.get("service_descriptions"):
                         for service_description in client["service_descriptions"]:
                             self.remote_enable_service_description(ss_api_config, security_server, client, service_description)
 
-    def add_access_rights(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def add_access_rights(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting service description access adding process for security server: ' + security_server['name'])
-            ss_api_config = self.create_api_config(security_server, configuration)
             if "clients" in security_server:
                 for client in security_server["clients"]:
                     if "service_descriptions" in client:
                         for service_description in client["service_descriptions"]:
                             self.remote_add_access_rights(ss_api_config, security_server, client, service_description)
 
-    def update_service_parameters(self, configuration):
-        self.init_logging(configuration)
-        for security_server in configuration["security_server"]:
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def update_service_parameters(self, config):
+        self.init_logging(config)
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
             BaseController.log_debug('Starting service description updating parameters process for security server: ' + security_server['name'])
-            ss_api_config = self.create_api_config(security_server, configuration)
             if "clients" in security_server:
                 for client in security_server["clients"]:
                     if "service_descriptions" in client:
                         for service_description in client["service_descriptions"]:
                             self.remote_update_service_parameters(ss_api_config, security_server, client, service_description)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     @staticmethod
     def remote_add_service_description(ss_api_config, security_server_conf, client_conf, service_description_conf):

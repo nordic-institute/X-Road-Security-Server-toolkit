@@ -1,7 +1,7 @@
 from cement import ex
 
 from xrdsst.controllers.base import BaseController
-from xrdsst.core.api_util import ServerStatus, status_server
+from xrdsst.core.api_util import ServerStatus, status_server, StatusRoles
 from xrdsst.resources.texts import texts
 
 
@@ -112,13 +112,21 @@ class StatusController(BaseController):
         return self._status(self.load_config())  # Returned for status comparisons in tests only
 
     # Since this is read-only operation, do not log anything, only console output
-    def _status(self, configuration):
+    def _status(self, config):
         render_data = []
         servers = []
-        if configuration.get("security_server"):
-            for security_server in configuration["security_server"]:
-                ss_api_config = self.create_api_config(security_server, configuration)
+        if config.get("security_server"):
+            ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+            for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
                 servers.append(self.remote_status(ss_api_config, security_server))
+
+            # Ensure that servers that are missing API KEY still show up in the list (name, no access).
+            for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1] is None]:
+                servers.append(ServerStatus(
+                    security_server_name=security_server['name'],
+                    roles_status=StatusRoles()
+                ))
 
         if self.is_output_tabulated():
             render_data = [StatusListMapper.headers()]
@@ -127,7 +135,7 @@ class StatusController(BaseController):
             render_data.extend(map(StatusListMapper.as_object, servers))
 
         self.render(render_data)
-        if self.is_output_tabulated() and not configuration.get("security_server"):
+        if self.is_output_tabulated() and not config.get("security_server"):
             print(texts['message.config.serverless'])
 
         return servers
