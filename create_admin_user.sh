@@ -27,7 +27,7 @@ create_user() {
     os_name=$(ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "grep '^NAME' /etc/os-release")
 
     if echo "$os_name" | grep 'Ubuntu'; then
-      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "adduser $user --group sudo -p $pass"
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "useradd $user --group sudo -p $pass"
     fi
     if echo "$os_name" | grep 'Centos'; then
       ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "useradd --system --home /var/lib/xroad --no-create-home --shell /bin/bash --user-group --comment \"X-Road system user\" xroad"
@@ -37,7 +37,7 @@ create_user() {
       ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "touch /etc/xroad/db.properties"
       ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "chown xroad:xroad /etc/xroad/db.properties"
       ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "chmod 640 /etc/xroad/db.properties"
-      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "adduser $user --group sudo -p $pass"
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "useradd $user --group root -p $pass"
     fi
 }
 
