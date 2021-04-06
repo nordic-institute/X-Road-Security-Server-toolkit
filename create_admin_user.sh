@@ -26,6 +26,7 @@ create_user() {
     ssh_key=$4
     os_name=$(ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "grep '^NAME' /etc/os-release")
 
+    # create user and add to sudo/root group
     if echo "$os_name" | grep 'Ubuntu'; then
       ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "useradd $user --group sudo -p $pass"
     fi
@@ -39,6 +40,16 @@ create_user() {
       ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "chmod 640 /etc/xroad/db.properties"
       ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "useradd $user --group root -p $pass"
     fi
+
+    # add the created user to its own group
+    ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "usermod -a -G $user $user"
+
+    # add the created used to X-Road related groups
+    declare -a StringArray=("xroad-security-officer" "xroad-registration-officer" "xroad-service-administrator" "xroad-system-administrator" "xroad-securityserver-observer")
+    for group_name in "${StringArray[@]}"; do
+      ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "$ssh_key" root@"$host" "usermod -a -G $group_name $user"
+    done
+
 }
 
 while getopts ":u:p:h:k:" options; do
