@@ -155,11 +155,11 @@ connections or security server administrative credentials configured.__
 
 Security server REST API is ordinarily exposed at security server port 4000 and is separated into
 two parts:
-  1. invocable over network - API calls for performing most of the functionality available from
+  1. invocable over network -- API calls for performing most of the functionality available from
      web administration console, accessible with API key.
   1. invocable only locally (in default configuration), i.e. when accessed via 'localhost' or
      equivalent and passed security server administrative credentials via HTTP basic access
-     authentication.
+     authentication -- API calls that allow API key management operations.
 
 ##### 3.1.1.1 Using API keys
 
