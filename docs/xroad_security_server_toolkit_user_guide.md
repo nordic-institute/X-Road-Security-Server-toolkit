@@ -148,7 +148,7 @@ is needed:
 1. Access to REST API of configured security server + existing API key.
 1. Access to REST API of configured security server + SSH access to the security server machine + X-Road security server administrative credentials.
 
-__Proper care must be taken to ensure that configuration files with these credentails are not visible
+__Proper care must be taken to ensure that configuration files with these credentials are not visible
 to strangers' eyes, as the secrets they can contain (API keys, administrative credentials) are
 stored in plain text. Possible information leaks are minimized when using API keys, without any SSH
 connections or security server administrative credentials configured.__
