@@ -65,7 +65,6 @@ class TimestampController(BaseController):
 
         self.timestamp_service_init(active_config)
 
-    # Since this is read-only operation, do not log anything, only console output
     def timestamp_service_list(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -120,8 +119,7 @@ class TimestampController(BaseController):
         except ApiException as e:
             print("Exception when listing timestamping services: %s\n", e)
 
-    def timestamp_service_init(self, config):  # logging required
-        self.init_logging(config)
+    def timestamp_service_init(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:

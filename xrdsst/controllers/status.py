@@ -111,7 +111,6 @@ class StatusController(BaseController):
     def _default(self):
         return self._status(self.load_config())  # Returned for status comparisons in tests only
 
-    # Since this is read-only operation, do not log anything, only console output
     def _status(self, config):
         render_data = []
         servers = []

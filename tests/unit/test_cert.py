@@ -253,7 +253,7 @@ class TestCert(unittest.TestCase):
                   '/some/where/authcert',
                   '/some/where/signcert',
               ],
-              'api_key': 'X-Road-apikey token=88888888-8000-4000-a000-727272727272',
+              'api_key': '88888888-8000-4000-a000-727272727272',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'owner_dn_country': 'FI',
               'owner_dn_org': 'UNSERE',

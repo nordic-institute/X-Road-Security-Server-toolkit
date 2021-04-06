@@ -21,7 +21,6 @@ class AutoController(BaseController):
         self._auto(active_config)
 
     def _auto(self, active_config):
-        self.init_logging(active_config)
         all_server_config = copy.deepcopy(active_config)
         for i in range(0, len(all_server_config[ConfKeysRoot.CONF_KEY_ROOT_SERVER])):
             single_server_config = all_server_config[ConfKeysRoot.CONF_KEY_ROOT_SERVER][i:(i+1)]

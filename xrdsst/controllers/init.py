@@ -30,7 +30,6 @@ class InitServerController(BaseController):
         self.initialize_server(active_config)
 
     def initialize_server(self, config):
-        self.init_logging(config)
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:

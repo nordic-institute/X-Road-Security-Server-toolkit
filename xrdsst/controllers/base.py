@@ -3,6 +3,7 @@ import copy
 import functools
 import inspect
 import json
+import re
 import sys
 
 import networkx
@@ -23,7 +24,7 @@ from urllib.parse import urlparse
 from definitions import ROOT_DIR
 from xrdsst.core.conf_keys import validate_conf_keys, ConfKeysSecurityServer, ConfKeysRoot
 from xrdsst.core.excplanation import Excplanatory
-from xrdsst.core.util import op_node_to_ctr_cmd_text, RE_API_KEY_HEADER, get_admin_credentials, get_ssh_key, get_ssh_user
+from xrdsst.core.util import op_node_to_ctr_cmd_text, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.core.version import get_version
 from xrdsst.resources.texts import texts
 from xrdsst.configuration.configuration import Configuration
@@ -35,6 +36,14 @@ BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_ban
 class BaseController(Controller):
     _TRANSIENT_API_KEY_ROLES = ['XROAD_SYSTEM_ADMINISTRATOR', 'XROAD_SERVICE_ADMINISTRATOR', 'XROAD_SECURITY_OFFICER', 'XROAD_REGISTRATION_OFFICER']
     _DEFAULT_CONFIG_FILE = "config/xrdsst.yml"
+    _RE_API_KEY = re.compile(r"""
+        ([a-f0-9]{8}-
+        [a-f0-9]{4}-)
+        ([a-f0-9]{4})-  # UUID version + 3 hexdecimal digits, only part retained
+        ([a-f0-9]{4}-  # Do no validate first character separately
+        [a-f0-9]{12})
+    """, re.VERBOSE | re.IGNORECASE)
+
     class Meta:
         label = 'base'
         stacked_on = 'base'
@@ -42,6 +51,15 @@ class BaseController(Controller):
         arguments = [
             (['-v', '--version'], {'action': 'version', 'version': BANNER})
         ]
+
+    @staticmethod
+    def api_key_scrambler(log_record):
+        log_record.msg = re.sub(BaseController._RE_API_KEY, '********-****-\\2-****-************', str(log_record.msg))  # clear ~108 bits from ~120
+        return 1
+
+    @staticmethod
+    def authorization_header(api_key_uuid):
+        return "X-Road-apikey token=" + api_key_uuid
 
     @staticmethod
     def get_server_status(api_config, ss_config):
@@ -215,7 +233,7 @@ class BaseController(Controller):
     def get_api_key(self, conf, security_server):
         # Use API key configured for security server, if valid.
         ss_api_key = security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY)
-        has_valid_ss_api_key = RE_API_KEY_HEADER.fullmatch(ss_api_key)
+        has_valid_ss_api_key = BaseController._RE_API_KEY.fullmatch(ss_api_key)
         if has_valid_ss_api_key:
             self.log_debug("Using existing API key for security server: '" + security_server['name'] + "'")
             return ss_api_key
@@ -230,7 +248,7 @@ class BaseController(Controller):
 
         if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
             try:
-                api_key = 'X-Road-apikey token=' + self.create_api_key(config, BaseController._TRANSIENT_API_KEY_ROLES, security_server)
+                api_key = self.create_api_key(config, BaseController._TRANSIENT_API_KEY_ROLES, security_server)
                 self.app.api_keys[security_server[ConfKeysSecurityServer.CONF_KEY_NAME]] = api_key
             except Exception as err:
                 self.log_api_error('BaseController->get_api_key:', err)
@@ -238,11 +256,14 @@ class BaseController(Controller):
         return api_key
 
     @staticmethod
-    def init_logging(configuration):
-        if logging.getLogger().handlers:
-            return
+    def _init_logging(configuration):
+        curr_handlers = logging.getLogger().handlers
+        if curr_handlers:
+            if any(map(lambda h: h.level != logging.NOTSET, curr_handlers)):  # Skip init ONLY if ANY handler levels set.
+                return
 
         exit_messages = ['']
+        logging.getLogger().handlers = []
 
         auto_log_file_name = str(Path.home()) + "/" + texts['app.label'] + "-" + \
                              datetime.now().strftime("%Y%m%d-%H%M-%S") + \
@@ -278,6 +299,11 @@ class BaseController(Controller):
             exit_messages.append("Activities logged into '" + log_file_name + "'.")
             atexit.register(lambda: print(*exit_messages, sep='\n'))
 
+        for handler in logging.getLogger().handlers:
+            handler.addFilter(BaseController.api_key_scrambler)
+            handler.setLevel(log_level)
+
+    # Load the configuration, performs key level validation, finally initiates logging.
     def load_config(self, baseconfig=None):
         # Add errors to /dict_err_lists/ at given key for /sec_server_configs/ that do not have required /key/ defined.
         def require_conf_key(key, sec_server_configs, dict_err_lists):
@@ -378,6 +404,12 @@ class BaseController(Controller):
             self.app.close(os.EX_CONFIG)
             return None
 
+        # Change the logging contract, per:
+        #   https://github.com/nordic-institute/X-Road-Security-Server-toolkit/pull/43#issuecomment-811850292
+        # and start logging immediately after configuration has been loaded, only detecting basic key-level
+        # errors, non-mutable operations being undifferentiated.
+        self._init_logging(self.config)
+
         return self.config
 
     def create_api_config(self, security_server, config=None):
@@ -386,7 +418,7 @@ class BaseController(Controller):
             return None
 
         api_config = Configuration()
-        api_config.api_key['Authorization'] = api_key
+        api_config.api_key['Authorization'] = BaseController.authorization_header(api_key)
         api_config.host = security_server["url"]
         api_config.verify_ssl = False
         return api_config

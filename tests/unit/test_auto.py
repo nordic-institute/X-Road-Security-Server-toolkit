@@ -24,7 +24,7 @@ class TestAuto(unittest.TestCase):
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': 'X-Road-apikey token=66666666-8000-4011-a000-333336633333',
+              'api_key': '66666666-8000-4011-a000-333336633333',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys'
             }]}
 
