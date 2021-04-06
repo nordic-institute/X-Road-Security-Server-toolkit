@@ -29,7 +29,6 @@ class TestTimestamp(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     ss_config = {
         'admin_credentials': 'user:pass',
-        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
         'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
@@ -75,7 +74,7 @@ class TestTimestamp(unittest.TestCase):
                 timestamp_controller.app = app
                 timestamp_controller.load_config = (lambda: self.ss_config)
                 for security_server in self.ss_config["security_server"]:
-                    configuration = timestamp_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    configuration = timestamp_controller.create_api_config(security_server, self.ss_config)
                     response = timestamp_controller.remote_get_configured(configuration)
                     assert response == TimestampTestData.timestamp_service_list_response
 
@@ -87,7 +86,7 @@ class TestTimestamp(unittest.TestCase):
                 timestamp_controller.app = app
                 timestamp_controller.load_config = (lambda: self.ss_config)
                 for security_server in self.ss_config["security_server"]:
-                    configuration = timestamp_controller.initialize_basic_config_values(security_server, self.ss_config)
+                    configuration = timestamp_controller.create_api_config(security_server, self.ss_config)
                     timestamp_controller.remote_get_configured(configuration)
                     self.assertRaises(ApiException)
 

@@ -22,13 +22,12 @@ class TestBaseController(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'admin_credentials': 'user:pass',
-        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
         'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
-              'api_key': 'X-Road-apikey token=<API_KEY>',
+              'api_key': 'f160830d-d75a-476e-a9ad-9c12abff00d3',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
@@ -290,7 +289,7 @@ class TestBaseController(unittest.TestCase):
 
         self._ss_config["logging"]["file"] = temp_file_name
         base_controller = BaseController()
-        base_controller.init_logging(self.get_ss_config())
+        base_controller._init_logging(self.get_ss_config())
         assert len(logging.getLogger().handlers) == 1
         assert os.path.exists(temp_file_name)
 
@@ -306,7 +305,7 @@ class TestBaseController(unittest.TestCase):
 
         self._ss_config["logging"]["file"] = temp_file_name
         base_controller = BaseController()
-        base_controller.init_logging(self.get_ss_config())
+        base_controller._init_logging(self.get_ss_config())
         assert len(logging.getLogger().handlers) == 1
 
     def test_init_logging_directory(self):
@@ -318,8 +317,40 @@ class TestBaseController(unittest.TestCase):
 
         self._ss_config["logging"]["file"] = temp_file_name
         base_controller = BaseController()
-        base_controller.init_logging(self.get_ss_config())
+        base_controller._init_logging(self.get_ss_config())
         assert len(logging.getLogger().handlers) == 1
+
+    def test_no_plain_api_key_logging(self):
+        # Given
+        temp_log_file = tempfile.NamedTemporaryFile(mode="wb", prefix="xrdsst-", suffix='.yaml', delete=False)
+        temp_log_file.close()
+
+        logfile_name = temp_log_file.name
+
+        import logging
+        logging.getLogger().handlers.clear()
+        assert not logging.getLogger().handlers
+
+        self._ss_config["logging"]["file"] = logfile_name
+        base_controller = BaseController()
+        base_controller._init_logging(self.get_ss_config())
+
+        the_api_key = '460ad0b9-d023-4087-a291-dc97eddcb7d8'
+
+        # When
+        BaseController.log_info("printf style with dict: API key '%(api_key)s' for security server %(ssn)s revoked." %
+                 {'api_key': the_api_key, 'ssn': 'madeup-ss'})
+        BaseController.log_info("plain concatenated string style: API key '" + the_api_key + "' for security server " + 'madeup-ss' + " revoked.")
+        BaseController.log_info("percent style string formation: API key '%s' for revoked." % the_api_key)
+        logging.info("direct log of api_key (info) " + the_api_key)
+        logging.warning("direct log of api_key (warning)" + the_api_key)
+
+        # Then
+        with open(logfile_name, "r") as log_file_r:
+            log_lines = log_file_r.readlines()
+            assert 5 == len(log_lines)
+            assert all(map(lambda s: s.count('********-****-4087-****-************') == 1, log_lines))
+            assert all(map(lambda s: s.count(the_api_key) == 0, log_lines))
 
     def test_get_api_key(self):
         with XRDSSTTest() as app:
@@ -329,13 +360,13 @@ class TestBaseController(unittest.TestCase):
                 temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
                 config = self.create_temp_conf(base_controller, temp_file_name)
                 security_server = config["security_server"][0]
-                security_server["api_key"] = 'X-Road-apikey token=some key'
+                security_server["api_key"] = 'some key'
                 key = base_controller.get_api_key(config, security_server)
-                assert key != 'X-Road-apikey token=api-key-123'
-                security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+                assert key != 'api-key-123'
+                security_server["api_key"] = '<API_KEY>'
                 key = base_controller.get_api_key(config, security_server)
                 os.remove(temp_file_name)
-                assert key == 'X-Road-apikey token=88888888-8000-4000-a000-727272727272'
+                assert key == '88888888-8000-4000-a000-727272727272'
 
     def test_get_api_key_ssh_key_exception(self):
         with XRDSSTTest() as app:
@@ -344,7 +375,7 @@ class TestBaseController(unittest.TestCase):
             temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
             config = self.create_temp_conf(base_controller, temp_file_name)
             security_server = config["security_server"][0]
-            security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+            security_server["api_key"] = '<API_KEY>'
             base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             self.assertRaises(Exception)
@@ -360,13 +391,13 @@ class TestBaseController(unittest.TestCase):
             ssh_access = config["ssh_access"]
             security_server = config["security_server"][0]
             ssh_access["private_key"] = 'my_key'
-            security_server["api_key"] = 'X-Road-apikey token=<API_KEY>'
+            security_server["api_key"] = '<API_KEY>'
             base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             os.remove("my_key")
             self.assertRaises(Exception)
 
-    def test_initialize_basic_conf_values(self):
+    def test_create_api_config(self):
         with XRDSSTTest() as app:
             base_controller = BaseController()
             base_controller.app = app
@@ -377,7 +408,7 @@ class TestBaseController(unittest.TestCase):
             configuration.api_key['Authorization'] = security_server["api_key"]
             configuration.host = security_server["url"]
             configuration.verify_ssl = False
-            response = base_controller.initialize_basic_config_values(security_server)
+            response = base_controller.create_api_config(security_server)
             os.remove(temp_file_name)
             assert response.api_key == configuration.api_key
             assert response.host == configuration.host

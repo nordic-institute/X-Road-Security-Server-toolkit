@@ -5,6 +5,8 @@ import time
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 import requests
+
+from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.status import ServerStatus
 from xrdsst.core.api_util import StatusRoles, StatusVersion, StatusGlobal, StatusServerInitialization, \
     StatusServerTimestamping, StatusToken, StatusKeys, StatusCsrs, StatusCerts
@@ -252,7 +254,7 @@ def api_GET(api_url, api_path, api_key):
     full_url = api_url + "/" + api_path
     response = requests.get(
         full_url,
-        headers={'Authorization': api_key, 'accept': 'application/json'},
+        headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
         verify=False)
 
     if response.status_code != 200:
@@ -289,7 +291,7 @@ def get_client(config):
          'member_code': member_code,
          'subsystem_code': subsystem_code,
          'connection_type': conn_type},
-        headers={'Authorization': config["security_server"][0]["api_key"], 'accept': 'application/json'},
+        headers={'Authorization': BaseController.authorization_header(config["security_server"][0]["api_key"]), 'accept': 'application/json'},
         verify=False)
     client_json = json.loads(str(client.content, 'utf-8').strip())
     return client_json[0]
@@ -319,7 +321,7 @@ def auth_cert_registration_global_configuration_update_received(config):
         config["security_server"][0]["url"] + "/tokens/" + str(config["security_server"][0]['software_token_id']),
         None,
         headers={
-            'Authorization': config["security_server"][0]["api_key"],
+            'Authorization': BaseController.authorization_header(config["security_server"][0]["api_key"]),
             'accept': 'application/json'
         },
         verify=False

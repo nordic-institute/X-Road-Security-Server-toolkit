@@ -33,13 +33,12 @@ class TestInit(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     _ss_config = {
         'admin_credentials': 'user:pass',
-        'api_key_roles': ['XROAD_SYSTEM_ADMINISTRATOR'],
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
         'ssh_access': {'user': 'user', 'private_key': 'key'},
         'security_server':
             [{'name': 'ss',
               'url': 'https://no.there.com:4000/api/v1',
-              'api_key': 'X-Road-apikey token=<API_KEY>',
+              'api_key': '<API_KEY>',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',

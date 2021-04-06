@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.6
+Version: 1.2.8
 Doc. ID: XRDSST-CONF
 
 ---
@@ -28,6 +28,8 @@ Doc. ID: XRDSST-CONF
 | 22.03.2021 | 1.2.4       | Default configuration from config/base.yaml -> config/xrdsst.yml             | Taimo Peelo        |
 | 26.03.2021 | 1.2.5       | Add 'fqdn' key for security server, fix service field descriptions           | Taimo Peelo        |
 | 31.03.2021 | 1.2.6       | Refactorization of configuration file related to SSH and api key parameters  | Bert Viikmäe       |
+| 01.04.2021 | 1.2.7       | Describe backup use, clarify toolkits' error interpretation role, remove undocumented ``api_key_roles`` configuration element | Taimo Peelo        |
+| 05.04.2021 | 1.2.8       | Remove HTTP header value prefix from 'api_key' configuration element         | Taimo Peelo        |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -37,6 +39,7 @@ Doc. ID: XRDSST-CONF
 * [License](#license)
 * [1. Introduction](#1-introduction)
 	* [1.1 Target Audience](#11-target-audience)
+	* [1.2 References](#12-references)
 * [2. Installation](#2-installation)
 	* [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
 	* [2.2 Installation procedure](#22-installation-procedure)
@@ -61,6 +64,7 @@ Doc. ID: XRDSST-CONF
 		* [5.3.1 Malformed YAML](#531-malformed-yaml)
 		* [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
 	* [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
+	* [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -75,6 +79,10 @@ This document is licensed under the Creative Commons Attribution-ShareAlike 3.0 
 
 The intended audience of this installation guide are the X-Road security server administrators responsible for installing and configuring the X-Road security server software.
 The document is intended for readers with a good knowledge of Linux server management, computer networks, and the X-Road functioning principles.
+
+### 1.2 References
+
+* <a id="Ref_SS-UG" class="anchor"></a> [\[UG-SS\] Security Server User Guide](https://docs.x-road.global/Manuals/ug-ss_x-road_6_security_server_user_guide.html)
 
 ## 2. Installation
 
@@ -111,16 +119,11 @@ $ pip install setup.py
 ### 3.2 Format of configuration file
 ```
 admin_credentials: <SECURITY_SERVER_CREDENTIALS>
-api_key_roles:
-- XROAD_SYSTEM_ADMINISTRATOR
-- XROAD_SERVICE_ADMINISTRATOR
-- XROAD_SECURITY_OFFICER
-- XROAD_REGISTRATION_OFFICER
 ssh_access:
   user: <SSH_USER>
   private_key: /path/to/ssh_private_key
 security_server:
-- api_key: X-Road-apikey token=<API_KEY>
+- api_key: <API_KEY>
   api_key_url: https://localhost:4000/api/v1/api-keys
   admin_credentials: <SECURITY_SERVER_CREDENTIALS>
   configuration_anchor: /path/to/configuration-anchor.xml
@@ -175,8 +178,7 @@ The ``security_server`` section is for configuring security server parameters
   but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)  
 * ``/path/to/xrdsst.log`` should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
 * <LOG_LEVEL> parameter for configuring the logging level for the X-Road Security Server Toolkit, e.g INFO
-* <API_KEY> if un-filled, a temporary api key will be automatically created and revoked in the end of a single operation, if filled with value in
-  the format of ``X-Road-apikey token=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx``, that key will be used and a temporary key will not be created
+* <API_KEY> filled with API key for security server or left as-is/any for toolkit to attempt creation of transient API key
 * ``/path/to/configuration-anchor.xml`` should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
 * <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
 * <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
@@ -409,7 +411,7 @@ line 32 below:
 ```yaml
 # ... SNIPPED
 security_server:                                                     # line 11
-- api_key: X-Road-apikey token=8d527381-80c1-4910-a259-7e3c23253397  # line 12
+- api_key: 8d527381-80c1-4910-a259-7e3c23253397                      # line 12
 # ... SNIPPED
   clients:                                                           # line 27
     - member_class: GOV                                              # line 28
@@ -466,7 +468,7 @@ originates.
 Toolkit itself tries to point out the error source, CLIENT proxy errors happen straight
 at the configured server and can be often addressed immediately, but SERVER proxy 
 or Service PROVIDER errors will require reaching out externally. For client proxy errors
-that are more common, there are sometimes messages given about their possible causes and
+that are more common, toolkit offers additional messages about their possible causes and
 sometimes even hints of possible solutions. For server proxy errors, as much of the
 information is shown as acquired from SERVER proxy or service PROVIDER information
 system behind SERVER proxy:
@@ -501,3 +503,12 @@ sorted out inside organization, getting the services enabled again. In any case,
 the key to successfully resolving such situations is to pay careful attention
 to the error messages and accompanying ASCII diagram with message flow, to not
 spend time at searching for the problem in the wrong places.
+
+### 5.5 Recovery from misconfiguration
+This version of toolkit does not yet offer explicit support for backup and restore
+operations of the security server (scheduled for next release of the toolkit). In
+case something goes so wrong that way out or way back cannot be seen, it is possible
+to use nightly backups that are kept at security server to revert to earlier state.
+Overview of existing automatic backups is accessible from web administration console
+of the security server, in the "Settings" menu. More information about functionality
+can be found in [UG-SS](#Ref_SS-UG).

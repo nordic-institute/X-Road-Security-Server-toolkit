@@ -1,21 +1,8 @@
 import logging
 import os
-import re
 import subprocess
 
 import yaml
-
-# Regex of X-Road security server header for API key.
-RE_API_KEY_HEADER = re.compile(r"""
-    ^
-    X-Road-apikey[ ]token=
-    [a-f0-9]{8}-
-    [a-f0-9]{4}-
-    [a-f0-9]{4}-  # Do not fix UUID version
-    [a-f0-9]{4}-  # Do no validate first character separately
-    [a-f0-9]{12}
-    $
-""", re.VERBOSE | re.IGNORECASE)
 
 def get_admin_credentials(security_server, config):
     admin_credentials = security_server["admin_credentials"] if security_server.get("admin_credentials", "") else config["admin_credentials"]
@@ -130,7 +117,7 @@ def revoke_api_key(app):
                         cmd = "ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
                               ssh_key + "\" " + ssh_user + "@" + api_key_id[ssn][1] + " \"" + curl_cmd + "\""
                         exitcode, data = subprocess.getstatusoutput(cmd)
-                        api_key_token = app.api_keys[ssn].split('=')[1]
+                        api_key_token = app.api_keys[ssn]
                         if exitcode == 0:
                             log_info("API key '" + api_key_token + "' for security server " + ssn + " revoked.")
                         else:

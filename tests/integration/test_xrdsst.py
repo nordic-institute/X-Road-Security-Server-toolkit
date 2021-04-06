@@ -40,7 +40,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
     def step_init(self):
         base = BaseController()
         init = InitServerController()
-        configuration = base.initialize_basic_config_values(self.config["security_server"][0], self.config)
+        configuration = base.create_api_config(self.config["security_server"][0], self.config)
         status = init.check_init_status(configuration)
         assert status.is_anchor_imported is False
         assert status.is_server_code_initialized is False

@@ -21,7 +21,6 @@ class AutoController(BaseController):
         self._auto(active_config)
 
     def _auto(self, active_config):
-        self.init_logging(active_config)
         all_server_config = copy.deepcopy(active_config)
         for i in range(0, len(all_server_config[ConfKeysRoot.CONF_KEY_ROOT_SERVER])):
             single_server_config = all_server_config[ConfKeysRoot.CONF_KEY_ROOT_SERVER][i:(i+1)]
@@ -33,6 +32,11 @@ class AutoController(BaseController):
         ssn = active_config[ConfKeysRoot.CONF_KEY_ROOT_SERVER][0][ConfKeysSecurityServer.CONF_KEY_NAME]
 
         self.update_op_statuses(active_config)
+
+        ss_api_config = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]['api_config']
+        if not ss_api_config:
+            self.log_info("SKIPPED AUTO ->'" + ssn + "'. " + texts['message.server.keyless'].format(ssn))
+            return
 
         first_status = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]['status']
         if not first_status.connectivity_status[0]:

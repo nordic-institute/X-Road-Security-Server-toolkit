@@ -11,6 +11,9 @@ from definitions import ROOT_DIR
 
 
 # Make less of many evils and use one abstract test class base for encapsulating rather involved Docker setup.
+from xrdsst.controllers.base import BaseController
+
+
 class IntegrationTestBase(unittest.TestCase):
     __test__ = False
     configuration_anchor = "tests/resources/configuration-anchor.xml"
@@ -21,7 +24,6 @@ class IntegrationTestBase(unittest.TestCase):
     docker_folder = local_folder + '/Docker/securityserver'
     image = 'xroad-security-server:latest'
     url = 'https://localhost:4000/api/v1/api-keys'
-    roles = '[\"XROAD_SYSTEM_ADMINISTRATOR\",\"XROAD_SERVICE_ADMINISTRATOR\", \"XROAD_SECURITY_OFFICER\", \"XROAD_REGISTRATION_OFFICER\"]'
     header = 'Content-Type: application/json'
     max_retries = 300
     retry_wait = 1  # in seconds
@@ -31,14 +33,13 @@ class IntegrationTestBase(unittest.TestCase):
     def init_config(self):
         self.config = {
             'admin_credentials': self.credentials,
-            'api_key_roles': json.loads(self.roles),
             'logging': {'file': '/var/log/xrdsst_test.log', 'level': 'INFO'},
             'ssh_access': {'user': 'user', 'private_key': 'key'},
             'security_server':
                 [{'name': 'ss',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
                   'fqdn': 'client_only',
-                  'api_key': 'X-Road-apikey token=a2e9dea1-de53-4ebc-a750-6be6461d91f0',
+                  'api_key': 'a2e9dea1-de53-4ebc-a750-6be6461d91f0',
                   'api_key_url': self.url,
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
                   'owner_dn_country': 'FI',
@@ -82,7 +83,7 @@ class IntegrationTestBase(unittest.TestCase):
         return self.config
 
     def set_api_key(self, api_key):
-        self.config["security_server"][0]["api_key"] = 'X-Road-apikey token=' + api_key
+        self.config["security_server"][0]["api_key"] = api_key
 
     def set_ip_url(self, ip_address):
         local_url = self.config["security_server"][0]["url"]
@@ -139,7 +140,7 @@ class IntegrationTestBase(unittest.TestCase):
             if container.name == self.name:
                 retries = 0
                 while retries <= self.max_retries:
-                    cmd = "curl -X POST -u " + self.credentials + " --silent " + self.url + " --data \'" + self.roles + \
+                    cmd = "curl -X POST -u " + self.credentials + " --silent " + self.url + " --data \'" + json.dumps(BaseController._TRANSIENT_API_KEY_ROLES) + \
                           "\'" + " --header \"" + self.header + "\" -k"
                     result = container.exec_run(cmd, stdout=True, stderr=True, demux=False)
                     if len(result.output) > 0:
