@@ -2,7 +2,7 @@
 
 **Technical Specification**
 
-Version: 1.2.8
+Version: 1.2.9
 Doc. ID: XRDSST-CONF
 
 ---
@@ -30,6 +30,7 @@ Doc. ID: XRDSST-CONF
 | 31.03.2021 | 1.2.6       | Refactorization of configuration file related to SSH and api key parameters  | Bert Viikmäe       |
 | 01.04.2021 | 1.2.7       | Describe backup use, clarify toolkits' error interpretation role, remove undocumented ``api_key_roles`` configuration element | Taimo Peelo        |
 | 05.04.2021 | 1.2.8       | Remove HTTP header value prefix from 'api_key' configuration element         | Taimo Peelo        |
+| 06.04.2021 | 1.2.9       | Notes on user management                                                     | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -49,14 +50,15 @@ Doc. ID: XRDSST-CONF
 	* [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
 * [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
 	* [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
-	* [4.2 Initializing the security server](#42-initializing-the-security-server)
-	* [4.3 Logging in a single software token](#43-logging-in-a-single-software-token)
-	* [4.4 Listing security server tokens](#44-listing-security-server-tokens)
-	* [4.5 Configuring security server to use single approved timestamping service](#45-configuring-security-server-to-use-single-approved-timestamping-service)
-	* [4.6 Initializing token keys and corresponding certificate signing requests](#46-initializing-token-keys-and-corresponding-certificate-signing-requests)
-	* [4.7 Certificate management](#47-certificate-management)
-	* [4.8 Client management](#48-client-management)
-	* [4.9 Service management](#49-service-management)
+	* [4.2 Creating admin user (optional)](#42-creating-admin-user-optional)
+	* [4.3 Initializing the security server](#43-initializing-the-security-server)
+	* [4.4 Logging in a single software token](#44-logging-in-a-single-software-token)
+	* [4.5 Listing security server tokens](#45-listing-security-server-tokens)
+	* [4.6 Configuring security server to use single approved timestamping service](#46-configuring-security-server-to-use-single-approved-timestamping-service)
+	* [4.7 Initializing token keys and corresponding certificate signing requests](#47-initializing-token-keys-and-corresponding-certificate-signing-requests)
+	* [4.8 Certificate management](#48-certificate-management)
+	* [4.9 Client management](#49-client-management)
+	* [4.10 Service management](#410-service-management)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
 	* [5.1 Configuration flow](#51-configuration-flow)
 	* [5.2 First-run failures](#52-first-run-failures)
@@ -258,42 +260,46 @@ $ xrdsst status
 The whole security server configuration in a fully automatic mode (all configuration from configuration file) can be run with ``xrdsst apply``
 For performing the configuration step by step instead, please start from [4.2 Initializing the security server](#42-initializing-the-security-server)
 
-### 4.2 Initializing the security server
+### 4.2 Creating admin user (optional)
+
+X-Road admin user can be created with ``xrdsst user create``
+
+### 4.3 Initializing the security server
 
 Configuration anchor is added and the security server is initialized with ``xrdsst init``
 
-### 4.3 Logging in a single software token
+### 4.4 Logging in a single software token
 
 Default software token login can be logged on with ``xrdsst token login``
 
-### 4.4 Listing security server tokens
+### 4.5 Listing security server tokens
 
 All tokens known to security server can be listed with ``xrdsst token list``
 
-### 4.5 Configuring security server to use single approved timestamping service
+### 4.6 Configuring security server to use single approved timestamping service
 
 Single timestamping service approved for use in central server can be configured for security server by invoking ``timestamp`` subcommand
 as ``xrdsst timestamp init``.
 
-### 4.6 Initializing token keys and corresponding certificate signing requests
+### 4.7 Initializing token keys and corresponding certificate signing requests
 
 Token keys for authentication and signatures can be created with ``xrdsst token init-keys``, which creates
 two keys and generates corresponding certificate signing requests (one for authentication, other for signing).
 The key labels used are conventionally with suffixes ``default-auth-key`` and ``default-sign-key``, if
 those already exist, they will not be duplicated and command acts as no-op for such security server.
 
-### 4.7 Certificate management
+### 4.8 Certificate management
 Certificate signing requests can be downloaded with ``xrdsst cert download-csrs``, suitably signed
 certificates can be imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
 from being attached to key labelled with suffix ``default-auth-key`` at central server can be initiated with ``xrdsst
 cert register``, final activation with ``xrdsst cert activate``.
 
-### 4.8 Client management
+### 4.9 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
 ``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
 Further subsystem registration can proceed with ``xrdsst client register``. 
 
-### 4.9 Service management
+### 4.10 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
 Adding access to services is performed  with ``xrdsst service add-access``. Service parameters are updated with ``xrdsst service update-parameters``.
