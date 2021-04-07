@@ -100,9 +100,17 @@ The X-Road Security Server Toolkit package can be installed using PIP:
 $ pip install --index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst xrdsst
 ```
 
-The downloaded and signed packages can be verified with a public key:
 
-**The public key can be obtained from : https://pgp.mit.edu/ by typing ``jenkins@niis.org`` into the search string field.**
+**The public key for verifying signed packages can be obtained from : https://pgp.mit.edu/ by typing ``jenkins@niis.org`` into the search string field.**
+
+The fingerprint of that key:
+```
+pub   rsa4096 2018-05-31 [SC]
+      BEC35825BBAB4288933F0354116AC90A8F670D74
+uid           [ unknown] Jenkins (X-Road Development Signing Key) <jenkins@niis.org>
+```
+
+The downloaded and signed packages can be verified with the public key:
 
 ```
 $ gpg --import key.gpg
