@@ -36,7 +36,9 @@ class UserController(BaseController):
 
     def add_user_with_groups(self, groups, user_name, pwd, ssh_key, ssh_user, security_server):
         self.log_debug('Adding user \'' + user_name + '\' into groups \'' + str(groups) + '\' for security server: ' + security_server['name'])
-        cmd = "sudo adduser --quiet --disabled-password --gecos '' {} --shell /bin/false".format(user_name)
+        ubuntu_cmd = "sudo adduser --quiet --disabled-password --gecos '' {} --shell /bin/false".format(user_name)
+        centos_cmd = "sudo adduser {} -c '' --shell /bin/false".format(user_name)
+        cmd = ubuntu_cmd + ' || ' + centos_cmd
         add_user_cmd = 'ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(
             ssh_key, ssh_user, self.security_server_address(security_server), cmd)
         exitcode, data = subprocess.getstatusoutput(add_user_cmd)
@@ -47,7 +49,9 @@ class UserController(BaseController):
             exitcode, data = subprocess.getstatusoutput(add_user_cmd)
             if exitcode == 0:
                 for group in groups:
-                    cmd = "sudo adduser {} {}".format(user_name, group)
+                    ubuntu_cmd = "sudo adduser {} {}".format(user_name, group)
+                    centos_cmd = "sudo usermod -a -G {} {}".format(group, user_name)
+                    cmd = ubuntu_cmd + ' || ' + centos_cmd
                     user_mod_cmd = 'ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ' \
                                    + '-o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(ssh_key,
                                                                                    ssh_user,
