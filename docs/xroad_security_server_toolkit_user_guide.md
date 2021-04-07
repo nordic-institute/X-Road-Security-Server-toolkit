@@ -92,6 +92,7 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 * Python version 3.6+
 * PIP
+* Installed X-Road security server packages
 
 ### 2.2 Installation procedure
 
@@ -169,6 +170,12 @@ security_server:
 
 The ``ssh_access`` section is for configuring the SSH access parameters of the X-Road Security Server Toolkit
 The ``security_server`` section is for configuring security server parameters
+
+NOTE: The ``ssh_access`` section is used for creating a transient api-key. If the api-key has been created manually
+      beforehand and the ``api_key`` parameter value filled with a proper key in the configuration file, the transient key
+      will not be created and ``ssh_access`` parameter values are not needed.
+
+** It is a security risk to store the SSH access related credentials into to configuration file as plain text. **
 
 * <SECURITY_SERVER_CREDENTIALS> X-Road Security Server admin credentials, e.g. xrd:secret (if specified in the separate section, one value will be 
   used for all configurable security servers, but if specified in the ``security_server`` section, the value will be overridden for specific 
@@ -258,11 +265,26 @@ $ xrdsst status
 ### 4.1 The single command fully automatic configuration of security servers listed in configuration file
 
 The whole security server configuration in a fully automatic mode (all configuration from configuration file) can be run with ``xrdsst apply``
-For performing the configuration step by step instead, please start from [4.2 Initializing the security server](#42-initializing-the-security-server)
+For performing the configuration step by step instead, please start from [4.3 Initializing the security server](#43-initializing-the-security-server)
 
 ### 4.2 Creating admin user (optional)
 
 X-Road admin user can be created with ``xrdsst user create``
+
+Configuration parameters involved:
+
+```
+admin_credentials: <SECURITY_SERVER_CREDENTIALS>
+ssh_access:
+  user: <SSH_USER>
+  private_key: /path/to/ssh_private_key
+```
+
+Note: This is an optional step in the configuration process and should only be run if the admin user has not been created before. 
+      SSH (SSH user and a private key) is used for creating the admin user. If the admin user has been created before, then it is 
+      enough to just add the credentials to the configuration file as ``admin_credentials`` and this step can be skipped totally.
+
+** It is a security risk to store the SSH access related credentials into to configuration file as plain text. **
 
 ### 4.3 Initializing the security server
 
