@@ -171,12 +171,6 @@ security_server:
 The ``ssh_access`` section is for configuring the SSH access parameters of the X-Road Security Server Toolkit
 The ``security_server`` section is for configuring security server parameters
 
-NOTE: The ``ssh_access`` section is used for creating a transient api-key. If the api-key has been created manually
-      beforehand and the ``api_key`` parameter value filled with a proper key in the configuration file, the transient key
-      will not be created and ``ssh_access`` parameter values are not needed.
-
-** It is a security risk to store the SSH access related credentials into to configuration file as plain text. **
-
 * <SECURITY_SERVER_CREDENTIALS> X-Road Security Server admin credentials, e.g. xrd:secret (if specified in the separate section, one value will be 
   used for all configurable security servers, but if specified in the ``security_server`` section, the value will be overridden for specific 
   configurable security server)
