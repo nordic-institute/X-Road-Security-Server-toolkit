@@ -142,7 +142,7 @@ security server(s) about to be configured.
 
 #### 3.1.1 Toolkit access to security servers
 
-To be able to use toolkit for configuring security server, one of the following access combinations
+To be able to use the toolkit for configuring security server(s), one of the following access combinations
 is needed:
 
 1. Access to REST API of configured security server + existing API key.
