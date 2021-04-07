@@ -84,8 +84,8 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 ### 1.2 References
 
-* <a id="Ref_CS-UG" class="anchor"></a> [\[UG-CS\] Central Server User Guide](https://docs.x-road.global/Manuals/ug-cs_x-road_6_central_server_user_guide.html)
-* <a id="Ref_SS-UG" class="anchor"></a> [\[UG-SS\] Security Server User Guide](https://docs.x-road.global/Manuals/ug-ss_x-road_6_security_server_user_guide.html)
+* <a id="Ref_CS-UG" class="anchor"></a> [\[UG-CS\] X-Road: Central Server User Guide](https://docs.x-road.global/Manuals/ug-cs_x-road_6_central_server_user_guide.html)
+* <a id="Ref_SS-UG" class="anchor"></a> [\[UG-SS\] X-Road: Security Server User Guide](https://docs.x-road.global/Manuals/ug-ss_x-road_6_security_server_user_guide.html)
 * <a id="Ref_YAML_1_1" class="anchor"></a> [\[YAML-1.1\] YAML Ain’t Markup Language (YAML™) Version 1.1](https://yaml.org/spec/1.1)
 
 
@@ -136,8 +136,7 @@ platforms for the security servers are Ubuntu 18.04/20.04 LTS, Red Hat Enterpris
 [X-Road Security Server Sidecar](https://github.com/nordic-institute/X-Road-Security-Server-sidecar)
 running in a Docker container.
 * X-Road security server with subsystem acting as service provider for X-Road management
-services, either in some separate security server, or to be newly added in (one of the)
-security server(s) about to be configured.
+services, in separate security server.
 * Toolkit access to configured security servers.
 
 #### 3.1.1 Toolkit access to security servers
@@ -201,7 +200,7 @@ when not supplied with API key, but given SSH access credentials to configurable
 server administration credentials. In this case, it will create transient API keys for performing
 the configuration operations, in the same way as described above, and these API keys are normally
 revoked when the toolkit command finishes. However, in case of e.g. electricity or network
-connection loss these keys could remain on the server indefinitely.
+connection loss these keys could remain on the security server indefinitely.
 
 If SSH access is configured for sudo-capable or root account, this also enables creation of (additional)
 administrative accounts for the security server.
