@@ -102,7 +102,7 @@ The document is intended for readers with a good knowledge of Linux server manag
 The X-Road Security Server Toolkit package can be installed using PIP:
 
 ```
-$ pip install --index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst xrdsst
+$ pip install -i http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
 ```
 
 ** The public key ``jenkins@niis.org`` has been added to an SKS server: pool.sks-keyservers.net **
