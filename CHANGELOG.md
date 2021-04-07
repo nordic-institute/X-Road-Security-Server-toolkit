@@ -2,9 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.1-alpha.0] - 2021-04-06
-- add ``xrdsst user`` and subcommand ``create``
-
 ## [0.4.0-alpha.0] - 2021-04-05
 - Mask API key representations in log files.
 - Represent API key in configuration as UUID, without HTTP header prefix.
