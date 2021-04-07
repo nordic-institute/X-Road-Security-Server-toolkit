@@ -131,8 +131,8 @@ are enabled, to be able to register authentication certificates and manage secur
 clients without taking separate actions at central server, see [UG-CS](#Ref_CS-UG) about
 ``auto-approve-auth-cert-reg-requests`` and ``auto-approve-client-reg-requests``.
 * Single or multiple security servers to be configured and maintained. Supported and tested
-platforms for the security servers are Ubuntu 18.04/20.04 LTS or Red Hat Enterprise Linux
-(RHEL) 7/8 on an x86-64 platform or
+platforms for the security servers are Ubuntu 18.04/20.04 LTS, Red Hat Enterprise Linux
+(RHEL) 7/8 on an x86-64 platform, and
 [X-Road Security Server Sidecar](https://github.com/nordic-institute/X-Road-Security-Server-sidecar)
 running in a Docker container.
 * X-Road security server with subsystem acting as service provider for X-Road management
