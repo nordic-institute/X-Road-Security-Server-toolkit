@@ -48,9 +48,9 @@ class UserController(BaseController):
             try:
                 exitcode, data = subprocess.getstatusoutput(os_name_cmd)
                 if exitcode == 0:
-                    if data.lower().find("ubuntu") > 0:
+                    if data.lower().find("ubuntu") >= 0:
                         return "Ubuntu"
-                    elif data.lower().find("centos") > 0:
+                    elif data.lower().find("centos") >= 0:
                         return "Centos"
                     else:
                         return None
