@@ -118,7 +118,7 @@ The downloaded and signed packages can be verified with the public key:
 
 ```
 $ gpg --keyserver pool.sks-keyservers.net --search-keys  BEC35825BBAB4288933F0354116AC90A8F670D74
-$ gpg --verify xrdsst-*.whl xrdsst-*.tar.gz 
+$ gpg --verify xrdsst-*.tar.gz.asc xrdsst-*.tar.gz 
 ```
 
 After the packages are installed, the following commands from the command line need to be run:
