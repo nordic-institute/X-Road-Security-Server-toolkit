@@ -263,7 +263,7 @@ For performing the configuration step by step instead, please start from [4.3 In
 
 ### 4.2 Creating admin user (optional)
 
-X-Road admin user can be created with ``xrdsst user create``
+X-Road admin user can be created with ``xrdsst user create-admin``
 
 Configuration parameters involved:
 
