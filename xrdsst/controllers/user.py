@@ -36,22 +36,30 @@ class UserController(BaseController):
 
     def add_user_with_groups(self, groups, user_name, pwd, ssh_key, ssh_user, security_server):
         self.log_debug('Adding user \'' + user_name + '\' into groups \'' + str(groups) + '\' for security server: ' + security_server['name'])
-        cmd = "sudo groupadd -f {} && sudo useradd {} -g {} -p {}".format(user_name, user_name, user_name, pwd)
+        cmd = "sudo adduser --quiet --disabled-password --gecos '' {} --shell /bin/false".format(user_name)
         add_user_cmd = 'ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(
             ssh_key, ssh_user, self.security_server_address(security_server), cmd)
         exitcode, data = subprocess.getstatusoutput(add_user_cmd)
         if exitcode == 0:
-            for group in groups:
-                cmd = "sudo usermod -a -G {} {}".format(group, user_name)
-                user_mod_cmd = 'ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ' \
-                               + '-o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(ssh_key,
-                                                                               ssh_user,
-                                                                               self.security_server_address(security_server),
-                                                                               cmd)
-                exitcode, data = subprocess.getstatusoutput(user_mod_cmd)
-                if exitcode != 0:
-                    raise Exception('UserController->create_user: Adding user to group for '
-                                    + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
+            cmd = "echo -e '{}\n{}\n' | sudo passwd {}".format(pwd, pwd, user_name)
+            add_user_cmd = 'ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(
+                ssh_key, ssh_user, self.security_server_address(security_server), cmd)
+            exitcode, data = subprocess.getstatusoutput(add_user_cmd)
+            if exitcode == 0:
+                for group in groups:
+                    cmd = "sudo adduser {} {}".format(user_name, group)
+                    user_mod_cmd = 'ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ' \
+                                   + '-o LogLevel=ERROR -i "{}" {}@{} "{}"'.format(ssh_key,
+                                                                                   ssh_user,
+                                                                                   self.security_server_address(security_server),
+                                                                                   cmd)
+                    exitcode, data = subprocess.getstatusoutput(user_mod_cmd)
+                    if exitcode != 0:
+                        raise Exception('UserController->create_user: Adding user to group for '
+                                        + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
+            else:
+                raise Exception('UserController->create_user: Setting password for the new user for '
+                                + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
         else:
             raise Exception('UserController->create_user: Adding new user for '
                             + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
