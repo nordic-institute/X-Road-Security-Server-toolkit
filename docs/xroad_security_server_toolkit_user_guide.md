@@ -1,8 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-**Technical Specification**
-
-Version: 1.2.9
+Version: 1.2.10\
 Doc. ID: XRDSST-CONF
 
 ---
@@ -30,7 +28,8 @@ Doc. ID: XRDSST-CONF
 | 31.03.2021 | 1.2.6       | Refactorization of configuration file related to SSH and api key parameters  | Bert Viikmäe       |
 | 01.04.2021 | 1.2.7       | Describe backup use, clarify toolkits' error interpretation role, remove undocumented ``api_key_roles`` configuration element | Taimo Peelo        |
 | 05.04.2021 | 1.2.8       | Remove HTTP header value prefix from 'api_key' configuration element         | Taimo Peelo        |
-| 07.04.2021 | 1.2.9       | Added description about signing and verification of packages                 | Bert Viikmäe       |
+| 06.04.2021 | 1.2.9       | Describe different security server access possibilities                      | Taimo Peelo        |
+| 07.04.2021 | 1.2.10      | Added description about signing and verification of packages                 | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -46,6 +45,9 @@ Doc. ID: XRDSST-CONF
 	* [2.2 Installation procedure](#22-installation-procedure)
 * [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
 	* [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
+		* [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
+			* [3.1.1.1 Using API keys](#3111-using-api-keys)
+			* [3.1.1.2 Using SSH](#3112-using-ssh)
 	* [3.2 Format of configuration file](#32-format-of-configuration-file)
 	* [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
 * [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
@@ -83,7 +85,10 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 ### 1.2 References
 
-* <a id="Ref_SS-UG" class="anchor"></a> [\[UG-SS\] Security Server User Guide](https://docs.x-road.global/Manuals/ug-ss_x-road_6_security_server_user_guide.html)
+* <a id="Ref_CS-UG" class="anchor"></a> [\[UG-CS\] X-Road: Central Server User Guide](https://docs.x-road.global/Manuals/ug-cs_x-road_6_central_server_user_guide.html)
+* <a id="Ref_SS-UG" class="anchor"></a> [\[UG-SS\] X-Road: Security Server User Guide](https://docs.x-road.global/Manuals/ug-ss_x-road_6_security_server_user_guide.html)
+* <a id="Ref_YAML_1_1" class="anchor"></a> [\[YAML-1.1\] YAML Ain’t Markup Language (YAML™) Version 1.1](https://yaml.org/spec/1.1)
+
 
 ## 2. Installation
 
@@ -100,8 +105,7 @@ The X-Road Security Server Toolkit package can be installed using PIP:
 $ pip install --index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst xrdsst
 ```
 
-
-**The public key for verifying signed packages can be obtained from : https://pgp.mit.edu/ by typing ``jenkins@niis.org`` into the search string field.**
+** The public key ``jenkins@niis.org`` has been added to an SKS server: pool.sks-keyservers.net **
 
 The fingerprint of that key:
 ```
@@ -113,7 +117,7 @@ uid           [ unknown] Jenkins (X-Road Development Signing Key) <jenkins@niis.
 The downloaded and signed packages can be verified with the public key:
 
 ```
-$ gpg --import key.gpg
+$ gpg --keyserver pool.sks-keyservers.net --search-keys  BEC35825BBAB4288933F0354116AC90A8F670D74
 $ gpg --verify xrdsst-*.whl xrdsst-*.tar.gz 
 ```
 
@@ -124,17 +128,110 @@ $ pip install -r requirements-dev.txt
 $ pip install setup.py
 ```
 
+After installation, ``xrdsst`` command runs the toolkit, when invoked without any parameters,
+it will give the overview of available options and sub-commands. Sub-commands themselves can
+also have further subcommands, so for example all the supported token operations can be listed
+with ``xrdsst token``:
+
+```
+$ xrdsst token
+usage: xrdsst token [-h] [-v] {init-keys,list,login} ...
+```
+
+
 ## 3 Configuration of X-Road Security Server
 
 ### 3.1 Prerequisites to Configuration
 
-* a central server running the Ubuntu 18.04 LTS or 20.04 LTS operating system, on an x86-64bit platform. 
-* a security server providing management services. 
-* single or multiple security servers(to be configured by the X-Road Security Server Toolkit) running the Ubuntu version 18.04 LTS or 20.04 LTS 
-  or Redhat version 7 or 8 operating system, on an x86-64bit platform or X-Road Security Server Sidecar running in a Docker container
-* configuration file in YAML format for configuring security server
+* X-Road central server. In development, this is best run in the mode where auto-approvals
+are enabled, to be able to register authentication certificates and manage security server
+clients without taking separate actions at central server, see [UG-CS](#Ref_CS-UG) about
+``auto-approve-auth-cert-reg-requests`` and ``auto-approve-client-reg-requests``.
+* Single or multiple security servers to be configured and maintained. Supported and tested
+platforms for the security servers are Ubuntu 18.04/20.04 LTS, Red Hat Enterprise Linux
+(RHEL) 7/8 on an x86-64 platform, and
+[X-Road Security Server Sidecar](https://github.com/nordic-institute/X-Road-Security-Server-sidecar)
+running in a Docker container.
+* X-Road security server with subsystem acting as service provider for X-Road management
+services, in separate security server.
+* Toolkit access to configured security servers.
+
+#### 3.1.1 Toolkit access to security servers
+
+To be able to use the toolkit for configuring security server(s), one of the following access combinations
+is needed:
+
+1. Access to REST API of configured security server + existing API key.
+1. Access to REST API of configured security server + SSH access to the security server machine + X-Road security server administrative credentials.
+
+__Proper care must be taken to ensure that configuration files with these credentials are not visible
+to strangers' eyes, as the secrets they can contain (API keys, administrative credentials) are
+stored in plain text. Possible information leaks are minimized when using API keys, without any SSH
+connections or security server administrative credentials configured.__
+
+Security server REST API is ordinarily exposed at security server port 4000 and is separated into
+two parts:
+  1. invocable over network -- API calls for performing most of the functionality available from
+     web administration console, accessible with API key.
+  1. invocable only locally (in default configuration), i.e. when accessed via 'localhost' or
+     equivalent and passed security server administrative credentials via HTTP basic access
+     authentication -- API calls that allow API key management operations.
+
+##### 3.1.1.1 Using API keys
+
+The API key used by toolkit against REST API needs following roles for full toolkit
+functionality:
+ 1. XROAD_SYSTEM_ADMINISTRATOR
+ 1. XROAD_SERVICE_ADMINISTRATOR
+ 1. XROAD_SECURITY_OFFICER
+ 1. XROAD_REGISTRATION_OFFICER
+
+On freshly installed and completely unconfigured security server, API key can be obtained from
+the server with local API invocation, e.g.:
+```sh
+$ curl -k --silent \
+    -X POST \
+    --header 'Content-Type: application/json' \
+    --data '["XROAD_SYSTEM_ADMINISTRATOR", "XROAD_SERVICE_ADMINISTRATOR"]' \
+    -u user:pass https://localhost:4000/api/v1/api-keys \
+ | jq
+{
+   "id":122,
+   "key":"55f0a0ce-46d6-4217-a15a-43e026c4a9c5",
+   "roles":["XROAD_SYSTEM_ADMINISTRATOR","XROAD_SERVICE_ADMINISTRATOR"]
+}
+```
+
+In the above sample command, role list was shortened for readability, ``user:pass`` to use are
+X-Road security server administrative access credentials. In the output sample,
+``key`` is the UUID to be used as REST API key. This UUID is only retrievable once for
+API key, as it is not stored in plaintext at the security server. If dealing with security
+server that already has some basic configuration done (anchors, ownership information
+and software token configuration finished), this API key can also be created from the web
+administration console (from "Keys and certificates" -> "API keys" submenu).
+
+##### 3.1.1.2 Using SSH
+
+For ease of automation and development experiments, toolkit is also able to perform operations
+when not supplied with API key, but given SSH access credentials to configurable server and security
+server administration credentials. In this case, it will create transient API keys for performing
+the configuration operations, in the same way as described above, and these API keys are normally
+revoked when the toolkit command finishes. However, in case of e.g. electricity or network
+connection loss these keys could remain on the security server indefinitely.
+
+If SSH access is configured for sudo-capable or root account, this also enables creation of (additional)
+administrative accounts for the security server.
+
   
 ### 3.2 Format of configuration file
+
+Configuration file is in YAML 1.1 format [YAML-1.1](#Ref_YAML_1_1). Avoid using tabs, which
+are considered underspecified in YAML. In below configuration skeleton sample, '#' are comments,
+and texts between ``<>`` angle brackets are placeholders that (sometimes optionally) should be
+filled in the configuration skeleton. The meaning of these placeholders is documented in more
+details after the sample. Optional elements that are not to be used can be removed completely.
+
+
 ```
 admin_credentials: <SECURITY_SERVER_CREDENTIALS>
 ssh_access:
