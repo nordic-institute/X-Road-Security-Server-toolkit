@@ -15,6 +15,7 @@ texts = {
     'token.controller.description': 'Commands for performing token operations.',
     'service.controller.description': 'Commands for performing service operations.',
     'status.controller.description': 'Query for server configuration statuses.',
+    'user.controller.description': 'Creates admin user on the security server.',
 
     # Messages
     'message.file.not.found': "File '{}' not found.",
