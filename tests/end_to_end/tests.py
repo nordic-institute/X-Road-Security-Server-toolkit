@@ -16,6 +16,7 @@ from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
+from xrdsst.controllers.user import UserController
 from xrdsst.core.util import revoke_api_key
 from xrdsst.main import XRDSSTTest
 
@@ -228,6 +229,18 @@ class EndToEndTest(unittest.TestCase):
         assert description["services"][0]["timeout"] == 120
         assert description["services"][0]["url"] == 'http://petstore.xxx'
 
+    def step_create_admin_user(self):
+        self.config["security_server"][0]["admin_credentials"] = 'newxrd:pwd'
+        user = UserController()
+        init = InitServerController()
+        for security_server in self.config["security_server"]:
+            user.create_api_config(security_server, self.config)
+            user.create_user(self.config)
+            configuration = init.create_api_config(security_server, self.config)
+            init.initialize_server(self.config)
+            status = init.check_init_status(configuration)
+            assert status.is_anchor_imported is True and status.is_server_code_initialized is True
+
     def step_autoconf(self):
         with XRDSSTTest() as app:
             with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
@@ -277,6 +290,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_enable_service_description(client_id)
         self.step_add_service_access(client_id)
         self.step_update_service_parameters(client_id)
+        self.step_create_admin_user()
 
         self.step_autoconf()  # Idempotent
 

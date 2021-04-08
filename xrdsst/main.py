@@ -16,6 +16,7 @@ from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
+from xrdsst.controllers.user import UserController
 from xrdsst.core.util import revoke_api_key
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
     validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, validate_config_cert_activate, \
@@ -203,7 +204,7 @@ class XRDSST(App):
 
         # register handlers
         handlers = [BaseController, StatusController, ClientController, CertController, TimestampController,
-                    TokenController, InitServerController, AutoController, ServiceController]
+                    TokenController, InitServerController, AutoController, ServiceController, UserController]
 
     api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
 
