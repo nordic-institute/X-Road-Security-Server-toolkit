@@ -1,6 +1,6 @@
 texts = {
     # App
-    'app.description': 'A toolkit for configuring security server',
+    'app.description': 'A toolkit for configuring X-Road security servers.',
     'app.label': 'xrdsst',
 
     # Root application parameters
