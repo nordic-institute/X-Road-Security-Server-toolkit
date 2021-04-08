@@ -27,9 +27,15 @@ class UserController(BaseController):
         for security_server in conf["security_server"]:
             self.log_debug('Creating admin user for security server: ' + security_server['name'])
             admin_credentials = get_admin_credentials(security_server, conf)
+            if admin_credentials is None:
+                raise Exception('UserController->create_user: required admin credentials missing for security server ' + security_server['name'])
             user_name, pwd = admin_credentials.split(":")
             ssh_key = get_ssh_key(security_server, conf)
+            if ssh_key is None:
+                raise Exception('UserController->create_user: required SSH private key missing for security server ' + security_server['name'])
             ssh_user = get_ssh_user(security_server, conf)
+            if ssh_user is None:
+                raise Exception('UserController->create_user: required SSH username missing for security server ' + security_server['name'])
             self.add_user_with_groups(self._GROUP_NAMES, user_name, pwd, ssh_key, ssh_user, security_server)
             self.log_info('Admin user \"' + user_name + '\" for security server ' + security_server['name'] +
                           ' created.')
