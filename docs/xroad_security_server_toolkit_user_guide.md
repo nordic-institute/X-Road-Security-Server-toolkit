@@ -99,26 +99,20 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 ### 2.2 Installation procedure
 
-The X-Road Security Server Toolkit package can be installed using PIP:
+The X-Road Security Server Toolkit package can be installed using PIP (use pip or pip3, whichever is used):
 
 ```
 $ pip install -i http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
 ```
 
-** The public key ``jenkins@niis.org`` has been added to an SKS server: pool.sks-keyservers.net **
+Package signing public key for can be retrieved from SKS keyserver pool (pool.sks-keyservers.net), key fingerprint is ``BEC35825BBAB4288933F0354116AC90A8F670D74``, publisher ``Jenkins (X-Road Development Signing Key) <jenkins@niis.org>``.
 
-The fingerprint of that key:
-```
-pub   rsa4096 2018-05-31 [SC]
-      BEC35825BBAB4288933F0354116AC90A8F670D74
-uid           [ unknown] Jenkins (X-Road Development Signing Key) <jenkins@niis.org>
-```
+Signature ``xrdsst.asc`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst.asc
 
-The downloaded and signed packages can be verified with the public key:
-
+Downloaded packages with detached signatures can be verified after adding signing public key to local keyring:
 ```
 $ gpg --keyserver pool.sks-keyservers.net --search-keys  BEC35825BBAB4288933F0354116AC90A8F670D74
-$ gpg --verify xrdsst-*.tar.gz.asc xrdsst-*.tar.gz 
+$ gpg --verify xrdsst.asc
 ```
 
 After the packages are installed, the following commands from the command line need to be run:
