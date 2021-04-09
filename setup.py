@@ -1,5 +1,5 @@
 """Project setup"""
-from setuptools import setup
+from setuptools import setup, find_packages
 from xrdsst.core.version import get_version
 
 VERSION = get_version()
@@ -39,7 +39,7 @@ setup(
     author_email='info@dvv.fi',
     url='https://github.com/nordic-institute/X-Road-Security-Server-toolkit',
     license='MIT',
-    #packages=find_packages(exclude=['ez_setup', 'tests*']),
+    packages=find_packages(exclude=['ez_setup', 'tests*']),
     package_data={'xrdsst': ['templates/*']},
     setup_requires=['pytest-runner', 'pytest-pylint'],
     tests_require=['pytest', 'pylint'],
