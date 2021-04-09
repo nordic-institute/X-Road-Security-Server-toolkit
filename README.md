@@ -67,6 +67,18 @@ $ source env/bin/activate
 ```
 $ bump2version patch/minor/major/release/build (e.g. bump2version minor)
 ```
+In case of minor updates, use `bump2version patch`
+In case of major updates, use `bump2version minor`
+When releasing, use `bump2version major`
+
+In case of releasing, also `bump2version release` should be performed
+to update the release part of the version number, which can contain values: 
+```
+alpha
+beta
+rc
+final
+```
 
 ### Releasing
 
