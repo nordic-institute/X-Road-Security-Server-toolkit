@@ -7,7 +7,7 @@ from unittest import mock
 import pytest
 
 from datetime import datetime, timedelta
-from definitions import ROOT_DIR
+from xrdsst.core.definitions import ROOT_DIR
 from tests.util.test_util import ObjectStruct, DiagnosticsTestData, InitTestData
 from xrdsst.api import UserApi, SystemApi, DiagnosticsApi, InitializationApi, SecurityServersApi, TokensApi
 from xrdsst.controllers.status import StatusController

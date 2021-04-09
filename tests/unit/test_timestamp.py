@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 
-from definitions import ROOT_DIR
+from xrdsst.core.definitions import ROOT_DIR
 from tests.util.test_util import StatusTestData
 from xrdsst.api import TimestampingServicesApi, SystemApi
 from xrdsst.controllers.timestamp import TimestampController

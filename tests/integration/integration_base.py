@@ -7,7 +7,7 @@ import unittest
 import docker
 import git
 
-from definitions import ROOT_DIR
+from xrdsst.core.definitions import ROOT_DIR
 
 
 # Make less of many evils and use one abstract test class base for encapsulating rather involved Docker setup.
