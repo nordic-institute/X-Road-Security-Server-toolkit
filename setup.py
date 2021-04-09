@@ -20,7 +20,6 @@ setup(
     long_description_content_type='text/markdown',
     classifiers=[],
     install_requires=required,
-    keywords='cli framework',
     author='Finnish Digital Agency',
     author_email='info@dvv.fi',
     url='https://github.com/nordic-institute/X-Road-Security-Server-toolkit',
