@@ -107,12 +107,12 @@ $ pip install -i http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst
 
 Package signing public key for can be retrieved from SKS keyserver pool (pool.sks-keyservers.net), key fingerprint is ``BEC35825BBAB4288933F0354116AC90A8F670D74``, publisher ``Jenkins (X-Road Development Signing Key) <jenkins@niis.org>``.
 
-Signature ``xrdsst-1.0.0.tar.gz.asc`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.tar.gz.asc
+Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.sig
 
 Downloaded packages with detached signatures can be verified after adding signing public key to local keyring:
 ```
 $ gpg --keyserver pool.sks-keyservers.net --search-keys  BEC35825BBAB4288933F0354116AC90A8F670D74
-$ gpg --verify xrdsst-1.0.0.tar.gz.asc
+$ gpg --verify xrdsst-1.0.0.sig xrdsst-1.0.0.tar.gz
 ```
 
 After the packages are installed, the following commands from the command line need to be run:
