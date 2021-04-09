@@ -16,7 +16,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     classifiers=[],
-    install_requires=[],
+    install_requires=['networkx'],
     keywords='cli framework',
     author='Finnish Digital Agency',
     author_email='info@dvv.fi',
