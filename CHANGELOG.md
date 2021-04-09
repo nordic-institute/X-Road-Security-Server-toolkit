@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2-alpha.0] - 2021-04-09
+- Documentation updates related to package verification
+
 ## [0.4.1-alpha.0] - 2021-04-06
 - add ``xrdsst user`` and subcommand ``create-admin``
 

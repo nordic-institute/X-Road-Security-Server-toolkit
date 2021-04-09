@@ -30,7 +30,7 @@ Doc. ID: XRDSST-CONF
 | 05.04.2021 | 1.2.8       | Remove HTTP header value prefix from 'api_key' configuration element         | Taimo Peelo        |
 | 06.04.2021 | 1.2.9       | Describe different security server access possibilities                      | Taimo Peelo        |
 | 06.04.2021 | 1.2.10      | Notes on user management                                                     | Bert Viikmäe       |
-| 07.04.2021 | 1.2.11      | Added description about signing and verification of packages                 | Bert Viikmäe       |
+| 09.04.2021 | 1.2.11      | Added description about signing and verification of packages                 | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
