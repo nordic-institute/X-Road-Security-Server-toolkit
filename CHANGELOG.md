@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-final.0] - 2021-04-09
+- X-Road-Security Server Toolkit release version 1.0
+
 ## [0.4.2-alpha.0] - 2021-04-09
 - Documentation updates related to package verification
 
