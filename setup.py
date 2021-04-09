@@ -8,33 +8,16 @@ f = open('README.md', 'r')
 LONG_DESCRIPTION = f.read()
 f.close()
 
-with open('requirements.txt') as f:
-    required = f.read().splitlines()
-
 setup(
     name='xrdsst',
     version=VERSION,
+    python_requires='>=3.6',
     description='A toolkit for configuring X-Road Security Server',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     classifiers=[],
-    install_requires=[
-        'cement',
-        'pyyaml',
-        'networkx',
-        'tabulate',
-        'setuptools',
-        'urllib3',
-        'confuse',
-        'certifi',
-        'six',
-        'gitpython',
-        'docker',
-        'yq',
-        'jq',
-        'requests',
-        'python-dateutil'
-    ],
+    install_requires=[],
+    keywords='cli framework',
     author='Finnish Digital Agency',
     author_email='info@dvv.fi',
     url='https://github.com/nordic-institute/X-Road-Security-Server-toolkit',
