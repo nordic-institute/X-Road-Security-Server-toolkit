@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
 
-from definitions import ROOT_DIR
+from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.configuration.configuration import Configuration
 from xrdsst.controllers.base import BaseController
 from xrdsst.core.util import convert_swagger_enum

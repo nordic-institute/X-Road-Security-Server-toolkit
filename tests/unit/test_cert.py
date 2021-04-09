@@ -8,7 +8,7 @@ from unittest import mock
 import pytest
 from dateutil.tz import tzutc
 
-from definitions import ROOT_DIR
+from xrdsst.core.definitions import ROOT_DIR
 from tests.util.test_util import TokenTestData, StatusTestData
 from xrdsst.controllers.cert import CertController
 from xrdsst.models import Token, TokenStatus, TokenType, KeyUsageType, Key, TokenCertificate, CertificateOcspStatus, \

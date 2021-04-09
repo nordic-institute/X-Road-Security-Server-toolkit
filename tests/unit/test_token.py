@@ -9,7 +9,7 @@ from dateutil.tz import tzutc
 
 import urllib3
 
-from definitions import ROOT_DIR
+from xrdsst.core.definitions import ROOT_DIR
 from tests.util.test_util import StatusTestData, ObjectStruct
 from xrdsst.api import TokensApi
 from xrdsst.main import XRDSSTTest

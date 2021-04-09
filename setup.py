@@ -8,12 +8,18 @@ f = open('README.md', 'r')
 LONG_DESCRIPTION = f.read()
 f.close()
 
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+
 setup(
     name='xrdsst',
     version=VERSION,
+    python_requires='>=3.6',
     description='A toolkit for configuring X-Road Security Server',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
+    classifiers=[],
+    install_requires=required,
     author='Finnish Digital Agency',
     author_email='info@dvv.fi',
     url='https://github.com/nordic-institute/X-Road-Security-Server-toolkit',

@@ -21,7 +21,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
-from definitions import ROOT_DIR
+from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.conf_keys import validate_conf_keys, ConfKeysSecurityServer, ConfKeysRoot
 from xrdsst.core.excplanation import Excplanatory
 from xrdsst.core.util import op_node_to_ctr_cmd_text, get_admin_credentials, get_ssh_key, get_ssh_user

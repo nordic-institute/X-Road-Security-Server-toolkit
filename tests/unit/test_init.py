@@ -6,7 +6,7 @@ from unittest import mock
 
 import pytest
 
-from definitions import ROOT_DIR
+from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.configuration.configuration import Configuration
 from xrdsst.controllers.init import InitServerController
 from xrdsst.core.conf_keys import ConfKeysRoot, ConfKeysSecurityServer

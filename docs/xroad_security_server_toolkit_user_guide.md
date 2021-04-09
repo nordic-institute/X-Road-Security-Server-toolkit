@@ -97,7 +97,7 @@ The document is intended for readers with a good knowledge of Linux server manag
 ### 2.1 Prerequisites to Installation
 
 * Python version 3.6+
-* PIP
+* PIP 21.0+
 * Installed X-Road security server packages
 
 ### 2.2 Installation procedure
@@ -105,7 +105,7 @@ The document is intended for readers with a good knowledge of Linux server manag
 The X-Road Security Server Toolkit package can be installed using PIP (use pip or pip3, whichever is used):
 
 ```
-$ pip install -i http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
+$ pip install --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
 ```
 
 Package signing public key for can be retrieved from SKS keyserver pool (pool.sks-keyservers.net), key fingerprint is ``BEC35825BBAB4288933F0354116AC90A8F670D74``, publisher ``Jenkins (X-Road Development Signing Key) <jenkins@niis.org>``.

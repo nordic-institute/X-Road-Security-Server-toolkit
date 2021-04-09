@@ -1,5 +1,5 @@
 cement==3.0.4
-pyyaml~=5.3.1
+pyyaml
 networkx~=2.5
 tabulate~=0.8.7
 
