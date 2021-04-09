@@ -15,6 +15,8 @@ This repository contains information about the X-Road Security Server Toolkit, s
 
 ## Installation
 
+Installation is performed with pip (use pip or pip3, whichever is used)
+
 ```
 $ pip install -r requirements.txt
 

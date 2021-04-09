@@ -1,9 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-
-**Technical Specification**
-
-Version: 1.2.10
+Version: 1.2.11
 Doc. ID: XRDSST-CONF
 
 ---
@@ -33,6 +30,7 @@ Doc. ID: XRDSST-CONF
 | 05.04.2021 | 1.2.8       | Remove HTTP header value prefix from 'api_key' configuration element         | Taimo Peelo        |
 | 06.04.2021 | 1.2.9       | Describe different security server access possibilities                      | Taimo Peelo        |
 | 06.04.2021 | 1.2.10      | Notes on user management                                                     | Bert Viikmäe       |
+| 09.04.2021 | 1.2.11      | Added description about signing and verification of packages                 | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -104,10 +102,20 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 ### 2.2 Installation procedure
 
-The X-Road Security Server Toolkit package can be installed using PIP:
+The X-Road Security Server Toolkit package can be installed using PIP (use pip or pip3, whichever is used):
 
 ```
-$ pip install xrdsst --extra-index-url https://xroad-toolkit.s3-eu-west-1.amazonaws.com/xrdsst
+$ pip install -i http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
+```
+
+Package signing public key for can be retrieved from SKS keyserver pool (pool.sks-keyservers.net), key fingerprint is ``BEC35825BBAB4288933F0354116AC90A8F670D74``, publisher ``Jenkins (X-Road Development Signing Key) <jenkins@niis.org>``.
+
+Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.sig
+
+Downloaded packages with detached signatures can be verified after adding signing public key to local keyring:
+```
+$ gpg --keyserver pool.sks-keyservers.net --search-keys  BEC35825BBAB4288933F0354116AC90A8F670D74
+$ gpg --verify xrdsst-1.0.0.sig xrdsst-1.0.0.tar.gz
 ```
 
 After the packages are installed, the following commands from the command line need to be run:
