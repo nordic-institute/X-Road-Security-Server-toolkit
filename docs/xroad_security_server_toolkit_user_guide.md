@@ -118,13 +118,6 @@ $ gpg --keyserver pool.sks-keyservers.net --search-keys  BEC35825BBAB4288933F035
 $ gpg --verify xrdsst-1.0.0.sig xrdsst-1.0.0.tar.gz
 ```
 
-After the packages are installed, the following commands from the command line need to be run:
-```
-$ pip install -r requirements-dev.txt
-
-$ pip install setup.py
-```
-
 After installation, ``xrdsst`` command runs the toolkit, when invoked without any parameters,
 it will give the overview of available options and sub-commands. Sub-commands themselves can
 also have further subcommands, so for example all the supported token operations can be listed
