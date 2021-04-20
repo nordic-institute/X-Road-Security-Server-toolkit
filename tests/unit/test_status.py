@@ -42,7 +42,23 @@ class TestStatus(unittest.TestCase):
               'owner_member_code': '4321',
               'security_server_code': 'SS3',
               'software_token_id': '0',
-              'software_token_pin': '1122'}]}
+              'software_token_pin': '1122'},
+             {'name': 'longServerName2',
+              'url': 'https://unrealz5BAlxpy9yo0XpplIQbPC.com:443',
+              'certificates': [
+                  '/some/where/authcert',
+                  '/some/where/signcert',
+              ],
+              'api_key': '86668888-8000-4000-a000-277727227272',
+              'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'owner_dn_country': 'FI',
+              'owner_dn_org': 'UNSERE',
+              'owner_member_class': 'VOG',
+              'owner_member_code': '4321',
+              'security_server_code': 'SS3',
+              'software_token_id': '0',
+              'software_token_pin': '1122'}
+             ]}
 
     def serverless_config(self):
         config = copy.deepcopy(self.ss_config)

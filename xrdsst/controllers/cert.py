@@ -101,7 +101,8 @@ class CertController(BaseController):
     def import_certificates(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting certificate import process for security server: ' + security_server['name'])
             self.remote_import_certificates(ss_api_config, security_server)
 
@@ -110,7 +111,8 @@ class CertController(BaseController):
     def register_certificate(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting certificate registration process for security server: ' + security_server['name'])
             self.remote_register_certificate(ss_api_config, security_server)
 
@@ -119,7 +121,8 @@ class CertController(BaseController):
     def activate_certificate(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting certificate activation for security server: ' + security_server['name'])
             self.remote_activate_certificate(ss_api_config, security_server)
 
@@ -129,7 +132,8 @@ class CertController(BaseController):
         downloaded_csrs = []
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_info('Starting CSR download from security server: ' + security_server['name'])
             downloaded_csrs.extend(self.remote_download_csrs(ss_api_config, security_server))
 

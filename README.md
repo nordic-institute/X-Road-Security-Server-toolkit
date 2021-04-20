@@ -60,6 +60,26 @@ $ make virtualenv
 $ source env/bin/activate
 
 ```
+### Project versioning
+
+Pre-release:
+
+```
+$ 0.x.x-alpha.0
+```
+
+First release:
+
+```
+$ 1.0.0-final.0
+```
+
+Post first release:
+
+```
+$ 1.x.x-beta.0
+```
+
 
 ### Updating project version
 

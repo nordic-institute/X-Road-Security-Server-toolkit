@@ -33,7 +33,17 @@ class TestBaseController(unittest.TestCase):
               'owner_member_class': 'GOV',
               'owner_member_code': '1234',
               'security_server_code': 'SS',
-              'software_token_pin': '1234'}]}
+              'software_token_pin': '1234'},
+             {'name': 'ss2',
+              'url': 'https://ss2:4000/api/v1',
+              'api_key': 'f160830d-d75a-476e-a9ad-9c12abff00d3',
+              'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'configuration_anchor': configuration_anchor,
+              'owner_member_class': 'GOV',
+              'owner_member_code': '1234',
+              'security_server_code': 'SS2',
+              'software_token_pin': '1234'}
+             ]}
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
@@ -359,14 +369,14 @@ class TestBaseController(unittest.TestCase):
                 base_controller.app = app
                 temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
                 config = self.create_temp_conf(base_controller, temp_file_name)
-                security_server = config["security_server"][0]
-                security_server["api_key"] = 'some key'
-                key = base_controller.get_api_key(config, security_server)
-                assert key != 'api-key-123'
-                security_server["api_key"] = '<API_KEY>'
-                key = base_controller.get_api_key(config, security_server)
+                for security_server in config["security_server"]:
+                    security_server["api_key"] = 'some key'
+                    key = base_controller.get_api_key(config, security_server)
+                    assert key != 'api-key-123'
+                    security_server["api_key"] = '<API_KEY>'
+                    key = base_controller.get_api_key(config, security_server)
+                    assert key == '88888888-8000-4000-a000-727272727272'
                 os.remove(temp_file_name)
-                assert key == '88888888-8000-4000-a000-727272727272'
 
     def test_get_api_key_ssh_key_exception(self):
         with XRDSSTTest() as app:
@@ -374,9 +384,9 @@ class TestBaseController(unittest.TestCase):
             base_controller.app = app
             temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
             config = self.create_temp_conf(base_controller, temp_file_name)
-            security_server = config["security_server"][0]
-            security_server["api_key"] = '<API_KEY>'
-            base_controller.get_api_key(config, security_server)
+            for security_server in config["security_server"]:
+                security_server["api_key"] = '<API_KEY>'
+                base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             self.assertRaises(Exception)
 
@@ -389,10 +399,10 @@ class TestBaseController(unittest.TestCase):
             temp_key_file = open("my_key", "w")
             temp_key_file.close()
             ssh_access = config["ssh_access"]
-            security_server = config["security_server"][0]
-            ssh_access["private_key"] = 'my_key'
-            security_server["api_key"] = '<API_KEY>'
-            base_controller.get_api_key(config, security_server)
+            for security_server in config["security_server"]:
+                ssh_access["private_key"] = 'my_key'
+                security_server["api_key"] = '<API_KEY>'
+                base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             os.remove("my_key")
             self.assertRaises(Exception)
@@ -403,16 +413,17 @@ class TestBaseController(unittest.TestCase):
             base_controller.app = app
             temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
             config = self.create_temp_conf(base_controller, temp_file_name)
-            security_server = config["security_server"][0]
-            configuration = Configuration()
-            configuration.api_key['Authorization'] = security_server["api_key"]
-            configuration.host = security_server["url"]
-            configuration.verify_ssl = False
-            response = base_controller.create_api_config(security_server)
+            for security_server in config["security_server"]:
+                configuration = Configuration()
+                configuration.api_key['Authorization'] = security_server["api_key"]
+                configuration.host = security_server["url"]
+                configuration.verify_ssl = False
+                response = base_controller.create_api_config(security_server)
+                assert response.api_key == configuration.api_key
+                assert response.host == configuration.host
+                assert response.verify_ssl == configuration.verify_ssl
             os.remove(temp_file_name)
-            assert response.api_key == configuration.api_key
-            assert response.host == configuration.host
-            assert response.verify_ssl == configuration.verify_ssl
+
 
     def test_configfile_argument_added(self):
         base_controller = BaseController()

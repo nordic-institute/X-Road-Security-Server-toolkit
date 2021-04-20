@@ -45,7 +45,18 @@ class TestInit(unittest.TestCase):
               'owner_member_code': '1234',
               'security_server_code': 'SS',
               'software_token_pin': '1234',
-              }]}
+              },
+             {'name': 'ss2',
+              'url': 'https://no.there.com:4000/api/v1',
+              'api_key': '<API_KEY>',
+              'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'configuration_anchor': configuration_anchor,
+              'owner_member_class': 'GOV',
+              'owner_member_code': '1234',
+              'security_server_code': 'SS2',
+              'software_token_pin': '1234',
+              }
+             ]}
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
@@ -77,16 +88,18 @@ class TestInit(unittest.TestCase):
                         return_value=expected_response):
             init = InitServerController()
             init.load_config = (lambda: self._ss_config)
-            response = init.upload_anchor(init_api_config(), self._ss_config["security_server"][0])
-            assert response == expected_response
+            for security_server in self._ss_config["security_server"]:
+                response = init.upload_anchor(init_api_config(), security_server)
+                assert response == expected_response
 
     def test_upload_anchor_exception(self):
         with mock.patch('xrdsst.controllers.init.SystemApi.upload_initial_anchor',
                         side_effect=ApiException):
             init = InitServerController()
             init.load_config = (lambda: self._ss_config)
-            init.upload_anchor(init_api_config(), self._ss_config["security_server"][0])
-            self.assertRaises(ApiException)
+            for security_server in self._ss_config["security_server"]:
+                init.upload_anchor(init_api_config(), security_server)
+                self.assertRaises(ApiException)
 
     def test_init_security_server(self):
         expected_response = 200
@@ -94,17 +107,18 @@ class TestInit(unittest.TestCase):
                         return_value=expected_response):
             init = InitServerController()
             init.load_config = (lambda: self._ss_config)
-            response = init.init_security_server(init_api_config(),
-                                                 self._ss_config["security_server"][0])
-            assert response == expected_response
+            for security_server in self._ss_config["security_server"]:
+                response = init.init_security_server(init_api_config(), security_server)
+                assert response == expected_response
 
     def test_init_security_server_exception(self):
         with mock.patch('xrdsst.controllers.init.InitializationApi.init_security_server',
                         side_effect=ApiException):
             init = InitServerController()
             init.load_config = (lambda: self._ss_config)
-            init.init_security_server(init_api_config(), self._ss_config["security_server"][0])
-            self.assertRaises(ApiException)
+            for security_server in self._ss_config["security_server"]:
+                init.init_security_server(init_api_config(), security_server)
+                self.assertRaises(ApiException)
 
     def test_initialize_server_when_already_initialized(self):
         with XRDSSTTest() as app:

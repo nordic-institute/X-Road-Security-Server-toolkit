@@ -77,7 +77,8 @@ class TokenController(BaseController):
 
     def token_list(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
-        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
             self.remote_token_list(ss_api_config)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -108,7 +109,8 @@ class TokenController(BaseController):
     def token_login(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting token login process for security server: ' + security_server['name'])
             self.remote_token_login(ss_api_config, security_server)
 
@@ -135,7 +137,8 @@ class TokenController(BaseController):
     def token_add_keys_with_csrs(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting token key creation process for security server: ' + security_server['name'])
             self.remote_token_add_keys_with_csrs(ss_api_config, security_server)
 

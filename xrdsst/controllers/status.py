@@ -115,17 +115,15 @@ class StatusController(BaseController):
         render_data = []
         servers = []
         if config.get("security_server"):
-            ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
-
-            for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
-                servers.append(self.remote_status(ss_api_config, security_server))
-
-            # Ensure that servers that are missing API KEY still show up in the list (name, no access).
-            for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1] is None]:
-                servers.append(ServerStatus(
-                    security_server_name=security_server['name'],
-                    roles_status=StatusRoles()
-                ))
+            for security_server in config["security_server"]:
+                ss_api_config = self.create_api_config(security_server, config)
+                if ss_api_config is None:
+                    servers.append(ServerStatus(
+                        security_server_name=security_server['name'],
+                        roles_status=StatusRoles()
+                    ))
+                else:
+                    servers.append(self.remote_status(ss_api_config, security_server))
 
         if self.is_output_tabulated():
             render_data = [StatusListMapper.headers()]
