@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.2.11
+Version: 1.3.0
 Doc. ID: XRDSST-CONF
 
 ---
@@ -31,6 +31,7 @@ Doc. ID: XRDSST-CONF
 | 06.04.2021 | 1.2.9       | Describe different security server access possibilities                      | Taimo Peelo        |
 | 06.04.2021 | 1.2.10      | Notes on user management                                                     | Bert Viikmäe       |
 | 09.04.2021 | 1.2.11      | Added description about signing and verification of packages                 | Bert Viikmäe       |
+| 20.04.2021 | 1.3.0       | Substituting plain text secrets in configuration with environment variables  | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
