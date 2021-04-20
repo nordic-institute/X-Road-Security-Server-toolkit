@@ -87,7 +87,57 @@ class TestService(unittest.TestCase):
                           }
                       ]
                   }
-              ]}]}
+              ]},
+             {'name': 'ssY',
+              'url': 'https://non.existing.url.blah:8999/api/v1',
+              'api_key': '33333333-3000-4000-b000-939393939393',
+              'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'clients': [
+                  {
+                      'member_class': 'GOV',
+                      'member_code': '9876',
+                      'subsystem_code': 'SUB1',
+                      'connection_type': 'HTTP',
+                      'service_descriptions': [{
+                          'url': 'https://openapi3',
+                          'rest_service_code': 'RestService',
+                          'type': 'OPENAPI3',
+                          'access': ['SUB1'],
+                          'url_all': False,
+                          'timeout_all': 60,
+                          'ssl_auth_all': False,
+                          'services': [
+                              {
+                                  'service_code': 'Petstore',
+                                  'access': ['SUB1'],
+                                  'timeout': 120,
+                                  'ssl_auth': True,
+                                  'url': 'http://petstore.swagger.io/v1'
+                              }
+                          ]
+                      },
+                          {
+                              'url': 'https://wsdl',
+                              'rest_service_code': '',
+                              'type': 'WSDL',
+                              'access': ['SUB1'],
+                              'url_all': False,
+                              'timeout_all': 60,
+                              'ssl_auth_all': False,
+                              'services': [
+                                  {
+                                      'service_code': 'service',
+                                      'access': ['SUB1'],
+                                      'timeout': 120,
+                                      'ssl_auth': True,
+                                      'url': 'https://wsdl'
+                                  }
+                              ]
+                          }
+                      ]
+                  }
+              ]}
+             ]}
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
