@@ -1,11 +1,11 @@
-admin_credentials: <SECURITY_SERVER_CREDENTIALS>
+admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
 ssh_access:
-  user: <SSH_USER>
-  private_key: /path/to/ssh_private_key
+  user: <SSH_USER_OS_ENV_VAR_NAME>
+  private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
 security_server:
 - api_key: <API_KEY>
   api_key_url: https://localhost:4000/api/v1/api-keys
-  admin_credentials:
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
   configuration_anchor: /path/to/configuration-anchor.xml
   certificates:
     - /path/to/signcert
@@ -20,8 +20,8 @@ security_server:
   software_token_pin: <SOFT_TOKEN_PIN>
   fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
   url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
-  ssh_user: <SSH_USER>
-  ssh_private_key: /path/to/ssh_private_key
+  ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
+  ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>

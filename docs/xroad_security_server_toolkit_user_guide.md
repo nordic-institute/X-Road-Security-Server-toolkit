@@ -223,14 +223,14 @@ details after the sample. Optional elements that are not to be used can be remov
 
 
 ```
-admin_credentials: <SECURITY_SERVER_CREDENTIALS>
+admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
 ssh_access:
-  user: <SSH_USER>
-  private_key: /path/to/ssh_private_key
+  user: <SSH_USER_OS_ENV_VAR_NAME>
+  private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
 security_server:
 - api_key: <API_KEY>
   api_key_url: https://localhost:4000/api/v1/api-keys
-  admin_credentials: <SECURITY_SERVER_CREDENTIALS>
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
   configuration_anchor: /path/to/configuration-anchor.xml
   certificates:
     - /path/to/signcert
@@ -245,8 +245,8 @@ security_server:
   software_token_pin: <SOFT_TOKEN_PIN>
   fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
   url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
-  ssh_user: <SSH_USER>
-  ssh_private_key: /path/to/ssh_private_key
+  ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
+  ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
@@ -273,12 +273,12 @@ security_server:
 The ``ssh_access`` section is for configuring the SSH access parameters of the X-Road Security Server Toolkit
 The ``security_server`` section is for configuring security server parameters
 
-* <SECURITY_SERVER_CREDENTIALS> X-Road Security Server admin credentials, e.g. xrd:secret (if specified in the separate section, one value will be 
+* <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server admin credentials, e.g. if the variable is set like ``export TOOLKIT_ADMIN_CREDENTIALS=user:pass`` the value to use here is ``TOOLKIT_ADMIN_CREDENTIALS`` (if specified in the separate section, one value will be 
   used for all configurable security servers, but if specified in the ``security_server`` section, the value will be overridden for specific 
   configurable security server)
-* <SSH_USER> SSH username (if specified in ``ssh_access`` section, one value will be used for all configurable security servers, 
+* <SSH_USER_OS_ENV_VAR_NAME> Environment variable name to hold SSH username, e.g. if the variable is set like ``export TOOLKIT_SSH_USER=ssh_user`` the value to use here is ``TOOLKIT_SSH_USER`` (if specified in ``ssh_access`` section, one value will be used for all configurable security servers, 
   but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)
-* ``/path/to/ssh_private_key`` should be substituted with the correct path to the ssh private key file, e.g. home/user/id_rsa
+* <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> Environment variable name to hold full path to SSH private key, e.g. if the variable is set like ``export TOOLKIT_SSH_PRIVATE_KEY=/home/user/private_key`` the value to use here is ``TOOLKIT_SSH_PRIVATE_KEY``
   (if specified in ``ssh_access`` section, one value will be used for all configurable security servers, 
   but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)  
 * ``/path/to/xrdsst.log`` should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
