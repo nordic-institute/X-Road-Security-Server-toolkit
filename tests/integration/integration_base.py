@@ -18,7 +18,7 @@ class IntegrationTestBase(unittest.TestCase):
     __test__ = False
     configuration_anchor = "tests/resources/configuration-anchor.xml"
     credentials = "xrd:secret"
-    credentials_env = "xrd:secret"
+    credentials_env = "TOOLKIT_ADMIN_CREDENTIALS"
     git_repo = 'https://github.com/nordic-institute/X-Road.git'
     local_folder = os.path.join(ROOT_DIR, "tests/integration/X-Road")
     branch_name = 'develop'
