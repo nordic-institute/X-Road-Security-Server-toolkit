@@ -158,9 +158,9 @@ class TokenTestData:
 class TestToken(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     ss_config = {
-        'admin_credentials': 'user:pass',
+        'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
-        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'ssh_access': {'user': 'TOOLKIT_SSH_USER', 'private_key': 'TOOLKIT_SSH_PRIVATE_KEY'},
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
