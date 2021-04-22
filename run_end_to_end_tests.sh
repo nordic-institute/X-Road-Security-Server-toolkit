@@ -3,9 +3,9 @@
 #                               -a configuration_anchor
 #                               -h security_server_host
 #                               -n security_server_name
-#                               -k private_key_file
-#                               -s ssh_user
-#                               -u credentials
+#                               -k private_key_file_env_var
+#                               -s ssh_user_env_var
+#                               -u credentials_env_var
 #
 # Description of required command line arguments:
 #
@@ -13,18 +13,18 @@
 #   -a: configuration-anchor file
 #   -h: host name or IP address of the security server
 #   -n: security server name
-#   -k: private ssh key file
-#   -s: ssh_user
-#   -u: credentials
+#   -k: private ssh key file environment variable
+#   -s: ssh_user environment variable
+#   -u: credentials environment variable
 #
 #
 # Usage example: run_end_to_end_tests.sh -c tests/resources/test-config-template.yaml
 #                                        -a /etc/xroad/configuration_anchor.xml
 #                                        -h ss
 #                                        -n ss
-#                                        -k /home/user/id_rsa
-#                                        -s ssh_user
-#                                        -u xrd:secret
+#                                        -k TOOLKIT_SSH_PRIVATE_KEY
+#                                        -s TOOLKIT_SSH_USER
+#                                        -u TOOLKIT_ADMIN_CREDENTIALS
 
 OUTPUT="tests/resources/test-config.yaml"
 
@@ -33,9 +33,9 @@ usage() {
                                            -a configuration_anchor
                                            -h security_server_host
                                            -n security_server_name
-                                           -k private_key_file
-                                           -s ssh_user
-                                           -u credentials"
+                                           -k private_key_file_env_var
+                                           -s ssh_user_env_var
+                                           -u credentials_env_var"
 }
 
 exit_abnormal() {
@@ -76,13 +76,13 @@ while getopts ":c:a:h:n:k:s:u:" options; do
       NAME=${OPTARG}
       ;;
     k )
-      KEY=${OPTARG}
+      KEY_ENV=${OPTARG}
       ;;
     s )
-      SSH_USER=${OPTARG}
+      SSH_USER_ENV=${OPTARG}
       ;;
     u )
-      CREDENTIALS=${OPTARG}
+      CREDENTIALS_ENV=${OPTARG}
       ;;
     \? )
         exit_abnormal
@@ -91,9 +91,9 @@ while getopts ":c:a:h:n:k:s:u:" options; do
 done
 
 if [[ $CONFIG == "" ]] | [[ $ANCHOR == "" ]] | [[ $HOST == "" ]] | \
-   [[ $NAME == "" ]] | [[ $KEY == "" ]] | [[ $SSH_USER == "" ]] | [[ $CREDENTIALS == "" ]]; then
+   [[ $NAME == "" ]] | [[ $KEY_ENV == "" ]] | [[ $SSH_USER_ENV == "" ]] | [[ $CREDENTIALS_ENV == "" ]]; then
     exit_abnormal
 fi
 
-update_config "$CONFIG" "$ANCHOR" "$HOST" "$NAME" "$KEY" "$CREDENTIALS" "$OUTPUT" "$SSH_USER"
+update_config "$CONFIG" "$ANCHOR" "$HOST" "$NAME" "$KEY_ENV" "$CREDENTIALS_ENV" "$OUTPUT" "$SSH_USER_ENV"
 run_tests "$OUTPUT"

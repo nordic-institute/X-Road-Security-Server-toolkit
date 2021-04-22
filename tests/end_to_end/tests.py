@@ -230,7 +230,7 @@ class EndToEndTest(unittest.TestCase):
         assert description["services"][0]["url"] == 'http://petstore.xxx'
 
     def step_create_admin_user(self):
-        self.config["security_server"][0]["admin_credentials"] = 'newxrd:pwd'
+        os.environ['TOOLKIT_ADMIN_CREDENTIALS'] = 'newxrd:pwd'
         user = UserController()
         init = InitServerController()
         for security_server in self.config["security_server"]:
@@ -240,6 +240,7 @@ class EndToEndTest(unittest.TestCase):
             init.initialize_server(self.config)
             status = init.check_init_status(configuration)
             assert status.is_anchor_imported is True and status.is_server_code_initialized is True
+        del os.environ['TOOLKIT_ADMIN_CREDENTIALS']
 
     def step_autoconf(self):
         with XRDSSTTest() as app:

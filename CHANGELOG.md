@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2-beta.0] - 2021-04-20
+- Secrets in configuration files kept as environment variables instead of plain text to reduce security risks
+
 ## [1.0.1-beta.0] - 2021-04-19
 - Toolkit optimised to run against multiple clean installed security servers 
 
