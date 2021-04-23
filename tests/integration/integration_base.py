@@ -70,11 +70,14 @@ class IntegrationTestBase(unittest.TestCase):
                                   'ssl_auth': False,
                                   'url': 'http://petstore.xxx'
                               }
-                          ]
-                      }
-                      ]
+                          ],
+                          'endpoints': [{
+                              'path': '/testPath',
+                              'method': 'POST'
+                          }]
+                      }]
                   }]
-                  }]
+                }]
         }
         self.name = self.config["security_server"][0]["name"]
         return self.config
