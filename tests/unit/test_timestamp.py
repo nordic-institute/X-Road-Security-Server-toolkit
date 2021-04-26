@@ -28,9 +28,9 @@ class TimestampTestData:
 class TestTimestamp(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     ss_config = {
-        'admin_credentials': 'user:pass',
+        'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
         'logging': {'file': str(Path.home()) + '/xrdsst_tests.log', 'level': 'INFO'},
-        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'ssh_access': {'user': 'TOOLKIT_SSH_USER', 'private_key': 'TOOLKIT_SSH_PRIVATE_KEY'},
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
@@ -41,7 +41,18 @@ class TestTimestamp(unittest.TestCase):
               'owner_member_code': '1234',
               'security_server_code': 'SS',
               'software_token_pin': '1234',
-              'software_token_id': 0}]}
+              'software_token_id': 0},
+             {'name': 'ss2',
+              'url': 'https://ss:4000/api/v1',
+              'api_key': 'X-Road-apikey token=<API_KEY>',
+              'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'configuration_anchor': configuration_anchor,
+              'owner_member_class': 'GOV',
+              'owner_member_code': '1234',
+              'security_server_code': 'SS2',
+              'software_token_pin': '1234',
+              'software_token_id': 0}
+             ]}
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):

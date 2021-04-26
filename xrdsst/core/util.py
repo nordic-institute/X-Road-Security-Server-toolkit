@@ -4,17 +4,24 @@ import subprocess
 
 import yaml
 
+
 def get_admin_credentials(security_server, config):
-    admin_credentials = security_server["admin_credentials"] if security_server.get("admin_credentials", "") else config["admin_credentials"]
+    admin_credentials_env_variable = security_server["admin_credentials"] if security_server.get("admin_credentials", "") else config["admin_credentials"]
+    admin_credentials = os.getenv(admin_credentials_env_variable, "")
     return admin_credentials
 
+
 def get_ssh_key(security_server, config):
-    ssh_key = security_server["ssh_private_key"] if security_server.get("ssh_private_key", "") else config["ssh_access"]["private_key"]
+    ssh_key_env_variable = security_server["ssh_private_key"] if security_server.get("ssh_private_key", "") else config["ssh_access"]["private_key"]
+    ssh_key = os.getenv(ssh_key_env_variable, "")
     return ssh_key
 
+
 def get_ssh_user(security_server, config):
-    ssh_user = security_server["ssh_user"] if security_server.get("ssh_user", "") else config["ssh_access"]["user"]
+    ssh_user_env_variable = security_server["ssh_user"] if security_server.get("ssh_user", "") else config["ssh_access"]["user"]
+    ssh_user = os.getenv(ssh_user_env_variable, "")
     return ssh_user
+
 
 # Returns toolkit default AUTHENTICATION key label, given security server configuration
 def default_auth_key_label(security_server):

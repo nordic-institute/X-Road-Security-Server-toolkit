@@ -19,14 +19,20 @@ from xrdsst.main import XRDSSTTest
 
 class TestAuto(unittest.TestCase):
     ss_config = {
-        'admin_credentials': 'user:pass',
-        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
+        'ssh_access': {'user': 'TOOLKIT_SSH_USER', 'private_key': 'TOOLKIT_SSH_PRIVATE_KEY'},
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'api_key': '66666666-8000-4011-a000-333336633333',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys'
-            }]}
+            },
+            {'name': 'ssY',
+             'url': 'https://non.existing.url.blah:8999/api/v1',
+             'api_key': '66666666-8000-4011-a000-333336633333',
+             'api_key_url': 'https://localhost:4000/api/v1/api-keys'
+            }
+            ]}
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
@@ -56,17 +62,18 @@ class TestAuto(unittest.TestCase):
             auto_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)  # Double mock!
             auto_controller._default()
 
-            init_mock.assert_called_once()
-            timestamp_init_mock.assert_called_once()
-            token_login_mock.assert_called_once()
-            token_key_init_mock.assert_called_once()
-            cert_import_mock.assert_called_once()
-            cert_register_mock.assert_called_once()
-            cert_activate_mock.assert_called_once()
-            client_add_mock.assert_called_once()
-            client_register_mock.assert_called_once()
-            service_desc_add_mock.assert_called_once()
-            service_desc_enable_mock.assert_called_once()
+
+            init_mock.assert_called()
+            timestamp_init_mock.assert_called()
+            token_login_mock.assert_called()
+            token_key_init_mock.assert_called()
+            cert_import_mock.assert_called()
+            cert_register_mock.assert_called()
+            cert_activate_mock.assert_called()
+            client_add_mock.assert_called()
+            client_register_mock.assert_called()
+            service_desc_add_mock.assert_called()
+            service_desc_enable_mock.assert_called()
 
     @mock.patch.object(XRDSSTTest, 'pargs', ObjectStruct(configfile=BaseController.config_file))
     @mock.patch.object(BaseController, 'load_config', (lambda x, y=None: TestAuto.ss_config))

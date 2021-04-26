@@ -48,7 +48,8 @@ class ClientController(BaseController):
     def add_client(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting client add process for security server: ' + security_server['name'])
             if "clients" in security_server:  # Guards both against empty section (->None) & complete lack of section
                 for client in security_server["clients"]:
@@ -60,7 +61,8 @@ class ClientController(BaseController):
     def register_client(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        for security_server, ss_api_config in [t for t in ss_api_conf_tuple if t[1]]:
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting client registrations for security server: ' + security_server['name'])
             if "clients" in security_server:
                 for client in security_server["clients"]:

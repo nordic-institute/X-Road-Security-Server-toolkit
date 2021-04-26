@@ -24,9 +24,9 @@ def sysadm_secoff(opt_p):
 class TestStatus(unittest.TestCase):
     authcert_existing = os.path.join(ROOT_DIR, "tests/resources/authcert.pem")
     ss_config = {
-        'admin_credentials': 'user:pass',
+        'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
-        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'ssh_access': {'user': 'TOOLKIT_SSH_USER', 'private_key': 'TOOLKIT_SSH_PRIVATE_KEY'},
         'security_server':
             [{'name': 'longServerName',
               'url': 'https://unrealz5BAlxpy9yo0XpplIQbPC.com:443',
@@ -42,7 +42,23 @@ class TestStatus(unittest.TestCase):
               'owner_member_code': '4321',
               'security_server_code': 'SS3',
               'software_token_id': '0',
-              'software_token_pin': '1122'}]}
+              'software_token_pin': '1122'},
+             {'name': 'longServerName2',
+              'url': 'https://unrealz5BAlxpy9yo0XpplIQbPC.com:443',
+              'certificates': [
+                  '/some/where/authcert',
+                  '/some/where/signcert',
+              ],
+              'api_key': '86668888-8000-4000-a000-277727227272',
+              'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'owner_dn_country': 'FI',
+              'owner_dn_org': 'UNSERE',
+              'owner_member_class': 'VOG',
+              'owner_member_code': '4321',
+              'security_server_code': 'SS3',
+              'software_token_id': '0',
+              'software_token_pin': '1122'}
+             ]}
 
     def serverless_config(self):
         config = copy.deepcopy(self.ss_config)

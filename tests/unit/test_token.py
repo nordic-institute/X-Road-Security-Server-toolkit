@@ -88,6 +88,14 @@ class TokenTestData:
             member_code="7392",
             server_code="UNS-SSX",
             server_address="ssX"
+        ),
+        SecurityServer(
+            id="DEV:GOV:7392:UNS-SSX",
+            instance_id="DEV",
+            member_class="GOV",
+            member_code="7392",
+            server_code="UNS-SSY",
+            server_address="ssY"
         )
     ]
 
@@ -150,9 +158,9 @@ class TokenTestData:
 class TestToken(unittest.TestCase):
     configuration_anchor = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor.xml")
     ss_config = {
-        'admin_credentials': 'user:pass',
+        'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
-        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'ssh_access': {'user': 'TOOLKIT_SSH_USER', 'private_key': 'TOOLKIT_SSH_PRIVATE_KEY'},
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
@@ -166,7 +174,21 @@ class TestToken(unittest.TestCase):
               'owner_member_code': '4321',
               'security_server_code': 'SS3',
               'software_token_id': '0',
-              'software_token_pin': '1122'}]}
+              'software_token_pin': '1122'},
+             {'name': 'ssY',
+              'url': 'https://non.existing.url.blah:8999/api/v1',
+              'fqdn': 'client_only',
+              'api_key': '86668888-8000-4000-a000-277727227272',
+              'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'configuration_anchor': configuration_anchor,
+              'owner_dn_country': 'FI',
+              'owner_dn_org': 'UNSERE',
+              'owner_member_class': 'VOG',
+              'owner_member_code': '4321',
+              'security_server_code': 'SS4',
+              'software_token_id': '0',
+              'software_token_pin': '1122'}
+             ]}
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
@@ -261,8 +283,8 @@ class TestToken(unittest.TestCase):
                     token_controller.init_keys()
 
                     out, err = self.capsys.readouterr()
-                    assert 1 == out.count("Created AUTHENTICATION CSR")
-                    assert 1 == out.count("Created SIGNING CSR")
+                    assert 2 == out.count("Created AUTHENTICATION CSR")
+                    assert 2 == out.count("Created SIGNING CSR")
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)

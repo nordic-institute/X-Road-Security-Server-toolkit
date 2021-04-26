@@ -30,9 +30,9 @@ class ClientTestData:
 
 class TestClient(unittest.TestCase):
     ss_config = {
-        'admin_credentials': 'user:pass',
+        'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
-        'ssh_access': {'user': 'user', 'private_key': 'key'},
+        'ssh_access': {'user': 'TOOLKIT_SSH_USER', 'private_key': 'TOOLKIT_SSH_PRIVATE_KEY'},
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
@@ -56,7 +56,31 @@ class TestClient(unittest.TestCase):
                           }
                       ]
                   }
-              ]}]}
+              ]},
+             {'name': 'ssY',
+              'url': 'https://non.existing.url.blah:8999/api/v1',
+              'api_key': '55555555-5000-4000-a000-707070707070',
+              'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'clients': [
+                  {
+                      'member_class': 'GOV',
+                      'member_code': '9876',
+                      'subsystem_code': 'SUB1',
+                      'connection_type': 'HTTP',
+                      'service_descriptions': [{
+                          'url': 'https://openapi3',
+                          'rest_service_code': 'RestService',
+                          'type': 'OPENAPI3'
+                      },
+                          {
+                              'url': 'https://wsdl',
+                              'rest_service_code': '',
+                              'type': 'WSDL'
+                          }
+                      ]
+                  }
+              ]}
+             ]}
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
@@ -213,12 +237,12 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert err.count("FAILED") > 0
-                assert err.count("PUT /clients/{id}/register @ clients_api.py#register_client <- client.py#remote_register_client") == 1
-                assert err.count("INTERNAL_SERVER_ERROR (500)") == 1
-                assert err.count("error_code 'core.Server.ServerProxy.ServiceDisabled'") == 1
-                assert err.count("Service SERVICE:DEV/GOV/9876/MANAGEMENT/clientReg is disabled: BOFH") == 1
-                assert err.count(server_error_map.get('core.Server.ServerProxy.ServiceDisabled')) == 1
+                assert err.count("PUT /clients/{id}/register @ clients_api.py#register_client <- client.py#remote_register_client") == 2
+                assert err.count("INTERNAL_SERVER_ERROR (500)") == 2
+                assert err.count("error_code 'core.Server.ServerProxy.ServiceDisabled'") == 2
+                assert err.count("Service SERVICE:DEV/GOV/9876/MANAGEMENT/clientReg is disabled: BOFH") == 2
+                assert err.count(server_error_map.get('core.Server.ServerProxy.ServiceDisabled')) == 2
 
-                assert err.count(ascii_art['message_flow'][2]) == 1
-                assert err.count(ascii_art['message_flow'][3]) == 1
-                assert err.count(ascii_art['message_flow'][4]) == 1
+                assert err.count(ascii_art['message_flow'][2]) == 2
+                assert err.count(ascii_art['message_flow'][3]) == 2
+                assert err.count(ascii_art['message_flow'][4]) == 2

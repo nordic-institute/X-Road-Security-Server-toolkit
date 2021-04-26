@@ -18,6 +18,7 @@ class IntegrationTestBase(unittest.TestCase):
     __test__ = False
     configuration_anchor = "tests/resources/configuration-anchor.xml"
     credentials = "xrd:secret"
+    credentials_env = "TOOLKIT_ADMIN_CREDENTIALS"
     git_repo = 'https://github.com/nordic-institute/X-Road.git'
     local_folder = os.path.join(ROOT_DIR, "tests/integration/X-Road")
     branch_name = 'develop'
@@ -30,11 +31,14 @@ class IntegrationTestBase(unittest.TestCase):
     name = None
     config = None
 
+    def set_env_variable(self):
+        os.environ[self.credentials_env] = self.credentials
+
     def init_config(self):
         self.config = {
-            'admin_credentials': self.credentials,
+            'admin_credentials': self.credentials_env,
             'logging': {'file': '/var/log/xrdsst_test.log', 'level': 'INFO'},
-            'ssh_access': {'user': 'user', 'private_key': 'key'},
+            'ssh_access': {'user': 'SSH_USER', 'private_key': 'SSH_PRIVATE_KEY'},
             'security_server':
                 [{'name': 'ss',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
@@ -94,6 +98,7 @@ class IntegrationTestBase(unittest.TestCase):
         self.config["security_server"][0]["url"] = container_ip_url
 
     def setUp(self):
+        self.set_env_variable()
         self.init_config()
         self.clean_docker()
         self.clone_repo()
@@ -116,6 +121,7 @@ class IntegrationTestBase(unittest.TestCase):
 
     def tearDown(self):
         subprocess.call("rm -rf " + self.local_folder + "/", shell=True)
+        del os.environ[self.credentials_env]
         self.clean_docker()
 
     def clone_repo(self):
