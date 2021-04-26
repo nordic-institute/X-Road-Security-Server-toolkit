@@ -1,3 +1,4 @@
+import os
 import sys
 import unittest
 from unittest import mock
@@ -18,18 +19,20 @@ from xrdsst.main import XRDSSTTest
 
 
 class TestAuto(unittest.TestCase):
+    os.environ["TOOLKIT_SS1_API_KEY"] = "66666666-8000-4011-a000-333336633333"
+    os.environ["TOOLKIT_SS2_API_KEY"] = "76666666-8000-4011-a000-333336633333"
     ss_config = {
         'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
         'ssh_access': {'user': 'TOOLKIT_SSH_USER', 'private_key': 'TOOLKIT_SSH_PRIVATE_KEY'},
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': '66666666-8000-4011-a000-333336633333',
+              'api_key': 'TOOLKIT_SS1_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys'
             },
             {'name': 'ssY',
              'url': 'https://non.existing.url.blah:8999/api/v1',
-             'api_key': '66666666-8000-4011-a000-333336633333',
+             'api_key': 'TOOLKIT_SS2_API_KEY',
              'api_key_url': 'https://localhost:4000/api/v1/api-keys'
             }
             ]}
@@ -61,7 +64,6 @@ class TestAuto(unittest.TestCase):
             auto_controller.app = app
             auto_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)  # Double mock!
             auto_controller._default()
-
 
             init_mock.assert_called()
             timestamp_init_mock.assert_called()

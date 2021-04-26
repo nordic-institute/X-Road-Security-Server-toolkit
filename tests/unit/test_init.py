@@ -38,7 +38,7 @@ class TestInit(unittest.TestCase):
         'security_server':
             [{'name': 'ss',
               'url': 'https://no.there.com:4000/api/v1',
-              'api_key': '<API_KEY>',
+              'api_key': 'TOOLKIT_SS1_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
@@ -48,7 +48,7 @@ class TestInit(unittest.TestCase):
               },
              {'name': 'ss2',
               'url': 'https://no.there.com:4000/api/v1',
-              'api_key': '<API_KEY>',
+              'api_key': 'TOOLKIT_SS2_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',

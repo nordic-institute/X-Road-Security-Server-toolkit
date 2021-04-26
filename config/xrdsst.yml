@@ -3,7 +3,7 @@ ssh_access:
   user: <SSH_USER_OS_ENV_VAR_NAME>
   private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
 security_server:
-- api_key: <API_KEY>
+- api_key: <API_KEY_ENV_VAR_NAME>
   api_key_url: https://localhost:4000/api/v1/api-keys
   admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
   configuration_anchor: /path/to/configuration-anchor.xml

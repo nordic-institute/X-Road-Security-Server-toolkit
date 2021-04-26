@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.0
+Version: 1.3.1
 Doc. ID: XRDSST-CONF
 
 ---
@@ -32,6 +32,7 @@ Doc. ID: XRDSST-CONF
 | 06.04.2021 | 1.2.10      | Notes on user management                                                     | Bert Viikmäe       |
 | 09.04.2021 | 1.2.11      | Added description about signing and verification of packages                 | Bert Viikmäe       |
 | 20.04.2021 | 1.3.0       | Substituting plain text secrets in configuration with environment variables  | Bert Viikmäe       |
+| 26.04.2021 | 1.3.1       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -155,11 +156,6 @@ is needed:
 1. Access to REST API of configured security server + existing API key.
 1. Access to REST API of configured security server + SSH access to the security server machine + X-Road security server administrative credentials.
 
-__Proper care must be taken to ensure that configuration files with these credentials are not visible
-to strangers' eyes, as the secrets they can contain (API keys, administrative credentials) are
-stored in plain text. Possible information leaks are minimized when using API keys, without any SSH
-connections or security server administrative credentials configured.__
-
 Security server REST API is ordinarily exposed at security server port 4000 and is separated into
 two parts:
   1. invocable over network -- API calls for performing most of the functionality available from
@@ -229,7 +225,7 @@ ssh_access:
   user: <SSH_USER_OS_ENV_VAR_NAME>
   private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
 security_server:
-- api_key: <API_KEY>
+- api_key: <API_KEY_ENV_VAR_NAME>
   api_key_url: https://localhost:4000/api/v1/api-keys
   admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
   configuration_anchor: /path/to/configuration-anchor.xml
@@ -284,7 +280,7 @@ The ``security_server`` section is for configuring security server parameters
   but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)  
 * ``/path/to/xrdsst.log`` should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
 * <LOG_LEVEL> parameter for configuring the logging level for the X-Road Security Server Toolkit, e.g INFO
-* <API_KEY> filled with API key for security server or left as-is/any for toolkit to attempt creation of transient API key
+* <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
 * ``/path/to/configuration-anchor.xml`` should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
 * <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
 * <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
@@ -371,10 +367,10 @@ X-Road admin user can be created with ``xrdsst user create-admin``
 Configuration parameters involved:
 
 ```
-admin_credentials: <SECURITY_SERVER_CREDENTIALS>
+admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
 ssh_access:
-  user: <SSH_USER>
-  private_key: /path/to/ssh_private_key
+  user: <SSH_USER_OS_ENV_VAR_NAME>
+  private_key: SSH_PRIVATE_KEY_OS_ENV_VAR_NAME
 ```
 
 Note: This is an optional step in the configuration process and should only be run if the admin user has not been created before. 
@@ -536,7 +532,7 @@ line 32 below:
 ```yaml
 # ... SNIPPED
 security_server:                                                     # line 11
-- api_key: 8d527381-80c1-4910-a259-7e3c23253397                      # line 12
+- api_key: TOOLKIT_API_KEY                                           # line 12
 # ... SNIPPED
   clients:                                                           # line 27
     - member_class: GOV                                              # line 28

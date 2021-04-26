@@ -34,7 +34,7 @@ class TestTimestamp(unittest.TestCase):
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
-              'api_key': 'X-Road-apikey token=<API_KEY>',
+              'api_key': 'TOOLKIT_SS1_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
@@ -44,7 +44,7 @@ class TestTimestamp(unittest.TestCase):
               'software_token_id': 0},
              {'name': 'ss2',
               'url': 'https://ss:4000/api/v1',
-              'api_key': 'X-Road-apikey token=<API_KEY>',
+              'api_key': 'TOOLKIT_SS2_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
