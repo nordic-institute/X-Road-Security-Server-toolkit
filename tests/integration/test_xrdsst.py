@@ -154,7 +154,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             endpoint_controller.load_config = (lambda: self.config)
             endpoint_controller.add_endpoints()
             description = get_service_description(self.config, client_id)
-            assert len(description["services"][0]["endpoints"]) == 1
+            assert len(description["services"][0]["endpoints"]) == 5
+            assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
+            assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
