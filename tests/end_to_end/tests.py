@@ -256,14 +256,13 @@ class EndToEndTest(unittest.TestCase):
             configuration = endpoint_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
-                    for service in service_description["services"]:
-                        for endpoint in service[0]["endpoints"]:
-                            endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
-        description = get_service_description(self.config, client_id)
-        assert len(description["services"][0]["endpoints"]) == 1
+                    for endpoint in service_description["endpoints"]:
+                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
 
-        assert str(description["services"][0]["endpoints"][0]["path"]) == "/testPath"
-        assert str(description["services"][0]["endpoints"][0]["method"]) == "GET"
+        description = get_service_description(self.config, client_id)
+        assert len(description["services"][0]["endpoints"]) == 5
+        assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
+        assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
 
     def query_status(self):
         with XRDSSTTest() as app:

@@ -116,7 +116,7 @@ class TestEndpoint(unittest.TestCase):
     def test_endpoint_already_added(self):
         class AlreadyEnabledResponse:
             status = 409
-            data = '{"status":409,"error":{"code":"service_description_already_enabled"}}'
+            data = '{"status":409,"error":{"code":"service_endpoint_already_enabled"}}'
             reason = None
 
             def getheaders(self): return None
