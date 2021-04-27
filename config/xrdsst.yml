@@ -43,3 +43,6 @@ security_server:
               timeout: <SERVICE_TIMEOUT>
               ssl_auth: <SERVICE_USE_SSL_AUTH>
               url: <SERVICE_URL>
+          endpoints:
+            - path: <ENDPOINT_PATH>
+              method: <ENDPOINT_METHOD>

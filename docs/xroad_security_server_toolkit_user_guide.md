@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.1
+Version: 1.3.2
 Doc. ID: XRDSST-CONF
 
 ---
@@ -32,7 +32,8 @@ Doc. ID: XRDSST-CONF
 | 06.04.2021 | 1.2.10      | Notes on user management                                                     | Bert Viikmäe       |
 | 09.04.2021 | 1.2.11      | Added description about signing and verification of packages                 | Bert Viikmäe       |
 | 20.04.2021 | 1.3.0       | Substituting plain text secrets in configuration with environment variables  | Bert Viikmäe       |
-| 26.04.2021 | 1.3.1       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
+| 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
+| 27.04.2021 | 1.3.2       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -265,6 +266,9 @@ security_server:
               timeout: <SERVICE_TIMEOUT>
               ssl_auth: <SERVICE_USE_SSL_AUTH>
               url: <SERVICE_URL>
+          endpoints:
+			- path: <ENDPOINT_PATH>
+			  method: <ENDPOINT_METHOD>		
 ```
 
 The ``ssh_access`` section is for configuring the SSH access parameters of the X-Road Security Server Toolkit
@@ -307,6 +311,8 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description
 * <SERVICE_URL> URL for single service
 * <SERVICE_CODE> code for single service.
+* <ENDPOINT_PATH> path for the endpoint.
+* <ENDPOINT_METHOD> method for the endpoint (GET, POST, PUT...)
 
 In section ``service_descriptions`` service with type ``OPENAPI3``, ``REST``, ``WSDL`` can be configured by adding a service description
 with parameters ``url``, ``rest_service_code``, ``type`` and ``access``. In order to provide access to the services added with that

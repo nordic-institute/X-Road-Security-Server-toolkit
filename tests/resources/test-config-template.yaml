@@ -43,3 +43,6 @@ security_server:
               timeout: 120
               ssl_auth: False
               url: http://petstore.xxx
+          endpoints:
+            - path: /testPath
+              method: POST
