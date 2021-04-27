@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4-beta.0] - 2021-04-27
+- API keys in configuration files kept as environment variables instead of plain text to reduce security risks
+
+## [1.0.3-beta.0] - 2021-04-26
+- add ``xrdsst endpoint`` and subcommand ``add-endpoints``
+
 ## [1.0.2-beta.0] - 2021-04-20
 - Secrets in configuration files kept as environment variables instead of plain text to reduce security risks
 

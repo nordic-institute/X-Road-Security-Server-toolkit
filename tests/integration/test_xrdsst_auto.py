@@ -1,3 +1,5 @@
+import os
+
 import urllib3
 
 from tests.integration.integration_base import IntegrationTestBase
@@ -60,11 +62,13 @@ def assert_client_service_descs_transitioned(api_url, api_key):
     assert (sd['id'] == 'DEV:ORG:111:BUS:Petstore')
     # Skip 'ssl_auth' & 'timeout'
 
+
 def assert_client_service_clients_transitioned(api_url, api_key):
     client_service_clients = api_GET(api_url, "services/DEV:ORG:111:BUS:Petstore/service-clients", api_key)
 
     assert (1 == len(client_service_clients))
     # Skip 'ssl_auth' & 'timeout'
+
 
 def assert_non_status_ops_transitioned(api_url, api_key):
     assert_clients_transitioned(api_url, api_key)
@@ -106,5 +110,5 @@ class TestXrdsstAuto(IntegrationTestBase, IntegrationOpBase):
         # Verify non-base operation transitions
         assert_non_status_ops_transitioned(
             self.config["security_server"][0]["url"],
-            self.config["security_server"][0]["api_key"]
+            os.getenv(IntegrationTestBase.api_key_env, "")
         )

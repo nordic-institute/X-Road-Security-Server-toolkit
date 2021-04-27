@@ -16,6 +16,8 @@ from xrdsst.controllers.base import BaseController
 
 class IntegrationTestBase(unittest.TestCase):
     __test__ = False
+    api_key = "a2e9dea1-de53-4ebc-a750-6be6461d91f0"
+    api_key_env = "TOOLKIT_API_KEY"
     configuration_anchor = "tests/resources/configuration-anchor.xml"
     credentials = "xrd:secret"
     credentials_env = "TOOLKIT_ADMIN_CREDENTIALS"
@@ -33,6 +35,7 @@ class IntegrationTestBase(unittest.TestCase):
 
     def set_env_variable(self):
         os.environ[self.credentials_env] = self.credentials
+        os.environ[self.api_key_env] = self.api_key
 
     def init_config(self):
         self.config = {
@@ -43,7 +46,7 @@ class IntegrationTestBase(unittest.TestCase):
                 [{'name': 'ss',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
                   'fqdn': 'client_only',
-                  'api_key': 'a2e9dea1-de53-4ebc-a750-6be6461d91f0',
+                  'api_key': self.api_key_env,
                   'api_key_url': self.url,
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
                   'owner_dn_country': 'FI',
@@ -90,7 +93,7 @@ class IntegrationTestBase(unittest.TestCase):
         return self.config
 
     def set_api_key(self, api_key):
-        self.config["security_server"][0]["api_key"] = api_key
+        os.environ[self.api_key_env] = api_key
 
     def set_ip_url(self, ip_address):
         local_url = self.config["security_server"][0]["url"]
@@ -122,6 +125,7 @@ class IntegrationTestBase(unittest.TestCase):
     def tearDown(self):
         subprocess.call("rm -rf " + self.local_folder + "/", shell=True)
         del os.environ[self.credentials_env]
+        del os.environ[self.api_key_env]
         self.clean_docker()
 
     def clone_repo(self):
