@@ -265,18 +265,20 @@ def api_GET(api_url, api_path, api_key):
 
 # Returns service description for given client
 def get_service_description(config, client_id):
+    api_key = os.getenv(config["security_server"][0]["api_key"], "")
     return api_GET(
             config["security_server"][0]["url"],
             "clients/" + client_id + "/service-descriptions",
-            config["security_server"][0]["api_key"]
+            api_key
         )[0]
 
 # Returns service clients for given service
 def get_service_clients(config, service_id):
+    api_key = os.getenv(config["security_server"][0]["api_key"], "")
     return api_GET(
             config["security_server"][0]["url"],
             "services/" + service_id + "/service-clients",
-            config["security_server"][0]["api_key"]
+            api_key
         )
 
 # Returns client
@@ -285,13 +287,14 @@ def get_client(config):
     member_class = config['security_server'][0]['clients'][0]['member_class']
     member_code = config['security_server'][0]['clients'][0]['member_code']
     subsystem_code = config['security_server'][0]['clients'][0]['subsystem_code']
+    api_key = os.getenv(config["security_server"][0]["api_key"], "")
     client = requests.get(
         config["security_server"][0]["url"] + "/clients",
         {'member_class': member_class,
          'member_code': member_code,
          'subsystem_code': subsystem_code,
          'connection_type': conn_type},
-        headers={'Authorization': BaseController.authorization_header(config["security_server"][0]["api_key"]), 'accept': 'application/json'},
+        headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
         verify=False)
     client_json = json.loads(str(client.content, 'utf-8').strip())
     return client_json[0]
@@ -317,11 +320,12 @@ def auth_cert_registration_global_configuration_update_received(config):
         return default_auth_key_label(config["security_server"][0]) == key['label'] and \
                'REGISTERED' == key['certificates'][0]['status']
 
+    api_key = os.getenv(config["security_server"][0]["api_key"], "")
     result = requests.get(
         config["security_server"][0]["url"] + "/tokens/" + str(config["security_server"][0]['software_token_id']),
         None,
         headers={
-            'Authorization': BaseController.authorization_header(config["security_server"][0]["api_key"]),
+            'Authorization': BaseController.authorization_header(api_key),
             'accept': 'application/json'
         },
         verify=False

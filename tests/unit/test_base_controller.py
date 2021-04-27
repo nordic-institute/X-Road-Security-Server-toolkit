@@ -27,7 +27,7 @@ class TestBaseController(unittest.TestCase):
         'security_server':
             [{'name': 'ss',
               'url': 'https://ss:4000/api/v1',
-              'api_key': 'f160830d-d75a-476e-a9ad-9c12abff00d3',
+              'api_key': 'TOOLKIT_SS1_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
@@ -36,7 +36,7 @@ class TestBaseController(unittest.TestCase):
               'software_token_pin': '1234'},
              {'name': 'ss2',
               'url': 'https://ss2:4000/api/v1',
-              'api_key': 'f160830d-d75a-476e-a9ad-9c12abff00d3',
+              'api_key': 'TOOLKIT_SS2_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'configuration_anchor': configuration_anchor,
               'owner_member_class': 'GOV',
@@ -349,7 +349,7 @@ class TestBaseController(unittest.TestCase):
 
         # When
         BaseController.log_info("printf style with dict: API key '%(api_key)s' for security server %(ssn)s revoked." %
-                 {'api_key': the_api_key, 'ssn': 'madeup-ss'})
+                                {'api_key': the_api_key, 'ssn': 'madeup-ss'})
         BaseController.log_info("plain concatenated string style: API key '" + the_api_key + "' for security server " + 'madeup-ss' + " revoked.")
         BaseController.log_info("percent style string formation: API key '%s' for revoked." % the_api_key)
         logging.info("direct log of api_key (info) " + the_api_key)
@@ -373,7 +373,8 @@ class TestBaseController(unittest.TestCase):
                     security_server["api_key"] = 'some key'
                     key = base_controller.get_api_key(config, security_server)
                     assert key != 'api-key-123'
-                    security_server["api_key"] = '<API_KEY>'
+                    os.environ["TOOLKIT_API_KEY"] = ""
+                    security_server["api_key"] = 'TOOLKIT_API_KEY'
                     key = base_controller.get_api_key(config, security_server)
                     assert key == '88888888-8000-4000-a000-727272727272'
                 os.remove(temp_file_name)
@@ -385,7 +386,7 @@ class TestBaseController(unittest.TestCase):
             temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
             config = self.create_temp_conf(base_controller, temp_file_name)
             for security_server in config["security_server"]:
-                security_server["api_key"] = '<API_KEY>'
+                security_server["api_key"] = 'TOOLKIT_API_KEY'
                 base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             self.assertRaises(Exception)
@@ -401,7 +402,7 @@ class TestBaseController(unittest.TestCase):
             ssh_access = config["ssh_access"]
             for security_server in config["security_server"]:
                 ssh_access["private_key"] = 'my_key'
-                security_server["api_key"] = '<API_KEY>'
+                security_server["api_key"] = 'TOOLKIT_API_KEY'
                 base_controller.get_api_key(config, security_server)
             os.remove(temp_file_name)
             os.remove("my_key")
@@ -413,9 +414,11 @@ class TestBaseController(unittest.TestCase):
             base_controller.app = app
             temp_file_name = os.path.join(ROOT_DIR, "conf.yaml")
             config = self.create_temp_conf(base_controller, temp_file_name)
+            os.environ["TOOLKIT_SS1_API_KEY"] = "f13d5108-7799-426d-a024-1300f52f4a51"
+            os.environ["TOOLKIT_SS2_API_KEY"] = "a13d5108-7799-426d-a024-1300f52f4a51"
             for security_server in config["security_server"]:
                 configuration = Configuration()
-                configuration.api_key['Authorization'] = security_server["api_key"]
+                configuration.api_key['Authorization'] = os.getenv(security_server["api_key"], "")
                 configuration.host = security_server["url"]
                 configuration.verify_ssl = False
                 response = base_controller.create_api_config(security_server)
@@ -423,7 +426,6 @@ class TestBaseController(unittest.TestCase):
                 assert response.host == configuration.host
                 assert response.verify_ssl == configuration.verify_ssl
             os.remove(temp_file_name)
-
 
     def test_configfile_argument_added(self):
         base_controller = BaseController()

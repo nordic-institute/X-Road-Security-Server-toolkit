@@ -36,7 +36,7 @@ class TestClient(unittest.TestCase):
         'security_server':
             [{'name': 'ssX',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': '55555555-5000-4000-a000-707070707070',
+              'api_key': 'TOOLKIT_SS1_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'clients': [
                   {
@@ -59,7 +59,7 @@ class TestClient(unittest.TestCase):
               ]},
              {'name': 'ssY',
               'url': 'https://non.existing.url.blah:8999/api/v1',
-              'api_key': '55555555-5000-4000-a000-707070707070',
+              'api_key': 'TOOLKIT_SS2_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'clients': [
                   {

@@ -3,10 +3,17 @@ ssh_access:
   user: <SSH_USER_OS_ENV_VAR_NAME>
   private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
 security_server:
+<<<<<<< HEAD
 - api_key: 52b6bd67-dda3-4c77-a67a-f30687e428ff
   api_key_url: https://ss1:4000/api/v1/api-keys
   admin_credentials: xrd:secret
   configuration_anchor: /home/alberto/Downloads/configuration_anchor_DEV_internal_UTC_2021-04-15_12_31_50.xml
+=======
+- api_key: <API_KEY_ENV_VAR_NAME>
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+  configuration_anchor: /path/to/configuration-anchor.xml
+>>>>>>> master
   certificates:
     - /path/to/signcert
     - /path/to/authcert
