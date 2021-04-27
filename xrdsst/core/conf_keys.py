@@ -119,11 +119,13 @@ class ConfKeysSecServerClientServiceDesc:
     CONF_KEY_SS_CLIENT_SERVICE_DESC_TIMEOUT_ALL = 'timeout_all'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_SSL_AUTH_ALL = 'ssl_auth_all'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES = 'services'
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS = 'endpoints'
 
     @staticmethod
     def descendant_conf_keys():
         return [
-            (ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES, ConfKeysSecServerClientServiceDescService)
+            (ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES, ConfKeysSecServerClientServiceDescService),
+            (ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS, ConfKeysSecServerClientServiceDescEndpoints)
         ]
 
 
@@ -134,6 +136,16 @@ class ConfKeysSecServerClientServiceDescService:
     CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICE_TIMEOUT = 'timeout'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICE_SSL_AUTH = 'ssl_auth'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICE_URL = 'url'
+
+    @staticmethod
+    def descendant_conf_keys():
+        return []
+
+
+class ConfKeysSecServerClientServiceDescEndpoints:
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_METHOD = 'method'
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_SERVICE_CODE  = 'service_code'
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_PATH = 'path'
 
     @staticmethod
     def descendant_conf_keys():

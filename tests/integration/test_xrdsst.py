@@ -12,6 +12,7 @@ from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import ServerStatus
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
+from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.main import XRDSSTTest
 
 
@@ -146,6 +147,17 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             assert description["services"][0]["timeout"] == 120
             assert description["services"][0]["url"] == 'http://petstore.xxx'
 
+    def step_add_service_endpoints(self, client_id):
+        with XRDSSTTest() as app:
+            endpoint_controller = EndpointController()
+            endpoint_controller.app = app
+            endpoint_controller.load_config = (lambda: self.config)
+            endpoint_controller.add_endpoints()
+            description = get_service_description(self.config, client_id)
+            assert len(description["services"][0]["endpoints"]) == 5
+            assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
+            assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         # Uninitialized security server can already have functioning API interface and status query must function
@@ -205,6 +217,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         self.step_update_service_parameters(client_id)
         configured_servers_at_end = self.query_status()
+
+        self.step_add_service_endpoints(client_id)
+        self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
 

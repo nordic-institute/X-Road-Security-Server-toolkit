@@ -19,6 +19,7 @@ from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.user import UserController
 from xrdsst.core.util import revoke_api_key
 from xrdsst.main import XRDSSTTest
+from xrdsst.controllers.endpoint import EndpointController
 
 
 class EndToEndTest(unittest.TestCase):
@@ -249,6 +250,20 @@ class EndToEndTest(unittest.TestCase):
                 auto_controller.app = app
                 auto_controller._default()
 
+    def step_add_service_endpoints(self, client_id):
+        endpoint_controller = EndpointController()
+        for security_server in self.config["security_server"]:
+            configuration = endpoint_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    for endpoint in service_description["endpoints"]:
+                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+
+        description = get_service_description(self.config, client_id)
+        assert len(description["services"][0]["endpoints"]) == 5
+        assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
+        assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
+
     def query_status(self):
         with XRDSSTTest() as app:
             status_controller = StatusController()
@@ -292,7 +307,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_service_access(client_id)
         self.step_update_service_parameters(client_id)
         self.step_create_admin_user()
-
+        self.step_add_service_endpoints(client_id)
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()
