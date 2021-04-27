@@ -18,15 +18,12 @@ class EndpointController(BaseController):
 
     @ex(label='add-endpoints', help="Add endpoints", arguments=[])
     def add_endpoints(self):
-        active_config = self.load_config()
-        full_op_path = self.op_path()
+        active_config= self._check_configuration()
+        self.add_service_endpoints(active_config)
 
-        active_config, invalid_conf_servers = self.validate_op_config(active_config)
-        self.log_skipped_op_conf_invalid(invalid_conf_servers)
-
-        if not self.is_autoconfig():
-            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
-            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+    @ex(label='add-access', help="Add endpoints access", arguments=[])
+    def add_endpoints(self):
+        active_config= self._check_configuration()
         self.add_service_endpoints(active_config)
 
     def add_service_endpoints(self, config):
@@ -42,6 +39,9 @@ class EndpointController(BaseController):
                                 self.remote_add_service_endpoints(ss_api_config, security_server, client, service_description, endpoint)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def add_access(self, config):
+        return None
 
     def remote_add_service_endpoints(self, ss_api_config, security_server_conf, client_conf, service_description_conf, endpoint_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -73,3 +73,16 @@ class EndpointController(BaseController):
                     BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
+
+    def _check_configuration(self):
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+
+        return active_config
