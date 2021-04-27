@@ -2,6 +2,7 @@ from cement import ex
 from xrdsst.api import ClientsApi, EndpointsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
+from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.client import ClientController
 from xrdsst.models import Endpoint, ServiceType
 from xrdsst.rest.rest import ApiException
@@ -49,7 +50,7 @@ class EndpointController(BaseController):
             client = client_controller.find_client(clients_api, security_server_conf, client_conf)
             if client:
                 try:
-                    service_description = self.get_client_service_description(clients_api, client, service_description_conf)
+                    service_description = ServiceController().get_client_service_description(clients_api, client, service_description_conf)
                     if service_description:
                         if service_description.type == ServiceType().WSDL:
                             BaseController.log_info("Wrong service description, endpoints for WSDL services are not"
@@ -65,19 +66,10 @@ class EndpointController(BaseController):
                                     BaseController.log_info("Added service endpoint '" + endpoint.method + " " + endpoint.path + "' for service '" + serviceId + "'")
                             except ApiException as err:
                                 if err.status == 409:
-                                    BaseController.log_info("Added service endpoint '" + endpoint.method + " " + endpoint.path  + "' for service '" + serviceId  + "' already added")
+                                    BaseController.log_info("Service endpoint '" + endpoint.method + " " + endpoint.path + "' for service '" + serviceId + "' already added")
                                 else:
                                     BaseController.log_api_error('ServicesApi->add_endpoint', err)
                 except ApiException as find_err:
                     BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
-
-    @staticmethod
-    def get_client_service_description(clients_api, client, service_description_conf):
-        url = service_description_conf['url']
-        service_type = service_description_conf['type']
-        service_descriptions = clients_api.get_client_service_descriptions(client.id)
-        for service_description in service_descriptions:
-            if service_description.url == url and service_description.type == service_type:
-                return service_description

@@ -32,7 +32,7 @@ Doc. ID: XRDSST-CONF
 | 06.04.2021 | 1.2.10      | Notes on user management                                                     | Bert Viikmäe       |
 | 09.04.2021 | 1.2.11      | Added description about signing and verification of packages                 | Bert Viikmäe       |
 | 20.04.2021 | 1.3.0       | Substituting plain text secrets in configuration with environment variables  | Bert Viikmäe       |
-| 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.
+| 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
 ## Table of Contents <!-- omit in toc -->
 
 <!-- toc -->
