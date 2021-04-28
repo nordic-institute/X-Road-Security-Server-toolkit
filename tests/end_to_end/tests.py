@@ -48,6 +48,7 @@ class EndToEndTest(unittest.TestCase):
             base = BaseController()
             base.app = app
             api_key_id = app.Meta.handlers[0].api_key_id
+            del os.environ[self.config["security_server"][0]["api_key"]]
             if api_key_id:
                 revoke_api_key(app)
             if self.config_file is not None:
@@ -141,7 +142,8 @@ class EndToEndTest(unittest.TestCase):
         self.config['security_server'][0]['certificates'] = signed_certs
 
     def create_api_key(self, api_key):
-        self.config["security_server"][0]["api_key"] = api_key
+        api_key_env_name = self.config["security_server"][0]["api_key"]
+        os.environ[api_key_env_name] = api_key
 
     def step_cert_import(self):
         with XRDSSTTest() as app:
@@ -241,7 +243,6 @@ class EndToEndTest(unittest.TestCase):
             init.initialize_server(self.config)
             status = init.check_init_status(configuration)
             assert status.is_anchor_imported is True and status.is_server_code_initialized is True
-        del os.environ['TOOLKIT_ADMIN_CREDENTIALS']
 
     def step_autoconf(self):
         with XRDSSTTest() as app:
