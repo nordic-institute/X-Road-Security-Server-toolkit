@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5-beta.0] - 2021-04-27
+- Fix auto-configuration to show configuration status in the end of run for multiple security servers
+
 ## [1.0.4-beta.0] - 2021-04-27
 - API keys in configuration files kept as environment variables instead of plain text to reduce security risks
 

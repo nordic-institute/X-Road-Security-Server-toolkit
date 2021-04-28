@@ -26,6 +26,10 @@ class AutoController(BaseController):
             single_server_config = all_server_config[ConfKeysRoot.CONF_KEY_ROOT_SERVER][i:(i+1)]
             active_config[ConfKeysRoot.CONF_KEY_ROOT_SERVER] = single_server_config
             self._single_server_auto(active_config)
+        status_controller = StatusController()
+        status_controller.app = self.app
+        status_controller.load_config = (lambda: all_server_config)
+        status_controller._default()
 
     def _single_server_auto(self, active_config):
         self.app.auto_apply = True
@@ -75,7 +79,3 @@ class AutoController(BaseController):
                     break
 
         self.log_info("AUTO ['status']->'" + ssn + "' AT THE END OF AUTOCONFIGURATION.")
-        status_controller = StatusController()
-        status_controller.app = self.app
-        status_controller.load_config = (lambda: active_config)
-        status_controller._default()
