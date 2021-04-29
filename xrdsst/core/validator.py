@@ -365,5 +365,51 @@ def validate_config_service_desc_service_endpoints(ss_config, operation, errors)
                         ConfKeysSecServerClientServiceDescEndpoints.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_PATH,
                         endpoints_config[endpoint_ix], operation, errors)
 
+    return len(errors) <= err_cnt
+
+
+def validate_config_service_desc_service_endpoints_access(ss_config, operation, errors):
+    if not ss_config.get(ConfKeysSecurityServer.CONF_KEY_CLIENTS):
+        return True
+
+    err_cnt = len(errors)
+
+    clients_config = copy.deepcopy(ss_config[ConfKeysSecurityServer.CONF_KEY_CLIENTS])
+    for client_ix in range(0, len(clients_config)):
+        if not clients_config[client_ix].get(ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SERVICE_DESCS):
+            continue
+
+        # Make readable reference
+        clients_config[client_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
+                ss_config[ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
+                ConfKeysSecurityServer.CONF_KEY_CLIENTS + '[' + str(client_ix + 1) + ']'
+        )
+
+        service_desc_config = copy.deepcopy(clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SERVICE_DESCS])
+        for service_desc_ix in range(0, len(service_desc_config)):
+            if service_desc_config[service_desc_ix]["type"] != ServiceType().WSDL:
+                service_desc_config[service_desc_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
+                        clients_config[client_ix][ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
+                        ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SERVICE_DESCS + '[' + str(service_desc_ix + 1) + ']'
+                )
+
+                endpoints_config = copy.deepcopy(service_desc_config[service_desc_ix][ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS])
+                for endpoint_ix in range(0, len(endpoints_config)):
+                    endpoints_config[endpoint_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
+                            service_desc_config[service_desc_ix][ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
+                            ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS + '[' + str(endpoint_ix + 1) + ']'
+                    )
+
+                    require_fill(
+                        ConfKeysSecServerClientServiceDescEndpoints.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_METHOD,
+                        endpoints_config[endpoint_ix], operation, errors)
+
+                    require_fill(
+                        ConfKeysSecServerClientServiceDescEndpoints.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_PATH,
+                        endpoints_config[endpoint_ix], operation, errors)
+
+                    require_fill(
+                        ConfKeysSecServerClientServiceDescEndpoints.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_ACCESS,
+                        service_desc_config[service_desc_ix], operation, errors)
 
     return len(errors) <= err_cnt

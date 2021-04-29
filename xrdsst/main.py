@@ -21,7 +21,9 @@ from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.core.util import revoke_api_key
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
     validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, validate_config_cert_activate, \
-    validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access, validate_config_service_desc_service, validate_config_service_desc_service_endpoints
+    validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access, \
+    validate_config_service_desc_service, validate_config_service_desc_service_endpoints, \
+    validate_config_service_desc_service_endpoints_access
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
 
@@ -46,7 +48,9 @@ OP_ADD_SERVICE_DESC = "ADD SERVICE\nDESCRIPTION"
 OP_ENABLE_SERVICE_DESC = "ENABLE SERVICE\nDESCRIPTION"
 OP_ADD_SERVICE_ACCESS = "ADD SERVICE\nACCESS"
 OP_UPDATE_SERVICE = "UPDATE\nSERVICE"
-OP_ADD_ENDPOINTS = "ADD\nENDPOINTS"
+OP_ADD_ENDPOINTS = "ADD\nENDPOINT"
+OP_ADD_ENDPOINT_ACCESS = "ADD ENDPOINTS\nACCESS"
+
 
 # Operations supported and known at the dependency graph level
 class OPS:
@@ -64,6 +68,8 @@ class OPS:
     ADD_SERVICE_ACCESS = OP_ADD_SERVICE_ACCESS
     UPDATE_SERVICE = OP_UPDATE_SERVICE
     ADD_ENDPOINTS = OP_ADD_ENDPOINTS
+    ADD_ENDPOINT_ACCESS = OP_ADD_ENDPOINT_ACCESS
+
 
 VALIDATORS = {
     OPS.INIT: validate_config_init,
@@ -79,9 +85,9 @@ VALIDATORS = {
     OPS.ENABLE_SERVICE_DESC: validate_config_service_desc,
     OPS.ADD_SERVICE_ACCESS: validate_config_service_access,
     OPS.UPDATE_SERVICE: validate_config_service_desc_service,
-    OPS.ADD_ENDPOINTS: validate_config_service_desc_service_endpoints
+    OPS.ADD_ENDPOINTS: validate_config_service_desc_service_endpoints,
+    OPS.ADD_ENDPOINT_ACCESS: validate_config_service_desc_service_endpoints_access
 }
-
 
 # Initialize operational dependency graph for the security server operations
 def opdep_init(app):
@@ -155,6 +161,7 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_SERVICE_ACCESS, ServiceController, ServiceController.add_access, is_done=(lambda ssn: True))
     add_op_node(g, OPS.UPDATE_SERVICE, ServiceController, ServiceController.update_parameters, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_ENDPOINTS, EndpointController, EndpointController.add_endpoints, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
 
     g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
     g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
@@ -169,6 +176,7 @@ def opdep_init(app):
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_SERVICE_ACCESS)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.UPDATE_SERVICE)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_ENDPOINTS)
+    g.add_edge(OPS.ADD_ENDPOINTS, OPS.ADD_ENDPOINT_ACCESS)
 
     topologically_sorted = list(networkx.topological_sort(g))
     app.OP_GRAPH = g
@@ -208,7 +216,8 @@ class XRDSST(App):
 
         # register handlers
         handlers = [BaseController, StatusController, ClientController, CertController, TimestampController,
-                    TokenController, InitServerController, AutoController, ServiceController, UserController, EndpointController]
+                    TokenController, InitServerController, AutoController, ServiceController, UserController,
+                    EndpointController]
 
     api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
 

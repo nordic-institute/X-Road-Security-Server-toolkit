@@ -1,18 +1,18 @@
-admin_credentials: xrd:secret
+admin_credentials: XRDSST_CREDENTIALS
 ssh_access:
-  user: <SSH_USER_OS_ENV_VAR_NAME>
-  private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  user: XRDSST_SSH_USER
+  private_key: XRDSST_SSH_KEY
 security_server:
-- api_key: <API_KEY_ENV_VAR_NAME>
+- api_key: XRDSST_API_KEY
   api_key_url: https://localhost:4000/api/v1/api-keys
-  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
-  configuration_anchor: /path/to/configuration-anchor.xml
+  admin_credentials: XRDSST_CREDENTIALS
+  configuration_anchor: /home/alberto/Downloads/configuration_anchor_DEV_internal_UTC_2021-04-27_14_53_48.xml
   certificates:
     - /path/to/signcert
     - /path/to/authcert
   name: ss1
   owner_dn_country: FI
-  owner_dn_org: Companies
+  owner_dn_org: COMPANY
   owner_member_class: COM
   owner_member_code: 12345
   security_server_code: ss1
@@ -32,14 +32,24 @@ security_server:
           rest_service_code: KOE
           type: REST
           access:
-            - TESTCOMPANY
+            - SUBNIIS
           url_all: https://
           timeout_all: 60
           ssl_auth_all: false
+          services:
+            - service_code: KOE
+              access:
+                - DEV:ORG:111:SUBNIIS
+              timeout: 60
+              ssl_auth: false
+              url: https://api.stats.x-road.global/v1
           endpoints:
             - path: /testPath
               method: POST
               access:
-                - TESTCOMPANY
+                - DEV:ORG:111:SUBNIIS
+                - DEV:security-server-owners
             - path: /getPath
               method: GET
+              access:
+                - DEV:ORG:111:SUBNIIS

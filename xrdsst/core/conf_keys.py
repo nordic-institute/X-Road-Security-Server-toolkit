@@ -144,9 +144,8 @@ class ConfKeysSecServerClientServiceDescService:
 
 class ConfKeysSecServerClientServiceDescEndpoints:
     CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_METHOD = 'method'
-    CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_SERVICE_CODE  = 'service_code'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_PATH = 'path'
-
+    CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_ACCESS = 'access'
     @staticmethod
     def descendant_conf_keys():
         return []
