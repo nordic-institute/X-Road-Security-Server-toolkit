@@ -38,9 +38,11 @@ class EndToEndTest(unittest.TestCase):
             base = BaseController()
             base.app = app
             self.config = base.load_config(baseconfig=self.config_file)
+            ssn = 0
             for security_server in self.config["security_server"]:
                 api_key = base.get_api_key(self.config, security_server)
-                self.create_api_key(api_key)
+                self.create_api_key(api_key, ssn)
+                ssn = ssn + 1
 
     def tearDown(self):
         with XRDSSTTest() as app:
@@ -49,6 +51,7 @@ class EndToEndTest(unittest.TestCase):
             base.app = app
             api_key_id = app.Meta.handlers[0].api_key_id
             del os.environ[self.config["security_server"][0]["api_key"]]
+            del os.environ[self.config["security_server"][1]["api_key"]]
             if api_key_id:
                 revoke_api_key(app)
             if self.config_file is not None:
@@ -118,10 +121,13 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 ss_configuration = cert_controller.create_api_config(security_server, self.config)
                 result = cert_controller.remote_download_csrs(ss_configuration, security_server)
-                assert len(result) == 2
+                assert len(result) == 4
                 assert result[0].fs_loc != result[1].fs_loc
+                assert result[2].fs_loc != result[3].fs_loc
 
                 return [
+                    ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
+                    ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
                     ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
                     ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
                 ]
@@ -138,11 +144,11 @@ class EndToEndTest(unittest.TestCase):
 
         return cert_files
 
-    def apply_cert_config(self, signed_certs):
-        self.config['security_server'][0]['certificates'] = signed_certs
+    def apply_cert_config(self, signed_certs, ssn):
+        self.config['security_server'][ssn]['certificates'] = signed_certs
 
-    def create_api_key(self, api_key):
-        api_key_env_name = self.config["security_server"][0]["api_key"]
+    def create_api_key(self, api_key, ssn):
+        api_key_env_name = self.config["security_server"][ssn]["api_key"]
         os.environ[api_key_env_name] = api_key
 
     def step_cert_import(self):
@@ -187,50 +193,71 @@ class EndToEndTest(unittest.TestCase):
                 for client in security_server["clients"]:
                     client_controller.remote_register_client(configuration, security_server, client)
 
-    def step_add_service_description(self, client_id):
+    def step_add_service_description(self):
         service_controller = ServiceController()
+        ssn = 0
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_add_service_description(configuration, security_server, client, service_description)
-        description = get_service_description(self.config, client_id)
-        assert description["disabled"] is True
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id)
+            assert description["disabled"] is True
+            ssn = ssn + 1
 
-    def step_enable_service_description(self, client_id):
+    def step_enable_service_description(self):
         service_controller = ServiceController()
+        ssn = 0
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
-        description = get_service_description(self.config, client_id)
-        assert description["disabled"] is False
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id)
+            assert description["disabled"] is False
+            ssn = ssn + 1
 
-    def step_add_service_access(self, client_id):
+    def step_add_service_access(self):
         service_controller = ServiceController()
+        ssn = 0
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
-        description = get_service_description(self.config, client_id)
-        service_clients = get_service_clients(self.config, description["services"][0]["id"])
-        assert len(service_clients) == 1
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id)
+            service_clients = get_service_clients(self.config, description["services"][0]["id"])
+            assert len(service_clients) == 1
 
-    def step_update_service_parameters(self, client_id):
+    def step_update_service_parameters(self):
         service_controller = ServiceController()
-        description = get_service_description(self.config, client_id)
-        assert description["services"][0]["timeout"] == 60
-        assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id)
+            assert description["services"][0]["timeout"] == 60
+            assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
+            ssn = ssn + 1
+
+        ssn = 0
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
-        description = get_service_description(self.config, client_id)
-        assert description["services"][0]["timeout"] == 120
-        assert description["services"][0]["url"] == 'http://petstore.xxx'
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id)
+            assert description["services"][0]["timeout"] == 120
+            assert description["services"][0]["url"] == 'http://petstore.xxx'
+            ssn = ssn + 1
 
     def step_create_admin_user(self):
         os.environ['TOOLKIT_ADMIN_CREDENTIALS'] = 'newxrd:pwd'
@@ -251,8 +278,9 @@ class EndToEndTest(unittest.TestCase):
                 auto_controller.app = app
                 auto_controller._default()
 
-    def step_add_service_endpoints(self, client_id):
+    def step_add_service_endpoints(self):
         endpoint_controller = EndpointController()
+        ssn = 0
         for security_server in self.config["security_server"]:
             configuration = endpoint_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
@@ -260,10 +288,13 @@ class EndToEndTest(unittest.TestCase):
                     for endpoint in service_description["endpoints"]:
                         endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
 
-        description = get_service_description(self.config, client_id)
-        assert len(description["services"][0]["endpoints"]) == 5
-        assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
-        assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id)
+            assert len(description["services"][0]["endpoints"]) == 5
+            assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
+            assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
+            ssn = ssn + 1
 
     def query_status(self):
         with XRDSSTTest() as app:
@@ -276,8 +307,8 @@ class EndToEndTest(unittest.TestCase):
             # Must not throw exception, must produce output, test with global status only -- should be ALWAYS present
             # in the configuration that integration test will be run, even when it is still failing as security server
             # has only recently been started up.
-            assert status_controller.app._last_rendered[0][1][0].count('LAST') == 1
-            assert status_controller.app._last_rendered[0][1][0].count('NEXT') == 1
+            assert status_controller.app._last_rendered[0][2][0].count('LAST') == 1
+            assert status_controller.app._last_rendered[0][2][0].count('NEXT') == 1
 
             return servers
 
@@ -288,27 +319,33 @@ class EndToEndTest(unittest.TestCase):
         self.step_timestamp_init()
         self.step_token_login()
         self.step_token_init_keys()
+
+        ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
-        signed_certs = self.step_acquire_certs(downloaded_csrs)
-        self.apply_cert_config(signed_certs)
+        for security_server in self.config["security_server"]:
+            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn*2):(ssn * 2 + 2)], security_server)
+            self.apply_cert_config(signed_certs, ssn)
+            ssn = ssn + 1
+
         self.step_cert_import()
         self.step_cert_register()
         self.step_cert_activate()
 
         # Wait for global configuration status updates
-        waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), 1, 300)
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config, ssn), 1, 300)
+            self.query_status()
+            ssn = ssn + 1
 
         self.step_subsystem_add_client()
         self.step_subsystem_register()
-        client = get_client(self.config)
-        client_id = client['id']
-
-        self.step_add_service_description(client_id)
-        self.step_enable_service_description(client_id)
-        self.step_add_service_access(client_id)
-        self.step_update_service_parameters(client_id)
+        self.step_add_service_description()
+        self.step_enable_service_description()
+        self.step_add_service_access()
+        self.step_update_service_parameters()
         self.step_create_admin_user()
-        self.step_add_service_endpoints(client_id)
+        self.step_add_service_endpoints()
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()

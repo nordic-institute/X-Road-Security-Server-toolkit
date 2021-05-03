@@ -88,18 +88,22 @@ class TestXrdsstAuto(IntegrationTestBase, IntegrationOpBase):
         self.step_autoconf()
 
         # Get signed certificates
+        ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
-        signed_certs = self.step_acquire_certs(downloaded_csrs)
-
-        # Modify config to have certificates
-        self.apply_cert_config(signed_certs)
+        for security_server in self.config["security_server"]:
+            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn*2):(ssn * 2 + 2)], security_server)
+            self.apply_cert_config(signed_certs, ssn)
+            ssn = ssn + 1
 
         # Expected to import certificates, but not get further straight away, since registration globally is time-consuming.
         self.step_autoconf()
 
         # Wait for global configuration status updates
-        waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), self.retry_wait, self.max_retries)
-        self.query_status()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config, ssn), self.retry_wait, self.max_retries)
+            self.query_status()
+            ssn = ssn + 1
 
         # Now that registered auth cert is globally accepted, should proceed with everything else to successful end.
         self.step_autoconf()
@@ -108,7 +112,7 @@ class TestXrdsstAuto(IntegrationTestBase, IntegrationOpBase):
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
 
         # Verify non-base operation transitions
-        assert_non_status_ops_transitioned(
-            self.config["security_server"][0]["url"],
-            os.getenv(IntegrationTestBase.api_key_env, "")
-        )
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            assert_non_status_ops_transitioned(security_server["url"], os.getenv(IntegrationTestBase.api_key_env[ssn], ""))
+            ssn = ssn + 1

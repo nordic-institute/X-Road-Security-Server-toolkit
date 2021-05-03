@@ -264,32 +264,32 @@ def api_GET(api_url, api_path, api_key):
 
 
 # Returns service description for given client
-def get_service_description(config, client_id):
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+def get_service_description(config, client_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     return api_GET(
-            config["security_server"][0]["url"],
+            config["security_server"][ssn]["url"],
             "clients/" + client_id + "/service-descriptions",
             api_key
         )[0]
 
 # Returns service clients for given service
-def get_service_clients(config, service_id):
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+def get_service_clients(config, service_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     return api_GET(
-            config["security_server"][0]["url"],
+            config["security_server"][ssn]["url"],
             "services/" + service_id + "/service-clients",
             api_key
         )
 
 # Returns client
-def get_client(config):
-    conn_type = convert_swagger_enum(ConnectionType, config['security_server'][0]['clients'][0]['connection_type'])
-    member_class = config['security_server'][0]['clients'][0]['member_class']
-    member_code = config['security_server'][0]['clients'][0]['member_code']
-    subsystem_code = config['security_server'][0]['clients'][0]['subsystem_code']
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+def get_client(config, ssn):
+    conn_type = convert_swagger_enum(ConnectionType, config['security_server'][ssn]['clients'][0]['connection_type'])
+    member_class = config['security_server'][ssn]['clients'][0]['member_class']
+    member_code = config['security_server'][ssn]['clients'][0]['member_code']
+    subsystem_code = config['security_server'][ssn]['clients'][0]['subsystem_code']
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     client = requests.get(
-        config["security_server"][0]["url"] + "/clients",
+        config["security_server"][ssn]["url"] + "/clients",
         {'member_class': member_class,
          'member_code': member_code,
          'subsystem_code': subsystem_code,
@@ -315,14 +315,14 @@ def find_test_ca_sign_url(conf_anchor_file_loc):
 
 
 # Check for auth cert registration update receival
-def auth_cert_registration_global_configuration_update_received(config):
+def auth_cert_registration_global_configuration_update_received(config, ssn):
     def registered_auth_key(key):
-        return default_auth_key_label(config["security_server"][0]) == key['label'] and \
+        return default_auth_key_label(config["security_server"][ssn]) == key['label'] and \
                'REGISTERED' == key['certificates'][0]['status']
 
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     result = requests.get(
-        config["security_server"][0]["url"] + "/tokens/" + str(config["security_server"][0]['software_token_id']),
+        config["security_server"][ssn]["url"] + "/tokens/" + str(config["security_server"][ssn]['software_token_id']),
         None,
         headers={
             'Authorization': BaseController.authorization_header(api_key),
