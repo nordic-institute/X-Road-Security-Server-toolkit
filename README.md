@@ -107,16 +107,3 @@ Use the included helper function via the `Makefile`:
 ```
 $ make dist
 ```
-
-## Deployments
-
-### Docker
-
-Included is a basic `Dockerfile` for building and distributing `X-Road Security Server Toolkit`,
-and can be built with the included `make` helper:
-
-```
-$ make docker
-
-$ docker run -it xrdsst --help
-```
