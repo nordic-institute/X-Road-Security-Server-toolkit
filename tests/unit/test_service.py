@@ -53,14 +53,14 @@ class TestService(unittest.TestCase):
                           'url': 'https://openapi3',
                           'rest_service_code': 'RestService',
                           'type': 'OPENAPI3',
-                          'access': ['SUB1'],
+                          'access': ['DEV:security-server-owners'],
                           'url_all': False,
                           'timeout_all': 60,
                           'ssl_auth_all': False,
                           'services': [
                               {
                                   'service_code': 'Petstore',
-                                  'access': ['SUB1'],
+                                  'access': ['DEV:security-server-owners'],
                                   'timeout': 120,
                                   'ssl_auth': True,
                                   'url': 'http://petstore.swagger.io/v1'
@@ -71,14 +71,14 @@ class TestService(unittest.TestCase):
                               'url': 'https://wsdl',
                               'rest_service_code': '',
                               'type': 'WSDL',
-                              'access': ['SUB1'],
+                              'access': ['DEV:security-server-owners'],
                               'url_all': False,
                               'timeout_all': 60,
                               'ssl_auth_all': False,
                               'services': [
                                   {
                                       'service_code': 'service',
-                                      'access': ['SUB1'],
+                                      'access': ['DEV:security-server-owners'],
                                       'timeout': 120,
                                       'ssl_auth': True,
                                       'url': 'https://wsdl'
@@ -102,14 +102,14 @@ class TestService(unittest.TestCase):
                           'url': 'https://openapi3',
                           'rest_service_code': 'RestService',
                           'type': 'OPENAPI3',
-                          'access': ['SUB1'],
+                          'access': ['DEV:security-server-owners'],
                           'url_all': False,
                           'timeout_all': 60,
                           'ssl_auth_all': False,
                           'services': [
                               {
                                   'service_code': 'Petstore',
-                                  'access': ['SUB1'],
+                                  'access': ['DEV:security-server-owners'],
                                   'timeout': 120,
                                   'ssl_auth': True,
                                   'url': 'http://petstore.swagger.io/v1'
@@ -127,7 +127,7 @@ class TestService(unittest.TestCase):
                               'services': [
                                   {
                                       'service_code': 'service',
-                                      'access': ['SUB1'],
+                                      'access': ['DEV:security-server-owners'],
                                       'timeout': 120,
                                       'ssl_auth': True,
                                       'url': 'https://wsdl'
@@ -348,25 +348,33 @@ class TestService(unittest.TestCase):
             )]):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[ServiceTestData.add_description_response]):
-                    with mock.patch('xrdsst.api.services_api.ServicesApi.add_service_service_clients',
+                    with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
                                     return_value=[ServiceClient(
-                                        id='DEV:GOV:9876:SUB1',
-                                        name='ACME',
+                                        id='DEV:security-server-owners',
+                                        name='Security server owners',
                                         local_group_code=None,
-                                        service_client_type=ServiceClientType.SUBSYSTEM,
+                                        service_client_type=ServiceClientType.GLOBALGROUP,
                                         rights_given_at=datetime.now().isoformat())]):
-                        service_controller = ServiceController()
-                        service_controller.app = app
-                        service_controller.load_config = (lambda: self.ss_config)
-                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                        service_controller.add_access()
+                        with mock.patch('xrdsst.api.services_api.ServicesApi.add_service_service_clients',
+                                        return_value=[ServiceClient(
+                                            id='DEV:security-server-owners',
+                                            name='Security server owners',
+                                            local_group_code=None,
+                                            service_client_type=ServiceClientType.GLOBALGROUP,
+                                            rights_given_at=datetime.now().isoformat())]):
 
-                        out, err = self.capsys.readouterr()
-                        assert out.count("Added access rights") > 0
+                            service_controller = ServiceController()
+                            service_controller.app = app
+                            service_controller.load_config = (lambda: self.ss_config)
+                            service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                            service_controller.add_access()
 
-                        with self.capsys.disabled():
-                            sys.stdout.write(out)
-                            sys.stderr.write(err)
+                            out, err = self.capsys.readouterr()
+                            assert out.count("Added access rights") > 0
+
+                            with self.capsys.disabled():
+                                sys.stdout.write(out)
+                                sys.stderr.write(err)
 
     def test_service_add_access_already_added(self):
         class AlreadyAddedResponse:
@@ -391,20 +399,28 @@ class TestService(unittest.TestCase):
             )]):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[ServiceTestData.add_description_response]):
-                    with mock.patch('xrdsst.api.services_api.ServicesApi.add_service_service_clients',
-                                    side_effect=ApiException(http_resp=AlreadyAddedResponse())):
-                        service_controller = ServiceController()
-                        service_controller.app = app
-                        service_controller.load_config = (lambda: self.ss_config)
-                        service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                        service_controller.add_access()
+                    with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
+                                    return_value=[ServiceClient(
+                                        id='DEV:security-server-owners',
+                                        name='Security server owners',
+                                        local_group_code=None,
+                                        service_client_type=ServiceClientType.GLOBALGROUP,
+                                        rights_given_at=datetime.now().isoformat())]):
 
-                        out, err = self.capsys.readouterr()
-                        assert out.count("already added") > 0
+                        with mock.patch('xrdsst.api.services_api.ServicesApi.add_service_service_clients',
+                                        side_effect=ApiException(http_resp=AlreadyAddedResponse())):
+                            service_controller = ServiceController()
+                            service_controller.app = app
+                            service_controller.load_config = (lambda: self.ss_config)
+                            service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                            service_controller.add_access()
 
-                        with self.capsys.disabled():
-                            sys.stdout.write(out)
-                            sys.stderr.write(err)
+                            out, err = self.capsys.readouterr()
+                            assert out.count("already added") > 0
+
+                            with self.capsys.disabled():
+                                sys.stdout.write(out)
+                                sys.stderr.write(err)
 
     def test_service_update_parameters(self):
         with XRDSSTTest() as app:

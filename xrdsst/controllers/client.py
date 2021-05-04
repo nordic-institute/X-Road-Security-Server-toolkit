@@ -131,3 +131,16 @@ class ClientController(BaseController):
     @staticmethod
     def partial_client_id(client_conf):
         return str(client_conf['member_class']) + ":" + str(client_conf['member_code']) + ":" + str(client_conf['subsystem_code'])
+
+    @staticmethod
+    def get_clients_service_client_candidates(clients_api, client_id, candidates_ids):
+        try:
+            candidates = clients_api.find_service_client_candidates(client_id)
+
+            if candidates_ids is None or len(candidates_ids) == 0:
+                return candidates
+            else:
+                return [x for x in candidates if x.id in candidates_ids]
+
+        except ApiException as find_err:
+            BaseController.log_api_error('ClientsApi->find_service_client_candidates', find_err)
