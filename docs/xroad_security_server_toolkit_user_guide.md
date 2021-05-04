@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.2
+Version: 1.3.3
 Doc. ID: XRDSST-CONF
 
 ---
