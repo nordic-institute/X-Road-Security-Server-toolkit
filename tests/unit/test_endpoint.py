@@ -31,6 +31,12 @@ class EndpointTestData:
         client_id='DEV:GOV:9876:SUB1'
     )
 
+    add_access_response = [ServiceClient(id='DEV:security-server-owners',
+                                         name='Security server owners',
+                                         local_group_code=None,
+                                         service_client_type='GLOBALGROUP',
+                                         rights_given_at=None)]
+
 
 class TestEndpoint(unittest.TestCase):
     ss_config = {
@@ -178,7 +184,7 @@ class TestEndpoint(unittest.TestCase):
                                         rights_given_at=datetime.now().isoformat())]):
                         with mock.patch(
                                 'xrdsst.api.endpoints_api.EndpointsApi.add_endpoint_service_clients',
-                                return_value=EndpointTestData.add_description_response):
+                                return_value=EndpointTestData.add_access_response):
 
                             endpoint_controller = EndpointController()
                             endpoint_controller.app = app
@@ -213,7 +219,7 @@ class TestEndpoint(unittest.TestCase):
                                     return_value=[]):
                         with mock.patch(
                                 'xrdsst.api.endpoints_api.EndpointsApi.add_endpoint_service_clients',
-                                return_value=EndpointTestData.add_description_response):
+                                return_value=EndpointTestData.add_access_response):
 
                             endpoint_controller = EndpointController()
                             endpoint_controller.app = app
@@ -256,7 +262,7 @@ class TestEndpoint(unittest.TestCase):
                                         rights_given_at=datetime.now().isoformat())]):
                         with mock.patch(
                                 'xrdsst.api.endpoints_api.EndpointsApi.add_endpoint_service_clients',
-                                return_value=EndpointTestData.add_description_response):
+                                return_value=EndpointTestData.add_access_response):
 
                             endpoint_controller = EndpointController()
                             endpoint_controller.app = app
