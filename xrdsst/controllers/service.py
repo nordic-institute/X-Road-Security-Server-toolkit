@@ -206,7 +206,8 @@ class ServiceController(BaseController):
                                         else:
                                             response = services_api.add_service_service_clients(service.id, body=ServiceClients(items=service_clients_candidates))
                                             if response:
-                                                BaseController.log_info("Added access rights for client '" + client.id +
+                                                for service_clients in service_clients_candidates:
+                                                    BaseController.log_info("Added access rights for client '" + service_clients.id +
                                                                         "' to use service '" + service.id + "' (full id " + response[0].id + ")")
                                     else:
                                         BaseController.log_info("Access rights are not defined for service ")
