@@ -160,7 +160,7 @@ def opdep_init(app):
     add_op_node(g, OPS.ENABLE_SERVICE_DESC, ServiceController, ServiceController.enable_description, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_SERVICE_ACCESS, ServiceController, ServiceController.add_access, is_done=(lambda ssn: True))
     add_op_node(g, OPS.UPDATE_SERVICE, ServiceController, ServiceController.update_parameters, is_done=(lambda ssn: True))
-    add_op_node(g, OPS.ADD_ENDPOINTS, EndpointController, EndpointController.add_endpoints, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.ADD_ENDPOINTS, EndpointController, EndpointController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
 
     g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)

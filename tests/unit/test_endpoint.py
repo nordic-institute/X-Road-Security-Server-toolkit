@@ -101,7 +101,7 @@ class TestEndpoint(unittest.TestCase):
                         endpoint_controller.app = app
                         endpoint_controller.load_config = (lambda: self.ss_config)
                         endpoint_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                        endpoint_controller.add_endpoints()
+                        endpoint_controller.add()
 
                         out, err = self.capsys.readouterr()
                         assert out.count("Added service endpoint") > 0
@@ -144,7 +144,7 @@ class TestEndpoint(unittest.TestCase):
                         endpoint_controller.app = app
                         endpoint_controller.load_config = (lambda: self.ss_config)
                         endpoint_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                        endpoint_controller.add_endpoints()
+                        endpoint_controller.add()
 
                         out, err = self.capsys.readouterr()
                         assert out.count("already added") > 0

@@ -16,7 +16,7 @@ class EndpointController(BaseController):
         description = texts['endpoint.controller.description']
 
     @ex(help="Add endpoints", arguments=[])
-    def add_endpoints(self):
+    def add(self):
         active_config = self.load_config()
         full_op_path = self.op_path()
 
@@ -44,7 +44,7 @@ class EndpointController(BaseController):
     def add_service_endpoints(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        for service_description_dic in self.getServicesDescription(config):
+        for service_description_dic in self.get_services_description(config):
             for endpoint_conf in service_description_dic["service_description"]["endpoints"]:
                 self.remote_add_service_endpoints(service_description_dic["ss_api_config"], service_description_dic["security_server"], service_description_dic["client"], service_description_dic["service_description"], endpoint_conf)
 
@@ -52,7 +52,7 @@ class EndpointController(BaseController):
 
     def add_endpoint_access(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
-        for service_description_dic in self.getServicesDescription(config):
+        for service_description_dic in self.get_services_description(config):
             self.remote_add_endpoints_access(service_description_dic["ss_api_config"], service_description_dic["security_server"],
                                              service_description_dic["client"], service_description_dic["service_description"])
 
@@ -142,7 +142,7 @@ class EndpointController(BaseController):
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
 
 
-    def getServicesDescription(self, config):
+    def get_services_description(self, config):
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting service description access adding process for security server: ' + security_server['name'])

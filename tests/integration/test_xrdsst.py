@@ -152,7 +152,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             endpoint_controller = EndpointController()
             endpoint_controller.app = app
             endpoint_controller.load_config = (lambda: self.config)
-            endpoint_controller.add_endpoints()
+            endpoint_controller.add()
             description = get_service_description(self.config, client_id)
             assert len(description["services"][0]["endpoints"]) == 5
             assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
@@ -229,6 +229,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         configured_servers_at_end = self.query_status()
 
         self.step_add_service_endpoints(client_id)
+        self.query_status()
+
+        self.step_add_endpoints_access()
         self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
