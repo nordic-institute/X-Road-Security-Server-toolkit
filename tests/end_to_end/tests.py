@@ -37,7 +37,7 @@ class EndToEndTest(unittest.TestCase):
                     self.config_file = sys.argv[idx]
             base = BaseController()
             base.app = app
-            self.config = base.load_config(baseconfig=os.path.join("/home/alberto/Proyects/X-Road-Security-Server-toolkit/", "tests/resources/test-config2.yaml"))
+            self.config = base.load_config(baseconfig=self.config_file)
             for security_server in self.config["security_server"]:
                 api_key = base.get_api_key(self.config, security_server)
                 self.create_api_key(api_key)

@@ -58,7 +58,6 @@ update_config() {
 }
 
 run_tests() {
-  echo "aaaaaaaaaaaaaaaaaaaaaaaaaaaa"
   echo "$1"
   python -m pytest -v tests/end_to_end/tests.py -c "$1"
 }
