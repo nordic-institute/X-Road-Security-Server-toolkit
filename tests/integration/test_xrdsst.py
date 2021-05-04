@@ -231,7 +231,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_add_service_endpoints(client_id)
         self.query_status()
 
-        self.step_add_endpoints_access()
+        self.step_add_endpoints_access(client_id)
         self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
