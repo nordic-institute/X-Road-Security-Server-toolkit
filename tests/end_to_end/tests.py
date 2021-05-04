@@ -276,7 +276,7 @@ class EndToEndTest(unittest.TestCase):
         description = get_service_description(self.config, client_id)
         service_clients = get_endpoint_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])
         assert len(service_clients) == 1
-        assert str(service_clients[0].id) == "DEV:security-server-owners"
+        assert str(service_clients[0]["id"]) == "DEV:security-server-owners"
 
     def query_status(self):
         with XRDSSTTest() as app:
