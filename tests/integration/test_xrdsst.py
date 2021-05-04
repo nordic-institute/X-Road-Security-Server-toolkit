@@ -2,7 +2,7 @@ import urllib3
 
 from tests.integration.integration_base import IntegrationTestBase
 from tests.integration.integration_ops import IntegrationOpBase
-from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients
+from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, get_endpoint_service_clients
 from tests.util.test_util import get_service_description, assert_server_statuses_transitioned
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -157,6 +157,16 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             assert len(description["services"][0]["endpoints"]) == 5
             assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
             assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
+
+    def step_add_endpoints_access(self, client_id):
+        with XRDSSTTest() as app:
+            endpoint_controller = EndpointController()
+            endpoint_controller.app = app
+            endpoint_controller.load_config = (lambda: self.config)
+            endpoint_controller.add_access()
+            description = get_service_description(self.config, client_id)
+            service_clients = get_endpoint_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])
+            assert len(service_clients) == 1
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

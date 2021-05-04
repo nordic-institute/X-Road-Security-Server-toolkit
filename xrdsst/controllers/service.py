@@ -199,11 +199,15 @@ class ServiceController(BaseController):
 
                                     if len(access_list) > 0:
                                         service_clients_candidates = client_controller.get_clients_service_client_candidates(clients_api, client.id, access_list)
-
-                                        response = services_api.add_service_service_clients(service.id, body=ServiceClients(items=service_clients_candidates))
-                                        if response:
-                                            BaseController.log_info("Added access rights for client '" + client.id +
-                                                                    "' to use service '" + service.id + "' (full id " + response[0].id + ")")
+                                        if len(service_clients_candidates) == 0:
+                                            BaseController.log_info("Could not add access rights for client '" + client.id +
+                                                                    "' to use service '" + service.id + "' (full id " +
+                                                                    response[0].id + ",service clients candidates not found)")
+                                        else:
+                                            response = services_api.add_service_service_clients(service.id, body=ServiceClients(items=service_clients_candidates))
+                                            if response:
+                                                BaseController.log_info("Added access rights for client '" + client.id +
+                                                                        "' to use service '" + service.id + "' (full id " + response[0].id + ")")
                                     else:
                                         BaseController.log_info("Access rights are not defined for service ")
                             except ApiException as err:

@@ -32,17 +32,19 @@ security_server:
           rest_service_code: Petstore
           type: OPENAPI3
           access:
-            - TEST
+            - DEV:security-server-owners
           url_all: False
           timeout_all: False
           ssl_auth_all: False
           services:
             - service_code: Petstore
               access:
-                - TEST
+                - DEV:security-server-owners
               timeout: 120
               ssl_auth: False
               url: http://petstore.xxx
           endpoints:
             - path: /testPath
               method: POST
+              access:
+                - DEV:security-server-owners

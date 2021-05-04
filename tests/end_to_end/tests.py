@@ -37,7 +37,7 @@ class EndToEndTest(unittest.TestCase):
                     self.config_file = sys.argv[idx]
             base = BaseController()
             base.app = app
-            self.config = base.load_config(baseconfig=self.config_file)
+            self.config = base.load_config(baseconfig=os.path.join("/home/alberto/Proyects/X-Road-Security-Server-toolkit/", "tests/resources/test-config2.yaml"))
             for security_server in self.config["security_server"]:
                 api_key = base.get_api_key(self.config, security_server)
                 self.create_api_key(api_key)
@@ -141,7 +141,8 @@ class EndToEndTest(unittest.TestCase):
         self.config['security_server'][0]['certificates'] = signed_certs
 
     def create_api_key(self, api_key):
-        self.config["security_server"][0]["api_key"] = api_key
+        os.environ["TEST_API_KEY"] = api_key
+        self.config["security_server"][0]["api_key"] = "TEST_API_KEY"
 
     def step_cert_import(self):
         with XRDSSTTest() as app:
@@ -264,6 +265,19 @@ class EndToEndTest(unittest.TestCase):
         assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
         assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
 
+    def step_add_endpoints_access(self, client_id):
+        endpoint_controller = EndpointController()
+        for security_server in self.config["security_server"]:
+            configuration = endpoint_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    endpoint_controller.remote_add_endpoints_access(configuration, service_description, client, service_description)
+
+        description = get_service_description(self.config, client_id)
+        service_clients = get_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])
+        assert len(service_clients) == 1
+        assert str(service_clients[0].id) == "DEV:ORG:111:TEST"
+
     def query_status(self):
         with XRDSSTTest() as app:
             status_controller = StatusController()
@@ -308,6 +322,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_update_service_parameters(client_id)
         self.step_create_admin_user()
         self.step_add_service_endpoints(client_id)
+        self.step_add_endpoints_access(client_id)
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()

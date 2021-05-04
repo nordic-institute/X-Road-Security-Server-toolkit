@@ -281,6 +281,15 @@ def get_service_clients(config, service_id):
             api_key
         )
 
+# Returns service clients for giving endpoints
+def get_endpoint_service_clients(config, endpoint_id):
+    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+    return api_GET(
+            config["security_server"][0]["url"],
+            "endpoints/" + endpoint_id + "/service-clients",
+            api_key
+        )
+
 # Returns client
 def get_client(config):
     conn_type = convert_swagger_enum(ConnectionType, config['security_server'][0]['clients'][0]['connection_type'])
