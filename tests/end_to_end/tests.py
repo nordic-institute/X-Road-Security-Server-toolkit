@@ -6,7 +6,7 @@ from unittest import mock
 import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
-    assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients
+    assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, get_endpoint_service_clients
 from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -274,9 +274,9 @@ class EndToEndTest(unittest.TestCase):
                     endpoint_controller.remote_add_endpoints_access(configuration, service_description, client, service_description)
 
         description = get_service_description(self.config, client_id)
-        service_clients = get_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])
+        service_clients = get_endpoint_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])
         assert len(service_clients) == 1
-        assert str(service_clients[0].id) == "DEV:ORG:111:TEST"
+        assert str(service_clients[0].id) == "DEV:security-server-owners"
 
     def query_status(self):
         with XRDSSTTest() as app:
