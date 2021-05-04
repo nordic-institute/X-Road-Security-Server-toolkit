@@ -6,6 +6,7 @@
 #                               -k private_key_file_env_var
 #                               -s ssh_user_env_var
 #                               -u credentials_env_var
+#                               -b api_key_env_var
 #
 # Description of required command line arguments:
 #
@@ -16,6 +17,7 @@
 #   -k: private ssh key file environment variable
 #   -s: ssh_user environment variable
 #   -u: credentials environment variable
+#   -b: api-key environment variable
 #
 #
 # Usage example: run_end_to_end_tests.sh -c tests/resources/test-config-template.yaml
@@ -25,6 +27,7 @@
 #                                        -k TOOLKIT_SSH_PRIVATE_KEY
 #                                        -s TOOLKIT_SSH_USER
 #                                        -u TOOLKIT_ADMIN_CREDENTIALS
+#                                        -b TOOLKIT_API_KEY
 
 OUTPUT="tests/resources/test-config.yaml"
 
@@ -35,7 +38,8 @@ usage() {
                                            -n security_server_name
                                            -k private_key_file_env_var
                                            -s ssh_user_env_var
-                                           -u credentials_env_var"
+                                           -u credentials_env_var
+                                           -b api_key_env_var"
 }
 
 exit_abnormal() {
@@ -47,6 +51,7 @@ update_config() {
   local cmd
   cmd=""
   cmd=".security_server[0].ssh_private_key=\"$5\""
+  cmd="${cmd}|.security_server[0].api_key=\"$9\""
   cmd="${cmd}|.security_server[0].admin_credentials=\"$6\""
   cmd="${cmd}|.security_server[0].ssh_user=\"$8\""
   cmd="${cmd}|.security_server[0].configuration_anchor=\"$2\""
@@ -62,7 +67,7 @@ run_tests() {
   python -m pytest -v tests/end_to_end/tests.py -c "$1"
 }
 
-while getopts ":c:a:h:n:k:s:u:" options; do
+while getopts ":c:a:h:n:k:s:u:b:" options; do
   case "${options}" in
     c )
       CONFIG=${OPTARG}
@@ -85,6 +90,9 @@ while getopts ":c:a:h:n:k:s:u:" options; do
     u )
       CREDENTIALS_ENV=${OPTARG}
       ;;
+    b )
+      API_KEY_ENV=${OPTARG}
+      ;;      
     \? )
         exit_abnormal
       ;;
@@ -92,9 +100,9 @@ while getopts ":c:a:h:n:k:s:u:" options; do
 done
 
 if [[ $CONFIG == "" ]] | [[ $ANCHOR == "" ]] | [[ $HOST == "" ]] | \
-   [[ $NAME == "" ]] | [[ $KEY_ENV == "" ]] | [[ $SSH_USER_ENV == "" ]] | [[ $CREDENTIALS_ENV == "" ]]; then
+   [[ $NAME == "" ]] | [[ $KEY_ENV == "" ]] | [[ $SSH_USER_ENV == "" ]] | [[ $CREDENTIALS_ENV == "" ]] | [[ $API_KEY_ENV == "" ]]; then
     exit_abnormal
 fi
 
-update_config "$CONFIG" "$ANCHOR" "$HOST" "$NAME" "$KEY_ENV" "$CREDENTIALS_ENV" "$OUTPUT" "$SSH_USER_ENV"
+update_config "$CONFIG" "$ANCHOR" "$HOST" "$NAME" "$KEY_ENV" "$CREDENTIALS_ENV" "$OUTPUT" "$SSH_USER_ENV" "$API_KEY_ENV"
 run_tests "$OUTPUT"
