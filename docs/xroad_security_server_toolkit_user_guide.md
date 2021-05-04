@@ -34,7 +34,7 @@ Doc. ID: XRDSST-CONF
 | 20.04.2021 | 1.3.0       | Substituting plain text secrets in configuration with environment variables  | Bert Viikmäe       |
 | 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
 | 27.04.2021 | 1.3.2       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
-
+| 04.05.2021 | 1.3.3       | Added description about endpoint access                                      | Alberto Fernandez  |
 ## Table of Contents <!-- omit in toc -->
 
 <!-- toc -->
@@ -255,20 +255,22 @@ security_server:
           rest_service_code: <REST_SERVICE_CODE>
           type: <SERVICE_TYPE>
           access:
-            - <SUBSYSTEM_CODE>
+            - <SERVICE_CLIENT_ID>
           url_all: <SERVICE_URL_FOR_ALL>
           timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
           ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
           services:
             - service_code: <SERVICE_CODE>
               access:
-                - <SUBSYSTEM_CODE>
+                - <SERVICE_CLIENT_ID>
               timeout: <SERVICE_TIMEOUT>
               ssl_auth: <SERVICE_USE_SSL_AUTH>
               url: <SERVICE_URL>
           endpoints:
 			- path: <ENDPOINT_PATH>
-			  method: <ENDPOINT_METHOD>		
+			  method: <ENDPOINT_METHOD>
+			  access: 
+			    - <SERVICE_CLIENT_ID>
 ```
 
 The ``ssh_access`` section is for configuring the SSH access parameters of the X-Road Security Server Toolkit
@@ -313,6 +315,7 @@ in fact any number of certificates can be imported for the keys labelled ``defau
 * <SERVICE_CODE> code for single service.
 * <ENDPOINT_PATH> path for the endpoint.
 * <ENDPOINT_METHOD> method for the endpoint (GET, POST, PUT...)
+* <SERVICE_CLIENT_ID> service client id, composed by <INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>
 
 In section ``service_descriptions`` service with type ``OPENAPI3``, ``REST``, ``WSDL`` can be configured by adding a service description
 with parameters ``url``, ``rest_service_code``, ``type`` and ``access``. In order to provide access to the services added with that
