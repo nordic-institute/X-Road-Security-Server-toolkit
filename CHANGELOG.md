@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.7-beta.0] - 2021-05-04
+- add subcommand ``add-access`` to ``xrdsst endpoint`` and refacto ``add-access`` of ``xrdsst service`` to allow adding access to any member
+
 ## [1.0.6-beta.0] - 2021-05-03
 - Dockerfile and respective Makefile target removed
 
