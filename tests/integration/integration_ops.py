@@ -8,9 +8,7 @@ from xrdsst.controllers.status import StatusController
 from xrdsst.main import XRDSSTTest
 
 
-# More frequent and/or general integration test operations.
 class IntegrationOpBase:
-
 
     def step_cert_download_csrs(self):
         with XRDSSTTest() as app:
@@ -18,18 +16,22 @@ class IntegrationOpBase:
             cert_controller.app = app
             cert_controller.load_config = (lambda: self.config)
             result = cert_controller.download_csrs()
-            assert len(result) == 4
-            assert result[0].fs_loc != result[1].fs_loc
-            assert result[2].fs_loc != result[3].fs_loc
 
-            return [
-                 ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
-                 ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
-                 ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
-                 ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
-            ]
+            assert len(result) == len(self.config["security_server"]) * 2
 
-    def step_acquire_certs(self, downloaded_csrs, security_server):
+            fs_loc_list = []
+            csrs = []
+            for csr in result:
+                fs_loc_list.append(csr.fs_loc)
+                csrs.append((str(csr.key_type).lower(), csr.fs_loc))
+            flag = len(set(fs_loc_list)) == len(fs_loc_list)
+
+            assert flag is True
+
+            return csrs
+
+    @staticmethod
+    def step_acquire_certs(downloaded_csrs, security_server):
         tca_sign_url = find_test_ca_sign_url(security_server['configuration_anchor'])
         cert_files = []
         for down_csr in downloaded_csrs:
@@ -56,8 +58,8 @@ class IntegrationOpBase:
             # Must not throw exception, must produce output, test with global status only -- should be ALWAYS present
             # in the configuration that integration test will be run, even when it is still failing as security server
             # has only recently been started up.
-            assert status_controller.app._last_rendered[0][2][0].count('LAST') == 1
-            assert status_controller.app._last_rendered[0][2][0].count('NEXT') == 1
+            assert status_controller.app._last_rendered[0][1][0].count('LAST') == 1
+            assert status_controller.app._last_rendered[0][1][0].count('NEXT') == 1
 
             return servers
 

@@ -55,7 +55,7 @@ update_config() {
   api_keys=$(echo "$9" | tr "," "\n")
   for api_key in $api_keys
   do
-    cmd="${cmd}|.security_server[$ssn].api_key=\"$api_key\""
+    cmd="${cmd}.security_server[$ssn].api_key=\"$api_key\"|"
     ((ssn=ssn+1))
   done
 
@@ -63,12 +63,12 @@ update_config() {
   names=$(echo "$4" | tr "," "\n")
   for name in $names
   do
-    cmd="${cmd}|.security_server[$ssn].ssh_private_key=\"$5\""
-    cmd="${cmd}|.security_server[$ssn].admin_credentials=\"$6\""
-    cmd="${cmd}|.security_server[$ssn].ssh_user=\"$8\""
-    cmd="${cmd}|.security_server[$ssn].configuration_anchor=\"$2\""
-    cmd="${cmd}|.security_server[$ssn].name=\"$name\""
-    cmd="${cmd}|.security_server[$ssn].security_server_code=\"$name\""
+    cmd="${cmd}.security_server[$ssn].ssh_private_key=\"$5\"|"
+    cmd="${cmd}.security_server[$ssn].admin_credentials=\"$6\"|"
+    cmd="${cmd}.security_server[$ssn].ssh_user=\"$8\"|"
+    cmd="${cmd}.security_server[$ssn].configuration_anchor=\"$2\"|"
+    cmd="${cmd}.security_server[$ssn].name=\"$name\"|"
+    cmd="${cmd}.security_server[$ssn].security_server_code=\"$name\"|"
     ((ssn=ssn+1))
   done
 
@@ -76,7 +76,11 @@ update_config() {
   hosts=$(echo "$3" | tr "," "\n")
   for host in $hosts
   do
-    cmd="${cmd}|.security_server[$ssn].url=\"https://$host:4000/api/v1\""
+    if [[ $ssn == 0 ]]; then
+      cmd="${cmd}.security_server[$ssn].url=\"https://$host:4000/api/v1\"|"
+    else
+      cmd="${cmd}.security_server[$ssn].url=\"https://$host:4000/api/v1\""
+    fi
     ((ssn=ssn+1))
   done
 

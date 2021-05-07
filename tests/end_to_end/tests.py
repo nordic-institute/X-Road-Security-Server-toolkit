@@ -17,6 +17,7 @@ from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.user import UserController
+from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key
 from xrdsst.main import XRDSSTTest
 from xrdsst.controllers.endpoint import EndpointController
@@ -37,7 +38,7 @@ class EndToEndTest(unittest.TestCase):
                     self.config_file = sys.argv[idx]
             base = BaseController()
             base.app = app
-            self.config = base.load_config(baseconfig=self.config_file)
+            self.config = base.load_config(baseconfig=os.path.join(ROOT_DIR, "tests/resources/test-config2.yaml"))
             ssn = 0
             for security_server in self.config["security_server"]:
                 api_key = base.get_api_key(self.config, security_server)
@@ -58,15 +59,177 @@ class EndToEndTest(unittest.TestCase):
                 if os.path.exists(self.config_file):
                     os.remove(self.config_file)
 
+    def step_upload_anchor_fail_file_missing(self):
+        base = BaseController()
+        init = InitServerController()
+        configuration_anchor = []
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = base.create_api_config(security_server, self.config)
+            status = init.check_init_status(configuration)
+            assert status.is_anchor_imported is False
+            configuration_anchor.append(security_server["configuration_anchor"])
+            security_server["configuration_anchor"] = ''
+            init.upload_anchor(configuration, security_server)
+            status = init.check_init_status(configuration)
+            assert status.is_anchor_imported is False
+            ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
+            ssn = ssn + 1
+
+    def step_upload_anchor_fail_file_bogus_content(self):
+        base = BaseController()
+        init = InitServerController()
+        configuration_anchor = []
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = base.create_api_config(security_server, self.config)
+            status = init.check_init_status(configuration)
+            assert status.is_anchor_imported is False
+            configuration_anchor.append(security_server["configuration_anchor"])
+            security_server["configuration_anchor"] = os.path.join(ROOT_DIR, "tests/resources/configuration-anchor-bogus.xml")
+            init.upload_anchor(configuration, security_server)
+            status = init.check_init_status(configuration)
+            assert status.is_anchor_imported is False
+            ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
+            ssn = ssn + 1
+
+    def step_initalize_server_owner_member_class_missing(self):
+        base = BaseController()
+        init = InitServerController()
+        member_class = []
+        configuration_anchor = []
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            member_class.append(security_server["owner_member_class"])
+            self.config["security_server"][ssn]["owner_member_class"] = ''
+            ssn = ssn + 1
+
+        for security_server in self.config["security_server"]:
+            configuration = base.create_api_config(security_server, self.config)
+            status = init.check_init_status(configuration)
+            assert status.is_server_code_initialized is False
+            configuration_anchor.append(security_server["configuration_anchor"])
+            security_server["configuration_anchor"] = ''
+            init.init_security_server(configuration, security_server)
+            status = init.check_init_status(configuration)
+            assert status.is_server_code_initialized is False
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["owner_member_class"] = member_class[ssn]
+            self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
+            ssn = ssn + 1
+
+    def step_initalize_server_owner_member_code_missing(self):
+        base = BaseController()
+        init = InitServerController()
+        member_code = []
+        configuration_anchor = []
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            member_code.append(security_server["owner_member_code"])
+            self.config["security_server"][ssn]["owner_member_code"] = ''
+            ssn = ssn + 1
+
+        for security_server in self.config["security_server"]:
+            configuration = base.create_api_config(security_server, self.config)
+            status = init.check_init_status(configuration)
+            assert status.is_server_code_initialized is False
+            configuration_anchor.append(security_server["configuration_anchor"])
+            security_server["configuration_anchor"] = ''
+            init.init_security_server(configuration, security_server)
+            status = init.check_init_status(configuration)
+            assert status.is_server_code_initialized is False
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["owner_member_code"] = member_code[ssn]
+            self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
+            ssn = ssn + 1
+
+    def step_initalize_server_server_code_missing(self):
+        base = BaseController()
+        init = InitServerController()
+        server_code = []
+        configuration_anchor = []
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            server_code.append(security_server["security_server_code"])
+            self.config["security_server"][ssn]["security_server_code"] = ''
+            ssn = ssn + 1
+
+        for security_server in self.config["security_server"]:
+            configuration = base.create_api_config(security_server, self.config)
+            status = init.check_init_status(configuration)
+            assert status.is_server_code_initialized is False
+            configuration_anchor.append(security_server["configuration_anchor"])
+            security_server["configuration_anchor"] = ''
+            init.init_security_server(configuration, security_server)
+            status = init.check_init_status(configuration)
+            assert status.is_server_code_initialized is False
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["security_server_code"] = server_code[ssn]
+            self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
+            ssn = ssn + 1
+
+    def step_initalize_server_token_pin_missing(self):
+        base = BaseController()
+        init = InitServerController()
+        token_pin = []
+        configuration_anchor = []
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            token_pin.append(security_server["software_token_pin"])
+            self.config["security_server"][ssn]["software_token_pin"] = ''
+            ssn = ssn + 1
+
+        for security_server in self.config["security_server"]:
+            configuration = base.create_api_config(security_server, self.config)
+            status = init.check_init_status(configuration)
+            assert status.is_server_code_initialized is False
+            configuration_anchor.append(security_server["configuration_anchor"])
+            security_server["configuration_anchor"] = ''
+            init.init_security_server(configuration, security_server)
+            status = init.check_init_status(configuration)
+            assert status.is_server_code_initialized is False
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["software_token_pin"] = token_pin[ssn]
+            self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
+            ssn = ssn + 1
+
     def step_init(self):
+        base = BaseController()
         init = InitServerController()
         for security_server in self.config["security_server"]:
-            configuration = init.create_api_config(security_server, self.config)
+            configuration = base.create_api_config(security_server, self.config)
             status = init.check_init_status(configuration)
-            assert status.is_anchor_imported is False and status.is_server_code_initialized is False
-            init.initialize_server(self.config)
+            assert status.is_anchor_imported is False
+            assert status.is_server_code_initialized is False
+
+        init.initialize_server(self.config)
+
+        for security_server in self.config["security_server"]:
+            configuration = base.create_api_config(security_server, self.config)
             status = init.check_init_status(configuration)
-            assert status.is_anchor_imported is True and status.is_server_code_initialized is True
+            assert status.is_anchor_imported is True
+            assert status.is_server_code_initialized is True
 
     def step_timestamp_init(self):
         with XRDSSTTest() as app:
@@ -82,6 +245,33 @@ class EndToEndTest(unittest.TestCase):
                 assert len(response[0].name) > 0
                 assert len(response[0].url) > 0
 
+    def step_token_login_fail_when_pin_missing(self):
+        token_pin = []
+        with XRDSSTTest() as app:
+            token_controller = TokenController()
+            token_controller.app = app
+
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                token_pin.append(security_server["software_token_pin"])
+                self.config["security_server"][ssn]["software_token_pin"] = ''
+                ssn = ssn + 1
+
+            for security_server in self.config["security_server"]:
+                configuration = token_controller.create_api_config(security_server, self.config)
+                response = token_controller.remote_get_tokens(configuration)
+                assert len(response) > 0
+                assert response[0].logged_in is False
+                token_controller.remote_token_login(configuration, security_server)
+                response = token_controller.remote_get_tokens(configuration)
+                assert len(response) > 0
+                assert response[0].logged_in is False
+
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                self.config["security_server"][ssn]["software_token_pin"] = token_pin[ssn]
+                ssn = ssn + 1
+
     def step_token_login(self):
         with XRDSSTTest() as app:
             token_controller = TokenController()
@@ -91,10 +281,27 @@ class EndToEndTest(unittest.TestCase):
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert response[0].logged_in is False
+                assert response[0].possible_actions == ['LOGIN']
                 token_controller.remote_token_login(configuration, security_server)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert response[0].logged_in is True
+
+    def step_token_login_already_logged_in(self):
+        with XRDSSTTest() as app:
+            token_controller = TokenController()
+            token_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = token_controller.create_api_config(security_server, self.config)
+                response = token_controller.remote_get_tokens(configuration)
+                assert len(response) > 0
+                assert response[0].logged_in is True
+                assert response[0].possible_actions == ['LOGOUT', 'GENERATE_KEY']
+                token_controller.remote_token_login(configuration, security_server)
+                response = token_controller.remote_get_tokens(configuration)
+                assert len(response) > 0
+                assert response[0].logged_in is True
+                assert response[0].possible_actions == ['LOGOUT', 'GENERATE_KEY']
 
     def step_token_init_keys(self):
         with XRDSSTTest() as app:
@@ -118,22 +325,25 @@ class EndToEndTest(unittest.TestCase):
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
-            for security_server in self.config["security_server"]:
-                ss_configuration = cert_controller.create_api_config(security_server, self.config)
-                result = cert_controller.remote_download_csrs(ss_configuration, security_server)
-                assert len(result) == 4
-                assert result[0].fs_loc != result[1].fs_loc
-                assert result[2].fs_loc != result[3].fs_loc
+            cert_controller.load_config = (lambda: self.config)
+            result = cert_controller.download_csrs()
 
-                return [
-                    ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
-                    ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
-                    ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
-                    ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
-                ]
+            assert len(result) == len(self.config["security_server"]) * 2
 
-    def step_acquire_certs(self, downloaded_csrs):
-        tca_sign_url = find_test_ca_sign_url(self.config['security_server'][0]['configuration_anchor'])
+            fs_loc_list = []
+            csrs = []
+            for csr in result:
+                fs_loc_list.append(csr.fs_loc)
+                csrs.append((str(csr.key_type).lower(), csr.fs_loc))
+            flag = len(set(fs_loc_list)) == len(fs_loc_list)
+
+            assert flag is True
+
+            return csrs
+
+    @staticmethod
+    def step_acquire_certs(downloaded_csrs, security_server):
+        tca_sign_url = find_test_ca_sign_url(security_server['configuration_anchor'])
         cert_files = []
         for down_csr in downloaded_csrs:
             cert = perform_test_ca_sign(tca_sign_url, down_csr[1], down_csr[0])
@@ -203,7 +413,7 @@ class EndToEndTest(unittest.TestCase):
                     service_controller.remote_add_service_description(configuration, security_server, client, service_description)
             client = get_client(self.config, ssn)
             client_id = client['id']
-            description = get_service_description(self.config, client_id)
+            description = get_service_description(self.config, client_id, ssn)
             assert description["disabled"] is True
             ssn = ssn + 1
 
@@ -217,7 +427,7 @@ class EndToEndTest(unittest.TestCase):
                     service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
             client = get_client(self.config, ssn)
             client_id = client['id']
-            description = get_service_description(self.config, client_id)
+            description = get_service_description(self.config, client_id, ssn)
             assert description["disabled"] is False
             ssn = ssn + 1
 
@@ -231,9 +441,10 @@ class EndToEndTest(unittest.TestCase):
                     service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
             client = get_client(self.config, ssn)
             client_id = client['id']
-            description = get_service_description(self.config, client_id)
-            service_clients = get_service_clients(self.config, description["services"][0]["id"])
+            description = get_service_description(self.config, client_id, ssn)
+            service_clients = get_service_clients(self.config, description["services"][0]["id"], ssn)
             assert len(service_clients) == 1
+            ssn = ssn + 1
 
     def step_update_service_parameters(self):
         service_controller = ServiceController()
@@ -241,7 +452,7 @@ class EndToEndTest(unittest.TestCase):
         for security_server in self.config["security_server"]:
             client = get_client(self.config, ssn)
             client_id = client['id']
-            description = get_service_description(self.config, client_id)
+            description = get_service_description(self.config, client_id, ssn)
             assert description["services"][0]["timeout"] == 60
             assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
             ssn = ssn + 1
@@ -254,7 +465,7 @@ class EndToEndTest(unittest.TestCase):
                     service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
             client = get_client(self.config, ssn)
             client_id = client['id']
-            description = get_service_description(self.config, client_id)
+            description = get_service_description(self.config, client_id, ssn)
             assert description["services"][0]["timeout"] == 120
             assert description["services"][0]["url"] == 'http://petstore.xxx'
             ssn = ssn + 1
@@ -290,7 +501,7 @@ class EndToEndTest(unittest.TestCase):
 
             client = get_client(self.config, ssn)
             client_id = client['id']
-            description = get_service_description(self.config, client_id)
+            description = get_service_description(self.config, client_id, ssn)
             assert len(description["services"][0]["endpoints"]) == 5
             assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
             assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
@@ -307,17 +518,29 @@ class EndToEndTest(unittest.TestCase):
             # Must not throw exception, must produce output, test with global status only -- should be ALWAYS present
             # in the configuration that integration test will be run, even when it is still failing as security server
             # has only recently been started up.
-            assert status_controller.app._last_rendered[0][2][0].count('LAST') == 1
-            assert status_controller.app._last_rendered[0][2][0].count('NEXT') == 1
+            assert status_controller.app._last_rendered[0][1][0].count('LAST') == 1
+            assert status_controller.app._last_rendered[0][1][0].count('NEXT') == 1
 
             return servers
 
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
+        self.step_upload_anchor_fail_file_missing()
+        self.step_upload_anchor_fail_file_bogus_content()
+        self.step_initalize_server_owner_member_class_missing()
+        self.step_initalize_server_owner_member_code_missing()
+        self.step_initalize_server_server_code_missing()
+        self.step_initalize_server_token_pin_missing()
+
         self.step_init()
+
         self.step_timestamp_init()
+
+        self.step_token_login_fail_when_pin_missing()
         self.step_token_login()
+        self.step_token_login_already_logged_in()
+
         self.step_token_init_keys()
 
         ssn = 0

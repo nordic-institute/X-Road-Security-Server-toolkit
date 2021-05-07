@@ -91,7 +91,8 @@ class TestXrdsstAuto(IntegrationTestBase, IntegrationOpBase):
         ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
         for security_server in self.config["security_server"]:
-            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn*2):(ssn * 2 + 2)], security_server)
+            csrs = downloaded_csrs[(ssn * 2):(ssn * 2 + 2)]
+            signed_certs = self.step_acquire_certs(csrs, security_server)
             self.apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 

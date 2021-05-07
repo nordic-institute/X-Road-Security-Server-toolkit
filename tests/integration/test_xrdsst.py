@@ -112,69 +112,82 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             client_controller.register()
 
     def step_add_service_description(self):
-        base = BaseController()
         service_controller = ServiceController()
         ssn = 0
         for security_server in self.config["security_server"]:
-            base.create_api_config(security_server, self.config)
-            service_controller.add_description()
-            client = get_client(self.config, ssn)
-            client_id = client['id']
-            service_description = get_service_description(self.config, client_id, ssn)
-            assert service_description["disabled"] is True
-            ssn = ssn + 1
-
-    def step_enable_service_description(self):
-        base = BaseController()
-        service_controller = ServiceController()
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            base.create_api_config(security_server, self.config)
-            service_controller.enable_description()
-            client = get_client(self.config, ssn)
-            client_id = client['id']
-            service_description = get_service_description(self.config, client_id, ssn)
-            assert service_description["disabled"] is False
-            ssn = ssn + 1
-
-    def step_add_service_access(self):
-        base = BaseController()
-        service_controller = ServiceController()
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            base.create_api_config(security_server, self.config)
-            service_controller.add_access()
+            configuration = service_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_add_service_description(configuration, security_server, client, service_description)
             client = get_client(self.config, ssn)
             client_id = client['id']
             description = get_service_description(self.config, client_id, ssn)
-            #service_clients = get_service_clients(self.config, description["services"][0]["id"], ssn)
-            #assert len(service_clients) == 1
+            assert description["disabled"] is True
             ssn = ssn + 1
 
-    def step_update_service_parameters(self):
-        base = BaseController()
+    def step_enable_service_description(self):
         service_controller = ServiceController()
         ssn = 0
         for security_server in self.config["security_server"]:
-            base.create_api_config(security_server, self.config)
+            configuration = service_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            assert description["disabled"] is False
+            ssn = ssn + 1
+
+    def step_add_service_access(self):
+        service_controller = ServiceController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = service_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            service_clients = get_service_clients(self.config, description["services"][0]["id"], ssn)
+            assert len(service_clients) == 1
+            ssn = ssn + 1
+
+    def step_update_service_parameters(self):
+        service_controller = ServiceController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
             client = get_client(self.config, ssn)
             client_id = client['id']
             description = get_service_description(self.config, client_id, ssn)
             assert description["services"][0]["timeout"] == 60
             assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
-            service_controller.update_parameters()
+            ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = service_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
+            client = get_client(self.config, ssn)
+            client_id = client['id']
             description = get_service_description(self.config, client_id, ssn)
             assert description["services"][0]["timeout"] == 120
             assert description["services"][0]["url"] == 'http://petstore.xxx'
             ssn = ssn + 1
 
     def step_add_service_endpoints(self):
-        base = BaseController()
         endpoint_controller = EndpointController()
         ssn = 0
         for security_server in self.config["security_server"]:
-            base.create_api_config(security_server, self.config)
-            endpoint_controller.add_endpoints()
+            configuration = endpoint_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    for endpoint in service_description["endpoints"]:
+                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+
             client = get_client(self.config, ssn)
             client_id = client['id']
             description = get_service_description(self.config, client_id, ssn)
@@ -250,8 +263,3 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-
-        self.step_autoconf()
-
-        auto_reconfigured_servers_after = self.query_status()
-        assert server_statuses_equal(configured_servers_at_end, auto_reconfigured_servers_after)
