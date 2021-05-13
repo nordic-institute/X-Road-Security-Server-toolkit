@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.3
+Version: 1.3.4
 Doc. ID: XRDSST-CONF
 
 ---
@@ -35,6 +35,8 @@ Doc. ID: XRDSST-CONF
 | 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
 | 27.04.2021 | 1.3.2       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
 | 04.05.2021 | 1.3.3       | Added description about endpoint access                                      | Alberto Fernandez  |
+| 13.05.2021 | 1.3.4       | Added description about load-balancing                                       | Bert Viikmäe       |
+
 ## Table of Contents <!-- omit in toc -->
 
 <!-- toc -->
@@ -73,6 +75,7 @@ Doc. ID: XRDSST-CONF
 		* [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
 	* [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
 	* [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
+* [6 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#6-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -642,3 +645,75 @@ to use nightly backups that are kept at security server to revert to earlier sta
 Overview of existing automatic backups is accessible from web administration console
 of the security server, in the "Settings" menu. More information about functionality
 can be found in [UG-SS](#Ref_SS-UG).
+
+## 6 Using the Toolkit to configure highly available services using the built-in security server internal load balancing
+
+In order to configure a highly available service using the built-in security server load balancing, at least two security
+servers need to be configured with the same subsystem/service.
+
+An example configuration file to be used:
+
+```
+admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+ssh_access:
+  user: <SSH_USER_OS_ENV_VAR_NAME>
+  private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+security_server:
+- api_key: <API_KEY_ENV_VAR_NAME>
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  certificates:
+    - /path/to/signcert
+    - /path/to/authcert
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <MEMBER_CLASS>
+  owner_member_code: <MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
+  url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
+  ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
+  ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  clients:
+    - member_class: <MEMBER_CLASS>
+      member_code: <MEMBER_CODE>
+      subsystem_code: <SUBSYSTEM_CODE>
+      connection_type: <CONNECTION_TYPE>
+- api_key: <API_KEY_ENV_VAR_NAME>
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  certificates:
+    - /path/to/signcert
+    - /path/to/authcert
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <MEMBER_CLASS>
+  owner_member_code: <MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
+  url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
+  ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
+  ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  clients:
+    - member_class: <MEMBER_CLASS>
+      member_code: <MEMBER_CODE>
+      subsystem_code: <SUBSYSTEM_CODE>
+      connection_type: <CONNECTION_TYPE>
+```
+
+The ``clients`` section should have the same values used for the following parameters:
+ * ``member_class`` member class of a subsystem.
+ * ``member_code`` member code of a subsystem.
+ * ``subsystem_code`` X-Road member/client subsystem code.
+ * ``connection_type`` Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
+
+When the placeholders in the configuration file have been amended with proper values, please start from 
+[4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit) and continue until(included) [4.9 Client management](#49-client-management)
