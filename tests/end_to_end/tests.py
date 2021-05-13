@@ -21,6 +21,7 @@ from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key
 from xrdsst.main import XRDSSTTest
 from xrdsst.controllers.endpoint import EndpointController
+from xrdsst.models import ClientStatus
 
 
 class EndToEndTest(unittest.TestCase):
@@ -38,7 +39,8 @@ class EndToEndTest(unittest.TestCase):
                     self.config_file = sys.argv[idx]
             base = BaseController()
             base.app = app
-            self.config = base.load_config(baseconfig=os.path.join(ROOT_DIR, "tests/resources/test-config2.yaml"))
+            self.config = base.load_config(baseconfig=self.config_file)
+            # self.config = base.load_config(baseconfig=os.path.join(ROOT_DIR, "tests/resources/test-config2.yaml"))
             ssn = 0
             for security_server in self.config["security_server"]:
                 api_key = base.get_api_key(self.config, security_server)
@@ -361,6 +363,28 @@ class EndToEndTest(unittest.TestCase):
         api_key_env_name = self.config["security_server"][ssn]["api_key"]
         os.environ[api_key_env_name] = api_key
 
+    def step_cert_import_fail_certificates_missing(self):
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["certificates"] = ''
+            ssn = ssn + 1
+
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.create_api_config(security_server, self.config)
+                response = cert_controller.remote_import_certificates(configuration, security_server)
+                assert response is None
+
+    def step_cert_register_fail_certificates_not_imported(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.create_api_config(security_server, self.config)
+                cert_controller.remote_register_certificate(configuration, security_server)
+
     def step_cert_import(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
@@ -368,6 +392,15 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 configuration = cert_controller.create_api_config(security_server, self.config)
                 cert_controller.remote_import_certificates(configuration, security_server)
+
+    def step_cert_activate_fail_certificates_not_registered(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.create_api_config(security_server, self.config)
+                cert_actions = cert_controller.remote_activate_certificate(configuration, security_server)
+                assert cert_actions == ['DELETE', 'DISABLE', 'REGISTER']
 
     def step_cert_register(self):
         with XRDSSTTest() as app:
@@ -385,23 +418,112 @@ class EndToEndTest(unittest.TestCase):
                 configuration = cert_controller.create_api_config(security_server, self.config)
                 cert_controller.remote_activate_certificate(configuration, security_server)
 
+    def step_subsystem_add_client_fail_member_code_missing(self):
+        member_code = []
+        with XRDSSTTest() as app:
+
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                member_code.append(security_server["clients"][0]["member_code"])
+                self.config["security_server"][ssn]["clients"][0]["member_code"] = []
+                ssn = ssn + 1
+
+            client_controller = ClientController()
+            client_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) == 0
+                    response = client_controller.remote_add_client(configuration, client)
+                    assert response is None
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) == 0
+                ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["clients"][0]["member_code"] = member_code[ssn]
+            ssn = ssn + 1
+
+    def step_subsystem_add_client_fail_member_class_missing(self):
+        member_class = []
+        with XRDSSTTest() as app:
+
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                member_class.append(security_server["clients"][0]["member_class"])
+                self.config["security_server"][ssn]["clients"][0]["member_class"] = []
+                ssn = ssn + 1
+
+            client_controller = ClientController()
+            client_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) == 0
+                    response = client_controller.remote_add_client(configuration, client)
+                    assert response is None
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) == 0
+                ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["clients"][0]["member_class"] = member_class[ssn]
+            ssn = ssn + 1
+
+    def step_subsystem_register_fail_client_not_saved(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) == 0
+                    client_controller.remote_register_client(configuration, security_server, client)
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) == 0
+                ssn = ssn + 1
+
     def step_subsystem_add_client(self):
         with XRDSSTTest() as app:
             client_controller = ClientController()
             client_controller.app = app
+            ssn = 0
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
-                    client_controller.remote_add_client(configuration, client)
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) == 0
+                    response = client_controller.remote_add_client(configuration, client)
+                    assert response is not None
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) > 0
+                    assert found_client["status"] == ClientStatus.SAVED
+                ssn = ssn + 1
 
     def step_subsystem_register(self):
         with XRDSSTTest() as app:
             client_controller = ClientController()
             client_controller.app = app
+            ssn = 0
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) > 0
+                    assert found_client["status"] == ClientStatus.SAVED
                     client_controller.remote_register_client(configuration, security_server, client)
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) > 0
+                    assert found_client["status"] == ClientStatus.REGISTRATION_IN_PROGRESS
+                ssn = ssn + 1
 
     def step_add_service_description(self):
         service_controller = ServiceController()
@@ -422,6 +544,10 @@ class EndToEndTest(unittest.TestCase):
         ssn = 0
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            assert description["disabled"] is True
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
                     service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
@@ -470,17 +596,49 @@ class EndToEndTest(unittest.TestCase):
             assert description["services"][0]["url"] == 'http://petstore.xxx'
             ssn = ssn + 1
 
-    def step_create_admin_user(self):
-        os.environ['TOOLKIT_ADMIN_CREDENTIALS'] = 'newxrd:pwd'
+    def step_create_admin_user_fail_admin_credentials_missing(self):
+        admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
+        admin_credentials = os.getenv(admin_credentials_env_var, "")
+        os.environ[admin_credentials_env_var] = ""
         user = UserController()
+        user_created = user.create_user(self.config)
+        assert user_created is None
+        os.environ[admin_credentials_env_var] = admin_credentials
+
+    def step_create_admin_user_fail_ssh_user_missing(self):
+        ssh_user_env_var = self.config["security_server"][0]["ssh_user"]
+        ssh_user = os.getenv(ssh_user_env_var, "")
+        os.environ[ssh_user_env_var] = ""
+        user = UserController()
+        user_created = user.create_user(self.config)
+        assert user_created is None
+        os.environ[ssh_user_env_var] = ssh_user
+
+    def step_create_admin_user_fail_ssh_private_key_missing(self):
+        ssh_private_key_env_var = self.config["security_server"][0]["ssh_private_key"]
+        ssh_private_key = os.getenv(ssh_private_key_env_var, "")
+        os.environ[ssh_private_key_env_var] = ""
+        user = UserController()
+        user_created = user.create_user(self.config)
+        assert user_created is None
+        os.environ[ssh_private_key_env_var] = ssh_private_key
+
+    def step_create_admin_user(self):
+        admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
+        os.environ[admin_credentials_env_var] = 'newxrd:pwd'
+        user = UserController()
+        base = BaseController()
         init = InitServerController()
+
+        user_created = user.create_user(self.config)
+        ssn = 0
         for security_server in self.config["security_server"]:
-            user.create_api_config(security_server, self.config)
-            user.create_user(self.config)
-            configuration = init.create_api_config(security_server, self.config)
-            init.initialize_server(self.config)
+            assert user_created[ssn] is True
+            configuration = base.create_api_config(security_server, self.config)
             status = init.check_init_status(configuration)
-            assert status.is_anchor_imported is True and status.is_server_code_initialized is True
+            assert status.is_anchor_imported is True
+            assert status.is_server_code_initialized is True
+            ssn = ssn + 1
 
     def step_autoconf(self):
         with XRDSSTTest() as app:
@@ -540,9 +698,9 @@ class EndToEndTest(unittest.TestCase):
         self.step_token_login_fail_when_pin_missing()
         self.step_token_login()
         self.step_token_login_already_logged_in()
-
         self.step_token_init_keys()
 
+        self.step_cert_import_fail_certificates_missing()
         ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
         for security_server in self.config["security_server"]:
@@ -550,9 +708,11 @@ class EndToEndTest(unittest.TestCase):
             self.apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
+        self.step_cert_register_fail_certificates_not_imported()
         self.step_cert_import()
+        self.step_cert_import()
+        self.step_cert_activate_fail_certificates_not_registered()
         self.step_cert_register()
-        self.step_cert_activate()
 
         # Wait for global configuration status updates
         ssn = 0
@@ -561,15 +721,25 @@ class EndToEndTest(unittest.TestCase):
             self.query_status()
             ssn = ssn + 1
 
+        self.step_cert_activate()
+
+        self.step_subsystem_add_client_fail_member_class_missing()
+        self.step_subsystem_add_client_fail_member_code_missing()
+        self.step_subsystem_register_fail_client_not_saved()
         self.step_subsystem_add_client()
         self.step_subsystem_register()
+
         self.step_add_service_description()
         self.step_enable_service_description()
         self.step_add_service_access()
         self.step_update_service_parameters()
+
+        self.step_create_admin_user_fail_admin_credentials_missing()
+        self.step_create_admin_user_fail_ssh_user_missing()
+        self.step_create_admin_user_fail_ssh_private_key_missing()
         self.step_create_admin_user()
+
         self.step_add_service_endpoints()
-        self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()
 

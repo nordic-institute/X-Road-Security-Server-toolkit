@@ -297,7 +297,7 @@ def get_client(config, ssn):
         headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
         verify=False)
     client_json = json.loads(str(client.content, 'utf-8').strip())
-    return client_json[0]
+    return client_json[0] if len(client_json) > 0 else client_json
 
 
 # Deduce possible TEST CA URL from configuration anchor
