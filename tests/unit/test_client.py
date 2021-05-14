@@ -22,7 +22,7 @@ class ClientTestData:
         member_class='GOV',
         member_code='9876',
         subsystem_code='SUB1',
-        member_name='MAME',
+        member_name='TEST',
         owner=False,
         status=ClientStatus.SAVED
     )
@@ -42,6 +42,7 @@ class TestClient(unittest.TestCase):
                   {
                       'member_class': 'GOV',
                       'member_code': '9876',
+                      'member_name': 'TEST',
                       'subsystem_code': 'SUB1',
                       'connection_type': 'HTTP',
                       'service_descriptions': [{
@@ -65,6 +66,7 @@ class TestClient(unittest.TestCase):
                   {
                       'member_class': 'GOV',
                       'member_code': '9876',
+                      'member_name': 'TEST',
                       'subsystem_code': 'SUB1',
                       'connection_type': 'HTTP',
                       'service_descriptions': [{
@@ -150,6 +152,7 @@ class TestClient(unittest.TestCase):
                     instance_id='DEV',
                     member_class='GOV',
                     member_code='9876',
+                    member_name='TEST',
                     subsystem_code='SUB1',
                     connection_type=ConnectionType.HTTP,
                     status=ClientStatus.SAVED,
@@ -177,6 +180,7 @@ class TestClient(unittest.TestCase):
                     instance_id='DEV',
                     member_class='GOV',
                     member_code='9876',
+                    member_name='TEST',
                     subsystem_code='SUB1',
                     connection_type=ConnectionType.HTTP,
                     status=ClientStatus.REGISTERED,

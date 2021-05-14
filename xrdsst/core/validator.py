@@ -175,10 +175,10 @@ def validate_config_client_add_or_register(ss_config, operation, errors):
                 ss_config_client_slice, operation, errors
             )
 
-            require_fill(
-                ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE,
-                ss_config_client_slice, operation, errors
-            )
+            # require_fill(
+            #    ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE,
+            #    ss_config_client_slice, operation, errors
+            # )
 
             require_swagger_enum_fill(
                 ConnectionType,

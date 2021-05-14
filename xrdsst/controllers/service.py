@@ -234,30 +234,25 @@ class ServiceController(BaseController):
                         for service in service_description.services:
                             try:
                                 services_api = ServicesApi(ApiClient(ss_api_config))
-                                timeout = None
-                                timeout_all = service_description_conf["timeout_all"]
-                                ssl_auth = None
-                                ssl_auth_all = service_description_conf["ssl_auth_all"]
-                                url = None
-                                url_all = service_description_conf["url_all"]
                                 for configurable_service in service_description_conf["services"]:
                                     if service.service_code == configurable_service["service_code"]:
-                                        timeout = configurable_service["timeout"]
-                                        timeout_all = False
-                                        ssl_auth = configurable_service["ssl_auth"]
-                                        ssl_auth_all = False
+                                        timeout = int(configurable_service["timeout"])
+                                        timeout_all = bool(service_description_conf["timeout_all"])
+                                        ssl_auth = bool(configurable_service["ssl_auth"])
+                                        ssl_auth_all = bool(service_description_conf["ssl_auth_all"])
                                         url = configurable_service["url"]
-                                        url_all = False
-                                service_update = ServiceUpdate(url=url,
-                                                               timeout=timeout,
-                                                               ssl_auth=ssl_auth,
-                                                               url_all=url_all,
-                                                               timeout_all=timeout_all,
-                                                               ssl_auth_all=ssl_auth_all)
-                                response = services_api.update_service(service.id, body=service_update)
-                                if response:
-                                    BaseController.log_info("Updated service parameters for service '" + service.id +
-                                                            "' (got full id " + response.id + ")")
+                                        url_all = bool(service_description_conf["url_all"])
+
+                                        service_update = ServiceUpdate(url=url,
+                                                                       timeout=timeout,
+                                                                       ssl_auth=ssl_auth,
+                                                                       url_all=url_all,
+                                                                       timeout_all=timeout_all,
+                                                                       ssl_auth_all=ssl_auth_all)
+                                        response = services_api.update_service(service.id, body=service_update)
+                                        if response:
+                                            BaseController.log_info("Updated service parameters for service '" + service.id +
+                                                                    "' (got full id " + response.id + ")")
                             except ApiException as err:
                                 BaseController.log_api_error('ServicesApi->update_service', err)
                 except ApiException as find_err:

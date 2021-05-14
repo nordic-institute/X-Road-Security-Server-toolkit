@@ -2,6 +2,7 @@ from cement import ex
 from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
+from xrdsst.controllers.token import TokenController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.util import convert_swagger_enum
 from xrdsst.models import ClientAdd, Client, ConnectionType, ClientStatus
@@ -54,6 +55,11 @@ class ClientController(BaseController):
             if "clients" in security_server:  # Guards both against empty section (->None) & complete lack of section
                 for client in security_server["clients"]:
                     self.remote_add_client(ss_api_config, client)
+                    # Adding token for new member
+                    if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != security_server["owner_member_code"]:
+                        token_controller = TokenController()
+                        token_controller.remote_token_add_signing_key_new_member(ss_api_config, security_server,
+                                                                                 client)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -74,8 +80,11 @@ class ClientController(BaseController):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
         client = Client(member_class=client_conf['member_class'],
                         member_code=client_conf['member_code'],
-                        subsystem_code=client_conf['subsystem_code'],
-                        connection_type=conn_type)
+                        connection_type=conn_type,
+                        member_name=client_conf['member_name'],
+                        subsystem_code= client_conf['subsystem_code'],
+                        owner=False,
+                        has_valid_local_sign_cert=False)
 
         client_add = ClientAdd(client=client, ignore_warnings=True)
         clients_api = ClientsApi(ApiClient(ss_api_config))

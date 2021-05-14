@@ -101,6 +101,7 @@ class ConfKeysSecServerClients:
     CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE = 'subsystem_code'
     CONF_KEY_SS_CLIENT_CONNECTION_TYPE = 'connection_type'
     CONF_KEY_SS_CLIENT_SERVICE_DESCS = 'service_descriptions'
+    CONF_KEY_SS_CLIENT_MEMBER_NAME = 'member_name'
 
     @staticmethod
     def descendant_conf_keys():
