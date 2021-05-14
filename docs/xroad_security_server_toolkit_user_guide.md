@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.4
+Version: 1.3.5
 Doc. ID: XRDSST-CONF
 
 ---
@@ -35,7 +35,8 @@ Doc. ID: XRDSST-CONF
 | 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
 | 27.04.2021 | 1.3.2       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
 | 04.05.2021 | 1.3.3       | Added description about endpoint access                                      | Alberto Fernandez  |
-| 13.05.2021 | 1.3.4       | Added description about load-balancing                                       | Bert Viikmäe       |
+| 10.05.2021 | 1.3.4       | Added Load Balancer setup description                                        | Alberto Fernandez  |            
+| 13.05.2021 | 1.3.5       | Added description about load-balancing                                       | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -75,7 +76,11 @@ Doc. ID: XRDSST-CONF
 		* [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
 	* [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
 	* [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
+<<<<<<< HEAD
 * [6 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#6-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
+=======
+* [6 Load balancer setup](#6-load-balancer-setup)
+>>>>>>> 06d32f6e1862a0a8853c37fa1d2acd0316e3fb62
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -646,6 +651,7 @@ Overview of existing automatic backups is accessible from web administration con
 of the security server, in the "Settings" menu. More information about functionality
 can be found in [UG-SS](#Ref_SS-UG).
 
+<<<<<<< HEAD
 ## 6 Using the Toolkit to configure highly available services using the built-in security server internal load balancing
 
 In order to configure a highly available service using the built-in security server load balancing, at least two security
@@ -717,3 +723,16 @@ The ``clients`` section should have the same values used for the following param
 
 When the placeholders in the configuration file have been amended with proper values, please start from 
 [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit) and continue until(included) [4.9 Client management](#49-client-management)
+=======
+## 6 Load balancer setup
+
+ It is possible to setup a Load balancer environment described in [X-Road: External Load Balancer Installation Guide](https://github.com/nordic-institute/X-Road/blob/develop/doc/Manuals/LoadBalancing/ig-xlb_x-road_external_load_balancer_installation_guide.md) 
+ and configure it using the toolkit.
+
+Under the [X-Road](https://github.com/nordic-institute/X-Road) project there are ansible 
+scripts prepared to install the cluster, for doing that we must follow the instructions 
+[Security server cluster setup](https://github.com/nordic-institute/X-Road/tree/develop/ansible/ss_cluster#security-server-cluster-setup).
+
+Once the cluster is ready we can use the toolkit to configure the Load Balancer setup, for doing that, we must configure the Primary Security Server as any other single Security Server, setting in the
+`SECURITY_SERVER_INTERNAL_FQDN_OR_IP` property with the FQDN belonging to the Primary.
+>>>>>>> 06d32f6e1862a0a8853c37fa1d2acd0316e3fb62
