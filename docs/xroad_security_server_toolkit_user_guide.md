@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.4
+Version: 1.3.5
 Doc. ID: XRDSST-CONF
 
 ---
@@ -35,7 +35,8 @@ Doc. ID: XRDSST-CONF
 | 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
 | 27.04.2021 | 1.3.2       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
 | 04.05.2021 | 1.3.3       | Added description about endpoint access                                      | Alberto Fernandez  |
-| 14.05.2021 | 1.3.4       | Notes on client management                                                   | Bert Viikmäe       |
+| 10.05.2021 | 1.3.4       | Added Load Balancer setup description                                        | Alberto Fernandez  |            
+| 14.05.2021 | 1.3.5       | Notes on client management                                                   | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -75,6 +76,7 @@ Doc. ID: XRDSST-CONF
 		* [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
 	* [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
 	* [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
+* [6 Load balancer setup](#6-load-balancer-setup)
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -644,3 +646,15 @@ to use nightly backups that are kept at security server to revert to earlier sta
 Overview of existing automatic backups is accessible from web administration console
 of the security server, in the "Settings" menu. More information about functionality
 can be found in [UG-SS](#Ref_SS-UG).
+
+## 6 Load balancer setup
+
+ It is possible to setup a Load balancer environment described in [X-Road: External Load Balancer Installation Guide](https://github.com/nordic-institute/X-Road/blob/develop/doc/Manuals/LoadBalancing/ig-xlb_x-road_external_load_balancer_installation_guide.md) 
+ and configure it using the toolkit.
+
+Under the [X-Road](https://github.com/nordic-institute/X-Road) project there are ansible 
+scripts prepared to install the cluster, for doing that we must follow the instructions 
+[Security server cluster setup](https://github.com/nordic-institute/X-Road/tree/develop/ansible/ss_cluster#security-server-cluster-setup).
+
+Once the cluster is ready we can use the toolkit to configure the Load Balancer setup, for doing that, we must configure the Primary Security Server as any other single Security Server, setting in the
+`SECURITY_SERVER_INTERNAL_FQDN_OR_IP` property with the FQDN belonging to the Primary.
