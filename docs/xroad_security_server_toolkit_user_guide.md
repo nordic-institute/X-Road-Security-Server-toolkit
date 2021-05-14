@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.3
+Version: 1.3.4
 Doc. ID: XRDSST-CONF
 
 ---
@@ -35,6 +35,8 @@ Doc. ID: XRDSST-CONF
 | 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
 | 27.04.2021 | 1.3.2       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
 | 04.05.2021 | 1.3.3       | Added description about endpoint access                                      | Alberto Fernandez  |
+| 14.05.2021 | 1.3.4       | Notes on client management                                                   | Bert Viikmäe       |
+
 ## Table of Contents <!-- omit in toc -->
 
 <!-- toc -->
@@ -421,7 +423,7 @@ cert register``, final activation with ``xrdsst cert activate``.
 ### 4.9 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
 ``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
-Further subsystem registration can proceed with ``xrdsst client register``. 
+Further subsystem registration can proceed with ``xrdsst client register``. Subsystem parameters are updated with ``xrdsst client update``.
 
 ### 4.10 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions

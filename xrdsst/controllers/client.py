@@ -139,9 +139,9 @@ class ClientController(BaseController):
         try:
             client = self.find_client(clients_api, security_server_conf, client_conf)
             if client:
-                if ClientStatus.REGISTERED != client.status:
+                if client.status not in [ClientStatus.SAVED, ClientStatus.REGISTERED, ClientStatus.REGISTRATION_IN_PROGRESS]:
                     BaseController.log_info(
-                        security_server_conf['name'] + ": " + self.partial_client_id(client_conf) + " not registered yet."
+                        security_server_conf['name'] + ": " + self.partial_client_id(client_conf) + " not added/registered yet."
                     )
                     return
 
