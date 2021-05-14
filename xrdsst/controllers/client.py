@@ -82,7 +82,7 @@ class ClientController(BaseController):
                         member_code=client_conf['member_code'],
                         connection_type=conn_type,
                         member_name=client_conf['member_name'],
-                        subsystem_code= client_conf['subsystem_code'],
+                        subsystem_code= client_conf['subsystem_code'] if 'subsystem_code' in client_conf else None,
                         owner=False,
                         has_valid_local_sign_cert=False)
 
@@ -139,7 +139,10 @@ class ClientController(BaseController):
 
     @staticmethod
     def partial_client_id(client_conf):
-        return str(client_conf['member_class']) + ":" + str(client_conf['member_code']) + ":" + str(client_conf['subsystem_code'])
+        client_id =  str(client_conf['member_class']) + ":" + str(client_conf['member_code'])
+        if 'subsystem_code' in client_conf:
+            client_id = client_id + ":" + client_conf['subsystem_code']
+        return client_id
 
     @staticmethod
     def get_clients_service_client_candidates(clients_api, client_id, candidates_ids):

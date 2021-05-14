@@ -1,5 +1,6 @@
 import sys
 import unittest
+import copy
 from unittest import mock
 
 import pytest
@@ -38,6 +39,8 @@ class TestClient(unittest.TestCase):
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'api_key': 'TOOLKIT_SS1_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'owner_member_class': 'GOV',
+              'owner_member_code': '9876',
               'clients': [
                   {
                       'member_class': 'GOV',
@@ -62,6 +65,8 @@ class TestClient(unittest.TestCase):
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'api_key': 'TOOLKIT_SS2_API_KEY',
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
+              'owner_member_class': 'GOV',
+              'owner_member_code': '9876',
               'clients': [
                   {
                       'member_class': 'GOV',
@@ -250,3 +255,32 @@ class TestClient(unittest.TestCase):
                 assert err.count(ascii_art['message_flow'][2]) == 2
                 assert err.count(ascii_art['message_flow'][3]) == 2
                 assert err.count(ascii_art['message_flow'][4]) == 2
+
+    def test_client_add_new_member(self):
+        with XRDSSTTest() as app:
+            new_config = copy.deepcopy(self.ss_config)
+            new_config["security_server"][0]["clients"].append(
+                  {
+                      'member_class': 'NEW_GOV',
+                      'member_code': '1111',
+                      'member_name': 'NEW_TEST',
+                      'connection_type': 'HTTPS'
+                  })
+
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client',
+                            return_value=ClientTestData.add_response):
+                with mock.patch('xrdsst.controllers.token.TokenController.remote_token_add_signing_key_new_member',
+                                return_value='{}') as mockTokenController:
+
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: new_config)
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    client_controller.add()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Added client") > 0
+                    assert mockTokenController.call_count == 1
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
