@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [1.1.0-beta.0] - 2021-05-14
 - add ``xrdsst client`` and sub-command ``update``
 
+## [1.0.9-beta.0] - 2021-05-13
+- Added section into the User Guide about using the Toolkit to configure highly available services using the built-in security server internal load balancing
+
+## [1.0.8-beta.0] - 2021-05-10
+- Added section into the User Guide about Load Balancer setup description
+
 ## [1.0.7-beta.0] - 2021-05-04
 - add sub-command ``add-access`` to ``xrdsst endpoint`` and refacto ``add-access`` of ``xrdsst service`` to allow adding access to any member
 
