@@ -147,11 +147,8 @@ class ClientController(BaseController):
 
                 try:
                     client.conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
-                    client.member_class = client_conf['member_class']
-                    client.member_code = client_conf['member_code']
-                    client.subsystem_code = client_conf['subsystem_code']
                     clients_api.update_client(id=client.id)
-                    BaseController.log_info("Updated client " + self.partial_client_id(client_conf))
+                    BaseController.log_info("Updated client " + self.partial_client_id(client_conf) + " connection type")
                 except ApiException as reg_err:
                     BaseController.log_api_error('ClientsApi->update_client', reg_err)
         except ApiException as find_err:
