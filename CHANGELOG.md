@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0-beta.0] - 2021-05-16
+- Refactorization of end to end and integration tests to support negative cases and multiple security servers
+
 ## [1.0.9-beta.0] - 2021-05-13
 - Added section into the User Guide about using the Toolkit to configure highly available services using the built-in security server internal load balancing
 
