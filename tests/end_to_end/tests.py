@@ -491,6 +491,20 @@ class EndToEndTest(unittest.TestCase):
                     assert len(found_client) == 0
                 ssn = ssn + 1
 
+    def step_add_service_description_fail_client_not_saved(self):
+        service_controller = ServiceController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = service_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+            found_client = get_client(self.config, ssn)
+            assert len(found_client) == 0
+            description = get_service_description(self.config, found_client['id'], ssn)
+            assert description is None
+            ssn = ssn + 1
+
     def step_subsystem_add_client(self):
         with XRDSSTTest() as app:
             client_controller = ClientController()
@@ -524,6 +538,76 @@ class EndToEndTest(unittest.TestCase):
                     assert len(found_client) > 0
                     assert found_client["status"] == ClientStatus.REGISTRATION_IN_PROGRESS
                 ssn = ssn + 1
+
+    def step_add_service_description_fail_url_missing(self):
+        description_url = []
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            description_url.append(security_server["clients"][0]["service_descriptions"][0]["url"])
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = ''
+            ssn = ssn + 1
+
+        service_controller = ServiceController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = service_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            assert description is None
+            ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[ssn]
+            ssn = ssn + 1
+
+    def step_add_service_description_fail_type_missing(self):
+        type = []
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            type.append(security_server["clients"][0]["service_descriptions"][0]["type"])
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = ''
+            ssn = ssn + 1
+
+        service_controller = ServiceController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = service_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            assert description is None
+            ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = type[ssn]
+            ssn = ssn + 1
+
+    def step_enable_service_description_fail_service_description_not_added(self):
+        service_controller = ServiceController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = service_controller.create_api_config(security_server, self.config)
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            assert description is None
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            assert description is None
+            ssn = ssn + 1
 
     def step_add_service_description(self):
         service_controller = ServiceController()
@@ -647,6 +731,90 @@ class EndToEndTest(unittest.TestCase):
                 auto_controller.app = app
                 auto_controller._default()
 
+    def step_add_service_endpoints_fail_endpoints_path_missing(self):
+        path = []
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            path.append(security_server["clients"][0]["service_descriptions"][0]["endpoints"][0]["path"])
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"][0]["path"] = ''
+            ssn = ssn + 1
+
+        endpoint_controller = EndpointController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = endpoint_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    for endpoint in service_description["endpoints"]:
+                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            assert len(description["services"][0]["endpoints"]) == 4
+            ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"]["path"] = path[ssn]
+            ssn = ssn + 1
+
+    def step_add_service_endpoints_fail_endpoints_method_missing(self):
+        method = []
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            method.append(security_server["clients"][0]["service_descriptions"][0]["endpoints"][0]["method"])
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"][0]["method"] = ''
+            ssn = ssn + 1
+
+        endpoint_controller = EndpointController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = endpoint_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    for endpoint in service_description["endpoints"]:
+                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            assert len(description["services"][0]["endpoints"]) == 4
+            ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"]["method"] = method[ssn]
+            ssn = ssn + 1
+
+    def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
+        service_type = []
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            service_type.append(security_server["clients"][0]["service_descriptions"][0]["type"])
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = 'WSDL'
+            ssn = ssn + 1
+
+        endpoint_controller = EndpointController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = endpoint_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    for endpoint in service_description["endpoints"]:
+                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            assert len(description["services"][0]["endpoints"]) == 4
+            ssn = ssn + 1
+
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = service_type[ssn]
+            ssn = ssn + 1
+
     def step_add_service_endpoints(self):
         endpoint_controller = EndpointController()
         ssn = 0
@@ -743,9 +911,13 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_add_client_fail_member_class_missing()
         self.step_subsystem_add_client_fail_member_code_missing()
         self.step_subsystem_register_fail_client_not_saved()
+        self.step_add_service_description_fail_client_not_saved()
         self.step_subsystem_add_client()
         self.step_subsystem_register()
 
+        self.step_add_service_description_fail_url_missing()
+        self.step_add_service_description_fail_type_missing()
+        self.step_enable_service_description_fail_service_description_not_added()
         self.step_add_service_description()
         self.step_enable_service_description()
         self.step_add_service_access()
@@ -756,6 +928,9 @@ class EndToEndTest(unittest.TestCase):
         self.step_create_admin_user_fail_ssh_private_key_missing()
         self.step_create_admin_user()
 
+        self.step_add_service_endpoints_fail_endpoints_method_missing()
+        self.step_add_service_endpoints_fail_endpoints_path_missing()
+        self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
         self.step_add_service_endpoints()
         self.step_add_endpoints_access()
 
