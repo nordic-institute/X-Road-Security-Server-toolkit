@@ -190,28 +190,30 @@ class ServiceController(BaseController):
                     if service_description:
                         for service in service_description.services:
                             try:
-                                client_id = None
                                 services_api = ServicesApi(ApiClient(ss_api_config))
                                 access_list = service_description_conf["access"] if service_description_conf["access"] else []
                                 configurable_services = service_description_conf["services"] if service_description_conf["services"] else []
                                 for configurable_service in configurable_services:
                                     if service.service_code == configurable_service["service_code"]:
                                         access_list = configurable_service["access"] if configurable_service["access"] else []
-                                for access in access_list:
-                                    client_id = client.instance_id + ':' + \
-                                                client.member_class + ':' + \
-                                                client.member_code + ':' + \
-                                                access
-                                    service_client = ServiceClient(id=client_id,
-                                                                   name=client.member_name,
-                                                                   service_client_type=ServiceClientType.SUBSYSTEM)
-                                    response = services_api.add_service_service_clients(service.id, body=ServiceClients(items=[service_client]))
-                                    if response:
-                                        BaseController.log_info("Added access rights for client '" + client_id +
-                                                                "' to use service '" + service.id + "' (full id " + response[0].id + ")")
+
+                                    if len(access_list) > 0:
+                                        service_clients_candidates = client_controller.get_clients_service_client_candidates(clients_api, client.id, access_list)
+                                        if len(service_clients_candidates) == 0:
+                                            BaseController.log_info("Could not add access rights for client '" + client.id +
+                                                                    "' to use service '" + service.id + "' (full id " +
+                                                                    response[0].id + ",service clients candidates not found)")
+                                        else:
+                                            response = services_api.add_service_service_clients(service.id, body=ServiceClients(items=service_clients_candidates))
+                                            if response:
+                                                for service_clients in service_clients_candidates:
+                                                    BaseController.log_info("Added access rights for client '" + service_clients.id +
+                                                                        "' to use service '" + service.id + "' (full id " + response[0].id + ")")
+                                    else:
+                                        BaseController.log_info("Access rights are not defined for service ")
                             except ApiException as err:
                                 if err.status == 409:
-                                    BaseController.log_info("Access rights for client '" + client_id +
+                                    BaseController.log_info("Access rights for client '" + client.id +
                                                             "' to use service '" + service.id + "' already added")
                                 else:
                                     BaseController.log_api_error('ServicesApi->add_service_service_clients', err)

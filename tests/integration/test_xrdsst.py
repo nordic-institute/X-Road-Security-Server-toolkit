@@ -2,7 +2,8 @@ import urllib3
 
 from tests.integration.integration_base import IntegrationTestBase
 from tests.integration.integration_ops import IntegrationOpBase
-from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients
+from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
+    get_endpoint_service_clients
 from tests.util.test_util import get_service_description, assert_server_statuses_transitioned
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -196,6 +197,22 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
             ssn = ssn + 1
 
+    def step_add_endpoints_access(self):
+        endpoint_controller = EndpointController()
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            configuration = endpoint_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    endpoint_controller.remote_add_endpoints_access(configuration, security_server, client, service_description)
+
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id)
+            service_clients = get_endpoint_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])
+            assert len(service_clients) == 1
+            ssn = ssn + 1
+
     def step_configure_certs(self):
         ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
@@ -259,7 +276,10 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         configured_servers_at_end = self.query_status()
 
-        self.step_add_service_endpoints()
         self.query_status()
+        self.step_add_service_endpoints()
+
+        self.query_status()
+        self.step_add_endpoints_access()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

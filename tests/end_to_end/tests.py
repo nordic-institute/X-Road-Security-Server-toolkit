@@ -6,7 +6,7 @@ from unittest import mock
 import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
-    assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients
+    assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, get_endpoint_service_clients
 from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -665,6 +665,23 @@ class EndToEndTest(unittest.TestCase):
             assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
             ssn = ssn + 1
 
+    def step_add_endpoints_access(self):
+        ssn = 0
+        endpoint_controller = EndpointController()
+        for security_server in self.config["security_server"]:
+            configuration = endpoint_controller.create_api_config(security_server, self.config)
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    endpoint_controller.remote_add_endpoints_access(configuration, service_description, client, service_description)
+
+            client = get_client(self.config, ssn)
+            client_id = client['id']
+            description = get_service_description(self.config, client_id, ssn)
+            service_clients = get_endpoint_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])
+            assert len(service_clients) == 1
+            assert str(service_clients[0]["id"]) == "DEV:security-server-owners"
+            ssn = ssn + 1
+
     def query_status(self):
         with XRDSSTTest() as app:
             status_controller = StatusController()
@@ -740,6 +757,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_create_admin_user()
 
         self.step_add_service_endpoints()
+        self.step_add_endpoints_access()
 
         configured_servers_at_end = self.query_status()
 
