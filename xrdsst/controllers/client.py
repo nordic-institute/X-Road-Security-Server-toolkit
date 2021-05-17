@@ -146,9 +146,19 @@ class ClientController(BaseController):
                     return
 
                 try:
-                    client.conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
-                    clients_api.update_client(id=client.id)
+                    new_client = Client(id=client.id,
+                                        instance_id=client.instance_id,
+                                        member_name=client.member_name,
+                                        member_class=client.member_class,
+                                        member_code=client.member_code,
+                                        subsystem_code=client.subsystem_code,
+                                        owner=client.owner,
+                                        has_valid_local_sign_cert=client.has_valid_local_sign_cert,
+                                        connection_type=convert_swagger_enum(ConnectionType, client_conf['connection_type']),
+                                        status=client.status)
+                    response = clients_api.update_client(client.id, body=new_client)
                     BaseController.log_info("Updated client " + self.partial_client_id(client_conf) + " connection type")
+                    return response
                 except ApiException as reg_err:
                     BaseController.log_api_error('ClientsApi->update_client', reg_err)
         except ApiException as find_err:
