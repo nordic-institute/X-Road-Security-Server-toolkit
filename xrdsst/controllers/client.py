@@ -72,7 +72,8 @@ class ClientController(BaseController):
             BaseController.log_debug('Starting client registrations for security server: ' + security_server['name'])
             if "clients" in security_server:
                 for client in security_server["clients"]:
-                    self.remote_register_client(ss_api_config, security_server, client)
+                    if self.is_client_base_member(client, security_server):
+                        self.remote_register_client(ss_api_config, security_server, client)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
