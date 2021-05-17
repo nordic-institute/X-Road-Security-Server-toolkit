@@ -185,7 +185,8 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
-                    client_controller.remote_register_client(configuration, security_server, client)
+                    if client_controller.is_client_base_member(client, security_server):
+                        client_controller.remote_register_client(configuration, security_server, client)
 
     def step_add_service_description(self, client_id):
         service_controller = ServiceController()

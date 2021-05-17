@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.3
+Version: 1.3.4
 Doc. ID: XRDSST-CONF
 
 ---
@@ -35,6 +35,8 @@ Doc. ID: XRDSST-CONF
 | 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
 | 27.04.2021 | 1.3.2       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
 | 04.05.2021 | 1.3.3       | Added description about endpoint access                                      | Alberto Fernandez  |
+| 04.05.2021 | 1.3.3       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
+
 ## Table of Contents <!-- omit in toc -->
 
 <!-- toc -->
@@ -73,6 +75,7 @@ Doc. ID: XRDSST-CONF
 		* [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
 	* [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
 	* [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
+* [6 Multitenancy](#6-Multitenancy)
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -248,6 +251,7 @@ security_server:
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
+      member_name: <MEMBER_NAME>
       subsystem_code: <SUBSYSTEM_CODE>
       connection_type: <CONNECTION_TYPE>
       service_descriptions:
@@ -293,6 +297,7 @@ The ``security_server`` section is for configuring security server parameters
 * <OWNER_DISTINGUISHED_NAME_ORGANIZATION> should be set to server owner organization. This is used in certificate generation.
 * <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV
 * <MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234
+* <MEMBER_NAME> should be substituted with the member name obtained from the Central Server, e.g. COMPANY
 * <SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
 * <SOFT_TOKEN_ID> default software token ID, normally 0 (zero).
 * <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code
@@ -642,3 +647,43 @@ to use nightly backups that are kept at security server to revert to earlier sta
 Overview of existing automatic backups is accessible from web administration console
 of the security server, in the "Settings" menu. More information about functionality
 can be found in [UG-SS](#Ref_SS-UG).
+
+## 6 Multitenancy
+It's possible to add another members and subsystem to a security server using the toolkit.
+For doing that we need to add the members and subsystems in the clients section of the configuration
+file. 
+For adding a new member we must delete the properties 'service_descriptions' and 'subsystem_code'.
+For example if we want to add the member 'COM/12345/COMPANY', and the subsystem 'COM/12345/COMPANY/SUB' we must fill the
+configuration file like this:
+
+```
+[...]
+  clients:
+    - member_class: <MEMBER_CLASS>
+      member_code: <MEMBER_CODE>
+      member_name: <MEMBER_NAME>
+      subsystem_code: <SUBSYSTEM_CODE>
+      connection_type: <CONNECTION_TYPE>
+      service_descriptions:
+        [...]
+    - member_class: COM
+      member_code: 12345
+      member_name: COMPANY
+      connection_type: HTTP	
+    - member_class: COM
+      member_code: 12345
+      member_name: COMPANY
+      subsystem_code: SUB
+      connection_type: HTTP
+      service_descriptions:	
+      	[...]	    
+```
+
+We can add new members/subsystems with the command:
+```
+xrdsst client add-client
+```
+The command will also create a SIGN CSRS certificate for this new member/subsystem. We can download this CSRS with the command:
+```
+xrdsst cert download-csrs 
+```

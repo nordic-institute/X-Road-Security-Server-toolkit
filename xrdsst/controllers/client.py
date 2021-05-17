@@ -156,3 +156,7 @@ class ClientController(BaseController):
 
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_service_client_candidates', find_err)
+
+    @staticmethod
+    def is_client_base_member(client_conf, security_server_conf):
+        return client_conf["member_class"] == security_server_conf["owner_member_class"] and client_conf["member_code"] == security_server_conf["member_code"]
