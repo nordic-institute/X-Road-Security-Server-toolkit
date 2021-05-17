@@ -187,6 +187,24 @@ class EndToEndTest(unittest.TestCase):
                 for client in security_server["clients"]:
                     client_controller.remote_register_client(configuration, security_server, client)
 
+    def step_subsystem_update_parameters(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+
+            client = get_client(self.config)
+            assert client["connection_type"] == 'HTTP'
+            self.config["security_server"][0]["clients"][0]["connection_type"] = 'HTTPS'
+
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    client_controller.remote_update_client(configuration, security_server, client)
+
+            client = get_client(self.config)
+            assert client["connection_type"] == 'HTTPS'
+            self.config["security_server"][0]["clients"][0]["connection_type"] = 'HTTP'
+
     def step_add_service_description(self, client_id):
         service_controller = ServiceController()
         for security_server in self.config["security_server"]:
@@ -313,6 +331,7 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_subsystem_add_client()
         self.step_subsystem_register()
+        self.step_subsystem_update_parameters()
         client = get_client(self.config)
         client_id = client['id']
 

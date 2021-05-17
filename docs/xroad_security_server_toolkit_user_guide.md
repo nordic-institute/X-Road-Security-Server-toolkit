@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.5
+Version: 1.3.6
 Doc. ID: XRDSST-CONF
 
 ---
@@ -37,6 +37,7 @@ Doc. ID: XRDSST-CONF
 | 04.05.2021 | 1.3.3       | Added description about endpoint access                                      | Alberto Fernandez  |
 | 10.05.2021 | 1.3.4       | Added Load Balancer setup description                                        | Alberto Fernandez  |            
 | 13.05.2021 | 1.3.5       | Added description about load-balancing                                       | Bert Viikmäe       |
+| 14.05.2021 | 1.3.6       | Notes on client management                                                   | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -426,7 +427,7 @@ cert register``, final activation with ``xrdsst cert activate``.
 ### 4.9 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
 ``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
-Further subsystem registration can proceed with ``xrdsst client register``. 
+Further subsystem registration can proceed with ``xrdsst client register``. Subsystem parameters are updated with ``xrdsst client update``.
 
 ### 4.10 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
