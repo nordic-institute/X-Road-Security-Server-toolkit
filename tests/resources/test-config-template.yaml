@@ -25,6 +25,7 @@ security_server:
   clients:
     - member_class: ORG
       member_code: 111
+      member_name: Organization
       subsystem_code: TEST
       connection_type: HTTP
       service_descriptions:
@@ -48,3 +49,7 @@ security_server:
               method: POST
               access:
                 - DEV:security-server-owners
+    - member_class: COM
+      member_code: 12345
+      member_name: COMPANY
+      connection_type: HTTP

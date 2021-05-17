@@ -140,7 +140,7 @@ class ClientController(BaseController):
     @staticmethod
     def partial_client_id(client_conf):
         client_id =  str(client_conf['member_class']) + ":" + str(client_conf['member_code'])
-        if 'subsystem_code' in client_conf:
+        if 'subsystem_code' in client_conf and client_conf['subsystem_code'] is not None:
             client_id = client_id + ":" + client_conf['subsystem_code']
         return client_id
 
