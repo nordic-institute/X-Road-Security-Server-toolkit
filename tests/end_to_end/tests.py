@@ -126,6 +126,15 @@ class EndToEndTest(unittest.TestCase):
                     ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
                 ]
 
+    def step_cert_download_internal_tsl(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                ss_configuration = cert_controller.create_api_config(security_server, self.config)
+                result = cert_controller.remote_download_internal_tsl(ss_configuration, security_server)
+                assert len(result) == 1
+
     def step_acquire_certs(self, downloaded_csrs):
         tca_sign_url = find_test_ca_sign_url(self.config['security_server'][0]['configuration_anchor'])
         cert_files = []
@@ -321,6 +330,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_token_init_keys()
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
+        self.step_cert_download_internal_tsl()
         self.apply_cert_config(signed_certs)
         self.step_cert_import()
         self.step_cert_register()
