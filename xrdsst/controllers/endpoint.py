@@ -87,7 +87,7 @@ class EndpointController(BaseController):
                                 else:
                                     BaseController.log_api_error('ServicesApi->add_endpoint', err)
                 except ApiException as find_err:
-                    BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+                    BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
@@ -137,9 +137,9 @@ class EndpointController(BaseController):
                                                         BaseController.log_api_error('EndpointsApi->add_endpoint_service_clients', err)
 
                             except ApiException as find_err:
-                                BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+                                BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
                 except ApiException as find_err:
-                    BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+                    BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENT, find_err)
 

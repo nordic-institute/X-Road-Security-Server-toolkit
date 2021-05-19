@@ -15,7 +15,6 @@ class ServiceController(BaseController):
         stacked_type = 'nested'
         description = texts['service.controller.description']
 
-    CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION = 'ClientsApi->get_client_service_description'
     SERVICE_DESCRIPTION_FOR = 'Service description for'
 
     @ex(help="Add service description", arguments=[])
@@ -178,7 +177,7 @@ class ServiceController(BaseController):
                             else:
                                 BaseController.log_api_error('ServiceDescriptionsApi->enable_service_description', err)
                 except ApiException as find_err:
-                    BaseController.log_api_error(ServiceController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
+                    BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
@@ -221,7 +220,7 @@ class ServiceController(BaseController):
                                 else:
                                     BaseController.log_api_error('ServicesApi->add_service_service_clients', err)
                 except ApiException as find_err:
-                    BaseController.log_api_error(ServiceController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
+                    BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
@@ -264,7 +263,7 @@ class ServiceController(BaseController):
                             except ApiException as err:
                                 BaseController.log_api_error('ServicesApi->update_service', err)
                 except ApiException as find_err:
-                    BaseController.log_api_error(ServiceController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
+                    BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
