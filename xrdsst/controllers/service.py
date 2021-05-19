@@ -15,6 +15,9 @@ class ServiceController(BaseController):
         stacked_type = 'nested'
         description = texts['service.controller.description']
 
+    CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION = 'ClientsApi->get_client_service_description'
+    SERVICE_DESCRIPTION_FOR = 'Service description for'
+
     @ex(help="Add service description", arguments=[])
     def add_description(self):
         active_config = self.load_config()
@@ -146,13 +149,13 @@ class ServiceController(BaseController):
                                                 "' (got full id " + response.id + ")")
                 except ApiException as err:
                     if err.status == 409:
-                        BaseController.log_info("Service description for '" + client_controller.partial_client_id(client_conf) +
+                        BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client_controller.partial_client_id(client_conf) +
                                                 "' with url '" + description_add.url +
                                                 "' and type '" + description_add.type + "' already exists.")
                     else:
                         BaseController.log_api_error('ClientsApi->add_client_service_description', err)
         except ApiException as find_err:
-            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
     def remote_enable_service_description(self, ss_api_config, security_server_conf, client_conf, service_description_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -166,18 +169,18 @@ class ServiceController(BaseController):
                     if service_description:
                         try:
                             service_descriptions_api.enable_service_description(service_description.id)
-                            BaseController.log_info("Service description for '" + client_controller.partial_client_id(client_conf) +
+                            BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client_controller.partial_client_id(client_conf) +
                                                     "' with id: '" + service_description.id + "' enabled successfully.")
                         except ApiException as err:
                             if err.status == 409:
-                                BaseController.log_info("Service description for '" + client_controller.partial_client_id(client_conf) +
+                                BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client_controller.partial_client_id(client_conf) +
                                                         "' with id: '" + service_description.id + "' already enabled.")
                             else:
                                 BaseController.log_api_error('ServiceDescriptionsApi->enable_service_description', err)
                 except ApiException as find_err:
-                    BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+                    BaseController.log_api_error(ServiceController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
-            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
     def remote_add_access_rights(self, ss_api_config, security_server_conf, client_conf, service_description_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -201,7 +204,7 @@ class ServiceController(BaseController):
                                         service_clients_candidates = client_controller.get_clients_service_client_candidates(clients_api, client.id, access_list)
                                         if len(service_clients_candidates) == 0:
                                             BaseController.log_info("Could not add access rights for client '" + client.id +
-                                                                    "' to use service '" + service.id + "' (full id " +
+                                                                    "' for using service '" + service.id + "' (full id " +
                                                                     response[0].id + ",service clients candidates not found)")
                                         else:
                                             response = services_api.add_service_service_clients(service.id, body=ServiceClients(items=service_clients_candidates))
@@ -214,13 +217,13 @@ class ServiceController(BaseController):
                             except ApiException as err:
                                 if err.status == 409:
                                     BaseController.log_info("Access rights for client '" + client.id +
-                                                            "' to use service '" + service.id + "' already added")
+                                                            "' using service '" + service.id + "' already added")
                                 else:
                                     BaseController.log_api_error('ServicesApi->add_service_service_clients', err)
                 except ApiException as find_err:
-                    BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+                    BaseController.log_api_error(ServiceController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
-            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
     def remote_update_service_parameters(self, ss_api_config, security_server_conf, client_conf, service_description_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -261,9 +264,9 @@ class ServiceController(BaseController):
                             except ApiException as err:
                                 BaseController.log_api_error('ServicesApi->update_service', err)
                 except ApiException as find_err:
-                    BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
+                    BaseController.log_api_error(ServiceController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
-            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
     @staticmethod
     def get_client_service_description(clients_api, client, service_description_conf):

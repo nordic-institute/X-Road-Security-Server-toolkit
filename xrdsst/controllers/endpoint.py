@@ -15,6 +15,8 @@ class EndpointController(BaseController):
         stacked_type = 'nested'
         description = texts['endpoint.controller.description']
 
+    FOR_SERVICE = 'for service'
+
     @ex(help="Add endpoints", arguments=[])
     def add(self):
         active_config = self.load_config()
@@ -70,7 +72,7 @@ class EndpointController(BaseController):
                     if service_description:
                         if service_description.type == ServiceType().WSDL:
                             BaseController.log_info("Wrong service description, endpoints for WSDL services are not"
-                                                    " allowed, skipped endpoint creation for service '" + service_description.url + "'")
+                                                    " allowed, skipped endpoint creation " + EndpointController.FOR_SERVICE + "'" + service_description.url + "'")
                         else:
                             endpoint = Endpoint(id=None, service_code=service_description_conf["rest_service_code"], method=endpoint_conf["method"], path=endpoint_conf["path"], generated= None)
 
@@ -78,16 +80,16 @@ class EndpointController(BaseController):
                                 services_api = ServicesApi(ApiClient(ss_api_config))
                                 response = services_api.add_endpoint(id=service_description.services[0].id, body=endpoint)
                                 if response:
-                                    BaseController.log_info("Added service endpoint '" + endpoint.method + " " + endpoint.path + "' for service '" + service_description.services[0].id + "'")
+                                    BaseController.log_info("Added service endpoint '" + endpoint.method + " " + endpoint.path + "'" + EndpointController.FOR_SERVICE + "'" + service_description.services[0].id + "'")
                             except ApiException as err:
                                 if err.status == 409:
-                                    BaseController.log_info("Service endpoint '" + endpoint.method + " " + endpoint.path + "' for service '" + service_description.services[0].id + "' already added")
+                                    BaseController.log_info("Service endpoint '" + endpoint.method + " " + endpoint.path + "'" + EndpointController.FOR_SERVICE + "'" + service_description.services[0].id + "' already added")
                                 else:
                                     BaseController.log_api_error('ServicesApi->add_endpoint', err)
                 except ApiException as find_err:
                     BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
         except ApiException as find_err:
-            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
     @staticmethod
     def remote_add_endpoints_access(ss_api_config, security_server_conf, client_conf, service_description_conf):
@@ -110,13 +112,13 @@ class EndpointController(BaseController):
                                         candidate = [c for c in service_clients_candidates if c.id == access]
                                         if len(candidate) == 0:
                                             BaseController.log_info("Error adding client access rights '" + access + "' for the endpoint '"
-                                                                    + endpoint_conf["method"] + " " + endpoint_conf["path"] + "' for service '" + service_description.id + "', no valid candidate found")
+                                                                    + endpoint_conf["method"] + " " + endpoint_conf["path"] + "'" + EndpointController.FOR_SERVICE + "'" + service_description.id + "', no valid candidate found")
                                         else:
 
                                             endpoint = [e for e in service_description.services[0].endpoints if e.method == endpoint_conf["method"] and e.path == endpoint_conf["path"]]
                                             if len(endpoint) == 0:
                                                 BaseController.log_info(
-                                                    "Error adding client access rights '" + access + "' for the endpoint '" + endpoint_conf["method"] + " " + endpoint_conf["path"] + "' for service '" + service_description.id + "', endpoint not found")
+                                                    "Error adding client access rights '" + access + "' for the endpoint '" + endpoint_conf["method"] + " " + endpoint_conf["path"] + "'" + EndpointController.FOR_SERVICE  + "'" + service_description.id + "', endpoint not found")
                                             else:
                                                 try:
                                                     endpoints_api = EndpointsApi(ApiClient(ss_api_config))
@@ -139,7 +141,7 @@ class EndpointController(BaseController):
                 except ApiException as find_err:
                     BaseController.log_api_error('ClientsApi->get_client_service_description', find_err)
         except ApiException as find_err:
-            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENT, find_err)
 
 
     def get_services_description(self, config):

@@ -33,6 +33,18 @@ from xrdsst.rest.rest import ApiException
 BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_banner()
 
 
+class BaseControllerException(Exception):
+    """Exception raised for errors related to UserController.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+
 class BaseController(Controller):
     _TRANSIENT_API_KEY_ROLES = ['XROAD_SYSTEM_ADMINISTRATOR', 'XROAD_SERVICE_ADMINISTRATOR', 'XROAD_SECURITY_OFFICER', 'XROAD_REGISTRATION_OFFICER']
     _DEFAULT_CONFIG_FILE = "config/xrdsst.yml"
@@ -52,6 +64,7 @@ class BaseController(Controller):
             (['-v', '--version'], {'action': 'version', 'version': BANNER})
         ]
 
+    MESSAGE_SKIPPED = 'message.skipped'
     @staticmethod
     def api_key_scrambler(log_record):
         log_record.msg = re.sub(BaseController._RE_API_KEY, '********-****-\\2-****-************', str(log_record.msg))  # clear ~108 bits from ~120
@@ -105,7 +118,7 @@ class BaseController(Controller):
             except Exception as err:
                 self.log_api_error('BaseController->create_api_key:', err)
         else:
-            raise Exception("SSH private key file does not exists")
+            raise BaseControllerException("SSH private key file does not exists")
 
     # Returns true if controller is being invoked in autoconfiguration mode.
     def is_autoconfig(self):
@@ -259,8 +272,7 @@ class BaseController(Controller):
     @staticmethod
     def _init_logging(configuration):
         curr_handlers = logging.getLogger().handlers
-        if curr_handlers:
-            if any(map(lambda h: h.level != logging.NOTSET, curr_handlers)):  # Skip init ONLY if ANY handler levels set.
+        if curr_handlers and any(map(lambda h: h.level != logging.NOTSET, curr_handlers)):  # Skip init ONLY if ANY handler levels set.
                 return
 
         exit_messages = ['']
@@ -431,13 +443,13 @@ class BaseController(Controller):
         for ssn in unconfigured_servers:
             conn_status = self.app.OP_GRAPH.nodes[full_op_path[-1]]['servers'][ssn]['status'].connectivity_status
             if not conn_status[0]:
-                skip_msg = texts['message.skipped'].format(ssn) + ": no connectivity ({}).".format(str(conn_status[1]))
+                skip_msg = texts[BaseController.MESSAGE_SKIPPED].format(ssn) + ": no connectivity ({}).".format(str(conn_status[1]))
                 self.log_info(skip_msg)
                 continue
             hr_reachable = list(map(op_text, unconfigured_servers[ssn]['reachable_ops']))
             hr_unreachable = list(map(op_text, unconfigured_servers[ssn]['unreachable_ops']))
             skip_msg = \
-                texts['message.skipped'].format(ssn) + ":" + \
+                texts[BaseController.MESSAGE_SKIPPED].format(ssn) + ":" + \
                 ((" has " + str(hr_reachable) + " performed but also") if hr_reachable else '') + \
                 " needs " + str(hr_unreachable) + \
                 " completion before continuing with requested ['" + op_text(full_op_path[-1]) + "']"
@@ -446,7 +458,7 @@ class BaseController(Controller):
     def log_skipped_op_conf_invalid(self, invalid_conf_servers):
         for ssn in invalid_conf_servers.keys():
             skip_msg = \
-                texts['message.skipped'].format(ssn) + ":\n" + (' ' * 8) + \
+                texts[BaseController.MESSAGE_SKIPPED].format(ssn) + ":\n" + (' ' * 8) + \
                 ("\n" + (' ' * 8)).join(invalid_conf_servers[ssn]['errors'])
             self.log_info(skip_msg)
 

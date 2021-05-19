@@ -16,6 +16,8 @@ class ClientController(BaseController):
         stacked_type = 'nested'
         description = texts['client.controller.description']
 
+    CLIENTS_API_FIND_CLIENTS = 'ClientsApi->find_clients'
+
     @ex(help="Add client subsystem", arguments=[])
     def add(self):
         active_config = self.load_config()

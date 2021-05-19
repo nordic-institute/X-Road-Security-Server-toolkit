@@ -6,6 +6,18 @@ from xrdsst.core.util import get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.resources.texts import texts
 
 
+class UserException(Exception):
+    """Exception raised for errors related to UserController.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+
 class UserController(BaseController):
     _GROUP_NAMES = ['xroad-security-officer',
                     'xroad-registration-officer',
@@ -28,14 +40,14 @@ class UserController(BaseController):
             self.log_debug('Creating admin user for security server: ' + security_server['name'])
             admin_credentials = get_admin_credentials(security_server, conf)
             if admin_credentials is None:
-                raise Exception('UserController->create_user: required admin credentials missing for security server ' + security_server['name'])
+                raise UserException('UserController->create_user: required admin credentials missing for security server ' + security_server['name'])
             user_name, pwd = admin_credentials.split(":")
             ssh_key = get_ssh_key(security_server, conf)
             if ssh_key is None:
-                raise Exception('UserController->create_user: required SSH private key missing for security server ' + security_server['name'])
+                raise UserException('UserController->create_user: required SSH private key missing for security server ' + security_server['name'])
             ssh_user = get_ssh_user(security_server, conf)
             if ssh_user is None:
-                raise Exception('UserController->create_user: required SSH username missing for security server ' + security_server['name'])
+                raise UserException('UserController->create_user: required SSH username missing for security server ' + security_server['name'])
             self.add_user_with_groups(self._GROUP_NAMES, user_name, pwd, ssh_key, ssh_user, security_server)
             self.log_info('Admin user \"' + user_name + '\" for security server ' + security_server['name'] +
                           ' created.')
@@ -65,11 +77,11 @@ class UserController(BaseController):
                                                                                    cmd)
                     exitcode, data = subprocess.getstatusoutput(user_mod_cmd)
                     if exitcode != 0:
-                        raise Exception('UserController->create_user: Adding user to group for '
-                                        + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
+                        raise UserException("UserController->create_user: Adding user to group for {0} failed "
+                                            "(exit_code = {1}, data = {2})".format(security_server['name'], exitcode, data))
             else:
-                raise Exception('UserController->create_user: Setting password for the new user for '
-                                + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
+                raise UserException("UserController->create_user: UserController->create_user: Setting password for the new user for {0} failed "
+                                    "(exit_code = {1}, data = {2})".format(security_server['name'], exitcode, data))
         else:
-            raise Exception('UserController->create_user: Adding new user for '
-                            + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
+            raise UserException("UserController->create_user: Adding new user for {0} failed "
+                                "(exit_code = {1}, data = {2})".format(security_server['name'], exitcode, data))

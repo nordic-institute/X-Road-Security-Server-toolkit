@@ -7,6 +7,16 @@ from xrdsst.core.conf_keys import ConfKeysRoot, ConfKeysSecurityServer
 from xrdsst.core.util import op_node_to_ctr_cmd_text
 from xrdsst.resources.texts import texts
 
+class AutoException(Exception):
+    """Exception raised for errors related to UserController.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 class AutoController(BaseController):
     class Meta:
@@ -51,7 +61,7 @@ class AutoController(BaseController):
             op_node = self.app.OP_GRAPH.nodes[dep_op]
             if op_node.get('operation'):
                 if not op_node['controller'] in self.app.Meta.handlers:
-                    raise Exception("No registered controller " + str(op_node['controller']) + " found.")
+                    raise AutoException("No registered controller " + str(op_node['controller']) + " found.")
 
                 # Prep
                 op_text = op_node_to_ctr_cmd_text(self.app.OP_GRAPH, dep_op)
