@@ -57,6 +57,11 @@ class AutoController(BaseController):
             self.log_info("SKIPPED AUTO ->'" + ssn + "' no connectivity, (" + first_status.connectivity_status[1] + ").")
             return
 
+        self._iterate_dependency_nodes(ssn, active_config)
+
+        self.log_info("AUTO ['status']->'" + ssn + "' AT THE END OF AUTOCONFIGURATION.")
+
+    def _iterate_dependency_nodes(self, ssn, active_config):
         for dep_op in self.app.OP_DEPENDENCY_LIST:
             op_node = self.app.OP_GRAPH.nodes[dep_op]
             if op_node.get('operation'):
@@ -87,5 +92,3 @@ class AutoController(BaseController):
                     if next_op:
                         self.log_info("Next AUTO operation would have been ['" + op_node_to_ctr_cmd_text(self.app.OP_GRAPH, next_op[0]) + "'].")
                     break
-
-        self.log_info("AUTO ['status']->'" + ssn + "' AT THE END OF AUTOCONFIGURATION.")

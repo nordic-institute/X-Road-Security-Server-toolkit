@@ -134,7 +134,7 @@ class ClientController(BaseController):
                 except ApiException as reg_err:
                     BaseController.log_api_error('ClientsApi->register_client', reg_err)
         except ApiException as find_err:
-            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
     def remote_update_client(self, ss_api_config, security_server_conf, client_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -155,7 +155,7 @@ class ClientController(BaseController):
                 except ApiException as reg_err:
                     BaseController.log_api_error('ClientsApi->update_client', reg_err)
         except ApiException as find_err:
-            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
     def find_client(self, clients_api, security_server_conf, client_conf):
         found_clients = clients_api.find_clients(
