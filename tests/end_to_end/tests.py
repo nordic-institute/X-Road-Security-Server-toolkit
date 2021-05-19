@@ -193,8 +193,9 @@ class EndToEndTest(unittest.TestCase):
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                if 'service_descriptions' in client:
+                    for service_description in client["service_descriptions"]:
+                        service_controller.remote_add_service_description(configuration, security_server, client, service_description)
         description = get_service_description(self.config, client_id)
         assert description["disabled"] is True
 
@@ -203,8 +204,9 @@ class EndToEndTest(unittest.TestCase):
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+                if 'service_descriptions' in client:
+                    for service_description in client["service_descriptions"]:
+                        service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
         description = get_service_description(self.config, client_id)
         assert description["disabled"] is False
 
@@ -213,8 +215,9 @@ class EndToEndTest(unittest.TestCase):
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
+                if 'service_descriptions' in client:
+                    for service_description in client["service_descriptions"]:
+                        service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
         description = get_service_description(self.config, client_id)
         service_clients = get_service_clients(self.config, description["services"][0]["id"])
         assert len(service_clients) == 1
@@ -227,8 +230,9 @@ class EndToEndTest(unittest.TestCase):
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
+                if "service_descriptions" in client:
+                    for service_description in client["service_descriptions"]:
+                        service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
         description = get_service_description(self.config, client_id)
         assert description["services"][0]["timeout"] == 120
         assert description["services"][0]["url"] == 'http://petstore.xxx'
@@ -257,9 +261,10 @@ class EndToEndTest(unittest.TestCase):
         for security_server in self.config["security_server"]:
             configuration = endpoint_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    for endpoint in service_description["endpoints"]:
-                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+                if "service_descriptions" in client:
+                    for service_description in client["service_descriptions"]:
+                        for endpoint in service_description["endpoints"]:
+                            endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
 
         description = get_service_description(self.config, client_id)
         assert len(description["services"][0]["endpoints"]) == 5
@@ -271,8 +276,9 @@ class EndToEndTest(unittest.TestCase):
         for security_server in self.config["security_server"]:
             configuration = endpoint_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    endpoint_controller.remote_add_endpoints_access(configuration, service_description, client, service_description)
+                if "service_descriptions" in client:
+                    for service_description in client["service_descriptions"]:
+                        endpoint_controller.remote_add_endpoints_access(configuration, service_description, client, service_description)
 
         description = get_service_description(self.config, client_id)
         service_clients = get_endpoint_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])

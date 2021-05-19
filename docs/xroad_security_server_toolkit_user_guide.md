@@ -653,17 +653,17 @@ It's possible to add another members and subsystem to a security server using th
 For doing that we need to add the members and subsystems in the clients section of the configuration
 file. 
 For adding a new member we must delete the properties 'service_descriptions' and 'subsystem_code'.
-For example if we want to add the member 'COM/12345/COMPANY', and the subsystem 'COM/12345/COMPANY/SUB' we must fill the
+For example if we have the owner member 'ORG/111/ORGANIZATION/SUB' and want to add the new member 'COM/12345/COMPANY', and the subsystem 'COM/12345/COMPANY/SUB' we must fill the
 configuration file like this:
 
 ```
 [...]
   clients:
-    - member_class: <MEMBER_CLASS>
-      member_code: <MEMBER_CODE>
-      member_name: <MEMBER_NAME>
-      subsystem_code: <SUBSYSTEM_CODE>
-      connection_type: <CONNECTION_TYPE>
+    - member_class: ORG
+      member_code: 111
+      member_name: ORGANIZATION
+      subsystem_code: SUB
+      connection_type: HTTP
       service_descriptions:
         [...]
     - member_class: COM
