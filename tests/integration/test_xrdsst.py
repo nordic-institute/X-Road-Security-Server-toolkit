@@ -418,6 +418,30 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             client_controller.load_config = (lambda: self.config)
             client_controller.register()
 
+    def step_subsystem_update_parameters(self):
+        connection_type = []
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            connection_type.append(security_server["clients"][0]["connection_type"])
+            ssn = ssn + 1
+
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) > 0
+                    assert found_client["connection_type"] == 'HTTP'
+                    self.config["security_server"][ssn]["clients"][0]["connection_type"] = 'HTTPS'
+                    client_controller.remote_update_client(configuration, security_server, client)
+                    found_client = get_client(self.config, ssn)
+                    assert len(found_client) > 0
+                    assert found_client["connection_type"] == 'HTTPS'
+                ssn = ssn + 1
+
     def step_add_service_description_fail_url_missing(self):
         description_url = []
         ssn = 0
@@ -742,6 +766,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         self.query_status()
         self.step_subsystem_register()
+
+        self.query_status()
+        self.step_subsystem_update_parameters()
 
         self.query_status()
         self.step_add_service_description_fail_url_missing()
