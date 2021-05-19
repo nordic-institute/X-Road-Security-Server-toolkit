@@ -64,10 +64,9 @@ class AutoController(BaseController):
     def _iterate_dependency_nodes(self, ssn, active_config):
         for dep_op in self.app.OP_DEPENDENCY_LIST:
             op_node = self.app.OP_GRAPH.nodes[dep_op]
+            if not op_node['controller'] in self.app.Meta.handlers:
+                raise AutoException("No registered controller " + str(op_node['controller']) + " found.")
             if op_node.get('operation'):
-                if not op_node['controller'] in self.app.Meta.handlers:
-                    raise AutoException("No registered controller " + str(op_node['controller']) + " found.")
-
                 # Prep
                 op_text = op_node_to_ctr_cmd_text(self.app.OP_GRAPH, dep_op)
                 done_at_start = op_node['is_done'](ssn)
