@@ -1,4 +1,6 @@
+import json
 import os
+import subprocess
 import sys
 import unittest
 from unittest import mock
@@ -11,22 +13,24 @@ from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
+from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.user import UserController
+from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.definitions import ROOT_DIR
-from xrdsst.core.util import revoke_api_key
+from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
-from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.models import ClientStatus
 
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
     config = None
+    transient_api_key_id = []
 
     def setUp(self):
         with XRDSSTTest() as app:
@@ -40,26 +44,77 @@ class EndToEndTest(unittest.TestCase):
             base = BaseController()
             base.app = app
             self.config = base.load_config(baseconfig=self.config_file)
-            # self.config = base.load_config(baseconfig=os.path.join(ROOT_DIR, "tests/resources/test-config2.yaml"))
             ssn = 0
             for security_server in self.config["security_server"]:
-                api_key = base.get_api_key(self.config, security_server)
-                self.create_api_key(api_key, ssn)
+                if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
+                    try:
+                        api_key = base.create_api_key(self.config, BaseController._TRANSIENT_API_KEY_ROLES, security_server)
+                        self.transient_api_key_id.append(base.api_key_id[security_server['name']][0])
+                        self.create_api_key(api_key, ssn)
+                    except Exception as err:
+                        base.log_api_error('BaseController->get_api_key:', err)
                 ssn = ssn + 1
+            base.api_key_id.clear()
 
     def tearDown(self):
         with XRDSSTTest() as app:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             base = BaseController()
+            app.Meta.handlers[0].config_file = self.config_file
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                app.api_keys[security_server["name"]] = os.getenv(security_server["api_key"], "")
+                base.api_key_id[security_server['name']] = self.transient_api_key_id[ssn], base.security_server_address(security_server)
+                ssn = ssn + 1
             base.app = app
-            api_key_id = app.Meta.handlers[0].api_key_id
+            revoke_api_key(app)
+            self.step_verify_final_transient_api_keys()
             del os.environ[self.config["security_server"][0]["api_key"]]
             del os.environ[self.config["security_server"][1]["api_key"]]
-            if api_key_id:
-                revoke_api_key(app)
             if self.config_file is not None:
                 if os.path.exists(self.config_file):
                     os.remove(self.config_file)
+
+    def step_verify_initial_transient_api_keys(self):
+        transient_api_key_id = []
+        for security_server in self.config["security_server"]:
+            credentials = get_admin_credentials(security_server, self.config)
+            ssh_key = get_ssh_key(security_server, self.config)
+            ssh_user = get_ssh_user(security_server, self.config)
+            url = security_server["api_key_url"]
+            curl_cmd = "curl -X GET -u " + credentials + " --silent " + url + "/ -k"
+            cmd = "ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
+                  ssh_key + "\" " + ssh_user + "@" + security_server["name"] + " \"" + curl_cmd + "\""
+            exitcode, data = subprocess.getstatusoutput(cmd)
+            if exitcode == 0:
+                api_key_json = json.loads(data)
+                for api_key_data in api_key_json:
+                    transient_api_key_id.append(api_key_data["id"])
+            else:
+                transient_api_key_id.append('error')
+        assert len(transient_api_key_id) == 2
+        assert len(self.transient_api_key_id) == 2
+        assert transient_api_key_id[0] == self.transient_api_key_id[0]
+        assert transient_api_key_id[1] == self.transient_api_key_id[1]
+
+    def step_verify_final_transient_api_keys(self):
+        transient_api_key_id = []
+        for security_server in self.config["security_server"]:
+            credentials = get_admin_credentials(security_server, self.config)
+            ssh_key = get_ssh_key(security_server, self.config)
+            ssh_user = get_ssh_user(security_server, self.config)
+            url = security_server["api_key_url"]
+            curl_cmd = "curl -X GET -u " + credentials + " --silent " + url + "/ -k"
+            cmd = "ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
+                  ssh_key + "\" " + ssh_user + "@" + security_server["name"] + " \"" + curl_cmd + "\""
+            exitcode, data = subprocess.getstatusoutput(cmd)
+            if exitcode == 0:
+                api_key_json = json.loads(data)
+                for api_key_data in api_key_json:
+                    transient_api_key_id.append(api_key_data["id"])
+            else:
+                transient_api_key_id.append('error')
+        assert len(transient_api_key_id) == 0
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()
@@ -496,13 +551,12 @@ class EndToEndTest(unittest.TestCase):
         ssn = 0
         for security_server in self.config["security_server"]:
             configuration = service_controller.create_api_config(security_server, self.config)
-            for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    service_controller.remote_add_service_description(configuration, security_server, client, service_description)
             found_client = get_client(self.config, ssn)
             assert len(found_client) == 0
-            description = get_service_description(self.config, found_client['id'], ssn)
-            assert description is None
+            for client in security_server["clients"]:
+                for service_description in client["service_descriptions"]:
+                    response = service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                    assert response is None
             ssn = ssn + 1
 
     def step_subsystem_add_client(self):
@@ -519,7 +573,7 @@ class EndToEndTest(unittest.TestCase):
                     assert response is not None
                     found_client = get_client(self.config, ssn)
                     assert len(found_client) > 0
-                    assert found_client["status"] == ClientStatus.SAVED
+                    assert found_client["status"] != ClientStatus.GLOBAL_ERROR
                 ssn = ssn + 1
 
     def step_subsystem_register(self):
@@ -532,11 +586,11 @@ class EndToEndTest(unittest.TestCase):
                 for client in security_server["clients"]:
                     found_client = get_client(self.config, ssn)
                     assert len(found_client) > 0
-                    assert found_client["status"] == ClientStatus.SAVED
+                    assert found_client["status"] != ClientStatus.GLOBAL_ERROR
                     client_controller.remote_register_client(configuration, security_server, client)
                     found_client = get_client(self.config, ssn)
                     assert len(found_client) > 0
-                    assert found_client["status"] == ClientStatus.REGISTRATION_IN_PROGRESS
+                    assert found_client["status"] in [ClientStatus.REGISTRATION_IN_PROGRESS, ClientStatus.REGISTERED]
                 ssn = ssn + 1
 
     def step_add_service_description_fail_url_missing(self):
@@ -709,6 +763,7 @@ class EndToEndTest(unittest.TestCase):
 
     def step_create_admin_user(self):
         admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
+        old_admin_user = os.getenv(admin_credentials_env_var, "")
         os.environ[admin_credentials_env_var] = 'newxrd:pwd'
         user = UserController()
         base = BaseController()
@@ -723,6 +778,8 @@ class EndToEndTest(unittest.TestCase):
             assert status.is_anchor_imported is True
             assert status.is_server_code_initialized is True
             ssn = ssn + 1
+        os.environ[admin_credentials_env_var] = old_admin_user
+
 
     def step_autoconf(self):
         with XRDSSTTest() as app:
@@ -730,62 +787,6 @@ class EndToEndTest(unittest.TestCase):
                 auto_controller = AutoController()
                 auto_controller.app = app
                 auto_controller._default()
-
-    def step_add_service_endpoints_fail_endpoints_path_missing(self):
-        path = []
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            path.append(security_server["clients"][0]["service_descriptions"][0]["endpoints"][0]["path"])
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"][0]["path"] = ''
-            ssn = ssn + 1
-
-        endpoint_controller = EndpointController()
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            configuration = endpoint_controller.create_api_config(security_server, self.config)
-            for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    for endpoint in service_description["endpoints"]:
-                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
-
-            client = get_client(self.config, ssn)
-            client_id = client['id']
-            description = get_service_description(self.config, client_id, ssn)
-            assert len(description["services"][0]["endpoints"]) == 4
-            ssn = ssn + 1
-
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"]["path"] = path[ssn]
-            ssn = ssn + 1
-
-    def step_add_service_endpoints_fail_endpoints_method_missing(self):
-        method = []
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            method.append(security_server["clients"][0]["service_descriptions"][0]["endpoints"][0]["method"])
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"][0]["method"] = ''
-            ssn = ssn + 1
-
-        endpoint_controller = EndpointController()
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            configuration = endpoint_controller.create_api_config(security_server, self.config)
-            for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    for endpoint in service_description["endpoints"]:
-                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
-
-            client = get_client(self.config, ssn)
-            client_id = client['id']
-            description = get_service_description(self.config, client_id, ssn)
-            assert len(description["services"][0]["endpoints"]) == 4
-            ssn = ssn + 1
-
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"]["method"] = method[ssn]
-            ssn = ssn + 1
 
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
         service_type = []
@@ -869,6 +870,7 @@ class EndToEndTest(unittest.TestCase):
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
+        self.step_verify_initial_transient_api_keys()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
         self.step_initalize_server_owner_member_class_missing()
@@ -928,8 +930,6 @@ class EndToEndTest(unittest.TestCase):
         self.step_create_admin_user_fail_ssh_private_key_missing()
         self.step_create_admin_user()
 
-        self.step_add_service_endpoints_fail_endpoints_method_missing()
-        self.step_add_service_endpoints_fail_endpoints_path_missing()
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
         self.step_add_service_endpoints()
         self.step_add_endpoints_access()

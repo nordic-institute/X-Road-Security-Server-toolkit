@@ -599,62 +599,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             assert status.is_server_code_initialized is True
             ssn = ssn + 1
 
-    def step_add_service_endpoints_fail_endpoints_path_missing(self):
-        path = []
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            path.append(security_server["clients"][0]["service_descriptions"][0]["endpoints"][0]["path"])
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"][0]["path"] = ''
-            ssn = ssn + 1
-
-        endpoint_controller = EndpointController()
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            configuration = endpoint_controller.create_api_config(security_server, self.config)
-            for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    for endpoint in service_description["endpoints"]:
-                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
-
-            client = get_client(self.config, ssn)
-            client_id = client['id']
-            description = get_service_description(self.config, client_id, ssn)
-            assert len(description["services"][0]["endpoints"]) == 4
-            ssn = ssn + 1
-
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"]["path"] = path[ssn]
-            ssn = ssn + 1
-
-    def step_add_service_endpoints_fail_endpoints_method_missing(self):
-        method = []
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            method.append(security_server["clients"][0]["service_descriptions"][0]["endpoints"][0]["method"])
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"][0]["method"] = ''
-            ssn = ssn + 1
-
-        endpoint_controller = EndpointController()
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            configuration = endpoint_controller.create_api_config(security_server, self.config)
-            for client in security_server["clients"]:
-                for service_description in client["service_descriptions"]:
-                    for endpoint in service_description["endpoints"]:
-                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
-
-            client = get_client(self.config, ssn)
-            client_id = client['id']
-            description = get_service_description(self.config, client_id, ssn)
-            assert len(description["services"][0]["endpoints"]) == 4
-            ssn = ssn + 1
-
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["endpoints"]["method"] = method[ssn]
-            ssn = ssn + 1
-
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
         service_type = []
         ssn = 0
@@ -827,10 +771,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.query_status()
         self.step_create_admin_user()
 
-        self.query_status()
-        self.step_add_service_endpoints_fail_endpoints_method_missing()
-        self.query_status()
-        self.step_add_service_endpoints_fail_endpoints_path_missing()
         self.query_status()
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
         self.query_status()
