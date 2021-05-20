@@ -366,10 +366,7 @@ class BaseController(Controller):
         self.require_conf_key(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
         self.require_conf_key(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
 
-        if errors[ConfKeysSecurityServer.CONF_KEY_NAME] or errors[ConfKeysSecurityServer.CONF_KEY_URL]:
-            print(*errors[ConfKeysSecurityServer.CONF_KEY_NAME], sep='\n', file=sys.stderr)
-            print(*errors[ConfKeysSecurityServer.CONF_KEY_URL], sep='\n', file=sys.stderr)
-            self.app.close(os.EX_CONFIG)
+        if self.check_conf_errors(errors) is None:
             return None
 
         # Potential live disaster recipe is when configured security servers' 'name' or 'url' somewhere collude
@@ -377,10 +374,7 @@ class BaseController(Controller):
         self.require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
         self.require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
 
-        if errors[ConfKeysSecurityServer.CONF_KEY_NAME] or errors[ConfKeysSecurityServer.CONF_KEY_URL]:
-            print(*errors[ConfKeysSecurityServer.CONF_KEY_NAME], sep='\n', file=sys.stderr)
-            print(*errors[ConfKeysSecurityServer.CONF_KEY_URL], sep='\n', file=sys.stderr)
-            self.app.close(os.EX_CONFIG)
+        if self.check_conf_errors(errors) is None:
             return None
 
         # Change the logging contract, per:
@@ -390,6 +384,14 @@ class BaseController(Controller):
         self._init_logging(self.config)
 
         return self.config
+
+    def check_conf_errors(self, errors):
+        if errors[ConfKeysSecurityServer.CONF_KEY_NAME] or errors[ConfKeysSecurityServer.CONF_KEY_URL]:
+            print(*errors[ConfKeysSecurityServer.CONF_KEY_NAME], sep='\n', file=sys.stderr)
+            print(*errors[ConfKeysSecurityServer.CONF_KEY_URL], sep='\n', file=sys.stderr)
+            self.app.close(os.EX_CONFIG)
+            return None
+        return True
 
     def load_configuration_from_file(self, baseconfig):
 
