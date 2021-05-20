@@ -3,7 +3,7 @@ from xrdsst.api import ClientsApi, ServiceDescriptionsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
-from xrdsst.models import ServiceDescriptionAdd, ServiceClient, ServiceClientType, ServiceClients, ServiceUpdate
+from xrdsst.models import ServiceDescriptionAdd, ServiceClients, ServiceUpdate
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 
@@ -200,17 +200,20 @@ class ServiceController(BaseController):
                                         access_list = configurable_service["access"] if configurable_service["access"] else []
 
                                     if len(access_list) > 0:
-                                        service_clients_candidates = client_controller.get_clients_service_client_candidates(clients_api, client.id, access_list)
+                                        service_clients_candidates = client_controller.get_clients_service_client_candidates(clients_api,
+                                                                                                                             client.id,
+                                                                                                                             access_list)
                                         if len(service_clients_candidates) == 0:
                                             BaseController.log_info("Could not add access rights for client '" + client.id +
-                                                                    "' for using service '" + service.id + "' (full id " +
-                                                                    response[0].id + ",service clients candidates not found)")
+                                                                    "' for using service '"
+                                                                    + service.id + "',service clients candidates not found)")
                                         else:
-                                            response = services_api.add_service_service_clients(service.id, body=ServiceClients(items=service_clients_candidates))
+                                            response = services_api.add_service_service_clients(service.id,
+                                                                                                body=ServiceClients(items=service_clients_candidates))
                                             if response:
                                                 for service_clients in service_clients_candidates:
                                                     BaseController.log_info("Added access rights for client '" + service_clients.id +
-                                                                        "' to use service '" + service.id + "' (full id " + response[0].id + ")")
+                                                                            "' to use service '" + service.id + "' (full id " + response[0].id + ")")
                                     else:
                                         BaseController.log_info("Access rights are not defined for service ")
                             except ApiException as err:
@@ -234,38 +237,42 @@ class ServiceController(BaseController):
                     service_description = self.get_client_service_description(clients_api, client, service_description_conf)
                     if service_description:
                         for service in service_description.services:
-                            try:
-                                services_api = ServicesApi(ApiClient(ss_api_config))
-                                timeout = None
-                                timeout_all = service_description_conf["timeout_all"]
-                                ssl_auth = None
-                                ssl_auth_all = service_description_conf["ssl_auth_all"]
-                                url = None
-                                url_all = service_description_conf["url_all"]
-                                for configurable_service in service_description_conf["services"]:
-                                    if service.service_code == configurable_service["service_code"]:
-                                        timeout = configurable_service["timeout"]
-                                        timeout_all = False
-                                        ssl_auth = configurable_service["ssl_auth"]
-                                        ssl_auth_all = False
-                                        url = configurable_service["url"]
-                                        url_all = False
-                                service_update = ServiceUpdate(url=url,
-                                                               timeout=timeout,
-                                                               ssl_auth=ssl_auth,
-                                                               url_all=url_all,
-                                                               timeout_all=timeout_all,
-                                                               ssl_auth_all=ssl_auth_all)
-                                response = services_api.update_service(service.id, body=service_update)
-                                if response:
-                                    BaseController.log_info("Updated service parameters for service '" + service.id +
-                                                            "' (got full id " + response.id + ")")
-                            except ApiException as err:
-                                BaseController.log_api_error('ServicesApi->update_service', err)
+                            self.remote_update_service_parameter(ss_api_config, service_description_conf, service)
                 except ApiException as find_err:
                     BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
+
+    @staticmethod
+    def remote_update_service_parameter(ss_api_config, service_description_conf, service):
+        try:
+            services_api = ServicesApi(ApiClient(ss_api_config))
+            timeout = None
+            timeout_all = service_description_conf["timeout_all"]
+            ssl_auth = None
+            ssl_auth_all = service_description_conf["ssl_auth_all"]
+            url = None
+            url_all = service_description_conf["url_all"]
+            for configurable_service in service_description_conf["services"]:
+                if service.service_code == configurable_service["service_code"]:
+                    timeout = configurable_service["timeout"]
+                    timeout_all = False
+                    ssl_auth = configurable_service["ssl_auth"]
+                    ssl_auth_all = False
+                    url = configurable_service["url"]
+                    url_all = False
+            service_update = ServiceUpdate(url=url,
+                                           timeout=timeout,
+                                           ssl_auth=ssl_auth,
+                                           url_all=url_all,
+                                           timeout_all=timeout_all,
+                                           ssl_auth_all=ssl_auth_all)
+            response = services_api.update_service(service.id, body=service_update)
+            if response:
+                BaseController.log_info("Updated service parameters for service '" + service.id +
+                                        "' (got full id " + response.id + ")")
+        except ApiException as err:
+            BaseController.log_api_error('ServicesApi->update_service', err)
 
     @staticmethod
     def get_client_service_description(clients_api, client, service_description_conf):
