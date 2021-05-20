@@ -65,6 +65,7 @@ class BaseController(Controller):
         ]
 
     MESSAGE_SKIPPED = 'message.skipped'
+
     @staticmethod
     def api_key_scrambler(log_record):
         log_record.msg = re.sub(BaseController._RE_API_KEY, '********-****-\\2-****-************', str(log_record.msg))  # clear ~108 bits from ~120
