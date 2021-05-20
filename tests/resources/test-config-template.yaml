@@ -51,5 +51,5 @@ security_server:
                 - DEV:security-server-owners
     - member_class: COM
       member_code: 12345
-      member_name: COMPANY
+      member_name: KUBER
       connection_type: HTTP
