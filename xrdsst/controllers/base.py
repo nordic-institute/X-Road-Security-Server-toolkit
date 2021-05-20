@@ -114,7 +114,7 @@ class BaseController(Controller):
                                   ' created.')
                     return api_key_json["key"]
                 else:
-                    self.log_api_error('BaseController->create_api_key:', 'API key creation for security server ' \
+                    self.log_api_error('BaseController->create_api_key:', 'API key creation for security server '
                                        + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
             except Exception as err:
                 self.log_api_error('BaseController->create_api_key:', err)
@@ -197,14 +197,19 @@ class BaseController(Controller):
                         skipped_servers.append(rssc)
                         reachable_config['security_server'].remove(rssc)
 
+        skip_details = self.fill_skip_details(skipped_servers, reachable_ops, unreachable_ops)
+
+        return reachable_config, skip_details
+
+    @staticmethod
+    def fill_skip_details(skipped_servers, reachable_ops, unreachable_ops):
         skip_details = {}  # Python 3.6+ retains insertion order, as desired here.
         for skipped_server in skipped_servers:
             skip_details[skipped_server['name']] = {
                 'reachable_ops': reachable_ops[skipped_server['name']],
                 'unreachable_ops': unreachable_ops[skipped_server['name']]
             }
-
-        return reachable_config, skip_details
+        return skip_details
 
     # Given active configuration and full operation path to single operation, returns configuration exclusively with
     # security servers which have valid operation configuration defined.
@@ -274,7 +279,7 @@ class BaseController(Controller):
     def _init_logging(configuration):
         curr_handlers = logging.getLogger().handlers
         if curr_handlers and any(map(lambda h: h.level != logging.NOTSET, curr_handlers)):  # Skip init ONLY if ANY handler levels set.
-                return
+            return
 
         exit_messages = ['']
         logging.getLogger().handlers = []
