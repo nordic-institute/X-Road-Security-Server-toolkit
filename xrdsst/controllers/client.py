@@ -58,6 +58,20 @@ class ClientController(BaseController):
 
         self.update_client(active_config)
 
+    @ex(help="Import TSL certificates", arguments=[])
+    def import_tsl_certs(self):
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+
+        self.client_import_tsl_cert(active_config)
+
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -95,6 +109,8 @@ class ClientController(BaseController):
                     self.remote_update_client(ss_api_config, security_server, client)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def client_import_tsl_cert(self, config):
 
     def remote_add_client(self, ss_api_config, client_conf):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
