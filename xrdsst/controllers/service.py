@@ -202,8 +202,8 @@ class ServiceController(BaseController):
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
-    @staticmethod
-    def remote_add_access_rights_for_service(ss_api_config,
+    def remote_add_access_rights_for_service(self,
+                                             ss_api_config,
                                              service_description_conf,
                                              client_controller,
                                              clients_api,
@@ -217,21 +217,12 @@ class ServiceController(BaseController):
                 if service.service_code == configurable_service["service_code"]:
                     access_list = configurable_service["access"] if configurable_service["access"] else []
 
-                if len(access_list) > 0:
-                    service_clients_candidates = client_controller.get_clients_service_client_candidates(clients_api,
-                                                                                                         client.id,
-                                                                                                         access_list)
-                    if len(service_clients_candidates) == 0:
-                        BaseController.log_info("Could not add access rights for client '" + client.id +
-                                                "' for using service '"
-                                                + service.id + "',service clients candidates not found)")
-                    else:
-                        response = services_api.add_service_service_clients(service.id,
-                                                                            body=ServiceClients(items=service_clients_candidates))
-                        if response:
-                            for service_clients in service_clients_candidates:
-                                BaseController.log_info("Added access rights for client '" + service_clients.id +
-                                                        "' to use service '" + service.id + "' (full id " + response[0].id + ")")
+                    self.remote_add_access_from_access_list(client_controller,
+                                                            clients_api,
+                                                            services_api,
+                                                            client,
+                                                            service,
+                                                            access_list)
                 else:
                     BaseController.log_info("Access rights are not defined for service ")
         except ApiException as err:
@@ -239,6 +230,27 @@ class ServiceController(BaseController):
                 BaseController.log_info("Access rights for client '" + client.id + "' using service '" + service.id + "' already added")
             else:
                 BaseController.log_api_error('ServicesApi->add_service_service_clients', err)
+
+    @staticmethod
+    def remote_add_access_from_access_list(client_controller,
+                                           clients_api,
+                                           services_api,
+                                           client,
+                                           service,
+                                           access_list):
+        if len(access_list) > 0:
+            service_clients_candidates = client_controller.get_clients_service_client_candidates(clients_api, client.id, access_list)
+            if len(service_clients_candidates) == 0:
+                BaseController.log_info("Could not add access rights for client '" + client.id +
+                                        "' for using service '"
+                                        + service.id + "',service clients candidates not found)")
+            else:
+                response = services_api.add_service_service_clients(service.id,
+                                                                    body=ServiceClients(items=service_clients_candidates))
+                if response:
+                    for service_clients in service_clients_candidates:
+                        BaseController.log_info("Added access rights for client '" + service_clients.id +
+                                                "' to use service '" + service.id + "' (full id " + response[0].id + ")")
 
     def remote_update_service_parameters(self, ss_api_config, security_server_conf, client_conf, service_description_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
