@@ -176,32 +176,40 @@ class BaseController(Controller):
 
         reachable_config = copy.deepcopy(active_config)  # Retains only security servers with reachable end-operation.
         # NB! Depending on server status, these (un)reachable operations will not necessarily be successive.
-        reachable_ops, unreachable_ops, skipped_servers = self.regroup_ops(active_config, op_full_path, reachable_config)
+        reachable_ops = {}
+        unreachable_ops = {}
+        skipped_servers = []
+
+        for security_server in active_config["security_server"]:
+            reachable_ops, unreachable_ops, reachable_config, skipped_servers = self.regroup_per_security_server(security_server,
+                                                                                                                 reachable_ops,
+                                                                                                                 unreachable_ops,
+                                                                                                                 op_full_path,
+                                                                                                                 reachable_config,
+                                                                                                                 skipped_servers)
+
         skip_details = self.fill_skip_details(skipped_servers, reachable_ops, unreachable_ops)
 
         return reachable_config, skip_details
 
-    def regroup_ops(self, active_config, op_full_path, reachable_config):
-        reachable_ops = {}
-        unreachable_ops = {}
-        skipped_servers = []
-        for security_server in active_config["security_server"]:
-            ssn = security_server['name']
-            g_server_node = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]
-            conn_status = g_server_node['status'].connectivity_status
-            reachable_ops[ssn] = []
-            unreachable_ops[ssn] = []
+    def regroup_per_security_server(self, security_server, reachable_ops, unreachable_ops, op_full_path, reachable_config, skipped_servers):
+        ssn = security_server['name']
+        g_server_node = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]
+        conn_status = g_server_node['status'].connectivity_status
+        reachable_ops[ssn] = []
+        unreachable_ops[ssn] = []
 
-            for oop in op_full_path[:-1]:
-                performed = self.app.OP_GRAPH.nodes[oop]['is_done'](ssn)
-                (reachable_ops if performed else unreachable_ops)[ssn].append(oop)
+        for oop in op_full_path[:-1]:
+            performed = self.app.OP_GRAPH.nodes[oop]['is_done'](ssn)
+            (reachable_ops if performed else unreachable_ops)[ssn].append(oop)
 
-            if len(unreachable_ops[ssn]) > 0 or not conn_status[0]:
-                for rssc in reachable_config["security_server"]:
-                    if ssn == rssc['name']:
-                        skipped_servers.append(rssc)
-                        reachable_config['security_server'].remove(rssc)
-        return reachable_ops, unreachable_ops, skipped_servers
+        if len(unreachable_ops[ssn]) > 0 or not conn_status[0]:
+            for rssc in reachable_config["security_server"]:
+                if ssn == rssc['name']:
+                    skipped_servers.append(rssc)
+                    reachable_config['security_server'].remove(rssc)
+
+        return reachable_ops, unreachable_ops, reachable_config, skipped_servers
 
     @staticmethod
     def fill_skip_details(skipped_servers, reachable_ops, unreachable_ops):
