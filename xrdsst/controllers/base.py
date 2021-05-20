@@ -335,27 +335,7 @@ class BaseController(Controller):
     # Load the configuration, performs key level validation, finally initiates logging.
     def load_config(self, baseconfig=None):
 
-        if not baseconfig:
-            baseconfig = self.app.pargs.configfile
-            self.config_file = baseconfig
-
-        if not os.path.exists(baseconfig):
-            self.log_info(texts['message.file.not.found'].format(baseconfig))
-            self.app.close(os.EX_CONFIG)
-            return None
-
-        try:
-            with open(baseconfig, "r") as yml_file:
-                self.config = yaml.safe_load(yml_file)
-            self.config_file = baseconfig
-        except IOError as io_err:
-            self.log_info(io_err)
-            self.log_info(texts["message.file.unreadable"].format(baseconfig))
-            self.app.close(os.EX_CONFIG)
-            return None
-        except yaml.YAMLError as other_yaml_err:
-            self.log_info(texts["message.config.unparsable"].format(other_yaml_err))
-            self.app.close(os.EX_CONFIG)
+        if self.load_configuration_from_file(baseconfig) is None:
             return None
 
         # Perform the basic (key-level only) configuration validation.
@@ -410,6 +390,33 @@ class BaseController(Controller):
         self._init_logging(self.config)
 
         return self.config
+
+    def load_configuration_from_file(self, baseconfig):
+
+        if not baseconfig:
+            baseconfig = self.app.pargs.configfile
+            self.config_file = baseconfig
+
+        if not os.path.exists(baseconfig):
+            self.log_info(texts['message.file.not.found'].format(baseconfig))
+            self.app.close(os.EX_CONFIG)
+            return None
+
+        try:
+            with open(baseconfig, "r") as yml_file:
+                self.config = yaml.safe_load(yml_file)
+            self.config_file = baseconfig
+        except IOError as io_err:
+            self.log_info(io_err)
+            self.log_info(texts["message.file.unreadable"].format(baseconfig))
+            self.app.close(os.EX_CONFIG)
+            return None
+        except yaml.YAMLError as other_yaml_err:
+            self.log_info(texts["message.config.unparsable"].format(other_yaml_err))
+            self.app.close(os.EX_CONFIG)
+            return None
+
+        return True
 
     # Add errors to /dict_err_lists/ at given key for /sec_server_configs/ that do not have required /key/ defined.
     @staticmethod
