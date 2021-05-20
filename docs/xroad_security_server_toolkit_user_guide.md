@@ -687,3 +687,27 @@ The command will also create a SIGN CSRS certificate for this new member/subsyst
 ```
 xrdsst cert download-csrs 
 ```
+After downloading the file, we must sign it and add it to the list of certificates in the configuration:
+```
+[...]
+security_server:
+- api_key: <API_KEY_ENV_VAR_NAME>
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  certificates:
+    - /path/to/signcert
+    - /path/to/authcert
+    - /path/to/signcert_new_member
+[...]
+```
+Then run the command:
+```
+xrdsst cert import
+```
+After the SIGN cert is imported, we can register the new member by running the command:
+```
+xrdsst client register
+```
+
+Note(1): For registering the new member, the member must be fully configured in another security server with the management services enabled.

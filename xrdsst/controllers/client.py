@@ -72,8 +72,7 @@ class ClientController(BaseController):
             BaseController.log_debug('Starting client registrations for security server: ' + security_server['name'])
             if "clients" in security_server:
                 for client in security_server["clients"]:
-                    if self.is_client_base_member(client, security_server):
-                        self.remote_register_client(ss_api_config, security_server, client)
+                    self.remote_register_client(ss_api_config, security_server, client)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -119,11 +118,19 @@ class ClientController(BaseController):
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
 
     def find_client(self, clients_api, security_server_conf, client_conf):
-        found_clients = clients_api.find_clients(
-            member_class=client_conf['member_class'],
-            member_code=client_conf['member_code'],
-            subsystem_code=client_conf['subsystem_code']
-        )
+        if 'subsystem_code' in client_conf:
+            found_clients = clients_api.find_clients(
+                member_class=client_conf['member_class'],
+                member_code=client_conf['member_code'],
+                name=client_conf["member_name"],
+                subsystem_code=client_conf["subsystem_code"]
+            )
+        else:
+            found_clients = clients_api.find_clients(
+                member_class=client_conf['member_class'],
+                member_code=client_conf['member_code'],
+                name=client_conf["member_name"]
+            )
 
         if not found_clients:
             BaseController.log_info(
