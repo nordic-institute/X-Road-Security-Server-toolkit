@@ -334,36 +334,6 @@ class BaseController(Controller):
 
     # Load the configuration, performs key level validation, finally initiates logging.
     def load_config(self, baseconfig=None):
-        # Add errors to /dict_err_lists/ at given key for /sec_server_configs/ that do not have required /key/ defined.
-        def require_conf_key(key, sec_server_configs, dict_err_lists):
-            for i in range(0, len(sec_server_configs)):
-                if not sec_server_configs[i].get(key) or not sec_server_configs[i][key]:
-                    dict_err_lists[key].append(
-                        "security_server[" + str(i + 1) + "]" + " missing required '" + key + "' definition."
-                    )
-
-        # Add errors to /dict_err_lists/ if /sec_server_configs/ does not have UNIQUE /key/ VALUE for all entries.
-        def require_unique_conf_keys(key, sec_server_configs, dict_err_lists):
-            values = {x[key] for x in sec_server_configs}
-            if len(values) == len(sec_server_configs):
-                return
-
-            key_counts = {x: 0 for x in values}
-            for x in sec_server_configs:
-                key_counts[x[key]] += 1
-
-            duplicates = [x for x in key_counts.keys() if key_counts[x] > 1]
-            detected = set()
-            for z in range(0, len(sec_server_configs)):
-                # Append all duplicated value occurence messages in sequence
-                if sec_server_configs[z][key] in duplicates and sec_server_configs[z][key] not in detected:
-                    for y in range(0, len(sec_server_configs)):
-                        if str(sec_server_configs[z][key]) == str(sec_server_configs[y][key]):
-                            dict_err_lists[key].append(
-                                ConfKeysRoot.CONF_KEY_ROOT_SERVER + "[" + str(y + 1) + "] '" + key +
-                                "' value '" + str(sec_server_configs[y][key]) + "' is non-unique."
-                            )
-                    detected.add(str(sec_server_configs[z][key]))
 
         if not baseconfig:
             baseconfig = self.app.pargs.configfile
@@ -413,8 +383,8 @@ class BaseController(Controller):
         # Defined security servers HAVE TO have non-empty name and url defined!
         conf_security_servers = self.config[ConfKeysRoot.CONF_KEY_ROOT_SERVER]
         errors = {ConfKeysSecurityServer.CONF_KEY_NAME: [], ConfKeysSecurityServer.CONF_KEY_URL: []}
-        require_conf_key(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
-        require_conf_key(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
+        self.require_conf_key(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
+        self.require_conf_key(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
 
         if errors[ConfKeysSecurityServer.CONF_KEY_NAME] or errors[ConfKeysSecurityServer.CONF_KEY_URL]:
             print(*errors[ConfKeysSecurityServer.CONF_KEY_NAME], sep='\n', file=sys.stderr)
@@ -424,8 +394,8 @@ class BaseController(Controller):
 
         # Potential live disaster recipe is when configured security servers' 'name' or 'url' somewhere collude
         # in the provided configuration file. So do the extra check and refuse to run if such situation detected.
-        require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
-        require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
+        self.require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
+        self.require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
 
         if errors[ConfKeysSecurityServer.CONF_KEY_NAME] or errors[ConfKeysSecurityServer.CONF_KEY_URL]:
             print(*errors[ConfKeysSecurityServer.CONF_KEY_NAME], sep='\n', file=sys.stderr)
@@ -440,6 +410,39 @@ class BaseController(Controller):
         self._init_logging(self.config)
 
         return self.config
+
+    # Add errors to /dict_err_lists/ at given key for /sec_server_configs/ that do not have required /key/ defined.
+    @staticmethod
+    def require_conf_key(key, sec_server_configs, dict_err_lists):
+        for i in range(0, len(sec_server_configs)):
+            if not sec_server_configs[i].get(key) or not sec_server_configs[i][key]:
+                dict_err_lists[key].append(
+                    "security_server[" + str(i + 1) + "]" + " missing required '" + key + "' definition."
+                )
+
+    # Add errors to /dict_err_lists/ if /sec_server_configs/ does not have UNIQUE /key/ VALUE for all entries.
+    @staticmethod
+    def require_unique_conf_keys(key, sec_server_configs, dict_err_lists):
+        values = {x[key] for x in sec_server_configs}
+        if len(values) == len(sec_server_configs):
+            return
+
+        key_counts = {x: 0 for x in values}
+        for x in sec_server_configs:
+            key_counts[x[key]] += 1
+
+        duplicates = [x for x in key_counts.keys() if key_counts[x] > 1]
+        detected = set()
+        for z in range(0, len(sec_server_configs)):
+            # Append all duplicated value occurence messages in sequence
+            if sec_server_configs[z][key] in duplicates and sec_server_configs[z][key] not in detected:
+                for y in range(0, len(sec_server_configs)):
+                    if str(sec_server_configs[z][key]) == str(sec_server_configs[y][key]):
+                        dict_err_lists[key].append(
+                            ConfKeysRoot.CONF_KEY_ROOT_SERVER + "[" + str(y + 1) + "] '" + key +
+                            "' value '" + str(sec_server_configs[y][key]) + "' is non-unique."
+                        )
+                detected.add(str(sec_server_configs[z][key]))
 
     def create_api_config(self, security_server, config=None):
         api_key = self.get_api_key(config, security_server)
