@@ -111,6 +111,7 @@ class ClientController(BaseController):
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def client_import_tsl_cert(self, config):
+        return
 
     def remote_add_client(self, ss_api_config, client_conf):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])

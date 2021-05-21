@@ -413,3 +413,27 @@ def validate_config_service_desc_service_endpoints_access(ss_config, operation, 
                         service_desc_config[service_desc_ix], operation, errors)
 
     return len(errors) <= err_cnt
+
+
+def validate_config_tsl_cert_import(ss_config, operation, errors):
+    err_cnt = len(errors)
+
+    if not require_fill(ConfKeysSecurityServer.CONF_KEY_TSL_CERTS, ss_config, operation, errors):
+        # Since this is such a special case, amend the error message slightly for further clues.
+        errors.append(errors.pop() + " Get CSRs ['cert download-csrs'] signed at approved CA and fill element accordingly.")
+    else:
+        # List conversion to dict is bit stupid here, but at the moment sufficient, if similar crops up, go multi-type with require_*.
+        certs_config = copy.deepcopy(ss_config[ConfKeysSecurityServer.CONF_KEY_CERTS])
+        cert_file_list_dict = {}
+        for cert_ix in range(0, len(certs_config)):
+            cert_file_list_dict[str(cert_ix + 1)] = certs_config[cert_ix]
+
+        for cert_ix in range(0, len(certs_config)):
+            cert_file_list_dict[ConfKeysSecurityServer.CONF_KEY_NAME] = (
+                    ss_config[ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
+                    ConfKeysSecurityServer.CONF_KEY_CERTS + "[" + str(cert_ix + 1) + "]"
+            )
+
+            require_readable_file_path(str(cert_ix + 1), cert_file_list_dict, operation, errors)
+
+    return len(errors) <= err_cnt
