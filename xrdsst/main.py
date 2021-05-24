@@ -153,7 +153,9 @@ def opdep_init(app):
     add_op_node(g, OPS.TIMESTAMP_ENABLE, TimestampController, TimestampController.init, is_done=is_done_tsa)
     add_op_node(g, OPS.INIT, InitServerController, InitServerController._default, is_done=is_done_initialization)
     add_op_node(g, OPS.TOKEN_LOGIN, TokenController, TokenController.login, is_done=is_done_token_login)
+
     # End-user operations without binary /done/ criteria.
+
     add_op_node(g, OPS.ADD_CLIENT, ClientController, ClientController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.REGISTER_CLIENT, ClientController, ClientController.register, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_SERVICE_DESC, ServiceController, ServiceController.add_description, is_done=(lambda ssn: True))
@@ -163,15 +165,21 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_ENDPOINTS, EndpointController, EndpointController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
 
-    g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
-    g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
-    g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
+
     g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
-    g.add_edge(OPS.TOKEN_LOGIN, OPS.GENKEYS_CSRS)
+    g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
+    g.add_edge(OPS.TOKEN_LOGIN, OPS.ADD_CLIENT)
+    g.add_edge(OPS.ADD_CLIENT, OPS.GENKEYS_CSRS)
+
+
+
     g.add_edge(OPS.GENKEYS_CSRS, OPS.IMPORT_CERTS)
-    g.add_edge(OPS.ACTIVATE_AUTH_CERT, OPS.ADD_CLIENT)
-    g.add_edge(OPS.ADD_CLIENT, OPS.REGISTER_CLIENT)
-    g.add_edge(OPS.ADD_CLIENT, OPS.ADD_SERVICE_DESC)
+    g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
+    g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
+
+    g.add_edge(OPS.ACTIVATE_AUTH_CERT, OPS.REGISTER_CLIENT)
+    g.add_edge(OPS.ACTIVATE_AUTH_CERT, OPS.ADD_SERVICE_DESC)
+
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ENABLE_SERVICE_DESC)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_SERVICE_ACCESS)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.UPDATE_SERVICE)

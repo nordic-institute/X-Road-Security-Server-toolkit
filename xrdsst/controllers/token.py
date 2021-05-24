@@ -15,7 +15,6 @@ from xrdsst.api.tokens_api import TokensApi
 from xrdsst.models.token_password import TokenPassword
 from xrdsst.resources.texts import texts
 
-
 class TokenListMapper:
     @staticmethod
     def headers():
@@ -141,7 +140,10 @@ class TokenController(BaseController):
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting token key creation process for security server: ' + security_server['name'])
             self.remote_token_add_keys_with_csrs(ss_api_config, security_server)
-
+            if "clients" in security_server:
+                for client in security_server["clients"]:
+                    if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != security_server["owner_member_code"]:
+                        self.remote_token_add_signing_key_new_member(ss_api_config, security_server, client)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     # requires token to be logged in

@@ -55,11 +55,6 @@ class ClientController(BaseController):
             if "clients" in security_server:  # Guards both against empty section (->None) & complete lack of section
                 for client in security_server["clients"]:
                     self.remote_add_client(ss_api_config, client)
-                    # Adding token for new member
-                    if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != security_server["owner_member_code"]:
-                        token_controller = TokenController()
-                        token_controller.remote_token_add_signing_key_new_member(ss_api_config, security_server,
-                                                                                 client)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -82,7 +77,7 @@ class ClientController(BaseController):
                         member_code=client_conf['member_code'],
                         connection_type=conn_type,
                         member_name=client_conf['member_name'],
-                        subsystem_code= client_conf['subsystem_code'] if 'subsystem_code' in client_conf else None,
+                        subsystem_code=client_conf['subsystem_code'] if 'subsystem_code' in client_conf else None,
                         owner=False,
                         has_valid_local_sign_cert=False)
 
