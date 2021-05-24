@@ -436,7 +436,7 @@ Services and service descriptions are managed with ``xrdsst service`` subcommand
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
 Adding access to services is performed  with ``xrdsst service add-access``. Service parameters are updated with ``xrdsst service update-parameters``.
 
-### 4.1 Internal TSL certificates management
+### 4.11 Internal TSL certificates management
 Internal TSL certificates can be downloaded with ``xrdsst cert download-internal-tsl``.
 
 ## 5 Failure recovery and interpretation of errors
