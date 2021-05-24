@@ -4,7 +4,7 @@ import cement.utils.fs
 
 from cement import ex
 
-from xrdsst.api import KeysApi
+from xrdsst.api import KeysApi, SystemApi
 from xrdsst.api.token_certificates_api import TokenCertificatesApi
 from xrdsst.controllers.base import BaseController
 from xrdsst.core.api_util import remote_get_token
@@ -23,6 +23,27 @@ class DownloadedCsr:
         self.key_type = key_type
         self.fs_loc = fs_loc
 
+
+class DownloadedTLS:
+    def __init__(self, security_server, fs_loc):
+        self.security_server = security_server
+        self.fs_loc = fs_loc
+
+class DownloadedTSLListMapper:
+    @staticmethod
+    def headers():
+        return ['SECURITY SERVER', 'LOCATION']
+
+    @staticmethod
+    def as_list(dwn_tsl):
+        return [dwn_tsl.security_server, dwn_tsl.fs_loc]
+
+    @staticmethod
+    def as_object(dwn_tsl):
+        return {
+            'security_server': dwn_tsl.security_server,
+            'fs_loc': dwn_tsl.fs_loc
+        }
 
 class DownloadedCsrListMapper:
     @staticmethod
@@ -98,6 +119,12 @@ class CertController(BaseController):
 
         return self._download_csrs(active_config)
 
+    @ex(help="Download internal TLS certificate, if any.", arguments=[])
+    def download_internal_tsl(self):
+        active_config = self.load_config()
+
+        return self._download_internal_tsl(active_config)
+
     def import_certificates(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -140,6 +167,19 @@ class CertController(BaseController):
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
         return downloaded_csrs
+
+    def _download_internal_tsl(self, config):
+        downloaded_internal = []
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
+            BaseController.log_info('Starting TLS internal cert download from security server: ' + security_server['name'])
+            downloaded_internal.extend(self.remote_download_internal_tsl(ss_api_config, security_server))
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+        return downloaded_internal
 
     # requires token to be logged in
     @staticmethod
@@ -239,6 +279,43 @@ class CertController(BaseController):
 
         self.render(render_data)
         return downloaded_csrs
+
+    def remote_download_internal_tsl(self, ss_api_config, security_server):
+        system_api = SystemApi(ApiClient(ss_api_config))
+        downloaded_internal = []
+
+        # Impossible to get valid byte array via generated client API conversion, resort to HTTP response.
+        try:
+            with cement.utils.fs.Tmp(
+                    prefix=security_server["name"] + "_certs_",
+                    suffix='.tar.gz',
+                    cleanup=False
+            ) as tmp:
+                http_response = system_api.download_system_certificate(_preload_content=False)
+                if 200 == http_response.status:
+                    with open(tmp.file, 'wb') as file:
+                        file.write(http_response.data)
+                        downloaded_internal.append(DownloadedTLS(security_server["name"], file.name))
+                else:
+                    BaseController.log_info(
+                        "Failed to download TSL internal certifucate for security server '" + security_server["name"] + "' (HTTP " + http_response.status + ", " + http_response.reason + ")"
+                    )
+
+                # Remove empty folder that fs.Tmp creates and that would remain with auto-clean off
+                os.rmdir(tmp.dir)
+        except ApiException as err:
+            BaseController.log_api_error("Failed to download the TSL internal cert", err)
+
+        render_data = []
+        if self.is_output_tabulated():
+            render_data = [DownloadedTSLListMapper.headers()]
+            render_data.extend(map(DownloadedTSLListMapper.as_list, downloaded_internal))
+        else:
+            render_data.extend(map(DownloadedTSLListMapper.as_object, downloaded_internal))
+
+        self.render(render_data)
+        return downloaded_internal
+
 
     @staticmethod
     def find_actionable_auth_certificate(ss_api_config, security_server, cert_action):
