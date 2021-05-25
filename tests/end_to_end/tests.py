@@ -185,8 +185,9 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
-                    if client_controller.is_client_base_member(client, security_server):
-                        client_controller.remote_register_client(configuration, security_server, client)
+
+                   # if client_controller.is_client_base_member(client, security_server):
+                    client_controller.remote_register_client(configuration, security_server, client)
 
     def step_add_service_description(self, client_id):
         service_controller = ServiceController()
@@ -323,7 +324,7 @@ class EndToEndTest(unittest.TestCase):
         waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), 1, 300)
 
 
-        self.step_subsystem_register()
+
         client = get_client(self.config)
         client_id = client['id']
 
@@ -334,6 +335,9 @@ class EndToEndTest(unittest.TestCase):
         self.step_create_admin_user()
         self.step_add_service_endpoints(client_id)
         self.step_add_endpoints_access(client_id)
+
+        self.step_subsystem_register()
+
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()
