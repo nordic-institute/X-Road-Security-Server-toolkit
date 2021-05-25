@@ -172,20 +172,16 @@ def opdep_init(app):
     g.add_edge(OPS.TOKEN_LOGIN, OPS.ADD_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.GENKEYS_CSRS)
 
-
-
     g.add_edge(OPS.GENKEYS_CSRS, OPS.IMPORT_CERTS)
     g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
     g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
-
-    g.add_edge(OPS.ACTIVATE_AUTH_CERT, OPS.REGISTER_CLIENT)
     g.add_edge(OPS.ACTIVATE_AUTH_CERT, OPS.ADD_SERVICE_DESC)
-
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ENABLE_SERVICE_DESC)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_SERVICE_ACCESS)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.UPDATE_SERVICE)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_ENDPOINTS)
     g.add_edge(OPS.ADD_ENDPOINTS, OPS.ADD_ENDPOINT_ACCESS)
+    g.add_edge(OPS.ADD_ENDPOINT_ACCESS, OPS.REGISTER_CLIENT)
 
     topologically_sorted = list(networkx.topological_sort(g))
     app.OP_GRAPH = g

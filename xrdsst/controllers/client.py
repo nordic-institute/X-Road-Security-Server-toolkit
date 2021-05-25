@@ -1,5 +1,3 @@
-import time
-
 from cement import ex
 from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient

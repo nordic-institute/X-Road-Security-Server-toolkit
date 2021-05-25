@@ -679,15 +679,22 @@ configuration file like this:
       	[...]	    
 ```
 
-We can add new members/subsystems with the command:
+Running the `apply` command will create the new member, create the certificate and register it,
+but if we want to do step by step we need to: 
+- Add the new members/subsystems with the command:
 ```
 xrdsst client add-client
 ```
-The command will also create a SIGN CSRS certificate for this new member/subsystem. We can download this CSRS with the command:
+- Create the SIGN key and CSRS for the new member
+```
+xrdsst token init-keys
+```
+
+- Download this CSRS with the command:
 ```
 xrdsst cert download-csrs 
 ```
-After downloading the file, we must sign it and add it to the list of certificates in the configuration:
+Sign it and add it to the list of certificates in the configuration:
 ```
 [...]
 security_server:
@@ -701,13 +708,11 @@ security_server:
     - /path/to/signcert_new_member
 [...]
 ```
-Then run the command:
+- Import the certificate:
 ```
 xrdsst cert import
 ```
-After the SIGN cert is imported, we can register the new member by running the command:
+- Register the new member by running the command:
 ```
 xrdsst client register
 ```
-
-Note(1): For registering the new member, the member must be fully configured in another security server with the management services enabled.

@@ -323,8 +323,6 @@ class EndToEndTest(unittest.TestCase):
         # Wait for global configuration status updates
         waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), 1, 300)
 
-
-
         client = get_client(self.config)
         client_id = client['id']
 
@@ -335,7 +333,6 @@ class EndToEndTest(unittest.TestCase):
         self.step_create_admin_user()
         self.step_add_service_endpoints(client_id)
         self.step_add_endpoints_access(client_id)
-
         self.step_subsystem_register()
 
         self.step_autoconf()  # Idempotent
