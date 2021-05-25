@@ -307,9 +307,13 @@ class EndToEndTest(unittest.TestCase):
         self.step_init()
         self.step_timestamp_init()
         self.step_token_login()
+
+        self.step_subsystem_add_client()
+
         self.step_token_init_keys()
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
+
         self.apply_cert_config(signed_certs)
         self.step_cert_import()
         self.step_cert_register()
@@ -318,7 +322,7 @@ class EndToEndTest(unittest.TestCase):
         # Wait for global configuration status updates
         waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), 1, 300)
 
-        self.step_subsystem_add_client()
+
         self.step_subsystem_register()
         client = get_client(self.config)
         client_id = client['id']

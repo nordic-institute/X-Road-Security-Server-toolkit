@@ -3,7 +3,6 @@ import sys
 import traceback
 import networkx
 import urllib3
-
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 from typing import Callable
@@ -26,6 +25,9 @@ from xrdsst.core.validator import validate_config_init, validate_config_timestam
     validate_config_service_desc_service_endpoints_access
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
+
+
+
 
 META = init_defaults('output.json', 'output.tabulate')
 META['output.json']['overridable'] = True
@@ -165,9 +167,8 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_ENDPOINTS, EndpointController, EndpointController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
 
-
     g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
-    g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
+    g.add_edge(OPS.TIMESTAMP_ENABLE, OPS.TOKEN_LOGIN)
     g.add_edge(OPS.TOKEN_LOGIN, OPS.ADD_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.GENKEYS_CSRS)
 

@@ -6,9 +6,11 @@ security_server:
 - api_key: XRDSST_API_KEY
   api_key_url: https://localhost:4000/api/v1/api-keys
   admin_credentials: XRDSST_CREDENTIALS
-  configuration_anchor: /home/alberto/Downloads/configuration_anchor_DEV_internal_UTC_2021-05-21_11_06_19.xml
+  configuration_anchor: /home/alberto/Downloads/configuration_anchor_DEV_internal_UTC_2021-05-25_10_31_37.xml
   certificates:
-    - /home/alberto/Downloads/path
+    - /home/alberto/Downloads/ss1-default-sign-key-sign-CSR-0A1038BB0C26FD051A24F77522EDC4D9207E0173-n8rav153.pem
+    - /home/alberto/Downloads/ss1-default-sign-key_COM_12345-sign-CSR-7E4F72ED40C48F5BA59C7EE133DAC0D2791D7311-ldd7wxsd.pem
+    - /home/alberto/Downloads/ss1-default-auth-key-auth-CSR-807683DBE511838892EDA5EC9A1F448DED129644-7axjl115.pem
   name: ss1
   owner_dn_country: FI
   owner_dn_org: NIIS
@@ -28,33 +30,6 @@ security_server:
       subsystem_code: SUBNIIS
       connection_type: HTTP
       service_descriptions:
-        - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
-          rest_service_code: Petstore
-          type: OPENAPI3
-          access:
-              - DEV:security-server-owners
-          url_all: True
-          timeout_all: True
-          ssl_auth_all: False
-          services:
-            - service_code: Petstore
-              access:
-                - DEV:ORG:111:SUBNIIS
-                - DEV:security-server-owners
-                - DEV:ORG:0000:SUBORGANIZATION
-              timeout: 60
-              ssl_auth: False
-              url: http://petstore.xxx
-          endpoints:
-            - path: /testPath
-              method: POST
-              access:
-                - DEV:security-server-owners
-                - DEV:ORG:0000:SUBORGANIZATION
-            - path: /getPath
-              method: GET
-              access:
-                - DEV:ORG:111:SUBNIIS
         - url: http://10.54.135.88/managementservices.wsdl
           rest_service_code: None
           type: WSDL
@@ -66,10 +41,13 @@ security_server:
           services:
             - service_code: clientReg
               access:
-                - DEV:ORG:111:SUBNIIS
-                - DEV:ORG:0000:SUBORGANIZATION
-                - DEV:ORG:111:SUBNIIS
-                - DEV:COM:12345:SUBCOMPANY
+                - DEV:security-server-owners
+              timeout: 60
+              ssl_auth: False
+              url: https://10.54.135.88:4002/managementservice/manage/
+            - service_code: clientDeletion
+              access:
+                - DEV:security-server-owners
               timeout: 60
               ssl_auth: False
               url: https://10.54.135.88:4002/managementservice/manage/
