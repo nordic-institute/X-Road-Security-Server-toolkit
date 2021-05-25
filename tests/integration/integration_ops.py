@@ -70,3 +70,13 @@ class IntegrationOpBase:
                 auto_controller = AutoController()
                 auto_controller.app = app
                 auto_controller._default()
+
+
+    def step_cert_download_internal_tsl(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+            result = cert_controller.download_internal_tsl()
+            assert len(result) == 2
+

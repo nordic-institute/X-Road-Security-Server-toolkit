@@ -734,6 +734,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_cert_register_fail_certificates_not_imported()
 
         self.query_status()
+        self.step_cert_download_internal_tsl()
+
+        self.query_status()
         self.step_cert_import()
 
         self.query_status()

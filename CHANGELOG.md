@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.0-beta.0] - 2021-05-16
 - Refactorization of end to end and integration tests to support negative cases and multiple security servers
+- add ``xrdsst cert`` and sub-command ``download-internal-tsl``
+
+## [1.1.1-beta.0] - 2021-05-21
+- fixed sonar issues
 
 ## [1.1.0-beta.0] - 2021-05-14
 - add ``xrdsst client`` and sub-command ``update``

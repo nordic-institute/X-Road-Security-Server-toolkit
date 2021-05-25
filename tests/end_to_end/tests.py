@@ -440,6 +440,15 @@ class EndToEndTest(unittest.TestCase):
                 configuration = cert_controller.create_api_config(security_server, self.config)
                 cert_controller.remote_register_certificate(configuration, security_server)
 
+    def step_cert_download_internal_tsl(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.create_api_config(security_server, self.config)
+                result = cert_controller.remote_download_internal_tsl(configuration, security_server)
+                assert len(result) == 1
+
     def step_cert_import(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
@@ -809,7 +818,6 @@ class EndToEndTest(unittest.TestCase):
             ssn = ssn + 1
         os.environ[admin_credentials_env_var] = old_admin_user
 
-
     def step_autoconf(self):
         with XRDSSTTest() as app:
             with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
@@ -925,6 +933,7 @@ class EndToEndTest(unittest.TestCase):
             ssn = ssn + 1
 
         self.step_cert_register_fail_certificates_not_imported()
+        self.step_cert_download_internal_tsl()
         self.step_cert_import()
         self.step_cert_import()
         self.step_cert_activate_fail_certificates_not_registered()
