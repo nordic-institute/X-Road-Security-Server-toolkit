@@ -7,6 +7,16 @@ from xrdsst.core.conf_keys import ConfKeysRoot, ConfKeysSecurityServer
 from xrdsst.core.util import op_node_to_ctr_cmd_text
 from xrdsst.resources.texts import texts
 
+class AutoException(Exception):
+    """Exception raised for errors related to UserController.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 class AutoController(BaseController):
     class Meta:
@@ -47,12 +57,16 @@ class AutoController(BaseController):
             self.log_info("SKIPPED AUTO ->'" + ssn + "' no connectivity, (" + first_status.connectivity_status[1] + ").")
             return
 
+        self._iterate_dependency_nodes(ssn, active_config)
+
+        self.log_info("AUTO ['status']->'" + ssn + "' AT THE END OF AUTOCONFIGURATION.")
+
+    def _iterate_dependency_nodes(self, ssn, active_config):
         for dep_op in self.app.OP_DEPENDENCY_LIST:
             op_node = self.app.OP_GRAPH.nodes[dep_op]
+            if not op_node['controller'] in self.app.Meta.handlers:
+                raise AutoException("No registered controller " + str(op_node['controller']) + " found.")
             if op_node.get('operation'):
-                if not op_node['controller'] in self.app.Meta.handlers:
-                    raise Exception("No registered controller " + str(op_node['controller']) + " found.")
-
                 # Prep
                 op_text = op_node_to_ctr_cmd_text(self.app.OP_GRAPH, dep_op)
                 done_at_start = op_node['is_done'](ssn)
@@ -77,5 +91,3 @@ class AutoController(BaseController):
                     if next_op:
                         self.log_info("Next AUTO operation would have been ['" + op_node_to_ctr_cmd_text(self.app.OP_GRAPH, next_op[0]) + "'].")
                     break
-
-        self.log_info("AUTO ['status']->'" + ssn + "' AT THE END OF AUTOCONFIGURATION.")

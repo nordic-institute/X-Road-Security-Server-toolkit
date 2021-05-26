@@ -202,6 +202,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
 
+        self.step_cert_download_internal_tsl()
+
         self.apply_cert_config(signed_certs)
         self.query_status()
 
