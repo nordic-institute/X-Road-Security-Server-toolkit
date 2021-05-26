@@ -23,14 +23,14 @@ security_server:
   ssh_user: XRDSST_SSH_USER
   ssh_private_key: XRDSST_SSH_KEY
   tsl_certificates:
-    - /home/path-to
+    - /home/alberto/Downloads/certs/cer.pem
   clients:
     - member_class: ORG
       member_code: 111
       subsystem_code: TEST
       connection_type: HTTP
       tsl_certificates:
-        - /home/path-to
+         - /home/alberto/Downloads/certs/cer.pem
       service_descriptions:
         - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
           rest_service_code: Petstore
