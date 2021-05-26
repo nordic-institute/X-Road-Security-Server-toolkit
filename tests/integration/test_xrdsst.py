@@ -5,7 +5,7 @@ import urllib3
 from tests.integration.integration_base import IntegrationTestBase
 from tests.integration.integration_ops import IntegrationOpBase
 from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients
+    get_endpoint_service_clients, client_registration_global_configuration_update_received
 from tests.util.test_util import get_service_description, assert_server_statuses_transitioned
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -608,20 +608,16 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
     def step_create_admin_user(self):
         admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
+        old_admin_user = os.getenv(admin_credentials_env_var, "")
         os.environ[admin_credentials_env_var] = 'newxrd:pwd'
         user = UserController()
-        base = BaseController()
-        init = InitServerController()
-
         user_created = user.create_user(self.config)
+        assert len(user_created) == 2
         ssn = 0
         for security_server in self.config["security_server"]:
             assert user_created[ssn] is True
-            configuration = base.create_api_config(security_server, self.config)
-            status = init.check_init_status(configuration)
-            assert status.is_anchor_imported is True
-            assert status.is_server_code_initialized is True
             ssn = ssn + 1
+        os.environ[admin_credentials_env_var] = old_admin_user
 
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
         service_type = []
@@ -771,6 +767,13 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         self.query_status()
         self.step_subsystem_register()
+
+        # Wait for global configuration status updates
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            waitfor(lambda: client_registration_global_configuration_update_received(self.config, ssn), 1, 300)
+            self.query_status()
+            ssn = ssn + 1
 
         self.query_status()
         self.step_subsystem_update_parameters()

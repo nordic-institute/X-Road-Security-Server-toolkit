@@ -114,6 +114,8 @@ def revoke_api_key(app):
             config_file = app.Meta.handlers[0].config_file
         if not os.path.exists(config_file):
             config_file = os.path.join(ROOT_DIR, config_file)
+        if not os.path.exists(config_file):
+            return None
         with open(config_file, "r") as yml_file:
             config = yaml.safe_load(yml_file)
         for ssn in api_key_id.keys():

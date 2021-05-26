@@ -41,14 +41,17 @@ class UserController(BaseController):
             self.log_debug('Creating admin user for security server: ' + security_server['name'])
             admin_credentials = get_admin_credentials(security_server, conf)
             if admin_credentials is None or len(admin_credentials) == 0:
-                raise UserException('UserController->create_user: required admin credentials missing for security server ' + security_server['name'])
+                self.log_info('UserController->create_user: required admin credentials missing for security server ' + security_server['name'])
+                return None
             user_name, pwd = admin_credentials.split(":")
             ssh_key = get_ssh_key(security_server, conf)
             if ssh_key is None or len(ssh_key) == 0:
-                raise UserException('UserController->create_user: required SSH private key missing for security server ' + security_server['name'])
+                self.log_info('UserController->create_user: required SSH private key missing for security server ' + security_server['name'])
+                return None
             ssh_user = get_ssh_user(security_server, conf)
             if ssh_user is None or len(ssh_user) == 0:
-                raise UserException('UserController->create_user: required SSH username missing for security server ' + security_server['name'])
+                self.log_info('UserController->create_user: required SSH username missing for security server ' + security_server['name'])
+                return None
             user_created.append(self.add_user_with_groups(self._GROUP_NAMES, user_name, pwd, ssh_key, ssh_user, security_server))
             self.log_info('Admin user \"' + user_name + '\" for security server ' + security_server['name'] +
                           ' created.')
@@ -87,3 +90,4 @@ class UserController(BaseController):
         else:
             raise UserException("UserController->create_user: Adding new user for {0} failed "
                                 "(exit_code = {1}, data = {2})".format(security_server['name'], exitcode, data))
+        return True

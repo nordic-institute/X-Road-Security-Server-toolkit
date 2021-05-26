@@ -8,7 +8,8 @@ from unittest import mock
 import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
-    assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, get_endpoint_service_clients
+    assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
+    get_endpoint_service_clients, client_registration_global_configuration_update_received
 from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -599,7 +600,7 @@ class EndToEndTest(unittest.TestCase):
                     client_controller.remote_register_client(configuration, security_server, client)
                     found_client = get_client(self.config, ssn)
                     assert len(found_client) > 0
-                    assert found_client["status"] in [ClientStatus.REGISTRATION_IN_PROGRESS, ClientStatus.REGISTERED]
+                    assert found_client["status"] != ClientStatus.GLOBAL_ERROR
                 ssn = ssn + 1
 
     def step_subsystem_update_parameters(self):
@@ -804,17 +805,11 @@ class EndToEndTest(unittest.TestCase):
         old_admin_user = os.getenv(admin_credentials_env_var, "")
         os.environ[admin_credentials_env_var] = 'newxrd:pwd'
         user = UserController()
-        base = BaseController()
-        init = InitServerController()
-
         user_created = user.create_user(self.config)
+        assert len(user_created) == 2
         ssn = 0
         for security_server in self.config["security_server"]:
             assert user_created[ssn] is True
-            configuration = base.create_api_config(security_server, self.config)
-            status = init.check_init_status(configuration)
-            assert status.is_anchor_imported is True
-            assert status.is_server_code_initialized is True
             ssn = ssn + 1
         os.environ[admin_credentials_env_var] = old_admin_user
 
@@ -954,6 +949,14 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_service_description_fail_client_not_saved()
         self.step_subsystem_add_client()
         self.step_subsystem_register()
+
+        # Wait for global configuration status updates
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            waitfor(lambda: client_registration_global_configuration_update_received(self.config, ssn), 1, 300)
+            self.query_status()
+            ssn = ssn + 1
+
         self.step_subsystem_update_parameters()
 
         self.step_add_service_description_fail_url_missing()

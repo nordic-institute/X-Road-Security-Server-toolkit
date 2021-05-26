@@ -12,7 +12,7 @@ from xrdsst.core.api_util import StatusRoles, StatusVersion, StatusGlobal, Statu
     StatusServerTimestamping, StatusToken, StatusKeys, StatusCsrs, StatusCerts
 from xrdsst.core.util import default_auth_key_label, convert_swagger_enum
 from xrdsst.models import ConnectionType, TokenInitStatus, User, InitializationStatus, GlobalConfDiagnostics, Token, \
-    TokenStatus, TokenType, PossibleAction
+    TokenStatus, TokenType, PossibleAction, ClientStatus
 
 
 class ObjectStruct:
@@ -319,6 +319,32 @@ def find_test_ca_sign_url(conf_anchor_file_loc):
         protocol = parsed_url.scheme
         return protocol + "://" + host + ":" + str(port) + prefix + suffix
 
+
+# Returns client
+def client_registration_global_configuration_update_received(config, ssn):
+    conn_type = convert_swagger_enum(ConnectionType, config['security_server'][ssn]['clients'][0]['connection_type'])
+    member_class = config['security_server'][ssn]['clients'][0]['member_class']
+    member_code = config['security_server'][ssn]['clients'][0]['member_code']
+    subsystem_code = config['security_server'][ssn]['clients'][0]['subsystem_code']
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    client = requests.get(
+        config["security_server"][ssn]["url"] + "/clients",
+        {'member_class': member_class,
+         'member_code': member_code,
+         'subsystem_code': subsystem_code,
+         'connection_type': conn_type},
+        headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
+        verify=False)
+
+    if client.status_code != 200:
+        raise Exception("Failed registration status check, status " + str(client.status_code) + ": " + str(client.reason))
+
+    client_json = json.loads(str(client.content, 'utf-8').strip())
+
+    if len(client_json) == 0:
+        raise Exception("Failed registration status check, status " + str(client.status_code) + ": " + str(client.reason))
+
+    return client_json[0]["status"] in [ClientStatus.REGISTRATION_IN_PROGRESS, ClientStatus.REGISTERED]
 
 # Check for auth cert registration update receival
 def auth_cert_registration_global_configuration_update_received(config, ssn):
