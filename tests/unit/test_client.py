@@ -269,18 +269,14 @@ class TestClient(unittest.TestCase):
 
             with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client',
                             return_value=ClientTestData.add_response):
-                with mock.patch('xrdsst.controllers.token.TokenController.remote_token_add_signing_key_new_member',
-                                return_value='{}') as mockTokenController:
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: new_config)
+                client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                client_controller.add()
 
-                    client_controller = ClientController()
-                    client_controller.app = app
-                    client_controller.load_config = (lambda: new_config)
-                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                    client_controller.add()
-
-                    out, err = self.capsys.readouterr()
-                    assert out.count("Added client") > 0
-                    assert mockTokenController.call_count == 1
-                    with self.capsys.disabled():
-                        sys.stdout.write(out)
-                        sys.stderr.write(err)
+                out, err = self.capsys.readouterr()
+                assert out.count("Added client") > 0
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
