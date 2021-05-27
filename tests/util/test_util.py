@@ -265,22 +265,27 @@ def api_GET(api_url, api_path, api_key):
 
 # Returns service description for given client
 def get_service_description(config, client_id):
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
-    return api_GET(
-            config["security_server"][0]["url"],
-            "clients/" + client_id + "/service-descriptions",
-            api_key
-        )[0]
+    try:
+        api_key = os.getenv(config["security_server"][0]["api_key"], "")
+        return api_GET(
+                config["security_server"][0]["url"],
+                "clients/" + client_id + "/service-descriptions",
+                api_key
+            )[0]
+    except:
+        raise Exception("test_util=>get_service_description, could not fiend client with id: " + client_id)
 
 # Returns service clients for given service
 def get_service_clients(config, service_id):
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
-    return api_GET(
-            config["security_server"][0]["url"],
-            "services/" + service_id + "/service-clients",
-            api_key
-        )
-
+    try:
+        api_key = os.getenv(config["security_server"][0]["api_key"], "")
+        return api_GET(
+                config["security_server"][0]["url"],
+                "services/" + service_id + "/service-clients",
+                api_key
+            )
+    except:
+        raise Exception("test_util=>get_service_clients, could not fiend service with id: " + service_id)
 # Returns service clients for giving endpoints
 def get_endpoint_service_clients(config, endpoint_id):
     api_key = os.getenv(config["security_server"][0]["api_key"], "")
