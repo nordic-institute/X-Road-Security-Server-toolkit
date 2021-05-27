@@ -37,7 +37,7 @@ class EndToEndTest(unittest.TestCase):
                     self.config_file = sys.argv[idx]
             base = BaseController()
             base.app = app
-            self.config = base.load_config(baseconfig='/home/alberto/Proyects/X-Road-Security-Server-toolkit/tests/resources/test-config-template_fill.yaml')
+            self.config = base.load_config(baseconfig=self.config_file)
             for security_server in self.config["security_server"]:
                 api_key = base.get_api_key(self.config, security_server)
                 self.create_api_key(api_key)
@@ -337,7 +337,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_enable_service_description(client_id)
         self.step_add_service_access(client_id)
         self.step_update_service_parameters(client_id)
-        self.step_create_admin_user()
+        # self.step_create_admin_user()
         self.step_add_service_endpoints(client_id)
         self.step_add_endpoints_access(client_id)
         self.step_subsystem_register()
