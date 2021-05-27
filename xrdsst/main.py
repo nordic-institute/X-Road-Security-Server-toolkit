@@ -167,8 +167,9 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_ENDPOINTS, EndpointController, EndpointController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
 
-    g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
     g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
+    g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
+
     g.add_edge(OPS.TOKEN_LOGIN, OPS.ADD_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.GENKEYS_CSRS)
 
