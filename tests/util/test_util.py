@@ -264,14 +264,15 @@ def api_GET(api_url, api_path, api_key):
 
 
 # Returns service description for given client
-def get_service_description(config, client_id):
+def get_service_description(config, client_id, _type='OPENAPI3'):
     try:
         api_key = os.getenv(config["security_server"][0]["api_key"], "")
-        return api_GET(
+        services = api_GET(
                 config["security_server"][0]["url"],
                 "clients/" + client_id + "/service-descriptions",
                 api_key
-            )[0]
+            )
+        return next(serv for serv in services if serv["type"] == _type)
     except:
         raise Exception("test_util=>get_service_description, could not fiend client with id: " + client_id)
 

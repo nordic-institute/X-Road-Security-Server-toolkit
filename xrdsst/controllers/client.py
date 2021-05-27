@@ -116,7 +116,6 @@ class ClientController(BaseController):
             found_clients = clients_api.find_clients(
                 member_class=client_conf['member_class'],
                 member_code=client_conf['member_code'],
-                name=client_conf["member_name"],
                 subsystem_code=client_conf["subsystem_code"]
             )
         else:

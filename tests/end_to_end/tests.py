@@ -37,7 +37,7 @@ class EndToEndTest(unittest.TestCase):
                     self.config_file = sys.argv[idx]
             base = BaseController()
             base.app = app
-            self.config = base.load_config(baseconfig=self.config_file)
+            self.config = base.load_config(baseconfig='/home/alberto/Proyects/X-Road-Security-Server-toolkit/tests/resources/test-config-template_fill.yaml')
             for security_server in self.config["security_server"]:
                 api_key = base.get_api_key(self.config, security_server)
                 self.create_api_key(api_key)
@@ -103,9 +103,14 @@ class EndToEndTest(unittest.TestCase):
                 assert len(response) > 0
                 assert len(response[0].keys) == 0
                 token_controller.remote_token_add_keys_with_csrs(configuration, security_server)
+                if "clients" in security_server:
+                    for client in security_server["clients"]:
+                        if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != \
+                                security_server["owner_member_code"]:
+                            token_controller.remote_token_add_signing_key_new_member(configuration, security_server, client)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
-                assert len(response[0].keys) == 2
+                assert len(response[0].keys) == 3
                 auth_key_label = security_server['name'] + '-default-auth-key'
                 sign_key_label = security_server['name'] + '-default-sign-key'
                 assert str(response[0].keys[0].label) == auth_key_label
@@ -115,16 +120,19 @@ class EndToEndTest(unittest.TestCase):
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
+            signed_certs = []
             for security_server in self.config["security_server"]:
                 ss_configuration = cert_controller.create_api_config(security_server, self.config)
                 result = cert_controller.remote_download_csrs(ss_configuration, security_server)
-                assert len(result) == 2
+                assert len(result) == 3
                 assert result[0].fs_loc != result[1].fs_loc
 
-                return [
-                    ('sign', next(csr.fs_loc for csr in result if csr.key_type == 'SIGN')),
-                    ('auth', next(csr.fs_loc for csr in result if csr.key_type == 'AUTH')),
-                ]
+                for csr in result:
+                    if csr.key_type == 'SIGN':
+                        signed_certs.append(('sign', csr.fs_loc))
+                    else:
+                        signed_certs.append(('auth', csr.fs_loc))
+            return signed_certs
 
     def step_acquire_certs(self, downloaded_csrs):
         tca_sign_url = find_test_ca_sign_url(self.config['security_server'][0]['configuration_anchor'])
@@ -262,8 +270,9 @@ class EndToEndTest(unittest.TestCase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        for endpoint in service_description["endpoints"]:
-                            endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+                        if "endpoints" in service_description:
+                            for endpoint in service_description["endpoints"]:
+                                endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
 
         description = get_service_description(self.config, client_id)
         assert len(description["services"][0]["endpoints"]) == 5
