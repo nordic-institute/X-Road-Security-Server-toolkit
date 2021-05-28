@@ -1,13 +1,11 @@
 import os
 import sys
 import unittest
-from unittest import mock
 
 import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
     assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, get_endpoint_service_clients
-from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -283,13 +281,6 @@ class EndToEndTest(unittest.TestCase):
             status = init.check_init_status(configuration)
             assert status.is_anchor_imported is True and status.is_server_code_initialized is True
 
-    def step_autoconf(self):
-        with XRDSSTTest() as app:
-            with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
-                auto_controller = AutoController()
-                auto_controller.app = app
-                auto_controller._default()
-
     def step_add_service_endpoints(self, client_id):
         endpoint_controller = EndpointController()
         for security_server in self.config["security_server"]:
@@ -370,8 +361,6 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters(client_id)
         self.step_cert_download_internal_tsl()
-
-        self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()
 

@@ -273,6 +273,7 @@ class ServiceController(BaseController):
         try:
             services_api = ServicesApi(ApiClient(ss_api_config))
             for configurable_service in service_description_conf["services"]:
+                response = None
                 if service.service_code == configurable_service["service_code"]:
                     timeout = int(configurable_service["timeout"])
                     timeout_all = bool(service_description_conf["timeout_all"])
