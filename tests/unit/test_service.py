@@ -143,6 +143,64 @@ class TestService(unittest.TestCase):
     def capsys(self, capsys):
         self.capsys = capsys
 
+    def test_service_apply(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                    id='DEV:GOV:9876:SUB1',
+                    instance_id='DEV',
+                    member_class='GOV',
+                    member_code='9876',
+                    subsystem_code='SUB1',
+                    connection_type=ConnectionType.HTTP,
+                    status=ClientStatus.REGISTERED,
+                    owner=True,
+                    has_valid_local_sign_cert=True
+            )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_service_description',
+                                return_value=ServiceTestData.add_description_response):
+                    with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.enable_service_description',
+                                    return_value=None):
+                        with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
+                                        return_value=[ServiceClient(
+                                            id='DEV:security-server-owners',
+                                            name='Security server owners',
+                                            local_group_code=None,
+                                            service_client_type=ServiceClientType.GLOBALGROUP,
+                                            rights_given_at=datetime.now().isoformat())]):
+                            with mock.patch('xrdsst.api.services_api.ServicesApi.add_service_service_clients',
+                                            return_value=[ServiceClient(
+                                                id='DEV:security-server-owners',
+                                                name='Security server owners',
+                                                local_group_code=None,
+                                                service_client_type=ServiceClientType.GLOBALGROUP,
+                                                rights_given_at=datetime.now().isoformat())]):
+                                with mock.patch('xrdsst.api.services_api.ServicesApi.update_service',
+                                                return_value=Service(
+                                                    id='DEV:GOV:9876:SUB1:Petstore',
+                                                    full_service_code='DEV:GOV:9876:SUB1:Petstore',
+                                                    service_code='Petstore',
+                                                    timeout=120,
+                                                    title='title',
+                                                    ssl_auth=False,
+                                                    subjects_count=0,
+                                                    url='url',
+                                                    endpoints=[])):
+                                    service_controller = ServiceController()
+                                    service_controller.app = app
+                                    service_controller.load_config = (lambda: self.ss_config)
+                                    service_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                                    service_controller.apply()
+
+                                    out, err = self.capsys.readouterr()
+                                    assert out.count("Added service description with type") > 0
+                                    assert out.count("enabled successfully") > 0
+                                    assert out.count("Added access rights") > 0
+                                    assert out.count("Updated service parameters") > 0
+
+                                    with self.capsys.disabled():
+                                        sys.stdout.write(out)
+                                        sys.stderr.write(err)
+
     def test_service_description_add(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(

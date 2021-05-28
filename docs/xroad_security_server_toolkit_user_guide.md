@@ -1,6 +1,6 @@
 # X-Road Security Server Toolkit User Guide
 
-Version: 1.3.7
+Version: 1.3.8
 Doc. ID: XRDSST-CONF
 
 ---
@@ -39,6 +39,7 @@ Doc. ID: XRDSST-CONF
 | 13.05.2021 | 1.3.5       | Added description about load-balancing                                       | Bert Viikmäe       |
 | 14.05.2021 | 1.3.6       | Notes on client management                                                   | Bert Viikmäe       |
 | 24.05.2021 | 1.3.7       | Added download-internal-tsl command                                          | Alberto Fernandez  |
+| 27.05.2021 | 1.3.8       | Update service management                                                    | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -435,6 +436,7 @@ Further subsystem registration can proceed with ``xrdsst client register``. Subs
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
 Adding access to services is performed  with ``xrdsst service add-access``. Service parameters are updated with ``xrdsst service update-parameters``.
+In addition, all the service-related sub-commands can be executed with ``xrdsst service apply``.
 
 ### 4.11 Internal TSL certificates management
 Internal TSL certificates can be downloaded with ``xrdsst cert download-internal-tsl``.
