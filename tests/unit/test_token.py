@@ -309,7 +309,7 @@ class TestToken(unittest.TestCase):
 
                             out, err = self.capsys.readouterr()
                             assert 1 == out.count(
-                                "SKIPPED 'ssX': has ['init'] performed but also needs ['token login'] completion before continuing with requested ['token init-keys']"
+                                "SKIPPED 'ssX': has ['init', 'client add'] performed but also needs ['token login'] completion before continuing with requested ['token init-keys']"
                             )
 
                             with self.capsys.disabled():

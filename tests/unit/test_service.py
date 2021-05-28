@@ -48,6 +48,7 @@ class TestService(unittest.TestCase):
                       'member_class': 'GOV',
                       'member_code': '9876',
                       'subsystem_code': 'SUB1',
+                      'member_name': 'NIIS',
                       'connection_type': 'HTTP',
                       'service_descriptions': [{
                           'url': 'https://openapi3',
@@ -97,6 +98,7 @@ class TestService(unittest.TestCase):
                       'member_class': 'GOV',
                       'member_code': '9876',
                       'subsystem_code': 'SUB1',
+                      'member_name': 'GOVERMENT',
                       'connection_type': 'HTTP',
                       'service_descriptions': [{
                           'url': 'https://openapi3',

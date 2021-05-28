@@ -1,7 +1,7 @@
 import logging
 import os
 import subprocess
-
+from xrdsst.core.conf_keys import ConfKeysSecServerClients
 import yaml
 
 
@@ -31,6 +31,12 @@ def default_auth_key_label(security_server):
 # Returns toolkit default SIGNING key label, given security server configuration
 def default_sign_key_label(security_server):
     return security_server['name'] + '-default-sign-key'
+
+
+def default_member_sign_key_label(security_server, client):
+    return default_sign_key_label(security_server) + "_" \
+           + client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS] + "_" \
+           + str(client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE])
 
 
 # Returns human readable controller invocation operation for given operation graph and its named node.

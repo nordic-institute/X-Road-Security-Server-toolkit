@@ -48,12 +48,13 @@ class EndpointController(BaseController):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for service_description_dic in self.get_services_description(config):
-            for endpoint_conf in service_description_dic["service_description"]["endpoints"]:
-                self.remote_add_service_endpoints(service_description_dic["ss_api_config"],
-                                                  service_description_dic["security_server"],
-                                                  service_description_dic["client"],
-                                                  service_description_dic["service_description"],
-                                                  endpoint_conf)
+            if "endpoints" in service_description_dic["service_description"]:
+                for endpoint_conf in service_description_dic["service_description"]["endpoints"]:
+                    self.remote_add_service_endpoints(service_description_dic["ss_api_config"],
+                                                      service_description_dic["security_server"],
+                                                      service_description_dic["client"],
+                                                      service_description_dic["service_description"],
+                                                      endpoint_conf)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 

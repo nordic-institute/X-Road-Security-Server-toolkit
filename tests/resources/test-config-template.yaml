@@ -25,6 +25,7 @@ security_server:
   clients:
     - member_class: ORG
       member_code: 111
+      member_name: NIIS
       subsystem_code: TEST
       connection_type: HTTP
       service_descriptions:
@@ -48,3 +49,28 @@ security_server:
               method: POST
               access:
                 - DEV:security-server-owners
+        - url: http://dev-cs.i.x-road.rocks/managementservices.wsdl
+          rest_service_code: None
+          type: WSDL
+          access:
+              - DEV:security-server-owners
+          url_all: True
+          timeout_all: True
+          ssl_auth_all: True
+          services:
+            - service_code: clientReg
+              access:
+                - DEV:security-server-owners
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/
+            - service_code: clientDeletion
+              access:
+                - DEV:security-server-owners
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/
+    - member_class: COM
+      member_code: 222
+      member_name: FRUIT
+      connection_type: HTTP
