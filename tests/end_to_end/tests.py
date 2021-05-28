@@ -344,7 +344,6 @@ class EndToEndTest(unittest.TestCase):
         self.step_token_login()
 
         self.step_subsystem_add_client()
-        self.step_subsystem_update_parameters()
         self.step_token_init_keys()
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
@@ -363,12 +362,14 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
         self.step_add_service_access(client_id)
-        self.step_update_service_parameters(client_id)
         # self.step_create_admin_user()
         self.step_add_service_endpoints(client_id)
         self.step_add_endpoints_access(client_id)
         self.step_subsystem_register()
 
+        self.step_subsystem_update_parameters()
+        self.step_update_service_parameters(client_id)
+        
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()
