@@ -133,6 +133,7 @@ class ClientController(BaseController):
                     return
 
                 try:
+                    BaseController.log_info("Trying to register client " + str(client.id))
                     clients_api.register_client(id=client.id)
                     BaseController.log_info("Registered client " + self.partial_client_id(client_conf))
                 except ApiException as reg_err:
