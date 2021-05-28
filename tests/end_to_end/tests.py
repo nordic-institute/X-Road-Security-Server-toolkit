@@ -369,7 +369,7 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters(client_id)
-        
+
         self.step_autoconf()  # Idempotent
 
         configured_servers_at_end = self.query_status()
