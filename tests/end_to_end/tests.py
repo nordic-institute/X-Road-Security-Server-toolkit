@@ -202,7 +202,8 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
-                    client_controller.remote_register_client(configuration, security_server, client)
+                    if client_controller.is_client_base_member(client, security_server):
+                        client_controller.remote_register_client(configuration, security_server, client)
 
     def step_subsystem_update_parameters(self):
         with XRDSSTTest() as app:
@@ -367,9 +368,9 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_endpoints_access(client_id)
         self.step_subsystem_register()
 
-        self.step_subsystem_update_parameters()
-        self.step_update_service_parameters(client_id)
-        self.step_cert_download_internal_tsl()
+        # self.step_subsystem_update_parameters()
+        # self.step_update_service_parameters(client_id)
+        # self.step_cert_download_internal_tsl()
 
         self.step_autoconf()  # Idempotent
 
