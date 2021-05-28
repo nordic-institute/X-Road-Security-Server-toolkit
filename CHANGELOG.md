@@ -2,8 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1-beta.0] - 2021-05-21
+- fixed sonar issues
+
+## [1.1.0-beta.0] - 2021-05-14
+- add ``xrdsst client`` and sub-command ``update``
+
+## [1.0.9-beta.0] - 2021-05-13
+- Added section into the User Guide about using the Toolkit to configure highly available services using the built-in security server internal load balancing
+
+## [1.0.8-beta.0] - 2021-05-10
+- Added section into the User Guide about Load Balancer setup description
+
 ## [1.0.7-beta.0] - 2021-05-04
-- add subcommand ``add-access`` to ``xrdsst endpoint`` and refacto ``add-access`` of ``xrdsst service`` to allow adding access to any member
+- add sub-command ``add-access`` to ``xrdsst endpoint`` and refacto ``add-access`` of ``xrdsst service`` to allow adding access to any member
 
 ## [1.0.6-beta.0] - 2021-05-03
 - Dockerfile and respective Makefile target removed
@@ -15,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - API keys in configuration files kept as environment variables instead of plain text to reduce security risks
 
 ## [1.0.3-beta.0] - 2021-04-26
-- add ``xrdsst endpoint`` and subcommand ``add-endpoints``
+- add ``xrdsst endpoint`` and sub-command ``add-endpoints``
 
 ## [1.0.2-beta.0] - 2021-04-20
 - Secrets in configuration files kept as environment variables instead of plain text to reduce security risks
@@ -30,7 +42,7 @@ All notable changes to this project will be documented in this file.
 - Documentation updates related to package verification
 
 ## [0.4.1-alpha.0] - 2021-04-06
-- add ``xrdsst user`` and subcommand ``create-admin``
+- add ``xrdsst user`` and sub-command ``create-admin``
 
 ## [0.4.0-alpha.0] - 2021-04-05
 - Mask API key representations in log files.
@@ -66,18 +78,18 @@ All notable changes to this project will be documented in this file.
 - Extended proxy error handling and feedback, ASCII diagrams included.
 
 ## [0.2.5-alpha.0] - 2021-02-23
-- add ``xrdsst service`` subcommand ``update-parameters``
+- add ``xrdsst service`` sub-command ``update-parameters``
 
 ## [0.2.4-alpha.0] - 2021-02-22
-- add ``xrdsst service`` subcommand ``add-access``
+- add ``xrdsst service`` sub-command ``add-access``
 
 ## [0.2.3-alpha.0] - 2021-02-22
-- Autoconfiguration to be sequential per-security server.
+- Auto-configuration to be sequential per-security server.
 - Defined operation completion criteria.
 - Operations made aware of operational context.
 - Configuration file validated on global level (keys) and operation level (required keys, value sanity)
-- Autoconfiguration stops after operation that could not be completed
-- Autoconfiguration shows base operation statuses when ended / stopped.
+- Auto-configuration stops after operation that could not be completed
+- Auto-configuration shows base operation statuses when ended / stopped.
 
 ## [0.2.2-alpha.0] - 2021-02-03
 - Add examination of configured server statuses with ``xrdsst status``
@@ -85,24 +97,24 @@ All notable changes to this project will be documented in this file.
 ## [0.2.1-alpha.0] - 2021-01-27
 
 - move adding and enabling of service descriptions to ServiceController
-  so that adding is performed with``xrdsst service`` subcommand ``add-description``
-  and enabling with ``xrdsst service`` subcommand ``enable-description``
+  so that adding is performed with``xrdsst service`` sub-command ``add-description``
+  and enabling with ``xrdsst service`` sub-command ``enable-description``
 
 ## [0.2.0-alpha.0] - 2021-01-21
 
-- add ``xrdsst client`` subcommand ``add-service-description``
+- add ``xrdsst client`` sub-command ``add-service-description``
 
 ## [0.1.20-alpha.0] - 2021-01-21
 
-- add ``xrdsst apply`` autoconfiguration command, rework log error handling
+- add ``xrdsst apply`` auto-configuration command, rework log error handling
 
 ## [0.1.19-alpha.0] - 2021-01-12
 
-- add ``xrdsst client`` subcommand ``register``
+- add ``xrdsst client`` sub-command ``register``
 
 ## [0.1.18-alpha.0] - 2021-01-07
 
-- add ``xrdsst client`` and subcommand ``add``
+- add ``xrdsst client`` and sub-command ``add``
 
 ## [0.1.17-alpha.0] - 2020-12-31
 

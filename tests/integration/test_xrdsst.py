@@ -2,7 +2,8 @@ import urllib3
 
 from tests.integration.integration_base import IntegrationTestBase
 from tests.integration.integration_ops import IntegrationOpBase
-from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, get_endpoint_service_clients
+from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
+    get_endpoint_service_clients
 from tests.util.test_util import get_service_description, assert_server_statuses_transitioned
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -106,6 +107,19 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             client_controller.load_config = (lambda: self.config)
             client_controller.register()
 
+    def step_subsystem_update_parameters(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            client = get_client(self.config)
+            assert client["connection_type"] == 'HTTP'
+            self.config["security_server"][0]["clients"][0]["connection_type"] = 'HTTPS'
+            client_controller.load_config = (lambda: self.config)
+            client_controller.update()
+            client = get_client(self.config)
+            assert client["connection_type"] == 'HTTPS'
+            self.config["security_server"][0]["clients"][0]["connection_type"] = 'HTTP'
+
     def step_add_service_description(self, client_id):
         with XRDSSTTest() as app:
             service_controller = ServiceController()
@@ -185,9 +199,10 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         self.query_status()
 
-        # certificates
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
+
+        self.step_cert_download_internal_tsl()
 
         self.apply_cert_config(signed_certs)
         self.query_status()
@@ -201,15 +216,16 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_cert_activate()
         self.query_status()
 
-        # Wait for global configuration status updates
         waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config), self.retry_wait, self.max_retries)
         self.query_status()
 
-        # subsystems
         self.step_subsystem_add_client()
         self.query_status()
 
         self.step_subsystem_register()
+        self.query_status()
+
+        self.step_subsystem_update_parameters()
         self.query_status()
 
         client = get_client(self.config)
@@ -226,13 +242,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.query_status()
 
         self.step_update_service_parameters(client_id)
-        configured_servers_at_end = self.query_status()
 
         self.step_add_service_endpoints(client_id)
         self.query_status()
 
         self.step_add_endpoints_access(client_id)
-        self.query_status()
+        configured_servers_at_end = self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
 

@@ -46,6 +46,7 @@ OP_REGISTER_AUTH_CERT = "REGISTER\nAUTH CERT"
 OP_ACTIVATE_AUTH_CERT = "ACTIVATE\nAUTH CERT"
 OP_ADD_CLIENT = "ADD CLIENT"
 OP_REGISTER_CLIENT = "REGISTER CLIENT"
+OP_UPDATE_CLIENT = "UPDATE CLIENT"
 OP_ADD_SERVICE_DESC = "ADD SERVICE\nDESCRIPTION"
 OP_ENABLE_SERVICE_DESC = "ENABLE SERVICE\nDESCRIPTION"
 OP_ADD_SERVICE_ACCESS = "ADD SERVICE\nACCESS"
@@ -65,6 +66,7 @@ class OPS:
     ACTIVATE_AUTH_CERT = OP_ACTIVATE_AUTH_CERT
     ADD_CLIENT = OP_ADD_CLIENT
     REGISTER_CLIENT = OP_REGISTER_CLIENT
+    UPDATE_CLIENT = OP_UPDATE_CLIENT
     ADD_SERVICE_DESC = OP_ADD_SERVICE_DESC
     ENABLE_SERVICE_DESC = OP_ENABLE_SERVICE_DESC
     ADD_SERVICE_ACCESS = OP_ADD_SERVICE_ACCESS
@@ -83,6 +85,7 @@ VALIDATORS = {
     OPS.ACTIVATE_AUTH_CERT: validate_config_cert_activate,
     OPS.ADD_CLIENT: validate_config_client_add_or_register,
     OPS.REGISTER_CLIENT: validate_config_client_add_or_register,
+    OPS.UPDATE_CLIENT: validate_config_client_add_or_register,
     OPS.ADD_SERVICE_DESC: validate_config_service_desc,
     OPS.ENABLE_SERVICE_DESC: validate_config_service_desc,
     OPS.ADD_SERVICE_ACCESS: validate_config_service_access,
@@ -160,6 +163,7 @@ def opdep_init(app):
 
     add_op_node(g, OPS.ADD_CLIENT, ClientController, ClientController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.REGISTER_CLIENT, ClientController, ClientController.register, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.UPDATE_CLIENT, ClientController, ClientController.update, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_SERVICE_DESC, ServiceController, ServiceController.add_description, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ENABLE_SERVICE_DESC, ServiceController, ServiceController.enable_description, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_SERVICE_ACCESS, ServiceController, ServiceController.add_access, is_done=(lambda ssn: True))
@@ -172,7 +176,7 @@ def opdep_init(app):
 
     g.add_edge(OPS.TOKEN_LOGIN, OPS.ADD_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.GENKEYS_CSRS)
-
+    g.add_edge(OPS.ADD_CLIENT, OPS.UPDATE_CLIENT)
     g.add_edge(OPS.GENKEYS_CSRS, OPS.IMPORT_CERTS)
     g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
     g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)

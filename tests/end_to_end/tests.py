@@ -134,6 +134,15 @@ class EndToEndTest(unittest.TestCase):
                         signed_certs.append(('auth', csr.fs_loc))
             return signed_certs
 
+    def step_cert_download_internal_tsl(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                ss_configuration = cert_controller.create_api_config(security_server, self.config)
+                result = cert_controller.remote_download_internal_tsl(ss_configuration, security_server)
+                assert len(result) == 1
+
     def step_acquire_certs(self, downloaded_csrs):
         tca_sign_url = find_test_ca_sign_url(self.config['security_server'][0]['configuration_anchor'])
         cert_files = []
@@ -194,6 +203,24 @@ class EndToEndTest(unittest.TestCase):
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
                     client_controller.remote_register_client(configuration, security_server, client)
+
+    def step_subsystem_update_parameters(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+
+            client = get_client(self.config)
+            assert client["connection_type"] == 'HTTP'
+            self.config["security_server"][0]["clients"][0]["connection_type"] = 'HTTPS'
+
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    client_controller.remote_update_client(configuration, security_server, client)
+
+            client = get_client(self.config)
+            assert client["connection_type"] == 'HTTPS'
+            self.config["security_server"][0]["clients"][0]["connection_type"] = 'HTTP'
 
     def step_add_service_description(self, client_id):
         service_controller = ServiceController()
@@ -317,11 +344,11 @@ class EndToEndTest(unittest.TestCase):
         self.step_token_login()
 
         self.step_subsystem_add_client()
-
+        self.step_subsystem_update_parameters()
         self.step_token_init_keys()
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
-
+        self.step_cert_download_internal_tsl()
         self.apply_cert_config(signed_certs)
         self.step_cert_import()
         self.step_cert_register()

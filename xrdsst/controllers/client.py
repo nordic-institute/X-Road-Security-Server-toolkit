@@ -16,6 +16,9 @@ class ClientController(BaseController):
         stacked_type = 'nested'
         description = texts['client.controller.description']
 
+    CLIENTS_API_FIND_CLIENTS = 'ClientsApi->find_clients'
+    CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION = 'ClientsApi->get_client_service_description'
+
     @ex(help="Add client subsystem", arguments=[])
     def add(self):
         active_config = self.load_config()
@@ -44,6 +47,20 @@ class ClientController(BaseController):
 
         self.register_client(active_config)
 
+    @ex(help="Update client", arguments=[])
+    def update(self):
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+
+        self.update_client(active_config)
+
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -67,6 +84,18 @@ class ClientController(BaseController):
             if "clients" in security_server:
                 for client in security_server["clients"]:
                     self.remote_register_client(ss_api_config, security_server, client)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def update_client(self, config):
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
+            BaseController.log_debug('Starting client registrations for security server: ' + security_server['name'])
+            if "clients" in security_server:
+                for client in security_server["clients"]:
+                    self.remote_update_client(ss_api_config, security_server, client)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -109,7 +138,28 @@ class ClientController(BaseController):
                 except ApiException as reg_err:
                     BaseController.log_api_error('ClientsApi->register_client', reg_err)
         except ApiException as find_err:
-            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
+
+    def remote_update_client(self, ss_api_config, security_server_conf, client_conf):
+        clients_api = ClientsApi(ApiClient(ss_api_config))
+        try:
+            client = self.find_client(clients_api, security_server_conf, client_conf)
+            if client:
+                if client.status not in [ClientStatus.SAVED, ClientStatus.REGISTERED, ClientStatus.REGISTRATION_IN_PROGRESS]:
+                    BaseController.log_info(
+                        security_server_conf['name'] + ": " + self.partial_client_id(client_conf) + " not added/registered yet."
+                    )
+                    return
+
+                try:
+                    client.connection_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
+                    response = clients_api.update_client(client.id, body=client)
+                    BaseController.log_info("Updated client " + self.partial_client_id(client_conf) + " connection type")
+                    return response
+                except ApiException as reg_err:
+                    BaseController.log_api_error('ClientsApi->update_client', reg_err)
+        except ApiException as find_err:
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
     def find_client(self, clients_api, security_server_conf, client_conf):
         if 'subsystem_code' in client_conf:

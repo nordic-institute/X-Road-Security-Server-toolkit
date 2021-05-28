@@ -1,6 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-
-Version: 1.3.4
+Version: 1.3.8
 Doc. ID: XRDSST-CONF
 
 ---
@@ -35,7 +34,11 @@ Doc. ID: XRDSST-CONF
 | 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
 | 27.04.2021 | 1.3.2       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
 | 04.05.2021 | 1.3.3       | Added description about endpoint access                                      | Alberto Fernandez  |
-| 04.05.2021 | 1.3.3       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
+| 10.05.2021 | 1.3.4       | Added Load Balancer setup description                                        | Alberto Fernandez  |            
+| 13.05.2021 | 1.3.5       | Added description about load-balancing                                       | Bert Viikmäe       |
+| 14.05.2021 | 1.3.6       | Notes on client management                                                   | Bert Viikmäe       |
+| 24.05.2021 | 1.3.7       | Added download-internal-tsl command                                          | Alberto Fernandez  |
+| 28.05.2021 | 1.3.8       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -67,6 +70,7 @@ Doc. ID: XRDSST-CONF
 	* [4.8 Certificate management](#48-certificate-management)
 	* [4.9 Client management](#49-client-management)
 	* [4.10 Service management](#410-service-management)
+	* [4.11 Internal TSL certificates management](#411-internal-tsl-certificates-management)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
 	* [5.1 Configuration flow](#51-configuration-flow)
 	* [5.2 First-run failures](#52-first-run-failures)
@@ -75,7 +79,9 @@ Doc. ID: XRDSST-CONF
 		* [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
 	* [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
 	* [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
-* [6 Multitenancy](#6-Multitenancy)
+* [6 Load balancer setup](#6-load-balancer-setup)
+* [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
+* [8 Multitenancy](#8-Multitenancy)
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -426,12 +432,15 @@ cert register``, final activation with ``xrdsst cert activate``.
 ### 4.9 Client management
 Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
 ``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
-Further subsystem registration can proceed with ``xrdsst client register``. 
+Further subsystem registration can proceed with ``xrdsst client register``. Subsystem parameters are updated with ``xrdsst client update``.
 
 ### 4.10 Service management
 Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
 Adding access to services is performed  with ``xrdsst service add-access``. Service parameters are updated with ``xrdsst service update-parameters``.
+
+### 4.11 Internal TSL certificates management
+Internal TSL certificates can be downloaded with ``xrdsst cert download-internal-tsl``.
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
@@ -648,7 +657,92 @@ Overview of existing automatic backups is accessible from web administration con
 of the security server, in the "Settings" menu. More information about functionality
 can be found in [UG-SS](#Ref_SS-UG).
 
-## 6 Multitenancy
+
+## 6 Load balancer setup
+
+ It is possible to setup a Load balancer environment described in [X-Road: External Load Balancer Installation Guide](https://github.com/nordic-institute/X-Road/blob/develop/doc/Manuals/LoadBalancing/ig-xlb_x-road_external_load_balancer_installation_guide.md) 
+ and configure it using the toolkit.
+
+Under the [X-Road](https://github.com/nordic-institute/X-Road) project there are ansible 
+scripts prepared to install the cluster, for doing that we must follow the instructions 
+[Security server cluster setup](https://github.com/nordic-institute/X-Road/tree/develop/ansible/ss_cluster#security-server-cluster-setup).
+
+Once the cluster is ready we can use the toolkit to configure the Load Balancer setup, for doing that, we must configure the Primary Security Server as any other single Security Server, setting in the
+`SECURITY_SERVER_INTERNAL_FQDN_OR_IP` property with the FQDN belonging to the Primary.
+
+## 7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing
+
+In order to configure a highly available service using the built-in security server load balancing, at least two security
+servers need to be configured with the same subsystem/service.
+
+An example configuration file to be used:
+
+```
+admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+ssh_access:
+  user: <SSH_USER_OS_ENV_VAR_NAME>
+  private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+security_server:
+- api_key: <API_KEY_ENV_VAR_NAME>
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  certificates:
+    - /path/to/signcert
+    - /path/to/authcert
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <MEMBER_CLASS>
+  owner_member_code: <MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
+  url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
+  ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
+  ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  clients:
+    - member_class: <MEMBER_CLASS>
+      member_code: <MEMBER_CODE>
+      subsystem_code: <SUBSYSTEM_CODE>
+      connection_type: <CONNECTION_TYPE>
+- api_key: <API_KEY_ENV_VAR_NAME>
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  certificates:
+    - /path/to/signcert
+    - /path/to/authcert
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <MEMBER_CLASS>
+  owner_member_code: <MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
+  url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
+  ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
+  ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  clients:
+    - member_class: <MEMBER_CLASS>
+      member_code: <MEMBER_CODE>
+      subsystem_code: <SUBSYSTEM_CODE>
+      connection_type: <CONNECTION_TYPE>
+```
+
+The ``clients`` section should have the same values used for the following parameters:
+ * ``member_class`` member class of a subsystem.
+ * ``member_code`` member code of a subsystem.
+ * ``subsystem_code`` X-Road member/client subsystem code.
+ * ``connection_type`` Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
+
+When the placeholders in the configuration file have been amended with proper values, please start from 
+[4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit) and continue until(included) [4.9 Client management](#49-client-management)
+
+## 8 Multitenancy
 It's possible to add another members and subsystem to a security server using the toolkit.
 For doing that we need to add the members and subsystems in the clients section of the configuration
 file. 

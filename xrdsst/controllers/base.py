@@ -33,6 +33,18 @@ from xrdsst.rest.rest import ApiException
 BANNER = texts['app.description'] + ' ' + get_version() + '\n' + get_version_banner()
 
 
+class BaseControllerException(Exception):
+    """Exception raised for errors related to UserController.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+
 class BaseController(Controller):
     _TRANSIENT_API_KEY_ROLES = ['XROAD_SYSTEM_ADMINISTRATOR', 'XROAD_SERVICE_ADMINISTRATOR', 'XROAD_SECURITY_OFFICER', 'XROAD_REGISTRATION_OFFICER']
     _DEFAULT_CONFIG_FILE = "config/xrdsst.yml"
@@ -51,6 +63,8 @@ class BaseController(Controller):
         arguments = [
             (['-v', '--version'], {'action': 'version', 'version': BANNER})
         ]
+
+    MESSAGE_SKIPPED = 'message.skipped'
 
     @staticmethod
     def api_key_scrambler(log_record):
@@ -100,12 +114,12 @@ class BaseController(Controller):
                                   ' created.')
                     return api_key_json["key"]
                 else:
-                    self.log_api_error('BaseController->create_api_key:', 'API key creation for security server ' \
+                    self.log_api_error('BaseController->create_api_key:', 'API key creation for security server '
                                        + security_server['name'] + ' failed (exit_code =' + str(exitcode) + ', data =' + str(data))
             except Exception as err:
                 self.log_api_error('BaseController->create_api_key:', err)
         else:
-            raise Exception("SSH private key file does not exists")
+            raise BaseControllerException("SSH private key file does not exists")
 
     # Returns true if controller is being invoked in autoconfiguration mode.
     def is_autoconfig(self):
@@ -167,30 +181,45 @@ class BaseController(Controller):
         skipped_servers = []
 
         for security_server in active_config["security_server"]:
-            ssn = security_server['name']
-            g_server_node = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]
-            conn_status = g_server_node['status'].connectivity_status
-            reachable_ops[ssn] = []
-            unreachable_ops[ssn] = []
+            reachable_ops, unreachable_ops, reachable_config, skipped_servers = self.regroup_per_security_server(security_server,
+                                                                                                                 reachable_ops,
+                                                                                                                 unreachable_ops,
+                                                                                                                 op_full_path,
+                                                                                                                 reachable_config,
+                                                                                                                 skipped_servers)
 
-            for oop in op_full_path[:-1]:
-                performed = self.app.OP_GRAPH.nodes[oop]['is_done'](ssn)
-                (reachable_ops if performed else unreachable_ops)[ssn].append(oop)
+        skip_details = self.fill_skip_details(skipped_servers, reachable_ops, unreachable_ops)
 
-            if len(unreachable_ops[ssn]) > 0 or not conn_status[0]:
-                for rssc in reachable_config["security_server"]:
-                    if ssn == rssc['name']:
-                        skipped_servers.append(rssc)
-                        reachable_config['security_server'].remove(rssc)
+        return reachable_config, skip_details
 
+    def regroup_per_security_server(self, security_server, reachable_ops, unreachable_ops, op_full_path, reachable_config, skipped_servers):
+        ssn = security_server['name']
+        g_server_node = self.app.OP_GRAPH.nodes[self.app.OP_DEPENDENCY_LIST[0]]['servers'][ssn]
+        conn_status = g_server_node['status'].connectivity_status
+        reachable_ops[ssn] = []
+        unreachable_ops[ssn] = []
+
+        for oop in op_full_path[:-1]:
+            performed = self.app.OP_GRAPH.nodes[oop]['is_done'](ssn)
+            (reachable_ops if performed else unreachable_ops)[ssn].append(oop)
+
+        if len(unreachable_ops[ssn]) > 0 or not conn_status[0]:
+            for rssc in reachable_config["security_server"]:
+                if ssn == rssc['name']:
+                    skipped_servers.append(rssc)
+                    reachable_config['security_server'].remove(rssc)
+
+        return reachable_ops, unreachable_ops, reachable_config, skipped_servers
+
+    @staticmethod
+    def fill_skip_details(skipped_servers, reachable_ops, unreachable_ops):
         skip_details = {}  # Python 3.6+ retains insertion order, as desired here.
         for skipped_server in skipped_servers:
             skip_details[skipped_server['name']] = {
                 'reachable_ops': reachable_ops[skipped_server['name']],
                 'unreachable_ops': unreachable_ops[skipped_server['name']]
             }
-
-        return reachable_config, skip_details
+        return skip_details
 
     # Given active configuration and full operation path to single operation, returns configuration exclusively with
     # security servers which have valid operation configuration defined.
@@ -259,9 +288,8 @@ class BaseController(Controller):
     @staticmethod
     def _init_logging(configuration):
         curr_handlers = logging.getLogger().handlers
-        if curr_handlers:
-            if any(map(lambda h: h.level != logging.NOTSET, curr_handlers)):  # Skip init ONLY if ANY handler levels set.
-                return
+        if curr_handlers and any(map(lambda h: h.level != logging.NOTSET, curr_handlers)):  # Skip init ONLY if ANY handler levels set.
+            return
 
         exit_messages = ['']
         logging.getLogger().handlers = []
@@ -306,58 +334,8 @@ class BaseController(Controller):
 
     # Load the configuration, performs key level validation, finally initiates logging.
     def load_config(self, baseconfig=None):
-        # Add errors to /dict_err_lists/ at given key for /sec_server_configs/ that do not have required /key/ defined.
-        def require_conf_key(key, sec_server_configs, dict_err_lists):
-            for i in range(0, len(sec_server_configs)):
-                if not sec_server_configs[i].get(key) or not sec_server_configs[i][key]:
-                    dict_err_lists[key].append(
-                        "security_server[" + str(i + 1) + "]" + " missing required '" + key + "' definition."
-                    )
 
-        # Add errors to /dict_err_lists/ if /sec_server_configs/ does not have UNIQUE /key/ VALUE for all entries.
-        def require_unique_conf_keys(key, sec_server_configs, dict_err_lists):
-            values = {x[key] for x in sec_server_configs}
-            if len(values) == len(sec_server_configs):
-                return
-
-            key_counts = {x: 0 for x in values}
-            for x in sec_server_configs:
-                key_counts[x[key]] += 1
-
-            duplicates = [x for x in key_counts.keys() if key_counts[x] > 1]
-            detected = set()
-            for z in range(0, len(sec_server_configs)):
-                # Append all duplicated value occurence messages in sequence
-                if sec_server_configs[z][key] in duplicates and sec_server_configs[z][key] not in detected:
-                    for y in range(0, len(sec_server_configs)):
-                        if str(sec_server_configs[z][key]) == str(sec_server_configs[y][key]):
-                            dict_err_lists[key].append(
-                                ConfKeysRoot.CONF_KEY_ROOT_SERVER + "[" + str(y + 1) + "] '" + key +
-                                "' value '" + str(sec_server_configs[y][key]) + "' is non-unique."
-                            )
-                    detected.add(str(sec_server_configs[z][key]))
-
-        if not baseconfig:
-            baseconfig = self.app.pargs.configfile
-            self.config_file = baseconfig
-
-        if not os.path.exists(baseconfig):
-            self.log_info(texts['message.file.not.found'].format(baseconfig))
-            self.app.close(os.EX_CONFIG)
-            return None
-
-        try:
-            with open(baseconfig, "r") as yml_file:
-                self.config = yaml.safe_load(yml_file)
-            self.config_file = baseconfig
-        except IOError as io_err:
-            self.log_info(io_err)
-            self.log_info(texts["message.file.unreadable"].format(baseconfig))
-            self.app.close(os.EX_CONFIG)
-            return None
-        except yaml.YAMLError as other_yaml_err:
-            self.log_info(texts["message.config.unparsable"].format(other_yaml_err))
-            self.app.close(os.EX_CONFIG)
+        if self.load_configuration_from_file(baseconfig) is None:
             return None
 
         # Perform the basic (key-level only) configuration validation.
@@ -385,24 +363,18 @@ class BaseController(Controller):
         # Defined security servers HAVE TO have non-empty name and url defined!
         conf_security_servers = self.config[ConfKeysRoot.CONF_KEY_ROOT_SERVER]
         errors = {ConfKeysSecurityServer.CONF_KEY_NAME: [], ConfKeysSecurityServer.CONF_KEY_URL: []}
-        require_conf_key(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
-        require_conf_key(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
+        self.require_conf_key(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
+        self.require_conf_key(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
 
-        if errors[ConfKeysSecurityServer.CONF_KEY_NAME] or errors[ConfKeysSecurityServer.CONF_KEY_URL]:
-            print(*errors[ConfKeysSecurityServer.CONF_KEY_NAME], sep='\n', file=sys.stderr)
-            print(*errors[ConfKeysSecurityServer.CONF_KEY_URL], sep='\n', file=sys.stderr)
-            self.app.close(os.EX_CONFIG)
+        if self.check_conf_errors(errors) is None:
             return None
 
         # Potential live disaster recipe is when configured security servers' 'name' or 'url' somewhere collude
         # in the provided configuration file. So do the extra check and refuse to run if such situation detected.
-        require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
-        require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
+        self.require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_NAME, conf_security_servers, errors)
+        self.require_unique_conf_keys(ConfKeysSecurityServer.CONF_KEY_URL, conf_security_servers, errors)
 
-        if errors[ConfKeysSecurityServer.CONF_KEY_NAME] or errors[ConfKeysSecurityServer.CONF_KEY_URL]:
-            print(*errors[ConfKeysSecurityServer.CONF_KEY_NAME], sep='\n', file=sys.stderr)
-            print(*errors[ConfKeysSecurityServer.CONF_KEY_URL], sep='\n', file=sys.stderr)
-            self.app.close(os.EX_CONFIG)
+        if self.check_conf_errors(errors) is None:
             return None
 
         # Change the logging contract, per:
@@ -412,6 +384,74 @@ class BaseController(Controller):
         self._init_logging(self.config)
 
         return self.config
+
+    def check_conf_errors(self, errors):
+        if errors[ConfKeysSecurityServer.CONF_KEY_NAME] or errors[ConfKeysSecurityServer.CONF_KEY_URL]:
+            print(*errors[ConfKeysSecurityServer.CONF_KEY_NAME], sep='\n', file=sys.stderr)
+            print(*errors[ConfKeysSecurityServer.CONF_KEY_URL], sep='\n', file=sys.stderr)
+            self.app.close(os.EX_CONFIG)
+            return None
+        return True
+
+    def load_configuration_from_file(self, baseconfig):
+
+        if not baseconfig:
+            baseconfig = self.app.pargs.configfile
+            self.config_file = baseconfig
+
+        if not os.path.exists(baseconfig):
+            self.log_info(texts['message.file.not.found'].format(baseconfig))
+            self.app.close(os.EX_CONFIG)
+            return None
+
+        try:
+            with open(baseconfig, "r") as yml_file:
+                self.config = yaml.safe_load(yml_file)
+            self.config_file = baseconfig
+        except IOError as io_err:
+            self.log_info(io_err)
+            self.log_info(texts["message.file.unreadable"].format(baseconfig))
+            self.app.close(os.EX_CONFIG)
+            return None
+        except yaml.YAMLError as other_yaml_err:
+            self.log_info(texts["message.config.unparsable"].format(other_yaml_err))
+            self.app.close(os.EX_CONFIG)
+            return None
+
+        return True
+
+    # Add errors to /dict_err_lists/ at given key for /sec_server_configs/ that do not have required /key/ defined.
+    @staticmethod
+    def require_conf_key(key, sec_server_configs, dict_err_lists):
+        for i in range(0, len(sec_server_configs)):
+            if not sec_server_configs[i].get(key) or not sec_server_configs[i][key]:
+                dict_err_lists[key].append(
+                    "security_server[" + str(i + 1) + "]" + " missing required '" + key + "' definition."
+                )
+
+    # Add errors to /dict_err_lists/ if /sec_server_configs/ does not have UNIQUE /key/ VALUE for all entries.
+    @staticmethod
+    def require_unique_conf_keys(key, sec_server_configs, dict_err_lists):
+        values = {x[key] for x in sec_server_configs}
+        if len(values) == len(sec_server_configs):
+            return
+
+        key_counts = {x: 0 for x in values}
+        for x in sec_server_configs:
+            key_counts[x[key]] += 1
+
+        duplicates = [x for x in key_counts.keys() if key_counts[x] > 1]
+        detected = set()
+        for z in range(0, len(sec_server_configs)):
+            # Append all duplicated value occurence messages in sequence
+            if sec_server_configs[z][key] in duplicates and sec_server_configs[z][key] not in detected:
+                for y in range(0, len(sec_server_configs)):
+                    if str(sec_server_configs[z][key]) == str(sec_server_configs[y][key]):
+                        dict_err_lists[key].append(
+                            ConfKeysRoot.CONF_KEY_ROOT_SERVER + "[" + str(y + 1) + "] '" + key +
+                            "' value '" + str(sec_server_configs[y][key]) + "' is non-unique."
+                        )
+                detected.add(str(sec_server_configs[z][key]))
 
     def create_api_config(self, security_server, config=None):
         api_key = self.get_api_key(config, security_server)
@@ -431,13 +471,13 @@ class BaseController(Controller):
         for ssn in unconfigured_servers:
             conn_status = self.app.OP_GRAPH.nodes[full_op_path[-1]]['servers'][ssn]['status'].connectivity_status
             if not conn_status[0]:
-                skip_msg = texts['message.skipped'].format(ssn) + ": no connectivity ({}).".format(str(conn_status[1]))
+                skip_msg = texts[BaseController.MESSAGE_SKIPPED].format(ssn) + ": no connectivity ({}).".format(str(conn_status[1]))
                 self.log_info(skip_msg)
                 continue
             hr_reachable = list(map(op_text, unconfigured_servers[ssn]['reachable_ops']))
             hr_unreachable = list(map(op_text, unconfigured_servers[ssn]['unreachable_ops']))
             skip_msg = \
-                texts['message.skipped'].format(ssn) + ":" + \
+                texts[BaseController.MESSAGE_SKIPPED].format(ssn) + ":" + \
                 ((" has " + str(hr_reachable) + " performed but also") if hr_reachable else '') + \
                 " needs " + str(hr_unreachable) + \
                 " completion before continuing with requested ['" + op_text(full_op_path[-1]) + "']"
@@ -446,7 +486,7 @@ class BaseController(Controller):
     def log_skipped_op_conf_invalid(self, invalid_conf_servers):
         for ssn in invalid_conf_servers.keys():
             skip_msg = \
-                texts['message.skipped'].format(ssn) + ":\n" + (' ' * 8) + \
+                texts[BaseController.MESSAGE_SKIPPED].format(ssn) + ":\n" + (' ' * 8) + \
                 ("\n" + (' ' * 8)).join(invalid_conf_servers[ssn]['errors'])
             self.log_info(skip_msg)
 
