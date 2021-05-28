@@ -2,7 +2,7 @@ from cement import ex
 from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
-from xrdsst.core.conf_keys import ConfKeysSecurityServer
+from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 from xrdsst.core.util import convert_swagger_enum
 from xrdsst.models import ClientAdd, Client, ConnectionType, ClientStatus
 from xrdsst.rest.rest import ApiException
@@ -61,6 +61,20 @@ class ClientController(BaseController):
 
         self.update_client(active_config)
 
+    @ex(help="Import TSL certificates", arguments=[])
+    def import_tsl_certs(self):
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+
+        self.client_import_tsl_cert(active_config)
+
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -98,6 +112,18 @@ class ClientController(BaseController):
                     self.remote_update_client(ss_api_config, security_server, client)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def client_import_tsl_cert(self, config):
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
+            BaseController.log_debug('Starting internal TSL certificate import for security server: ' + security_server['name'])
+            if ConfKeysSecurityServer.CONF_KEY_TSL_CERTS in security_server:
+                for tsl_cert in security_server[ConfKeysSecurityServer.CONF_KEY_TSL_CERTS]:
+                        self.remote_import_tsl_certificate(ss_api_config, tsl_cert, security_server)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+        return
 
     def remote_add_client(self, ss_api_config, client_conf):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
@@ -158,12 +184,24 @@ class ClientController(BaseController):
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
+    def remote_import_tsl_certificate(self, ss_api_config, security_server_conf, client_conf = None):
+
+        return
+
     def find_client(self, clients_api, security_server_conf, client_conf):
-        found_clients = clients_api.find_clients(
-            member_class=client_conf['member_class'],
-            member_code=client_conf['member_code'],
-            subsystem_code=client_conf['subsystem_code']
-        )
+        if 'subsystem_code' in client_conf:
+            found_clients = clients_api.find_clients(
+                member_class=client_conf['member_class'],
+                member_code=client_conf['member_code'],
+                name=client_conf["member_name"],
+                subsystem_code=client_conf["subsystem_code"]
+            )
+        else:
+            found_clients = clients_api.find_clients(
+                member_class=client_conf['member_class'],
+                member_code=client_conf['member_code'],
+                name=client_conf["member_name"]
+            )
 
         if not found_clients:
             BaseController.log_info(
