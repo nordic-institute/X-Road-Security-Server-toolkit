@@ -99,7 +99,7 @@ class TestAuto(unittest.TestCase):
 
             out, err = self.capsys.readouterr()
             assert 1 == out.count("completion was NOT detected")
-            assert 1 == out.count("Next AUTO operation would have been ['token init-keys'].")
+            assert 1 == out.count("Next AUTO operation would have been ['client add'].")
 
             with self.capsys.disabled():
                 sys.stdout.write(out)

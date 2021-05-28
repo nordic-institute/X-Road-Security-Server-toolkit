@@ -1,6 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-
-Version: 1.3.7
+Version: 1.3.8
 Doc. ID: XRDSST-CONF
 
 ---
@@ -39,6 +38,7 @@ Doc. ID: XRDSST-CONF
 | 13.05.2021 | 1.3.5       | Added description about load-balancing                                       | Bert Viikmäe       |
 | 14.05.2021 | 1.3.6       | Notes on client management                                                   | Bert Viikmäe       |
 | 24.05.2021 | 1.3.7       | Added download-internal-tsl command                                          | Alberto Fernandez  |
+| 28.05.2021 | 1.3.8       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -81,6 +81,7 @@ Doc. ID: XRDSST-CONF
 	* [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
 * [6 Load balancer setup](#6-load-balancer-setup)
 * [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
+* [8 Multitenancy](#8-Multitenancy)
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -256,6 +257,7 @@ security_server:
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
+      member_name: <MEMBER_NAME>
       subsystem_code: <SUBSYSTEM_CODE>
       connection_type: <CONNECTION_TYPE>
       service_descriptions:
@@ -301,6 +303,7 @@ The ``security_server`` section is for configuring security server parameters
 * <OWNER_DISTINGUISHED_NAME_ORGANIZATION> should be set to server owner organization. This is used in certificate generation.
 * <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV
 * <MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234
+* <MEMBER_NAME> should be substituted with the member name obtained from the Central Server, e.g. COMPANY
 * <SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
 * <SOFT_TOKEN_ID> default software token ID, normally 0 (zero).
 * <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code
@@ -654,6 +657,7 @@ Overview of existing automatic backups is accessible from web administration con
 of the security server, in the "Settings" menu. More information about functionality
 can be found in [UG-SS](#Ref_SS-UG).
 
+
 ## 6 Load balancer setup
 
  It is possible to setup a Load balancer environment described in [X-Road: External Load Balancer Installation Guide](https://github.com/nordic-institute/X-Road/blob/develop/doc/Manuals/LoadBalancing/ig-xlb_x-road_external_load_balancer_installation_guide.md) 
@@ -738,3 +742,71 @@ The ``clients`` section should have the same values used for the following param
 When the placeholders in the configuration file have been amended with proper values, please start from 
 [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit) and continue until(included) [4.9 Client management](#49-client-management)
 
+## 8 Multitenancy
+It's possible to add another members and subsystem to a security server using the toolkit.
+For doing that we need to add the members and subsystems in the clients section of the configuration
+file. 
+For adding a new member we must delete the properties 'service_descriptions' and 'subsystem_code'.
+For example if we have the owner member 'ORG/111/ORGANIZATION/SUB' and want to add the new member 'COM/12345/COMPANY', and the subsystem 'COM/12345/COMPANY/SUB' we must fill the
+configuration file like this:
+
+```
+[...]
+  clients:
+    - member_class: ORG
+      member_code: 111
+      member_name: ORGANIZATION
+      subsystem_code: SUB
+      connection_type: HTTP
+      service_descriptions:
+        [...]
+    - member_class: COM
+      member_code: 12345
+      member_name: COMPANY
+      connection_type: HTTP	
+    - member_class: COM
+      member_code: 12345
+      member_name: COMPANY
+      subsystem_code: SUB
+      connection_type: HTTP
+      service_descriptions:	
+      	[...]	    
+```
+
+Running the `apply` command will create the new member, create the certificate and register it,
+but if we want to do step by step we need to: 
+- Add the new members/subsystems with the command:
+```
+xrdsst client add-client
+```
+- Create the SIGN key and CSRS for the new member
+```
+xrdsst token init-keys
+```
+
+- Download this CSRS with the command:
+```
+xrdsst cert download-csrs 
+```
+Sign it and add it to the list of certificates in the configuration:
+```
+[...]
+security_server:
+- api_key: <API_KEY_ENV_VAR_NAME>
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+  configuration_anchor: /path/to/configuration-anchor.xml
+  certificates:
+    - /path/to/signcert
+    - /path/to/authcert
+    - /path/to/signcert_new_member
+[...]
+```
+- Import the certificate:
+```
+xrdsst cert import
+```
+- Register the new member by running the command:
+```
+xrdsst client register
+```

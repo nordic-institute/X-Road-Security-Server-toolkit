@@ -3,7 +3,6 @@ import sys
 import traceback
 import networkx
 import urllib3
-
 from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 from typing import Callable
@@ -26,6 +25,9 @@ from xrdsst.core.validator import validate_config_init, validate_config_timestam
     validate_config_service_desc_service_endpoints_access, validate_config_tsl_cert_import
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
+
+
+
 
 META = init_defaults('output.json', 'output.tabulate')
 META['output.json']['overridable'] = True
@@ -157,7 +159,9 @@ def opdep_init(app):
     add_op_node(g, OPS.TIMESTAMP_ENABLE, TimestampController, TimestampController.init, is_done=is_done_tsa)
     add_op_node(g, OPS.INIT, InitServerController, InitServerController._default, is_done=is_done_initialization)
     add_op_node(g, OPS.TOKEN_LOGIN, TokenController, TokenController.login, is_done=is_done_token_login)
+
     # End-user operations without binary /done/ criteria.
+
     add_op_node(g, OPS.ADD_CLIENT, ClientController, ClientController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.REGISTER_CLIENT, ClientController, ClientController.register, is_done=(lambda ssn: True))
     add_op_node(g, OPS.UPDATE_CLIENT, ClientController, ClientController.update, is_done=(lambda ssn: True))
@@ -169,21 +173,22 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
     add_op_node(g, OPS.IMPORT_TSL_CERT, ClientController, ClientController.import_tsl_certs,is_done=(lambda ssn: True))
 
-    g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
-    g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
     g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
     g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
-    g.add_edge(OPS.TOKEN_LOGIN, OPS.GENKEYS_CSRS)
+
+    g.add_edge(OPS.TOKEN_LOGIN, OPS.ADD_CLIENT)
+    g.add_edge(OPS.ADD_CLIENT, OPS.GENKEYS_CSRS)
     g.add_edge(OPS.GENKEYS_CSRS, OPS.IMPORT_CERTS)
-    g.add_edge(OPS.ACTIVATE_AUTH_CERT, OPS.ADD_CLIENT)
-    g.add_edge(OPS.ADD_CLIENT, OPS.REGISTER_CLIENT)
-    g.add_edge(OPS.REGISTER_CLIENT, OPS.UPDATE_CLIENT)
-    g.add_edge(OPS.ADD_CLIENT, OPS.ADD_SERVICE_DESC)
+    g.add_edge(OPS.IMPORT_CERTS, OPS.REGISTER_AUTH_CERT)
+    g.add_edge(OPS.REGISTER_AUTH_CERT, OPS.ACTIVATE_AUTH_CERT)
+    g.add_edge(OPS.ACTIVATE_AUTH_CERT, OPS.ADD_SERVICE_DESC)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ENABLE_SERVICE_DESC)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_SERVICE_ACCESS)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.UPDATE_SERVICE)
     g.add_edge(OPS.ADD_SERVICE_DESC, OPS.ADD_ENDPOINTS)
     g.add_edge(OPS.ADD_ENDPOINTS, OPS.ADD_ENDPOINT_ACCESS)
+    g.add_edge(OPS.ADD_ENDPOINT_ACCESS, OPS.REGISTER_CLIENT)
+    g.add_edge(OPS.REGISTER_CLIENT, OPS.UPDATE_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.IMPORT_TSL_CERT)
 
     topologically_sorted = list(networkx.topological_sort(g))
