@@ -8,13 +8,13 @@ from xrdsst.api import KeysApi, SystemApi
 from xrdsst.api.token_certificates_api import TokenCertificatesApi
 from xrdsst.controllers.base import BaseController
 from xrdsst.core.api_util import remote_get_token
-from xrdsst.core.util import default_auth_key_label, default_sign_key_label
+from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label
 from xrdsst.models import SecurityServerAddress, CsrFormat
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts
 
 from xrdsst.rest.rest import ApiException
-
+from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 
 class DownloadedCsr:
     def __init__(self, csr_id, key_id, key_type, fs_loc):
@@ -234,14 +234,12 @@ class CertController(BaseController):
         return cert_actions
 
     def remote_download_csrs(self, ss_api_config, security_server):
-        key_labels = {
-            'auth': default_auth_key_label(security_server),
-            'sign': default_sign_key_label(security_server)
-        }
+
+        key_labels = self.get_key_labels(security_server)
 
         token = remote_get_token(ss_api_config, security_server)
-        auth_keys = list(filter(lambda key: key.label == key_labels['auth'], token.keys))
-        sign_keys = list(filter(lambda key: key.label == key_labels['sign'], token.keys))
+        auth_keys = list(filter(lambda key: key.label in key_labels['auth'], token.keys))
+        sign_keys = list(filter(lambda key: key.label in key_labels['sign'], token.keys))
 
         if not (auth_keys or sign_keys):
             return []
@@ -253,7 +251,7 @@ class CertController(BaseController):
             for key in keytype[0]:
                 for csr in key.certificate_signing_requests:
                     with cement.utils.fs.Tmp(
-                            prefix=csr_file_prefix(keytype[1], csr, security_server),
+                            prefix=csr_file_prefix(keytype[1], key, csr),
                             suffix='.der',
                             cleanup=False
                     ) as tmp:
@@ -348,6 +346,26 @@ class CertController(BaseController):
 
         return actionable_certs[0]
 
+    def get_key_labels(self, security_server):
+        key_labels = {
+            'auth': [default_auth_key_label(security_server)],
+            'sign': [default_sign_key_label(security_server)]
+        }
+        if "clients" in security_server:
+            for client in security_server["clients"]:
+                if client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS] != security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CLASS] \
+                        or client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE] != security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CODE]:
+                    key_label = default_member_sign_key_label(security_server, client)
+                    if key_label not in key_labels["sign"]:
+                        key_labels["sign"].append(key_label)
 
-def csr_file_prefix(_type, key, security_server):
-    return security_server['name'] + '-' + _type + "-CSR-" + key.id + "-"
+        return key_labels
+
+
+def csr_file_prefix(_type, key, csr):
+    return key.name + '-' + _type + "-CSR-" + csr.id + "-"
+
+
+
+
+
