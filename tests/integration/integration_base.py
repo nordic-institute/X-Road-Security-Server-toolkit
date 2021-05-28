@@ -9,7 +9,6 @@ import git
 
 from xrdsst.core.definitions import ROOT_DIR
 
-
 # Make less of many evils and use one abstract test class base for encapsulating rather involved Docker setup.
 from xrdsst.controllers.base import BaseController
 
@@ -20,6 +19,10 @@ class IntegrationTestBase(unittest.TestCase):
     configuration_anchor = "tests/resources/configuration-anchor.xml"
     credentials = "xrd:secret"
     credentials_env = "TOOLKIT_ADMIN_CREDENTIALS"
+    ssh_user_env = "SSH_USER"
+    ssh_user = ""
+    ssh_private_key_env = "SSH_PRIVATE_KEY"
+    ssh_private_key = ""
     git_repo = 'https://github.com/nordic-institute/X-Road.git'
     local_folder = os.path.join(ROOT_DIR, "tests/integration/X-Road")
     branch_name = 'develop'
@@ -35,18 +38,21 @@ class IntegrationTestBase(unittest.TestCase):
 
     def set_env_variable(self):
         os.environ[self.credentials_env] = self.credentials
+        os.environ[self.ssh_user_env] = self.ssh_user
+        os.environ[self.ssh_private_key_env] = self.ssh_private_key
 
     def init_config(self):
         self.config = {
             'admin_credentials': self.credentials_env,
             'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
-            'ssh_access': {'user': 'SSH_USER', 'private_key': 'SSH_PRIVATE_KEY'},
+            'ssh_access': {'user': self.ssh_user_env, 'private_key': self.ssh_private_key_env},
             'security_server':
                 [{'name': 'ssx',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
                   'fqdn': 'client_only',
                   'api_key': self.api_key_env[0],
                   'api_key_url': self.url,
+                  'admin_credentials': self.credentials_env,
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
                   'owner_dn_country': 'FI',
                   'owner_dn_org': 'NIIS',
@@ -55,6 +61,8 @@ class IntegrationTestBase(unittest.TestCase):
                   'security_server_code': 'SSX',
                   'software_token_id': 0,
                   'software_token_pin': '1234',
+                  'ssh_user': self.ssh_user_env,
+                  'ssh_private_key': self.ssh_private_key_env,
                   'clients': [{
                       'member_class': 'ORG',
                       'member_code': '111',
@@ -84,12 +92,13 @@ class IntegrationTestBase(unittest.TestCase):
                           }]
                       }]
                   }]
-                },
+                  },
                  {'name': 'ssy',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
                   'fqdn': 'client_only',
                   'api_key': self.api_key_env[1],
                   'api_key_url': self.url,
+                  'admin_credentials': self.credentials_env,
                   'configuration_anchor': os.path.join(ROOT_DIR, self.configuration_anchor),
                   'owner_dn_country': 'FI',
                   'owner_dn_org': 'NIIS',
@@ -98,6 +107,8 @@ class IntegrationTestBase(unittest.TestCase):
                   'security_server_code': 'SSY',
                   'software_token_id': 0,
                   'software_token_pin': '1234',
+                  'ssh_user': self.ssh_user_env,
+                  'ssh_private_key': self.ssh_private_key_env,
                   'clients': [{
                       'member_class': 'ORG',
                       'member_code': '111',
@@ -122,7 +133,8 @@ class IntegrationTestBase(unittest.TestCase):
                           ],
                           'endpoints': [{
                               'path': '/testPath',
-                              'method': 'POST'
+                              'method': 'POST',
+                              'access': ['DEV:security-server-owners']
                           }]
                       }]
                   }]
@@ -170,6 +182,8 @@ class IntegrationTestBase(unittest.TestCase):
     def tearDown(self):
         subprocess.call("rm -rf " + self.local_folder + "/", shell=True)
         del os.environ[self.credentials_env]
+        del os.environ[self.ssh_user_env]
+        del os.environ[self.ssh_private_key_env]
         del os.environ[self.api_key_env[0]]
         del os.environ[self.api_key_env[1]]
         self.clean_docker()

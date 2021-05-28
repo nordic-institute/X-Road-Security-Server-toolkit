@@ -9,7 +9,7 @@ import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
     assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients, client_registration_global_configuration_update_received
+    get_endpoint_service_clients
 from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -457,15 +457,6 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 configuration = cert_controller.create_api_config(security_server, self.config)
                 cert_controller.remote_import_certificates(configuration, security_server)
-
-    def step_cert_activate_fail_certificates_not_registered(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            for security_server in self.config["security_server"]:
-                configuration = cert_controller.create_api_config(security_server, self.config)
-                cert_actions = cert_controller.remote_activate_certificate(configuration, security_server)
-                assert cert_actions == ['DELETE', 'DISABLE', 'REGISTER']
 
     def step_cert_register(self):
         with XRDSSTTest() as app:
@@ -931,7 +922,6 @@ class EndToEndTest(unittest.TestCase):
         self.step_cert_download_internal_tsl()
         self.step_cert_import()
         self.step_cert_import()
-        self.step_cert_activate_fail_certificates_not_registered()
         self.step_cert_register()
 
         # Wait for global configuration status updates
@@ -949,14 +939,6 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_service_description_fail_client_not_saved()
         self.step_subsystem_add_client()
         self.step_subsystem_register()
-
-        # Wait for global configuration status updates
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            waitfor(lambda: client_registration_global_configuration_update_received(self.config, ssn), 1, 300)
-            self.query_status()
-            ssn = ssn + 1
-
         self.step_subsystem_update_parameters()
 
         self.step_add_service_description_fail_url_missing()
