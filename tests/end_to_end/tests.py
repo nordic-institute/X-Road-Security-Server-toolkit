@@ -202,8 +202,7 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
-                    if client_controller.is_client_base_member(client, security_server):
-                        client_controller.remote_register_client(configuration, security_server, client)
+                    client_controller.remote_register_client(configuration, security_server, client)
 
     def step_subsystem_update_parameters(self):
         with XRDSSTTest() as app:
