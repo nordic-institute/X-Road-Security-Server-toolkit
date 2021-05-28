@@ -133,7 +133,6 @@ class ClientController(BaseController):
                     return
 
                 try:
-                    BaseController.log_info("Trying to register client " + str(client.id))
                     clients_api.register_client(id=client.id)
                     BaseController.log_info("Registered client " + self.partial_client_id(client_conf))
                 except ApiException as reg_err:
@@ -164,18 +163,12 @@ class ClientController(BaseController):
 
     def find_client(self, clients_api, security_server_conf, client_conf):
         if 'subsystem_code' in client_conf:
-            BaseController.log_info("Finding client member_class: " + str(client_conf['member_class'])
-                                    + ", member_code: " + str(client_conf['member_code'])
-                                    + ", subsystem_code:" + str(client_conf["subsystem_code"]))
             found_clients = clients_api.find_clients(
                 member_class=client_conf['member_class'],
                 member_code=client_conf['member_code'],
                 subsystem_code=client_conf["subsystem_code"]
             )
         else:
-            BaseController.log_info("Finding client member_class: " + str(client_conf['member_class'])
-                                    + ", member_code: " + str(client_conf['member_code'])
-                                    + ", name:" + str(client_conf["member_name"]))
             found_clients = clients_api.find_clients(
                 member_class=client_conf['member_class'],
                 member_code=client_conf['member_code'],

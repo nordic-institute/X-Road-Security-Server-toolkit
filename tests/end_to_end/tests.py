@@ -368,9 +368,9 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_endpoints_access(client_id)
         self.step_subsystem_register()
 
-        # self.step_subsystem_update_parameters()
-        # self.step_update_service_parameters(client_id)
-        # self.step_cert_download_internal_tsl()
+        self.step_subsystem_update_parameters()
+        self.step_update_service_parameters(client_id)
+        self.step_cert_download_internal_tsl()
 
         self.step_autoconf()  # Idempotent
 
