@@ -17,6 +17,13 @@ class ServiceController(BaseController):
 
     SERVICE_DESCRIPTION_FOR = 'Service description for'
 
+    @ex(help="Execute all sub-commands", arguments=[])
+    def apply(self):
+        self.add_description()
+        self.enable_description()
+        self.add_access()
+        self.update_parameters()
+
     @ex(help="Add service description", arguments=[])
     def add_description(self):
         active_config = self.load_config()
