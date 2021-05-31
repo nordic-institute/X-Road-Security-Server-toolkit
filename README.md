@@ -94,9 +94,7 @@ When releasing, use `bump2version major`
 In case of releasing, also `bump2version release` should be performed
 to update the release part of the version number, which can contain values: 
 ```
-alpha
 beta
-rc
 final
 ```
 
