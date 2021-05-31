@@ -18,8 +18,8 @@ from xrdsst.controllers.user import UserController
 from xrdsst.core.util import revoke_api_key
 from xrdsst.main import XRDSSTTest
 from xrdsst.controllers.endpoint import EndpointController
-
-
+from xrdsst.core.definitions import ROOT_DIR
+from xrdsst.models.certificate_details import CertificateDetails
 class EndToEndTest(unittest.TestCase):
     config_file = None
     config = None
@@ -311,6 +311,17 @@ class EndToEndTest(unittest.TestCase):
         assert len(service_clients) == 1
         assert str(service_clients[0]["id"]) == "DEV:security-server-owners"
 
+    def step_import_tsl_certificate(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            for security_server in self.config["security_server"]:
+                for client in security_server["clients"]:
+                    configuration = client_controller.create_api_config(security_server, self.config)
+                    tsl_certificates = [os.path.join(ROOT_DIR, "tests/resources/cert.pem")]
+                    response = client_controller.remote_import_tsl_certificate(configuration, tsl_certificates, client)
+                    assert (type(response) is CertificateDetails)
+
     def query_status(self):
         with XRDSSTTest() as app:
             status_controller = StatusController()
@@ -361,6 +372,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters(client_id)
         self.step_cert_download_internal_tsl()
+        self.step_import_tsl_certificate()
 
         configured_servers_at_end = self.query_status()
 

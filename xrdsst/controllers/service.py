@@ -139,7 +139,7 @@ class ServiceController(BaseController):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             client_controller = ClientController()
-            client = client_controller.find_client(clients_api, security_server_conf, client_conf)
+            client = client_controller.find_client(clients_api, client_conf)
             if client:
                 try:
                     response = clients_api.add_client_service_description(client.id, body=description_add)
@@ -161,7 +161,7 @@ class ServiceController(BaseController):
         service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_api_config))
         try:
             client_controller = ClientController()
-            client = client_controller.find_client(clients_api, security_server_conf, client_conf)
+            client = client_controller.find_client(clients_api, client_conf)
             if client:
                 try:
                     service_description = self.get_client_service_description(clients_api, client, service_description_conf)
@@ -185,7 +185,7 @@ class ServiceController(BaseController):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             client_controller = ClientController()
-            client = client_controller.find_client(clients_api, security_server_conf, client_conf)
+            client = client_controller.find_client(clients_api, client_conf)
             if client:
                 try:
                     service_description = self.get_client_service_description(clients_api, client, service_description_conf)
@@ -256,7 +256,7 @@ class ServiceController(BaseController):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             client_controller = ClientController()
-            client = client_controller.find_client(clients_api, security_server_conf, client_conf)
+            client = client_controller.find_client(clients_api, client_conf)
             if client:
                 try:
                     service_description = self.get_client_service_description(clients_api, client, service_description_conf)
@@ -273,7 +273,6 @@ class ServiceController(BaseController):
         try:
             services_api = ServicesApi(ApiClient(ss_api_config))
             for configurable_service in service_description_conf["services"]:
-                response = None
                 if service.service_code == configurable_service["service_code"]:
                     timeout = int(configurable_service["timeout"])
                     timeout_all = bool(service_description_conf["timeout_all"])

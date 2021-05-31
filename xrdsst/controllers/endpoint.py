@@ -75,7 +75,7 @@ class EndpointController(BaseController):
         try:
             clients_api = ClientsApi(ApiClient(ss_api_config))
             client_controller = ClientController()
-            client = client_controller.find_client(clients_api, security_server_conf, client_conf)
+            client = client_controller.find_client(clients_api, client_conf)
             if client:
                 try:
                     service_description = ServiceController().get_client_service_description(clients_api, client, service_description_conf)
@@ -114,7 +114,7 @@ class EndpointController(BaseController):
         try:
             client_controller = ClientController()
             clients_api = ClientsApi(ApiClient(ss_api_config))
-            client = client_controller.find_client(clients_api, security_server_conf, client_conf)
+            client = client_controller.find_client(clients_api, client_conf)
             if client:
                 service_clients_candidates = client_controller.get_clients_service_client_candidates(clients_api, client.id, [])
                 try:

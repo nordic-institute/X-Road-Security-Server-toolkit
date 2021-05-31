@@ -1,3 +1,4 @@
+import cement.utils.fs
 from cement import ex
 from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
@@ -120,11 +121,19 @@ class ClientController(BaseController):
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting internal TSL certificate import for security server: ' + security_server['name'])
             if ConfKeysSecurityServer.CONF_KEY_TSL_CERTS in security_server:
-                for tsl_cert in security_server[ConfKeysSecurityServer.CONF_KEY_TSL_CERTS]:
-                        self.remote_import_tsl_certificate(ss_api_config, tsl_cert, security_server)
+                client_conf = {
+                    "member_name": security_server["owner_dn_org"],
+                    "member_code": security_server["owner_member_code"],
+                    "member_class": security_server["owner_member_class"]
+                }
+                self.remote_import_tsl_certificate(ss_api_config, security_server[ConfKeysSecurityServer.CONF_KEY_TSL_CERTS], client_conf)
+
+            if "clients" in security_server:
+                for client_conf in security_server["clients"]:
+                    if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TSL_CERTIFICATES in client_conf:
+                        self.remote_import_tsl_certificate(ss_api_config, client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TSL_CERTIFICATES], client_conf)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
-        return
 
     def remote_add_client(self, ss_api_config, client_conf):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
@@ -151,7 +160,7 @@ class ClientController(BaseController):
     def remote_register_client(self, ss_api_config, security_server_conf, client_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
-            client = self.find_client(clients_api, security_server_conf, client_conf)
+            client = self.find_client(clients_api, client_conf)
             if client:
                 if ClientStatus.SAVED != client.status:
                     BaseController.log_info(
@@ -170,7 +179,7 @@ class ClientController(BaseController):
     def remote_update_client(self, ss_api_config, security_server_conf, client_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
-            client = self.find_client(clients_api, security_server_conf, client_conf)
+            client = self.find_client(clients_api, client_conf)
             if client:
                 if client.status not in [ClientStatus.SAVED, ClientStatus.REGISTERED, ClientStatus.REGISTRATION_IN_PROGRESS]:
                     BaseController.log_info(
@@ -188,11 +197,36 @@ class ClientController(BaseController):
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
-    def remote_import_tsl_certificate(self, ss_api_config, security_server_conf, client_conf = None):
-
+    def remote_import_tsl_certificate(self, ss_api_config, tsl_certs, client_conf):
+        clients_api = ClientsApi(ApiClient(ss_api_config))
+        try:
+            client = self.find_client(clients_api, client_conf)
+            if client:
+                for tsl_cert in tsl_certs:
+                    try:
+                        location = cement.utils.fs.join_exists(tsl_cert)
+                        if not location[1]:
+                            BaseController.log_info("Import TSL certificate '%s' for client %s does not exist" % (location[0], client.id))
+                        else:
+                            cert_file_loc = location[0]
+                            cert_file = open(cert_file_loc, "rb")
+                            cert_data = cert_file.read()
+                            cert_file.close()
+                            response = clients_api.add_client_tls_certificate(client.id, body=cert_data)
+                            BaseController.log_info(
+                                "Import TSL certificate '%s' for client %s" % (tsl_cert, client.id))
+                            return response
+                    except ApiException as err:
+                        if err.status == 409:
+                            BaseController.log_info(
+                                "TSL certificate '%s' for client %s already exists" % (tsl_cert, client.id))
+                        else:
+                            BaseController.log_api_error('ClientsApi->import_tsl_certificate', err)
+        except ApiException as find_err:
+            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
         return
 
-    def find_client(self, clients_api, security_server_conf, client_conf):
+    def find_client(self, clients_api, client_conf):
         if 'subsystem_code' in client_conf:
             found_clients = clients_api.find_clients(
                 member_class=client_conf['member_class'],
@@ -200,23 +234,22 @@ class ClientController(BaseController):
                 subsystem_code=client_conf["subsystem_code"]
             )
         else:
-            found_clients = clients_api.find_clients(
+            all_clients = clients_api.find_clients(
                 member_class=client_conf['member_class'],
-                member_code=client_conf['member_code'],
+                member_code=str(client_conf['member_code']),
                 name=client_conf["member_name"]
             )
-
+            found_clients = list(found_client for found_client in all_clients if found_client.subsystem_code == None)
         if not found_clients:
             BaseController.log_info(
-                security_server_conf[ConfKeysSecurityServer.CONF_KEY_NAME] + ": Client matching " + self.partial_client_id(client_conf) + " not found")
+                client_conf["member_name"] + ": Client matching " + self.partial_client_id(client_conf) + " not found")
             return None
 
         if len(found_clients) > 1:
             BaseController.log_info(
-                security_server_conf[ConfKeysSecurityServer.CONF_KEY_NAME] + ": Error, multiple matching clients found for " + self.partial_client_id(client_conf)
+                client_conf["member_name"] + ": Error, multiple matching clients found for " + self.partial_client_id(client_conf)
             )
             return None
-        BaseController.log_info("client found: " + found_clients[0].id)
         return found_clients[0]
 
     @staticmethod

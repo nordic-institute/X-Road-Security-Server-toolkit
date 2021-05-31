@@ -314,6 +314,15 @@ def get_client(config):
     client_json = json.loads(str(client.content, 'utf-8').strip())
     return client_json[0]
 
+def getClientTlsCertificates(config):
+    client = get_client(config)
+    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+    tsl_certificates = requests.get(
+        config["security_server"][0]["url"] + "/clients/" + client["id"] + "/tls-certificates",
+        headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
+        verify=False)
+    client_json = json.loads(str(tsl_certificates.content, 'utf-8').strip())
+    return client_json
 
 # Deduce possible TEST CA URL from configuration anchor
 def find_test_ca_sign_url(conf_anchor_file_loc):

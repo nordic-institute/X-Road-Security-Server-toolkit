@@ -529,7 +529,7 @@ class TestCert(unittest.TestCase):
                 cert_controller.load_config = (lambda: self.ss_config)
 
                 # cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                reported_downloads = cert_controller.download_internal_tsl()
+                reported_downloads = cert_controller.download_tsl()
 
                 assert len(reported_downloads) == 2
                 assert reported_downloads[0].security_server.count("ssX") == 1

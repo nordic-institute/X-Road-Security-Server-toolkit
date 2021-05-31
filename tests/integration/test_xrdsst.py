@@ -1,9 +1,10 @@
 import urllib3
+import os
 
 from tests.integration.integration_base import IntegrationTestBase
 from tests.integration.integration_ops import IntegrationOpBase
 from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients
+    get_endpoint_service_clients, getClientTlsCertificates
 from tests.util.test_util import get_service_description, assert_server_statuses_transitioned
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -15,7 +16,7 @@ from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.main import XRDSSTTest
-
+from xrdsst.core.definitions import ROOT_DIR
 
 def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
     assert len(sl1) == len(sl2)
@@ -182,6 +183,15 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             service_clients = get_endpoint_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])
             assert len(service_clients) == 1
 
+    def step_import_tsl_certificate(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            client_controller.load_config = (lambda: self.config)
+            client_controller.import_tsl_certs()
+            tsl_certs = getClientTlsCertificates(self.config)
+            assert len(tsl_certs) == 1
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         # Uninitialized security server can already have functioning API interface and status query must function
@@ -222,6 +232,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_add_client()
         self.query_status()
 
+        self.step_import_tsl_certificate()
+        self.query_status()
+
         self.step_subsystem_register()
         self.query_status()
 
@@ -249,7 +262,10 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_add_endpoints_access(client_id)
         configured_servers_at_end = self.query_status()
 
+
+
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
+
 
         # Run autoconfiguration which should at this stage NOT AFFECT anything since configuration has not been
         # changed, all operations need to act idempotently and no new errors should occur if previous was successful.

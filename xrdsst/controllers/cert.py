@@ -120,7 +120,7 @@ class CertController(BaseController):
         return self._download_csrs(active_config)
 
     @ex(help="Download internal TLS certificate, if any.", arguments=[])
-    def download_internal_tsl(self):
+    def download_tsl(self):
         active_config = self.load_config()
 
         return self._download_internal_tsl(active_config)
