@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0-beta.0] - 2021-05-28
+- add ``xrdsst service`` sub-command ``apply``
+- add multi-tenancy support
+
 ## [1.1.1-beta.0] - 2021-05-21
 - fixed sonar issues
 
