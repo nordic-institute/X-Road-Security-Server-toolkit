@@ -25,6 +25,7 @@ security_server:
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
+      member_name: <MEMBER_NAME>
       subsystem_code: <SUBSYSTEM_CODE>
       connection_type: <CONNECTION_TYPE>
       service_descriptions:

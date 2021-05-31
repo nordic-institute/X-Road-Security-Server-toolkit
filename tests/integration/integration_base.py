@@ -67,6 +67,7 @@ class IntegrationTestBase(unittest.TestCase):
                       'member_class': 'ORG',
                       'member_code': '111',
                       'subsystem_code': 'BUS',
+                      'member_name': 'ORGANIZATION',
                       'connection_type': 'HTTP',
                       'service_descriptions': [{
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',

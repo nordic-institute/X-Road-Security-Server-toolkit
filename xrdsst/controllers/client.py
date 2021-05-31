@@ -2,12 +2,12 @@ from cement import ex
 from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
+from xrdsst.controllers.token import TokenController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.util import convert_swagger_enum
 from xrdsst.models import ClientAdd, Client, ConnectionType, ClientStatus
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
-
 
 class ClientController(BaseController):
     class Meta:
@@ -103,8 +103,11 @@ class ClientController(BaseController):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
         client = Client(member_class=client_conf['member_class'],
                         member_code=client_conf['member_code'],
-                        subsystem_code=client_conf['subsystem_code'],
-                        connection_type=conn_type)
+                        connection_type=conn_type,
+                        member_name=client_conf['member_name'],
+                        subsystem_code=client_conf['subsystem_code'] if 'subsystem_code' in client_conf else None,
+                        owner=False,
+                        has_valid_local_sign_cert=False)
 
         client_add = ClientAdd(client=client, ignore_warnings=True)
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -159,11 +162,18 @@ class ClientController(BaseController):
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
     def find_client(self, clients_api, security_server_conf, client_conf):
-        found_clients = clients_api.find_clients(
-            member_class=client_conf['member_class'],
-            member_code=client_conf['member_code'],
-            subsystem_code=client_conf['subsystem_code']
-        )
+        if 'subsystem_code' in client_conf:
+            found_clients = clients_api.find_clients(
+                member_class=client_conf['member_class'],
+                member_code=client_conf['member_code'],
+                subsystem_code=client_conf["subsystem_code"]
+            )
+        else:
+            found_clients = clients_api.find_clients(
+                member_class=client_conf['member_class'],
+                member_code=client_conf['member_code'],
+                name=client_conf["member_name"]
+            )
 
         if not found_clients:
             BaseController.log_info(
@@ -175,12 +185,15 @@ class ClientController(BaseController):
                 security_server_conf[ConfKeysSecurityServer.CONF_KEY_NAME] + ": Error, multiple matching clients found for " + self.partial_client_id(client_conf)
             )
             return None
-
+        BaseController.log_info("client found: " + found_clients[0].id)
         return found_clients[0]
 
     @staticmethod
     def partial_client_id(client_conf):
-        return str(client_conf['member_class']) + ":" + str(client_conf['member_code']) + ":" + str(client_conf['subsystem_code'])
+        client_id =  str(client_conf['member_class']) + ":" + str(client_conf['member_code'])
+        if 'subsystem_code' in client_conf and client_conf['subsystem_code'] is not None:
+            client_id = client_id + ":" + client_conf['subsystem_code']
+        return client_id
 
     @staticmethod
     def get_clients_service_client_candidates(clients_api, client_id, candidates_ids):
@@ -194,3 +207,7 @@ class ClientController(BaseController):
 
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_service_client_candidates', find_err)
+
+    @staticmethod
+    def is_client_base_member(client_conf, security_server_conf):
+        return client_conf["member_class"] == security_server_conf["owner_member_class"] and client_conf["member_code"] == security_server_conf["owner_member_code"]

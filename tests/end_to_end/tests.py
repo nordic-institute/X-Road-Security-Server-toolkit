@@ -371,9 +371,14 @@ class EndToEndTest(unittest.TestCase):
                 assert len(response) > 0
                 assert len(response[0].keys) == 0
                 token_controller.remote_token_add_keys_with_csrs(configuration, security_server)
+                if "clients" in security_server:
+                    for client in security_server["clients"]:
+                        if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != \
+                                security_server["owner_member_code"]:
+                            token_controller.remote_token_add_signing_key_new_member(configuration, security_server, client)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
-                assert len(response[0].keys) == 2
+                assert len(response[0].keys) == 3
                 auth_key_label = security_server['name'] + '-default-auth-key'
                 sign_key_label = security_server['name'] + '-default-sign-key'
                 assert str(response[0].keys[0].label) == auth_key_label
@@ -846,8 +851,9 @@ class EndToEndTest(unittest.TestCase):
             configuration = endpoint_controller.create_api_config(security_server, self.config)
             for client in security_server["clients"]:
                 for service_description in client["service_descriptions"]:
-                    for endpoint in service_description["endpoints"]:
-                        endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+                    if "endpoints" is service_description:
+                        for endpoint in service_description["endpoints"]:
+                            endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
 
             client = get_client(self.config, ssn)
             client_id = client['id']
@@ -908,18 +914,24 @@ class EndToEndTest(unittest.TestCase):
         self.step_token_login_fail_when_pin_missing()
         self.step_token_login()
         self.step_token_login_already_logged_in()
+
+        self.step_subsystem_add_client_fail_member_class_missing()
+        self.step_subsystem_add_client_fail_member_code_missing()
+        self.step_subsystem_register_fail_client_not_saved()
+        self.step_add_service_description_fail_client_not_saved()
+        self.step_subsystem_add_client()
         self.step_token_init_keys()
 
         self.step_cert_import_fail_certificates_missing()
         ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
+
         for security_server in self.config["security_server"]:
             signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn*2):(ssn * 2 + 2)], security_server)
             self.apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
         self.step_cert_register_fail_certificates_not_imported()
-        self.step_cert_download_internal_tsl()
         self.step_cert_import()
         self.step_cert_import()
         self.step_cert_register()
@@ -933,21 +945,12 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_cert_activate()
 
-        self.step_subsystem_add_client_fail_member_class_missing()
-        self.step_subsystem_add_client_fail_member_code_missing()
-        self.step_subsystem_register_fail_client_not_saved()
-        self.step_add_service_description_fail_client_not_saved()
-        self.step_subsystem_add_client()
-        self.step_subsystem_register()
-        self.step_subsystem_update_parameters()
-
         self.step_add_service_description_fail_url_missing()
         self.step_add_service_description_fail_type_missing()
         self.step_enable_service_description_fail_service_description_not_added()
         self.step_add_service_description()
         self.step_enable_service_description()
         self.step_add_service_access()
-        self.step_update_service_parameters()
 
         self.step_create_admin_user_fail_admin_credentials_missing()
         self.step_create_admin_user_fail_ssh_user_missing()
@@ -957,6 +960,10 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
         self.step_add_service_endpoints()
         self.step_add_endpoints_access()
+        self.step_subsystem_register()
+        self.step_subsystem_update_parameters()
+        self.step_update_service_parameters()
+        self.step_cert_download_internal_tsl()
 
         configured_servers_at_end = self.query_status()
 

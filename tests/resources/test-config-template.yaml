@@ -11,10 +11,10 @@ security_server:
     - /path/to/authcert
   configuration_anchor: /path/to/configuration-anchor.xml
   name: <SECURITY_SERVER_NAME>
-  owner_dn_country: EE
+  owner_dn_country: FI
   owner_dn_org: NIIS
-  owner_member_class: GOV
-  owner_member_code: 1234
+  owner_member_class: ORG
+  owner_member_code: 111
   security_server_code: <SERVER_CODE>
   software_token_id: 0
   software_token_pin: 1234
@@ -23,8 +23,9 @@ security_server:
   ssh_user:
   ssh_private_key:
   clients:
-    - member_class: GOV
-      member_code: 1234
+    - member_class: ORG
+      member_code: 111
+      member_name: NIIS
       subsystem_code: TEST
       connection_type: HTTP
       service_descriptions:
@@ -48,6 +49,31 @@ security_server:
               method: POST
               access:
                 - DEV:security-server-owners
+        - url: http://dev-cs.i.x-road.rocks/managementservices.wsdl
+          rest_service_code: None
+          type: WSDL
+          access:
+              - DEV:security-server-owners
+          url_all: True
+          timeout_all: True
+          ssl_auth_all: True
+          services:
+            - service_code: clientReg
+              access:
+                - DEV:security-server-owners
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/
+            - service_code: clientDeletion
+              access:
+                - DEV:security-server-owners
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/
+    - member_class: COM
+      member_code: 222
+      member_name: FRUIT
+      connection_type: HTTP
 - api_key: <API_KEY_ENV_VAR_NAME>
   api_key_url: https://localhost:4000/api/v1/api-keys
   admin_credentials:
@@ -56,10 +82,10 @@ security_server:
     - /path/to/authcert
   configuration_anchor: /path/to/configuration-anchor.xml
   name: <SECURITY_SERVER_NAME>
-  owner_dn_country: EE
+  owner_dn_country: FI
   owner_dn_org: NIIS
-  owner_member_class: GOV
-  owner_member_code: 1234
+  owner_member_class: ORG
+  owner_member_code: 111
   security_server_code: <SERVER_CODE>
   software_token_id: 0
   software_token_pin: 1234
@@ -68,8 +94,9 @@ security_server:
   ssh_user:
   ssh_private_key:
   clients:
-    - member_class: GOV
-      member_code: 1234
+    - member_class: ORG
+      member_code: 111
+      member_name: NIIS
       subsystem_code: TEST
       connection_type: HTTP
       service_descriptions:
@@ -93,3 +120,28 @@ security_server:
               method: POST
               access:
                 - DEV:security-server-owners
+        - url: http://dev-cs.i.x-road.rocks/managementservices.wsdl
+          rest_service_code: None
+          type: WSDL
+          access:
+              - DEV:security-server-owners
+          url_all: True
+          timeout_all: True
+          ssl_auth_all: True
+          services:
+            - service_code: clientReg
+              access:
+                - DEV:security-server-owners
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/
+            - service_code: clientDeletion
+              access:
+                - DEV:security-server-owners
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/
+    - member_class: COM
+      member_code: 222
+      member_name: FRUIT
+      connection_type: HTTP
