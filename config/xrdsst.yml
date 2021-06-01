@@ -23,7 +23,7 @@ security_server:
   url: https://ss1:4000/api/v1
   ssh_user: XRDSST_SSH_USER
   ssh_private_key: XRDSST_SSH_KEY
-  tsl_certificates:
+  tls_certificates:
     - /home/alberto/Downloads/certs/cert.pem
   clients:
     - member_class: ORG
@@ -31,7 +31,7 @@ security_server:
       member_name: NIIS
       subsystem_code: TEST
       connection_type: HTTP
-      tsl_certificates:
+      tls_certificates:
          - /home/alberto/Downloads/certs/cert.pem
       service_descriptions:
         - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml

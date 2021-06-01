@@ -37,7 +37,7 @@ Doc. ID: XRDSST-CONF
 | 10.05.2021 | 1.3.4       | Added Load Balancer setup description                                        | Alberto Fernandez  |            
 | 13.05.2021 | 1.3.5       | Added description about load-balancing                                       | Bert Viikmäe       |
 | 14.05.2021 | 1.3.6       | Notes on client management                                                   | Bert Viikmäe       |
-| 24.05.2021 | 1.3.7       | Added download-internal-tsl command                                          | Alberto Fernandez  |
+| 24.05.2021 | 1.3.7       | Added download-internal-tls command                                          | Alberto Fernandez  |
 | 28.05.2021 | 1.3.8       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
@@ -70,7 +70,7 @@ Doc. ID: XRDSST-CONF
 	* [4.8 Certificate management](#48-certificate-management)
 	* [4.9 Client management](#49-client-management)
 	* [4.10 Service management](#410-service-management)
-	* [4.11 Internal TSL certificates management](#411-internal-tsl-certificates-management)
+	* [4.11 Internal TLS certificates management](#411-internal-tls-certificates-management)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
 	* [5.1 Configuration flow](#51-configuration-flow)
 	* [5.2 First-run failures](#52-first-run-failures)
@@ -439,8 +439,8 @@ Services and service descriptions are managed with ``xrdsst service`` subcommand
 is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
 Adding access to services is performed  with ``xrdsst service add-access``. Service parameters are updated with ``xrdsst service update-parameters``.
 
-### 4.11 Internal TSL certificates management
-Internal TSL certificates can be downloaded with ``xrdsst cert download-internal-tsl``.
+### 4.11 Internal TLS certificates management
+Internal TLS certificates can be downloaded with ``xrdsst cert download-internal-tls``.
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney

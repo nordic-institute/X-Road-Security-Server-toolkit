@@ -28,7 +28,7 @@ class IntegrationTestBase(unittest.TestCase):
     image = 'xroad-security-server:latest'
     url = 'https://localhost:4000/api/v1/api-keys'
     header = 'Content-Type: application/json'
-    tsl_certificate= "tests/resources/cert.pem"
+    tls_certificate= "tests/resources/cert.pem"
     max_retries = 300
     retry_wait = 1  # in seconds
     name = None
@@ -57,14 +57,14 @@ class IntegrationTestBase(unittest.TestCase):
                   'security_server_code': 'SS',
                   'software_token_id': 0,
                   'software_token_pin': '1234',
-                  'tsl_certificates': [os.path.join(ROOT_DIR, self.tsl_certificate)],
+                  'tls_certificates': [os.path.join(ROOT_DIR, self.tls_certificate)],
                   'clients': [{
                       'member_class': 'ORG',
                       'member_code': '111',
                       'subsystem_code': 'BUS',
                       'member_name': 'ORGANIZATION',
                       'connection_type': 'HTTP',
-                      'tsl_certificates': [os.path.join(ROOT_DIR, self.tsl_certificate)],
+                      'tls_certificates': [os.path.join(ROOT_DIR, self.tls_certificate)],
                       'service_descriptions': [{
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
                           'rest_service_code': 'Petstore',

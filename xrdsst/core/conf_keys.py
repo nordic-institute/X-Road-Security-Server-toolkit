@@ -86,7 +86,7 @@ class ConfKeysSecurityServer:
     CONF_KEY_FQDN = 'fqdn'
     CONF_KEY_SSH_USER = 'ssh_user'
     CONF_KEY_SSH_PRIVATE_KEY = 'ssh_private_key'
-    CONF_KEY_TSL_CERTS = 'tsl_certificates'
+    CONF_KEY_TLS_CERTS = 'tls_certificates'
 
     @staticmethod
     def descendant_conf_keys():
@@ -103,7 +103,7 @@ class ConfKeysSecServerClients:
     CONF_KEY_SS_CLIENT_CONNECTION_TYPE = 'connection_type'
     CONF_KEY_SS_CLIENT_SERVICE_DESCS = 'service_descriptions'
     CONF_KEY_SS_CLIENT_MEMBER_NAME = 'member_name'
-    CONF_KEY_SS_CLIENT_TSL_CERTIFICATES = 'tsl_certificates'
+    CONF_KEY_SS_CLIENT_TLS_CERTIFICATES = 'tls_certificates'
 
     @staticmethod
     def descendant_conf_keys():

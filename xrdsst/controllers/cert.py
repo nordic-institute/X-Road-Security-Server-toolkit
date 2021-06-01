@@ -29,20 +29,20 @@ class DownloadedTLS:
         self.security_server = security_server
         self.fs_loc = fs_loc
 
-class DownloadedTSLListMapper:
+class DownloadedTLSListMapper:
     @staticmethod
     def headers():
         return ['SECURITY SERVER', 'LOCATION']
 
     @staticmethod
-    def as_list(dwn_tsl):
-        return [dwn_tsl.security_server, dwn_tsl.fs_loc]
+    def as_list(dwn_tls):
+        return [dwn_tls.security_server, dwn_tls.fs_loc]
 
     @staticmethod
-    def as_object(dwn_tsl):
+    def as_object(dwn_tls):
         return {
-            'security_server': dwn_tsl.security_server,
-            'fs_loc': dwn_tsl.fs_loc
+            'security_server': dwn_tls.security_server,
+            'fs_loc': dwn_tls.fs_loc
         }
 
 class DownloadedCsrListMapper:
@@ -120,10 +120,10 @@ class CertController(BaseController):
         return self._download_csrs(active_config)
 
     @ex(help="Download internal TLS certificate, if any.", arguments=[])
-    def download_tsl(self):
+    def download_tls(self):
         active_config = self.load_config()
 
-        return self._download_internal_tsl(active_config)
+        return self._download_internal_tls(active_config)
 
     def import_certificates(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -168,14 +168,14 @@ class CertController(BaseController):
 
         return downloaded_csrs
 
-    def _download_internal_tsl(self, config):
+    def _download_internal_tls(self, config):
         downloaded_internal = []
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_info('Starting TLS internal cert download from security server: ' + security_server['name'])
-            downloaded_internal.extend(self.remote_download_internal_tsl(ss_api_config, security_server))
+            downloaded_internal.extend(self.remote_download_internal_tls(ss_api_config, security_server))
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -278,7 +278,7 @@ class CertController(BaseController):
         self.render(render_data)
         return downloaded_csrs
 
-    def remote_download_internal_tsl(self, ss_api_config, security_server):
+    def remote_download_internal_tls(self, ss_api_config, security_server):
         system_api = SystemApi(ApiClient(ss_api_config))
         downloaded_internal = []
 
@@ -296,20 +296,20 @@ class CertController(BaseController):
                         downloaded_internal.append(DownloadedTLS(security_server["name"], file.name))
                 else:
                     BaseController.log_info(
-                        "Failed to download TSL internal certifucate for security server '" + security_server["name"] + "' (HTTP " + http_response.status + ", " + http_response.reason + ")"
+                        "Failed to download TLS internal certifucate for security server '" + security_server["name"] + "' (HTTP " + http_response.status + ", " + http_response.reason + ")"
                     )
 
                 # Remove empty folder that fs.Tmp creates and that would remain with auto-clean off
                 os.rmdir(tmp.dir)
         except ApiException as err:
-            BaseController.log_api_error("Failed to download the TSL internal cert", err)
+            BaseController.log_api_error("Failed to download the TLS internal cert", err)
 
         render_data = []
         if self.is_output_tabulated():
-            render_data = [DownloadedTSLListMapper.headers()]
-            render_data.extend(map(DownloadedTSLListMapper.as_list, downloaded_internal))
+            render_data = [DownloadedTLSListMapper.headers()]
+            render_data.extend(map(DownloadedTLSListMapper.as_list, downloaded_internal))
         else:
-            render_data.extend(map(DownloadedTSLListMapper.as_object, downloaded_internal))
+            render_data.extend(map(DownloadedTLSListMapper.as_object, downloaded_internal))
 
         self.render(render_data)
         return downloaded_internal

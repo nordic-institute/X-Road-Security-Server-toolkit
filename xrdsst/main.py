@@ -22,7 +22,7 @@ from xrdsst.core.validator import validate_config_init, validate_config_timestam
     validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, validate_config_cert_activate, \
     validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access, \
     validate_config_service_desc_service, validate_config_service_desc_service_endpoints, \
-    validate_config_service_desc_service_endpoints_access, validate_config_tsl_cert_import
+    validate_config_service_desc_service_endpoints_access, validate_config_tls_cert_import
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
 
@@ -53,7 +53,7 @@ OP_ADD_SERVICE_ACCESS = "ADD SERVICE\nACCESS"
 OP_UPDATE_SERVICE = "UPDATE\nSERVICE"
 OP_ADD_ENDPOINTS = "ADD\nENDPOINT"
 OP_ADD_ENDPOINT_ACCESS = "ADD ENDPOINTS\nACCESS"
-OP_IMPORT_TSL_CERT = "IMPORT\n TSL CERTIFICATES"
+OP_IMPORT_TLS_CERT = "IMPORT\n TLS CERTIFICATES"
 
 # Operations supported and known at the dependency graph level
 class OPS:
@@ -73,7 +73,7 @@ class OPS:
     UPDATE_SERVICE = OP_UPDATE_SERVICE
     ADD_ENDPOINTS = OP_ADD_ENDPOINTS
     ADD_ENDPOINT_ACCESS = OP_ADD_ENDPOINT_ACCESS
-    IMPORT_TSL_CERT = OP_IMPORT_TSL_CERT
+    IMPORT_TLS_CERT = OP_IMPORT_TLS_CERT
 
 VALIDATORS = {
     OPS.INIT: validate_config_init,
@@ -92,7 +92,7 @@ VALIDATORS = {
     OPS.UPDATE_SERVICE: validate_config_service_desc_service,
     OPS.ADD_ENDPOINTS: validate_config_service_desc_service_endpoints,
     OPS.ADD_ENDPOINT_ACCESS: validate_config_service_desc_service_endpoints_access,
-    OPS.IMPORT_TSL_CERT: validate_config_tsl_cert_import
+    OPS.IMPORT_TLS_CERT: validate_config_tls_cert_import
 }
 
 # Initialize operational dependency graph for the security server operations
@@ -171,7 +171,7 @@ def opdep_init(app):
     add_op_node(g, OPS.UPDATE_SERVICE, ServiceController, ServiceController.update_parameters, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_ENDPOINTS, EndpointController, EndpointController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
-    add_op_node(g, OPS.IMPORT_TSL_CERT, ClientController, ClientController.import_tsl_certs,is_done=(lambda ssn: True))
+    add_op_node(g, OPS.IMPORT_TLS_CERT, ClientController, ClientController.import_tls_certs,is_done=(lambda ssn: True))
 
     g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
     g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
@@ -189,7 +189,7 @@ def opdep_init(app):
     g.add_edge(OPS.ADD_ENDPOINTS, OPS.ADD_ENDPOINT_ACCESS)
     g.add_edge(OPS.ADD_ENDPOINT_ACCESS, OPS.REGISTER_CLIENT)
     g.add_edge(OPS.REGISTER_CLIENT, OPS.UPDATE_CLIENT)
-    g.add_edge(OPS.ADD_CLIENT, OPS.IMPORT_TSL_CERT)
+    g.add_edge(OPS.ADD_CLIENT, OPS.IMPORT_TLS_CERT)
 
     topologically_sorted = list(networkx.topological_sort(g))
     app.OP_GRAPH = g

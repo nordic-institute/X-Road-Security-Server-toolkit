@@ -449,48 +449,48 @@ def validate_config_service_desc_service_endpoints_access(ss_config, operation, 
     return len(errors) <= err_cnt
 
 
-def validate_config_tsl_cert_import(ss_config, operation, errors):
+def validate_config_tls_cert_import(ss_config, operation, errors):
     err_cnt = len(errors)
-    tsl_certs = 0
+    tls_certs = 0
 
-    if ConfKeysSecurityServer.CONF_KEY_TSL_CERTS in ss_config and ss_config[
-        ConfKeysSecurityServer.CONF_KEY_TSL_CERTS] is not None:
+    if ConfKeysSecurityServer.CONF_KEY_TLS_CERTS in ss_config and ss_config[
+        ConfKeysSecurityServer.CONF_KEY_TLS_CERTS] is not None:
 
-        tsl_certs_config = copy.deepcopy(ss_config[ConfKeysSecurityServer.CONF_KEY_TSL_CERTS])
+        tls_certs_config = copy.deepcopy(ss_config[ConfKeysSecurityServer.CONF_KEY_TLS_CERTS])
         cert_file_list_dict = {}
-        for cert_ix in range(0, len(tsl_certs_config)):
-            cert_file_list_dict[str(cert_ix + 1)] = tsl_certs_config[cert_ix]
+        for cert_ix in range(0, len(tls_certs_config)):
+            cert_file_list_dict[str(cert_ix + 1)] = tls_certs_config[cert_ix]
 
-        for tsl_cert_ix in range(0, len(ss_config[ConfKeysSecurityServer.CONF_KEY_TSL_CERTS])):
+        for tls_cert_ix in range(0, len(ss_config[ConfKeysSecurityServer.CONF_KEY_TLS_CERTS])):
             cert_file_list_dict[ConfKeysSecurityServer.CONF_KEY_NAME] = (
                     ss_config[ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
-                    ConfKeysSecurityServer.CONF_KEY_TSL_CERTS + "[" + str(tsl_cert_ix + 1) + "]"
+                    ConfKeysSecurityServer.CONF_KEY_TLS_CERTS + "[" + str(tls_cert_ix + 1) + "]"
             )
-            require_readable_file_path(str(tsl_cert_ix + 1), cert_file_list_dict, operation, errors)
-            tsl_certs = tsl_certs + 1
+            require_readable_file_path(str(tls_cert_ix + 1), cert_file_list_dict, operation, errors)
+            tls_certs = tls_certs + 1
 
     if ConfKeysSecurityServer.CONF_KEY_CLIENTS in ss_config:
         clients_config = copy.deepcopy(ss_config[ConfKeysSecurityServer.CONF_KEY_CLIENTS])
         for client_ix in range(0, len(clients_config)):
-            if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TSL_CERTIFICATES in clients_config[client_ix] and\
-                    clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TSL_CERTIFICATES] is not None:
+            if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES in clients_config[client_ix] and\
+                    clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES] is not None:
 
-                tsl_certs_config = copy.deepcopy(clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TSL_CERTIFICATES])
+                tls_certs_config = copy.deepcopy(clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES])
                 cert_file_list_dict = {}
-                for cert_ix in range(0, len(tsl_certs_config)):
-                    cert_file_list_dict[str(cert_ix + 1)] = tsl_certs_config[cert_ix]
+                for cert_ix in range(0, len(tls_certs_config)):
+                    cert_file_list_dict[str(cert_ix + 1)] = tls_certs_config[cert_ix]
 
-                for tls_cert_ix in range(0, len(clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TSL_CERTIFICATES])):
+                for tls_cert_ix in range(0, len(clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES])):
                     cert_file_list_dict[ConfKeysSecurityServer.CONF_KEY_NAME] = (
                             ss_config[ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
                             ConfKeysSecurityServer.CONF_KEY_CLIENTS + "[" + str(client_ix + 1) + "]" + "." +
-                            ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TSL_CERTIFICATES + "[" + str(tsl_cert_ix + 1) + "]"
+                            ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES + "[" + str(tls_cert_ix + 1) + "]"
                     )
-                    require_readable_file_path(str(tsl_cert_ix + 1), cert_file_list_dict, operation, errors)
-                    tsl_certs = tsl_certs + 1
+                    require_readable_file_path(str(tls_cert_ix + 1), cert_file_list_dict, operation, errors)
+                    tls_certs = tls_certs + 1
 
-    if tsl_certs == 0:
+    if tls_certs == 0:
         errors.append(
-            errors.pop() if errors else '' + " Internal TSL certificates, missing required value. ")
+            errors.pop() if errors else '' + " Internal TLS certificates, missing required value. ")
 
     return len(errors) <= err_cnt

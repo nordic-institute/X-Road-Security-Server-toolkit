@@ -183,14 +183,14 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             service_clients = get_endpoint_service_clients(self.config, description["services"][0]["endpoints"][4]["id"])
             assert len(service_clients) == 1
 
-    def step_import_tsl_certificate(self):
+    def step_import_tls_certificate(self):
         with XRDSSTTest() as app:
             client_controller = ClientController()
             client_controller.app = app
             client_controller.load_config = (lambda: self.config)
-            client_controller.import_tsl_certs()
-            tsl_certs = getClientTlsCertificates(self.config)
-            assert len(tsl_certs) == 1
+            client_controller.import_tls_certs()
+            tls_certs = getClientTlsCertificates(self.config)
+            assert len(tls_certs) == 1
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -212,7 +212,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         downloaded_csrs = self.step_cert_download_csrs()
         signed_certs = self.step_acquire_certs(downloaded_csrs)
 
-        self.step_cert_download_internal_tsl()
+        self.step_cert_download_internal_tls()
 
         self.apply_cert_config(signed_certs)
         self.query_status()
@@ -232,7 +232,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_add_client()
         self.query_status()
 
-        self.step_import_tsl_certificate()
+        self.step_import_tls_certificate()
         self.query_status()
 
         self.step_subsystem_register()

@@ -135,13 +135,13 @@ class EndToEndTest(unittest.TestCase):
                         signed_certs.append(('auth', csr.fs_loc))
             return signed_certs
 
-    def step_cert_download_internal_tsl(self):
+    def step_cert_download_internal_tls(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
             for security_server in self.config["security_server"]:
                 ss_configuration = cert_controller.create_api_config(security_server, self.config)
-                result = cert_controller.remote_download_internal_tsl(ss_configuration, security_server)
+                result = cert_controller.remote_download_internal_tls(ss_configuration, security_server)
                 assert len(result) == 1
 
     def step_acquire_certs(self, downloaded_csrs):
@@ -314,15 +314,15 @@ class EndToEndTest(unittest.TestCase):
         assert len(service_clients) == 1
         assert str(service_clients[0]["id"]) == "DEV:security-server-owners"
 
-    def step_import_tsl_certificate(self):
+    def step_import_tls_certificate(self):
         with XRDSSTTest() as app:
             client_controller = ClientController()
             client_controller.app = app
             for security_server in self.config["security_server"]:
                 for client in security_server["clients"]:
                     configuration = client_controller.create_api_config(security_server, self.config)
-                    tsl_certificates = [os.path.join(ROOT_DIR, "tests/resources/cert.pem")]
-                    response = client_controller.remote_import_tsl_certificate(configuration, tsl_certificates, client)
+                    tls_certificates = [os.path.join(ROOT_DIR, "tests/resources/cert.pem")]
+                    response = client_controller.remote_import_tls_certificate(configuration, tls_certificates, client)
                     assert (type(response) is CertificateDetails)
 
     def query_status(self):
@@ -364,8 +364,8 @@ class EndToEndTest(unittest.TestCase):
         client = get_client(self.config)
         client_id = client['id']
 
-        self.step_import_tsl_certificate()
-        self.step_cert_download_internal_tsl()
+        self.step_import_tls_certificate()
+        self.step_cert_download_internal_tls()
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
         self.step_subsystem_update_parameters()

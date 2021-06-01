@@ -63,8 +63,8 @@ class ClientController(BaseController):
 
         self.update_client(active_config)
 
-    @ex(help="Import TSL certificates", arguments=[])
-    def import_tsl_certs(self):
+    @ex(help="Import TLS certificates", arguments=[])
+    def import_tls_certs(self):
         active_config = self.load_config()
         full_op_path = self.op_path()
 
@@ -75,7 +75,7 @@ class ClientController(BaseController):
             active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
             self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
 
-        self.client_import_tsl_cert(active_config)
+        self.client_import_tls_cert(active_config)
 
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
@@ -115,23 +115,23 @@ class ClientController(BaseController):
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def client_import_tsl_cert(self, config):
+    def client_import_tls_cert(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
-            BaseController.log_debug('Starting internal TSL certificate import for security server: ' + security_server['name'])
-            if ConfKeysSecurityServer.CONF_KEY_TSL_CERTS in security_server:
+            BaseController.log_debug('Starting internal TLS certificate import for security server: ' + security_server['name'])
+            if ConfKeysSecurityServer.CONF_KEY_TLS_CERTS in security_server:
                 client_conf = {
                     "member_name": security_server["owner_dn_org"],
                     "member_code": security_server["owner_member_code"],
                     "member_class": security_server["owner_member_class"]
                 }
-                self.remote_import_tsl_certificate(ss_api_config, security_server[ConfKeysSecurityServer.CONF_KEY_TSL_CERTS], client_conf)
+                self.remote_import_tls_certificate(ss_api_config, security_server[ConfKeysSecurityServer.CONF_KEY_TLS_CERTS], client_conf)
 
             if "clients" in security_server:
                 for client_conf in security_server["clients"]:
-                    if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TSL_CERTIFICATES in client_conf:
-                        self.remote_import_tsl_certificate(ss_api_config, client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TSL_CERTIFICATES], client_conf)
+                    if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES in client_conf:
+                        self.remote_import_tls_certificate(ss_api_config, client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES], client_conf)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -197,16 +197,16 @@ class ClientController(BaseController):
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
-    def remote_import_tsl_certificate(self, ss_api_config, tsl_certs, client_conf):
+    def remote_import_tls_certificate(self, ss_api_config, tls_certs, client_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             client = self.find_client(clients_api, client_conf)
             if client:
-                for tsl_cert in tsl_certs:
+                for tls_cert in tls_certs:
                     try:
-                        location = cement.utils.fs.join_exists(tsl_cert)
+                        location = cement.utils.fs.join_exists(tls_cert)
                         if not location[1]:
-                            BaseController.log_info("Import TSL certificate '%s' for client %s does not exist" % (location[0], client.id))
+                            BaseController.log_info("Import TLS certificate '%s' for client %s does not exist" % (location[0], client.id))
                         else:
                             cert_file_loc = location[0]
                             cert_file = open(cert_file_loc, "rb")
@@ -214,14 +214,14 @@ class ClientController(BaseController):
                             cert_file.close()
                             response = clients_api.add_client_tls_certificate(client.id, body=cert_data)
                             BaseController.log_info(
-                                "Import TSL certificate '%s' for client %s" % (tsl_cert, client.id))
+                                "Import TLS certificate '%s' for client %s" % (tls_cert, client.id))
                             return response
                     except ApiException as err:
                         if err.status == 409:
                             BaseController.log_info(
-                                "TSL certificate '%s' for client %s already exists" % (tsl_cert, client.id))
+                                "TLS certificate '%s' for client %s already exists" % (tls_cert, client.id))
                         else:
-                            BaseController.log_api_error('ClientsApi->import_tsl_certificate', err)
+                            BaseController.log_api_error('ClientsApi->import_tls_certificate', err)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
         return
