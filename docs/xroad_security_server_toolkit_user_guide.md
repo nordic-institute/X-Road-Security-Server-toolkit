@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 1.3.8
+Version: 1.3.9
 Doc. ID: XRDSST-CONF
 
 ---
@@ -39,6 +39,7 @@ Doc. ID: XRDSST-CONF
 | 14.05.2021 | 1.3.6       | Notes on client management                                                   | Bert Viikmäe       |
 | 24.05.2021 | 1.3.7       | Added download-internal-tls command                                          | Alberto Fernandez  |
 | 28.05.2021 | 1.3.8       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
+| 1.06.2021  | 1.3.9       | Added TLS certificates import                                                | Alberto Fernandez
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -254,12 +255,16 @@ security_server:
   url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
   ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  tls_certificates:
+  	- /path/to/tls_cert
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
       member_name: <MEMBER_NAME>
       subsystem_code: <SUBSYSTEM_CODE>
       connection_type: <CONNECTION_TYPE>
+      tls_certificates:
+  		- /path/to/tls_cert
       service_descriptions:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
@@ -440,7 +445,21 @@ is performed with ``xrdsst service add-description``. Enabling of service descri
 Adding access to services is performed  with ``xrdsst service add-access``. Service parameters are updated with ``xrdsst service update-parameters``.
 
 ### 4.11 Internal TLS certificates management
-Internal TLS certificates can be downloaded with ``xrdsst cert download-internal-tls``.
+
+### 4.11.1 Download 
+Internal TLS certificates can be downloaded filling the `tls_certificates` property in the configuration file
+and running the command:
+```
+xrdsst cert download-internal-tls
+```
+Filling the `tls_certificates` property at `security_server` level will add the TLS certificates to the owner client 
+while filling it at `clients` level will add the certificates to the subsystem or new members.
+
+### 4.11.2 Import
+TLS certificates can be imported and added to a client's whitelist with
+```
+xrdsst client import-tls-certs
+```.
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
