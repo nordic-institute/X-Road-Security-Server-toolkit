@@ -38,7 +38,7 @@ class EndToEndTest(unittest.TestCase):
                     self.config_file = sys.argv[idx]
             base = BaseController()
             base.app = app
-            self.config = base.load_config(baseconfig=self.config_file)
+            self.config = base.load_config(baseconfig='/home/alberto/Proyects/X-Road-Security-Server-toolkit/tests/resources/test-config-template-fill.yaml')
             for security_server in self.config["security_server"]:
                 api_key = base.get_api_key(self.config, security_server)
                 self.create_api_key(api_key)
@@ -368,6 +368,8 @@ class EndToEndTest(unittest.TestCase):
         self.step_cert_download_internal_tsl()
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
+        self.step_subsystem_update_parameters()
+        self.step_update_service_parameters(client_id)
         self.step_add_service_access(client_id)
         self.step_create_admin_user()
         self.step_add_service_endpoints(client_id)
@@ -375,16 +377,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_register()
 
 
+        configured_servers_at_end = self.query_status()
 
-        try:
-            self.step_subsystem_update_parameters()
-            self.step_update_service_parameters(client_id)
-
-
-            configured_servers_at_end = self.query_status()
-
-            assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-        except ApiException as err:
-            logging.debug("Error end of testing:" + str(err.reason) + str(err.body))
-            raise err
+        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
 

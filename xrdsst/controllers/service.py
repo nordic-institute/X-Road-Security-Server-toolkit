@@ -288,9 +288,9 @@ class ServiceController(BaseController):
                                                    timeout_all=timeout_all,
                                                    ssl_auth_all=ssl_auth_all)
                     response = services_api.update_service(service.id, body=service_update)
-            if response:
-                BaseController.log_info("Updated service parameters for service '" + service.id +
-                                        "' (got full id " + response.id + ")")
+                    if response:
+                        BaseController.log_info("Updated service parameters for service '" + service.id +
+                                                "' (got full id " + response.id + ")")
         except ApiException as err:
             BaseController.log_api_error('ServicesApi->update_service', err)
 
