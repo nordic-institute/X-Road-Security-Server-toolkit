@@ -1,7 +1,7 @@
 import os
 import sys
 import unittest
-
+import logging
 import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
@@ -20,6 +20,9 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.models.certificate_details import CertificateDetails
+from xrdsst.rest.rest import ApiException
+
+
 class EndToEndTest(unittest.TestCase):
     config_file = None
     config = None
@@ -361,8 +364,8 @@ class EndToEndTest(unittest.TestCase):
         client = get_client(self.config)
         client_id = client['id']
 
-        # self.step_import_tsl_certificate()
-        # self.step_cert_download_internal_tsl()
+        self.step_import_tsl_certificate()
+        self.step_cert_download_internal_tsl()
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
         self.step_add_service_access(client_id)
@@ -372,9 +375,14 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_register()
 
         self.step_subsystem_update_parameters()
-        self.step_update_service_parameters(client_id)
+
+        try:
+            self.step_update_service_parameters(client_id)
 
 
-        configured_servers_at_end = self.query_status()
+            configured_servers_at_end = self.query_status()
 
-        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
+            assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
+        except ApiException as err:
+            logging.debug("Error end of testing:" + str(err.reason) + str(err.body))
+
