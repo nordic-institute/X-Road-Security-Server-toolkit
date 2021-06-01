@@ -361,6 +361,8 @@ class EndToEndTest(unittest.TestCase):
         client = get_client(self.config)
         client_id = client['id']
 
+        self.step_import_tsl_certificate()
+
         self.step_add_service_description(client_id)
         self.step_enable_service_description(client_id)
         self.step_add_service_access(client_id)
@@ -372,7 +374,6 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters(client_id)
         self.step_cert_download_internal_tsl()
-        self.step_import_tsl_certificate()
 
         configured_servers_at_end = self.query_status()
 
