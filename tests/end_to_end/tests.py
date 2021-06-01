@@ -374,9 +374,10 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_endpoints_access(client_id)
         self.step_subsystem_register()
 
-        self.step_subsystem_update_parameters()
+
 
         try:
+            self.step_subsystem_update_parameters()
             self.step_update_service_parameters(client_id)
 
 
@@ -385,4 +386,5 @@ class EndToEndTest(unittest.TestCase):
             assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
         except ApiException as err:
             logging.debug("Error end of testing:" + str(err.reason) + str(err.body))
+            raise err
 
