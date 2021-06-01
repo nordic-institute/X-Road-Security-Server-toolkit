@@ -232,8 +232,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_add_client()
         self.query_status()
 
-        # self.step_import_tls_certificate()
-        # self.query_status()
+        self.step_import_tls_certificate()
+        self.query_status()
 
         self.step_subsystem_register()
         self.query_status()
