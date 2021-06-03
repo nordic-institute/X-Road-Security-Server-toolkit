@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 import requests
 
 from xrdsst.controllers.base import BaseController
+from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.status import ServerStatus
 from xrdsst.core.api_util import StatusRoles, StatusVersion, StatusGlobal, StatusServerInitialization, \
     StatusServerTimestamping, StatusToken, StatusKeys, StatusCsrs, StatusCerts
@@ -281,32 +282,40 @@ def get_service_clients(config, service_id, ssn):
 
 
 # Returns service clients for giving endpoints
-def get_endpoint_service_clients(config, endpoint_id):
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+def get_endpoint_service_clients(config, endpoint_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     return api_GET(
-        config["security_server"][0]["url"],
+        config["security_server"][ssn]["url"],
         "endpoints/" + endpoint_id + "/service-clients",
         api_key
     )
 
 
 # Returns client
-def get_client(config, ssn):
-    conn_type = convert_swagger_enum(ConnectionType, config['security_server'][ssn]['clients'][0]['connection_type'])
-    member_class = config['security_server'][ssn]['clients'][0]['member_class']
-    member_code = config['security_server'][ssn]['clients'][0]['member_code']
-    subsystem_code = config['security_server'][ssn]['clients'][0]['subsystem_code']
+def get_client(config, client, ssn):
+    conn_type = convert_swagger_enum(ConnectionType, client['connection_type'])
+    member_class = client['member_class']
+    member_code = client['member_code']
     api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
-    client = requests.get(
-        config["security_server"][ssn]["url"] + "/clients",
-        {'member_class': member_class,
-         'member_code': member_code,
-         'subsystem_code': subsystem_code,
-         'connection_type': conn_type},
-        headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
-        verify=False)
+    if ClientController.is_client_base_member(client, config["security_server"][ssn]):
+        client = requests.get(
+            config["security_server"][ssn]["url"] + "/clients",
+            {'member_class': member_class,
+            'member_code': member_code,
+            'subsystem_code': client['subsystem_code'],
+            'connection_type': conn_type},
+            headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
+            verify=False)
+    else:
+        client = requests.get(
+            config["security_server"][ssn]["url"] + "/clients",
+            {'member_class': member_class,
+            'member_code': member_code,
+            'connection_type': conn_type},
+            headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
+            verify=False)
     client_json = json.loads(str(client.content, 'utf-8').strip())
-    return client_json[0] if len(client_json) > 0 else client_json
+    return client_json
 
 
 # Deduce possible TEST CA URL from configuration anchor

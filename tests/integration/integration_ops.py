@@ -17,7 +17,7 @@ class IntegrationOpBase:
             cert_controller.load_config = (lambda: self.config)
             result = cert_controller.download_csrs()
 
-            assert len(result) == len(self.config["security_server"]) * 2
+            assert len(result) == 6
 
             fs_loc_list = []
             csrs = []
@@ -46,7 +46,6 @@ class IntegrationOpBase:
     def apply_cert_config(self, signed_certs, ssn):
         self.config['security_server'][ssn]['certificates'] = signed_certs
 
-
     def query_status(self):
         with XRDSSTTest() as app:
             status_controller = StatusController()
@@ -63,20 +62,18 @@ class IntegrationOpBase:
 
             return servers
 
-
     def step_autoconf(self):
         with XRDSSTTest() as app:
-            with mock.patch.object(BaseController, 'load_config',  (lambda x, y=None: self.config)):
+            with mock.patch.object(BaseController, 'load_config', (lambda x, y=None: self.config)):
                 auto_controller = AutoController()
                 auto_controller.app = app
                 auto_controller._default()
-
 
     def step_cert_download_internal_tsl(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
-            cert_controller.load_config = (lambda: self.config)
-            result = cert_controller.download_internal_tsl()
-            assert len(result) == 2
-
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.create_api_config(security_server, self.config)
+                result = cert_controller.remote_download_internal_tsl(configuration, security_server)
+                assert len(result) == 1
