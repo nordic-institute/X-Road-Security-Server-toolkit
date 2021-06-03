@@ -48,41 +48,65 @@ Doc. ID: XRDSST-CONF
 
 * [License](#license)
 * [1. Introduction](#1-introduction)
-	* [1.1 Target Audience](#11-target-audience)
-	* [1.2 References](#12-references)
-* [2. Installation](#2-installation)
-	* [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
-	* [2.2 Installation procedure](#22-installation-procedure)
-* [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
-	* [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
-		* [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
-			* [3.1.1.1 Using API keys](#3111-using-api-keys)
-			* [3.1.1.2 Using SSH](#3112-using-ssh)
-	* [3.2 Format of configuration file](#32-format-of-configuration-file)
-	* [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
-* [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
-	* [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
-	* [4.2 Creating admin user (optional)](#42-creating-admin-user-optional)
-	* [4.3 Initializing the security server](#43-initializing-the-security-server)
-	* [4.4 Logging in a single software token](#44-logging-in-a-single-software-token)
-	* [4.5 Listing security server tokens](#45-listing-security-server-tokens)
-	* [4.6 Configuring security server to use single approved timestamping service](#46-configuring-security-server-to-use-single-approved-timestamping-service)
-	* [4.7 Initializing token keys and corresponding certificate signing requests](#47-initializing-token-keys-and-corresponding-certificate-signing-requests)
-	* [4.8 Certificate management](#48-certificate-management)
-	* [4.9 Client management](#49-client-management)
-	* [4.10 Service management](#410-service-management)
-	* [4.11 Internal TSL certificates management](#411-internal-tsl-certificates-management)
-* [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
-	* [5.1 Configuration flow](#51-configuration-flow)
-	* [5.2 First-run failures](#52-first-run-failures)
-	* [5.3 Configuration file errors](#53-configuration-file-errors)
-		* [5.3.1 Malformed YAML](#531-malformed-yaml)
-		* [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
-	* [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
-	* [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
-* [6 Load balancer setup](#6-load-balancer-setup)
-* [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
-* [8 Multitenancy](#8-Multitenancy)
+      * [1.1 Target Audience](#11-target-audience)
+      * [1.2 References](#12-references)
+   * [2. Installation](#2-installation)
+      * [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
+      * [2.2 Installation procedure](#22-installation-procedure)
+   * [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
+      * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
+         * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
+            * [3.1.1.1 Using API keys](#3111-using-api-keys)
+            * [3.1.1.2 Using SSH](#3112-using-ssh)
+      * [3.2 Format of configuration file](#32-format-of-configuration-file)
+         * [3.2.1 Access Configuration](#321-access-configuration)
+         * [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
+         * [3.2.3 Clients Servers Configuration](#323-clients-servers-configuration)
+         * [3.2.3 Services Configuration](#323-services-configuration)
+      * [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
+   * [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
+      * [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
+      * [4.2 X-Road Security Server  Toolkit commands](#42-x-road-security-server--toolkit-commands)
+         * [4.2.1 Creating admin user command](#421-creating-admin-user-command)
+         * [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
+         * [4.2.3 Token commands](#423-token-commands)
+            * [4.2.3.1 Token login command](#4231-token-login-command)
+            * [4.2.3.2 Token list](#4232-token-list)
+            * [4.2.3.3 Token init-keys](#4233-token-init-keys)
+         * [4.2.4 Timestamp commands](#424-timestamp-commands)
+            * [4.2.4.1 Timestamp init](#4241-timestamp-init)
+            * [4.2.4.2 Timestamp list approved](#4242-timestamp-list-approved)
+            * [4.2.4.3 Timestamp list configured](#4243-timestamp-list-configured)
+         * [4.2.5 Certificate management commands](#425-certificate-management-commands)
+            * [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs)
+            * [4.2.5.2 Certificate import](#4252-certificate-import)
+            * [4.2.5.3 Certificate registration](#4253-certificate-registration)
+            * [4.2.5.4 Certificate activation](#4254-certificate-activation)
+            * [4.2.5.5 Download internal TSL certificates](#4255-download-internal-tsl-certificates)
+         * [4.2.5 Client management commands](#425-client-management-commands)
+            * [4.2.5.1 Client add](#4251-client-add)
+            * [4.2.5.2 Client register](#4252-client-register)
+            * [4.2.5.3 Client register](#4253-client-register)
+         * [4.2.6 Service management commands](#426-service-management-commands)
+            * [4.2.6.1 Service add description](#4261-service-add-description)
+            * [4.2.6.2 Service add access rights](#4262-service-add-access-rights)
+            * [4.2.6.3 Enable service](#4263-enable-service)
+            * [4.2.6.4 Service update parameters](#4264-service-update-parameters)
+            * [4.2.6.5 Service apply](#4265-service-apply)
+      * [4.10 Service management](#410-service-management)
+      * [4.11 Internal TSL certificates management](#411-internal-tsl-certificates-management)
+   * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
+      * [5.1 Configuration flow](#51-configuration-flow)
+      * [5.2 First-run failures](#52-first-run-failures)
+      * [5.3 Configuration file errors](#53-configuration-file-errors)
+         * [5.3.1 Malformed YAML](#531-malformed-yaml)
+         * [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
+      * [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
+      * [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
+   * [6 Load balancer setup](#6-load-balancer-setup)
+   * [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
+   * [8 Multitenancy](#8-multitenancy)
+
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -284,9 +308,16 @@ security_server:
 			    - <SERVICE_CLIENT_ID>
 ```
 
-The ``ssh_access`` section is for configuring the SSH access parameters of the X-Road Security Server Toolkit
-The ``security_server`` section is for configuring security server parameters
+#### 3.2.1 Access Configuration
 
+In this section is configured the security server access as described in
+[3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
+```
+admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+ssh_access:
+  user: <SSH_USER_OS_ENV_VAR_NAME>
+  private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+```
 * <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server admin credentials, e.g. if the variable is set like ``export TOOLKIT_ADMIN_CREDENTIALS=user:pass`` the value to use here is ``TOOLKIT_ADMIN_CREDENTIALS`` (if specified in the separate section, one value will be 
   used for all configurable security servers, but if specified in the ``security_server`` section, the value will be overridden for specific 
   configurable security server)
@@ -294,46 +325,131 @@ The ``security_server`` section is for configuring security server parameters
   but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)
 * <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> Environment variable name to hold full path to SSH private key, e.g. if the variable is set like ``export TOOLKIT_SSH_PRIVATE_KEY=/home/user/private_key`` the value to use here is ``TOOLKIT_SSH_PRIVATE_KEY``
   (if specified in ``ssh_access`` section, one value will be used for all configurable security servers, 
-  but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)  
-* ``/path/to/xrdsst.log`` should be substituted with the correct path to the log file, e.g. "/var/log/xroad/xrdsst.log"
-* <LOG_LEVEL> parameter for configuring the logging level for the X-Road Security Server Toolkit, e.g INFO
+  but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)    
+
+#### 3.2.2 Security Servers Configuration
+
+In this section is configured the security servers information. It is possible to set multiple security servers that will run in a sequential batch mode.
+```
+security_server:
+- api_key: <API_KEY_ENV_VAR_NAME>
+  api_key_url: https://localhost:4000/api/v1/api-keys
+  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+  configuration_anchor: <CONFIGURATION_ANCHOR_PATH>
+  certificates:
+    - <SIGN_CERT_PATH>
+    - <AUTH_CERT_PATH>
+  name: <SECURITY_SERVER_NAME>
+  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
+  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
+  owner_member_class: <OWNER_MEMBER_CLASS>
+  owner_member_code: <OWNER_MEMBER_CODE>
+  security_server_code: <SERVER_CODE>
+  software_token_id: <SOFT_TOKEN_ID>
+  software_token_pin: <SOFT_TOKEN_PIN>
+  fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
+  url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
+  ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
+  ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+```
 * <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
-* ``/path/to/configuration-anchor.xml`` should be substituted with the correct path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
+* <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> (Optional) If is set it will overwritte the <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
+* <CONFIGURATION_ANCHOR_PATH> Path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
+*  <SIGN_CERT_PATH> should be given as path referring to sign certificates location.
+*  <AUTH_CERT_PATH> should be given as path referring to auth certificate location.
 * <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
 * <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
 * <OWNER_DISTINGUISHED_NAME_ORGANIZATION> should be set to server owner organization. This is used in certificate generation.
-* <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV
-* <MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234
-* <MEMBER_NAME> should be substituted with the member name obtained from the Central Server, e.g. COMPANY
+* <OWNER_MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV.
+* <OWNER_MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234.
 * <SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
 * <SOFT_TOKEN_ID> default software token ID, normally 0 (zero).
-* <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code
-* <SECURITY_SERVER_EXTERNAL_FQDN> externally accessible FQDN for security server, propagates to security server certificates
+* <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code.
+* <SECURITY_SERVER_EXTERNAL_FQDN> externally accessible FQDN for security server, propagates to security server certificates.
 * <SECURITY_SERVER_INTERNAL_FQDN_OR_IP> should be substituted with internal IP address or host name of the installed security server, e.g. ``ss1``
-* ``/path/to/signcert`` and ``/path/to/authcert`` should be given as paths referring to certificate locations,
-in fact any number of certificates can be imported for the keys labelled ``default-auth-key`` and ``default-sign-key``
-(but not all of them can be in use / registered)
+* <SSH_USER_OS_ENV_VAR_NAME> (Optional) If is set it will overwritte the <SSH_USER_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
+* <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> (Optional) If is set it will overwritte the <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
+
+#### 3.2.3 Clients Servers Configuration
+
+In this section is configured the clients information. It is possible to set a list of subsystems belonging to the owner member
+configured in the [security server configuration](#322-security-servers-configuration) or it's possible to add a new member with its subsystems as described
+in [8 Multitenancy](#8-multitenancy).
+```
+clients:
+	- member_class: <MEMBER_CLASS>
+	  member_code: <MEMBER_CODE>
+	  member_name: <MEMBER_NAME>
+	  subsystem_code: <SUBSYSTEM_CODE>
+	  connection_type: <CONNECTION_TYPE>
+```
+
+* <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV.
+It must have the same value as <OWNER_MEMBER_CLASS> if is a subsystem of the owner client.
+* <OWNER_MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234
+It must have the same value as <OWNER_MEMBER_CLASS> if is a subsystem of the owner client.
+* <MEMBER_NAME> should be substituted with the member name obtained from the Central Server, e.g. COMPANY.
+It must have the same value as <OWNER_DISTINGUISHED_NAME_ORGANIZATION>  if is a subsystem of the owner client.
 * <SUBSYSTEM_CODE> X-Road member/client subsystem code.
 * <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
-* <SERVICE_DESCRIPTION_URL> URL for service description
-* <REST_SERVICE_CODE> rest service code, not used for WSDL services
-* <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
-* <SERVICE_TIMEOUT> timeout for service in seconds
-* <SERVICE_USE_SSL_AUTH> boolean value for specifying whether SSL authentication should be used
-* <SERVICE_URL_FOR_ALL> string value determining URL prefix of services in service description, e.g. https://cs:4002/managementservice/manage/
-* <SERVICE_TIMEOUT_FOR_ALL> integer value specifying timeout (in seconds) for services in service description
-* <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description
-* <SERVICE_URL> URL for single service
-* <SERVICE_CODE> code for single service.
-* <ENDPOINT_PATH> path for the endpoint.
-* <ENDPOINT_METHOD> method for the endpoint (GET, POST, PUT...)
-* <SERVICE_CLIENT_ID> service client id, composed by <INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>
 
-In section ``service_descriptions`` service with type ``OPENAPI3``, ``REST``, ``WSDL`` can be configured by adding a service description
+#### 3.2.3 Services Configuration
+
+In this section services with type ``OPENAPI3``, ``REST``, ``WSDL`` can be configured by adding a service description
 with parameters ``url``, ``rest_service_code``, ``type`` and ``access``. In order to provide access to the services added with that
 service description to different subsystems, the parameter ``access`` should contain a list of subsystem codes. To configure specific services
 described with the service description, the parameters ``service_code`` and ``access`` must be configured in the section ``services``. 
+```
+service_descriptions:
+	- url: <SERVICE_DESCRIPTION_URL>
+	  rest_service_code: <REST_SERVICE_CODE>
+	  type: <SERVICE_TYPE>
+	  access:
+		- <SERVICE_DESCRIPTION_ACCESS>
+	  url_all: <SERVICE_URL_FOR_ALL>
+	  timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
+	  ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
+	  services:
+            - service_code: <SERVICE_CODE>
+              access:
+                - <SERVICE_ACCESS>
+              timeout: <SERVICE_TIMEOUT>
+              ssl_auth: <SERVICE_USE_SSL_AUTH>
+              url: <SERVICE_URL>
+          endpoints:
+			- path: <ENDPOINT_PATH>
+			  method: <ENDPOINT_METHOD>
+			  access: 
+			    - <ENDPOINTS_ACCESS>
+```
+<strong>Service description:</strong>
 
+* <SERVICE_DESCRIPTION_URL> URL for service description.
+* <REST_SERVICE_CODE> rest service code, not used for WSDL services.
+* <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
+* <SERVICE_DESCRIPTION_ACCESS> (Optional) list of subsystems ids, composed by <INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>, or security serverver owners composed 
+by <INSTANCE>:security-server-owners.
+* <SERVICE_URL_FOR_ALL> boolean value determining URL prefix should be the same for all services.
+* <SERVICE_TIMEOUT_FOR_ALL> boolean value specifying timeout should be the same for all services in service description.
+* <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description.
+
+<strong>Services (Optional):</strong>
+The services are autogenerated when the service description is added, therefore it is not necessary to add all the services for the service description url, 
+we only have to add the services when we want to customize the access rights, update the parameters (of all or just one) or create new services 
+that are not self-generated.
+
+* <SERVICE_CODE> code for single service.
+* <SERVICE_ACCESS> (Optional) same as <SERVICE_DESCRIPTION_ACCESS>, if its defined, it will overwrite the values defined in <SERVICE_DESCRIPTION_ACCESS>
+for the single service.
+* <SERVICE_TIMEOUT> timeout for service in seconds.
+* <SERVICE_USE_SSL_AUTH> boolean value for specifying whether SSL authentication should be used.
+* <SERVICE_URL> URL for single service
+
+<strong>Endpoints:</strong>
+
+* <ENDPOINT_PATH> path for the endpoint.
+* <ENDPOINT_METHOD> method for the endpoint (GET, POST, PUT...)
+* <ENDPOINTS_ACCESS> (Optional) same as <SERVICE_ACCESS> or <SERVICE_DESCRIPTION_ACCESS> but for grant endpoint access rights.
 
 ### 3.3 Different ways of using the configuration file
 
@@ -381,18 +497,17 @@ $ xrdsst status
 The whole security server configuration in a fully automatic mode (all configuration from configuration file) can be run with ``xrdsst apply``
 For performing the configuration step by step instead, please start from [4.3 Initializing the security server](#43-initializing-the-security-server)
 
-### 4.2 Creating admin user (optional)
 
-X-Road admin user can be created with ``xrdsst user create-admin``
+### 4.2 X-Road Security Server  Toolkit commands
 
-Configuration parameters involved:
+#### 4.2.1 Creating admin user command
 
+X-Road admin user can be created with 
 ```
-admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
-ssh_access:
-  user: <SSH_USER_OS_ENV_VAR_NAME>
-  private_key: SSH_PRIVATE_KEY_OS_ENV_VAR_NAME
+xrdsst user create-admin
 ```
+Configuration parameters involved are the described in [3.2.1 Access Configuration](#321-access-configuration)
+
 
 Note: This is an optional step in the configuration process and should only be run if the admin user has not been created before. 
       SSH (SSH user and a private key) is used for creating the admin user. If the admin user has been created before, then it is 
@@ -400,49 +515,213 @@ Note: This is an optional step in the configuration process and should only be r
 
 ** It is a security risk to store the SSH access related credentials into to configuration file as plain text. **
 
-### 4.3 Initializing the security server
+#### 4.2.2 Initializing the security server command
 
-Configuration anchor is added and the security server is initialized with ``xrdsst init``
+Initializes the security server and upload the configuration anchor by typing:
+```
+xrdsst init
+```
+Configuration parameters involved are the described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
 
-### 4.4 Logging in a single software token
+#### 4.2.3 Token commands
 
-Default software token login can be logged on with ``xrdsst token login``
+Configuration parameters related to tokens involved are `software_token_id` and `software_token_pin` the described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
 
-### 4.5 Listing security server tokens
+##### 4.2.3.1 Token login command
 
-All tokens known to security server can be listed with ``xrdsst token list``
+Default software token login can be logged on with:
+```
+xrdsst token login
+```
+Configuration parameters involved are `software_token_id` and `software_token_pin` the described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
 
-### 4.6 Configuring security server to use single approved timestamping service
+##### 4.2.3.2 Token list
 
-Single timestamping service approved for use in central server can be configured for security server by invoking ``timestamp`` subcommand
-as ``xrdsst timestamp init``.
+All tokens known to security server can be listed with:
+```
+xrdsst token list
+```
 
-### 4.7 Initializing token keys and corresponding certificate signing requests
+##### 4.2.3.3 Token init-keys
 
-Token keys for authentication and signatures can be created with ``xrdsst token init-keys``, which creates
-two keys and generates corresponding certificate signing requests (one for authentication, other for signing).
+Token keys for authentication and signatures can be created with:
+```
+xrdsst token init-keys
+``` 
+Creates two keys and generates corresponding certificate signing requests (one for authentication, other for signing).
 The key labels used are conventionally with suffixes ``default-auth-key`` and ``default-sign-key``, if
 those already exist, they will not be duplicated and command acts as no-op for such security server.
+If we are using [Multitenancy](#8-multitenancy) this command will also create an extra key and signing request with the 
+key label suffix ``default-sign-key_<MEMBER_CODE>_<MEMBER_NAME>``
 
-### 4.8 Certificate management
-Certificate signing requests can be downloaded with ``xrdsst cert download-csrs``, suitably signed
-certificates can be imported with ``xrdsst cert import`` and imported authentication certificate registration (deduced
-from being attached to key labelled with suffix ``default-auth-key`` at central server can be initiated with ``xrdsst
-cert register``, final activation with ``xrdsst cert activate``.
+#### 4.2.4 Timestamp commands
 
-### 4.9 Client management
-Client subsystems are managed with ``xrdsst client`` subcommands, new subsystem client can be added with
-``xrdsst client add``, the subsystem parameters should be specified in the configuration ``clients`` section.
-Further subsystem registration can proceed with ``xrdsst client register``. Subsystem parameters are updated with ``xrdsst client update``.
+Configuration parameters involved are the described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
 
-### 4.10 Service management
-Services and service descriptions are managed with ``xrdsst service`` subcommands. Adding REST/OPENAPI3/WSDL service descriptions
-is performed with ``xrdsst service add-description``. Enabling of service descriptions is performed  with ``xrdsst service enable-description``.
-Adding access to services is performed  with ``xrdsst service add-access``. Service parameters are updated with ``xrdsst service update-parameters``.
-In addition, all the service-related sub-commands can be executed with ``xrdsst service apply``.
 
-### 4.11 Internal TSL certificates management
-Internal TSL certificates can be downloaded with ``xrdsst cert download-internal-tsl``.
+##### 4.2.4.1 Timestamp init
+
+Single timestamping service approved for use in central server can be configured for security server by invoking ``timestamp`` subcommand as: 
+```
+xrdsst timestamp init
+```
+
+##### 4.2.4.2 Timestamp list approved
+
+List the available timestamp services approved for the security server
+```
+xrdsst timestamp list-approved
+```
+
+##### 4.2.4.3 Timestamp list configured
+
+List the available timestamp services configured for the security server
+```
+xrdsst timestamp list-configured
+```
+
+#### 4.2.5 Certificate management commands
+
+These commands allow us to perform certificate operations of a security server.
+
+##### 4.2.5.1 Certificate download CSRS
+
+Certificate signing requests can be downloaded with 
+```
+xrdsst cert download-csrs
+```
+
+##### 4.2.5.2 Certificate import
+
+Configuration parameters involved are the `certificates` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
+In the `certificates` list we must set the path for the signed SIGN and AUTH certificates previously downloaded then can be imported with:
+```
+xrdsst cert import
+```
+
+##### 4.2.5.3 Certificate registration
+
+Register the certificates previously imported in the central server with:
+```
+xrdsst cert register
+```
+
+##### 4.2.5.4 Certificate activation
+
+AUTH certificate activation can be done with:
+```
+xrdsst cert activate
+```
+
+##### 4.2.5.5 Download internal TSL certificates
+
+Internal TSL certificates can be downloaded with:
+```
+xrdsst cert download-internal-tsl
+```
+This command will save a zip file in the `/tmp/` folder containing the public and private keys of the internal TSL certificates.
+
+#### 4.2.5 Client management commands
+Client are managed with ``xrdsst client`` subcommands.
+Configuration parameters involved are the `certificates` list described in [3.2.3 Clients Servers Configuration](#323-clients-servers-configuration)
+
+##### 4.2.5.1 Client add
+
+New subsystem or members can be added with:
+```
+xrdsst client add
+```
+
+##### 4.2.5.2 Client register
+
+Subsystems and new members registration in central server can proceed with:
+```
+xrdsst client register
+```
+
+##### 4.2.5.3 Client register
+
+Subsystem parameters can be updated with:
+```
+xrdsst client update
+```
+
+#### 4.2.6 Service management commands
+
+Services and service descriptions are managed with ``xrdsst service`` subcommands.
+Configuration parameters involved are the described in [3.2.3 Services Configuration](#323-services-configuration)
+
+##### 4.2.6.1 Service add description
+
+Adding REST/OPENAPI3/WSDL service can be done with:
+```
+xrdsst service add-description
+```
+For REST / OPENAPI3 type services, this command will auto-generate a service with the property name `rest_service_code`. 
+
+For WSDL type services it is not necessary to fill in the `rest_service_code` property, when adding the description the services discovered in the WSDL URL are autogenerated.
+
+The default values of the service properties will be of 60 for the `timeout` and False for the` ssl_auth`.
+
+We must include the services when we want to modify any of their properties (for all or for single one).
+
+##### 4.2.6.2 Service add access rights
+
+Access rights for a service can be done with:
+```
+xrdsst service add-access
+```
+This command will add for all the services the access rights defined in the property `access` of the` service_descriptions` section
+except in the case that the `access` property of the `services` section is filled, in that case, this list will overwrite 
+the access rights for the individual service. 
+
+##### 4.2.6.3 Enable service
+
+Enabling the service description can be done with:
+```
+xrdsst service enable-description
+```
+
+##### 4.2.6.4 Service update parameters
+
+Updating the service parameters can be done with:
+```
+xrdsst service update-parameters
+```
+This command will update the parameters of the single services added to the configuration file, or it will update the parameters
+for all the services in the description if the boolean parameters are set to True.
+
+##### 4.2.6.5 Service apply
+It is possible to run sequentially all the service commands described before in [4.2.6 Service management commands](#426-service-management-commands)
+with:
+```
+xrdsst service apply
+```
+This command will execute the commands: ``xrdsst service add-description``, ``xrdsst service enable-description``, ``xrdsst service add-access``, ``xrdsst service update-parameters``.
+
+#### 4.2.7 Endpoint management
+
+Endpoints are managed with ``xrdsst endpoint`` subcommands.
+
+Configuration parameters involved are the ``endpoint`` section described in [3.2.3 Services Configuration](#323-services-configuration)
+
+Endpoints are only available for service types REST and OPENAPI3.
+
+##### 4.2.7.1 Endpoint add
+
+Adding endpoints to a service can be done with:
+```
+xrdsst endpoint add
+```
+Endpoints in service type OPENAPI3 are autogenerated, so, the endpoints defined in the configuration 
+will be created together with the autogenerated ones.
+
+##### 4.2.7.1 Endpoint add access rights
+
+Access rights for a single endpoint can be add with:
+```
+xrdsst endpoint add-access
+```
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
