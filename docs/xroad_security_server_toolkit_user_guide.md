@@ -509,7 +509,8 @@ X-Road admin user can be created with
 ```
 xrdsst user create-admin
 ```
-Configuration parameters involved are the described in [3.2.1 Access Configuration](#321-access-configuration)
+Configuration parameters involved are the described in [3.2.1 Access Configuration](#321-access-configuration), 
+specifically, the administrator user will have the name: password those defined in the property admin_credentials 
 
 
 Note: This is an optional step in the configuration process and should only be run if the admin user has not been created before. 
@@ -526,6 +527,7 @@ Initializes the security server and upload the configuration anchor by typing:
 ```
 xrdsst init
 ```
+
 Configuration parameters involved are the described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
 
 #### 4.2.3 Token commands
