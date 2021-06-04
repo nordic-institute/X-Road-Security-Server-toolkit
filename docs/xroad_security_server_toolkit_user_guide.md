@@ -446,7 +446,7 @@ for the single service.
 * <SERVICE_USE_SSL_AUTH> boolean value for specifying whether SSL authentication should be used.
 * <SERVICE_URL> URL for single service
 
-<strong>Endpoints:</strong>
+<strong>Endpoints (Optional):</strong>
 
 * <ENDPOINT_PATH> path for the endpoint.
 * <ENDPOINT_METHOD> method for the endpoint (GET, POST, PUT...)
