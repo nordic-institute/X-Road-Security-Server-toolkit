@@ -40,14 +40,14 @@ Doc. ID: XRDSST-CONF
 | 24.05.2021 | 1.3.7       | Added download-internal-tsl command                                          | Alberto Fernandez  |
 | 28.05.2021 | 1.3.8       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
 | 28.05.2021 | 1.3.9       | Update service management                                                    | Bert Viikmäe       |
-
+| 04.06.2021 | 1.3.8       | Refactor documentation                                                       | Alberto Fernandez  |
 ## Table of Contents <!-- omit in toc -->
 
 <!-- toc -->
 <!-- vim-markdown-toc GFM -->
 
 * [License](#license)
-* [1. Introduction](#1-introduction)
+   * [1. Introduction](#1-introduction)
       * [1.1 Target Audience](#11-target-audience)
       * [1.2 References](#12-references)
    * [2. Installation](#2-installation)
@@ -86,15 +86,16 @@ Doc. ID: XRDSST-CONF
          * [4.2.5 Client management commands](#425-client-management-commands)
             * [4.2.5.1 Client add](#4251-client-add)
             * [4.2.5.2 Client register](#4252-client-register)
-            * [4.2.5.3 Client register](#4253-client-register)
+            * [4.2.5.3 Client update](#4253-client-update)
          * [4.2.6 Service management commands](#426-service-management-commands)
             * [4.2.6.1 Service add description](#4261-service-add-description)
             * [4.2.6.2 Service add access rights](#4262-service-add-access-rights)
             * [4.2.6.3 Enable service](#4263-enable-service)
             * [4.2.6.4 Service update parameters](#4264-service-update-parameters)
             * [4.2.6.5 Service apply](#4265-service-apply)
-      * [4.10 Service management](#410-service-management)
-      * [4.11 Internal TSL certificates management](#411-internal-tsl-certificates-management)
+         * [4.2.7 Endpoint management](#427-endpoint-management)
+            * [4.2.7.1 Endpoint add](#4271-endpoint-add)
+            * [4.2.7.2 Endpoint add access rights](#4272-endpoint-add-access-rights)
    * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
       * [5.1 Configuration flow](#51-configuration-flow)
       * [5.2 First-run failures](#52-first-run-failures)
@@ -500,6 +501,8 @@ For performing the configuration step by step instead, please start from [4.3 In
 
 ### 4.2 X-Road Security Server  Toolkit commands
 
+* Access rightss: All commands require at least the role XROAD_SYSTEM_ADMINISTRATOR.
+
 #### 4.2.1 Creating admin user command
 
 X-Road admin user can be created with 
@@ -517,6 +520,8 @@ Note: This is an optional step in the configuration process and should only be r
 
 #### 4.2.2 Initializing the security server command
 
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR, XROAD_SECURITY_OFFICER
+
 Initializes the security server and upload the configuration anchor by typing:
 ```
 xrdsst init
@@ -529,6 +534,8 @@ Configuration parameters related to tokens involved are `software_token_id` and 
 
 ##### 4.2.3.1 Token login command
 
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
 Default software token login can be logged on with:
 ```
 xrdsst token login
@@ -537,12 +544,16 @@ Configuration parameters involved are `software_token_id` and `software_token_pi
 
 ##### 4.2.3.2 Token list
 
+* Access rights: Any
+
 All tokens known to security server can be listed with:
 ```
 xrdsst token list
 ```
 
 ##### 4.2.3.3 Token init-keys
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER or XROAD_SECURITY_OFFICER
 
 Token keys for authentication and signatures can be created with:
 ```
@@ -561,6 +572,8 @@ Configuration parameters involved are the described in [3.2.2 Security Servers C
 
 ##### 4.2.4.1 Timestamp init
 
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
+
 Single timestamping service approved for use in central server can be configured for security server by invoking ``timestamp`` subcommand as: 
 ```
 xrdsst timestamp init
@@ -568,12 +581,16 @@ xrdsst timestamp init
 
 ##### 4.2.4.2 Timestamp list approved
 
+* Access rights: Any
+
 List the available timestamp services approved for the security server
 ```
 xrdsst timestamp list-approved
 ```
 
 ##### 4.2.4.3 Timestamp list configured
+
+* Access rights: Any
 
 List the available timestamp services configured for the security server
 ```
@@ -586,12 +603,16 @@ These commands allow us to perform certificate operations of a security server.
 
 ##### 4.2.5.1 Certificate download CSRS
 
+* Access rights: XROAD_SECURITY_OFFICER
+
 Certificate signing requests can be downloaded with 
 ```
 xrdsst cert download-csrs
 ```
 
 ##### 4.2.5.2 Certificate import
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR, XROAD_REGISTRATION_OFFICER and XROAD_SECURITY_OFFICER
 
 Configuration parameters involved are the `certificates` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
 In the `certificates` list we must set the path for the signed SIGN and AUTH certificates previously downloaded then can be imported with:
@@ -601,12 +622,16 @@ xrdsst cert import
 
 ##### 4.2.5.3 Certificate registration
 
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
+
 Register the certificates previously imported in the central server with:
 ```
 xrdsst cert register
 ```
 
 ##### 4.2.5.4 Certificate activation
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
 
 AUTH certificate activation can be done with:
 ```
@@ -615,6 +640,8 @@ xrdsst cert activate
 
 ##### 4.2.5.5 Download internal TSL certificates
 
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR or XROAD_SECURITY_OFFICER or XROAD_REGISTRATION_OFFICER or XROAD_SERVICE_ADMINISTRATOR
+
 Internal TSL certificates can be downloaded with:
 ```
 xrdsst cert download-internal-tsl
@@ -622,10 +649,13 @@ xrdsst cert download-internal-tsl
 This command will save a zip file in the `/tmp/` folder containing the public and private keys of the internal TSL certificates.
 
 #### 4.2.5 Client management commands
+
 Client are managed with ``xrdsst client`` subcommands.
 Configuration parameters involved are the `certificates` list described in [3.2.3 Clients Servers Configuration](#323-clients-servers-configuration)
 
 ##### 4.2.5.1 Client add
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 
 New subsystem or members can be added with:
 ```
@@ -634,12 +664,16 @@ xrdsst client add
 
 ##### 4.2.5.2 Client register
 
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
+
 Subsystems and new members registration in central server can proceed with:
 ```
 xrdsst client register
 ```
 
-##### 4.2.5.3 Client register
+##### 4.2.5.3 Client update
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 
 Subsystem parameters can be updated with:
 ```
@@ -652,6 +686,8 @@ Services and service descriptions are managed with ``xrdsst service`` subcommand
 Configuration parameters involved are the described in [3.2.3 Services Configuration](#323-services-configuration)
 
 ##### 4.2.6.1 Service add description
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Adding REST/OPENAPI3/WSDL service can be done with:
 ```
@@ -667,6 +703,8 @@ We must include the services when we want to modify any of their properties (for
 
 ##### 4.2.6.2 Service add access rights
 
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
 Access rights for a service can be done with:
 ```
 xrdsst service add-access
@@ -677,12 +715,16 @@ the access rights for the individual service.
 
 ##### 4.2.6.3 Enable service
 
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
 Enabling the service description can be done with:
 ```
 xrdsst service enable-description
 ```
 
 ##### 4.2.6.4 Service update parameters
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Updating the service parameters can be done with:
 ```
@@ -692,6 +734,9 @@ This command will update the parameters of the single services added to the conf
 for all the services in the description if the boolean parameters are set to True.
 
 ##### 4.2.6.5 Service apply
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
 It is possible to run sequentially all the service commands described before in [4.2.6 Service management commands](#426-service-management-commands)
 with:
 ```
@@ -709,6 +754,8 @@ Endpoints are only available for service types REST and OPENAPI3.
 
 ##### 4.2.7.1 Endpoint add
 
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
 Adding endpoints to a service can be done with:
 ```
 xrdsst endpoint add
@@ -716,7 +763,9 @@ xrdsst endpoint add
 Endpoints in service type OPENAPI3 are autogenerated, so, the endpoints defined in the configuration 
 will be created together with the autogenerated ones.
 
-##### 4.2.7.1 Endpoint add access rights
+##### 4.2.7.2 Endpoint add access rights
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Access rights for a single endpoint can be add with:
 ```
@@ -986,6 +1035,7 @@ security_server:
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
+      member_name: <MEMBER_NAME>
       subsystem_code: <SUBSYSTEM_CODE>
       connection_type: <CONNECTION_TYPE>
 - api_key: <API_KEY_ENV_VAR_NAME>
@@ -1010,6 +1060,7 @@ security_server:
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
+      member_name: <MEMBER_NAME>
       subsystem_code: <SUBSYSTEM_CODE>
       connection_type: <CONNECTION_TYPE>
 ```
@@ -1017,6 +1068,7 @@ security_server:
 The ``clients`` section should have the same values used for the following parameters:
  * ``member_class`` member class of a subsystem.
  * ``member_code`` member code of a subsystem.
+ * ``member_name`` member name of a subsystem.
  * ``subsystem_code`` X-Road member/client subsystem code.
  * ``connection_type`` Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
 
