@@ -311,6 +311,20 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert str(response[0].keys[0].label) == auth_key_label
                 assert str(response[0].keys[1].label) == sign_key_label
 
+    def step_cert_import_fail_certificates_missing(self):
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            self.config["security_server"][ssn]["certificates"] = ''
+            ssn = ssn + 1
+
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = cert_controller.create_api_config(security_server, self.config)
+                response = cert_controller.remote_import_certificates(configuration, security_server)
+                assert response is None
+
     def step_cert_register_fail_certificates_not_imported(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
@@ -362,12 +376,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) == 0
                     response = client_controller.remote_add_client(configuration, client)
                     assert response is None
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) == 0
                 ssn = ssn + 1
 
         ssn = 0
@@ -399,12 +409,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) == 0
                     response = client_controller.remote_add_client(configuration, client)
                     assert response is None
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) == 0
                 ssn = ssn + 1
 
         ssn = 0
@@ -663,46 +669,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     assert description["services"][0]["url"] == 'http://petstore.xxx'
             ssn = ssn + 1
 
-    def step_create_admin_user_fail_admin_credentials_missing(self):
-        admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
-        admin_credentials = os.getenv(admin_credentials_env_var, "")
-        os.environ[admin_credentials_env_var] = ""
-        user = UserController()
-        user_created = user.create_user(self.config)
-        assert user_created is None
-        os.environ[admin_credentials_env_var] = admin_credentials
-
-    def step_create_admin_user_fail_ssh_user_missing(self):
-        ssh_user_env_var = self.config["security_server"][0]["ssh_user"]
-        ssh_user = os.getenv(ssh_user_env_var, "")
-        os.environ[ssh_user_env_var] = ""
-        user = UserController()
-        user_created = user.create_user(self.config)
-        assert user_created is None
-        os.environ[ssh_user_env_var] = ssh_user
-
-    def step_create_admin_user_fail_ssh_private_key_missing(self):
-        ssh_private_key_env_var = self.config["security_server"][0]["ssh_private_key"]
-        ssh_private_key = os.getenv(ssh_private_key_env_var, "")
-        os.environ[ssh_private_key_env_var] = ""
-        user = UserController()
-        user_created = user.create_user(self.config)
-        assert user_created is None
-        os.environ[ssh_private_key_env_var] = ssh_private_key
-
-    def step_create_admin_user(self):
-        admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
-        old_admin_user = os.getenv(admin_credentials_env_var, "")
-        os.environ[admin_credentials_env_var] = 'newxrd:pwd'
-        user = UserController()
-        user_created = user.create_user(self.config)
-        assert len(user_created) == 2
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            assert user_created[ssn] is True
-            ssn = ssn + 1
-        os.environ[admin_credentials_env_var] = old_admin_user
-
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
         service_type = []
         ssn = 0
@@ -792,15 +758,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         self.query_status()
         self.step_init()
-        self.query_status()
         self.step_timestamp_init()
 
         self.query_status()
         self.step_token_login_fail_when_pin_missing()
         self.step_token_login()
-        self.query_status()
         self.step_token_login_already_logged_in()
-        self.step_token_init_keys()
 
         self.query_status()
         self.step_subsystem_add_client_fail_member_class_missing()
@@ -834,12 +797,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_add_service_description()
         self.step_enable_service_description()
         self.step_add_service_access()
-
-        self.query_status()
-        self.step_create_admin_user_fail_admin_credentials_missing()
-        self.step_create_admin_user_fail_ssh_user_missing()
-        self.step_create_admin_user_fail_ssh_private_key_missing()
-        self.step_create_admin_user()
 
         self.query_status()
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()

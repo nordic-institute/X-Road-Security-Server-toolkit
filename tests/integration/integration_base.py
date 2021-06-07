@@ -67,7 +67,7 @@ class IntegrationTestBase(unittest.TestCase):
                       'member_class': 'ORG',
                       'member_code': '111',
                       'subsystem_code': 'BUS',
-                      'member_name': 'ORGANIZATION',
+                      'member_name': 'NIIS',
                       'connection_type': 'HTTP',
                       'service_descriptions': [{
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
@@ -92,7 +92,14 @@ class IntegrationTestBase(unittest.TestCase):
                               'access': ['DEV:security-server-owners']
                           }]
                       }]
-                  }]
+                  },
+                    {
+                        'member_class': 'COM',
+                        'member_code': '222',
+                        'member_name': 'FRUIT',
+                        'connection_type': 'HTTP'
+                    }
+                  ]
                   },
                  {'name': 'ssy',
                   'url': 'https://CONTAINER_HOST:4000/api/v1',
@@ -114,6 +121,7 @@ class IntegrationTestBase(unittest.TestCase):
                       'member_class': 'ORG',
                       'member_code': '111',
                       'subsystem_code': 'BUS',
+                      'member_name': 'NIIS',
                       'connection_type': 'HTTP',
                       'service_descriptions': [{
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
@@ -138,7 +146,14 @@ class IntegrationTestBase(unittest.TestCase):
                               'access': ['DEV:security-server-owners']
                           }]
                       }]
-                  }]
+                  },
+                      {
+                          'member_class': 'COM',
+                          'member_code': '222',
+                          'member_name': 'FRUIT',
+                          'connection_type': 'HTTP'
+                      }
+                  ]
                   }
                  ]
         }

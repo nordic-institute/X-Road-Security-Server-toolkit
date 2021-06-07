@@ -496,12 +496,8 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) == 0
                     response = client_controller.remote_add_client(configuration, client)
                     assert response is None
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) == 0
                 ssn = ssn + 1
 
         ssn = 0
@@ -533,12 +529,8 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 configuration = client_controller.create_api_config(security_server, self.config)
                 for client in security_server["clients"]:
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) == 0
                     response = client_controller.remote_add_client(configuration, client)
                     assert response is None
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) == 0
                 ssn = ssn + 1
 
         ssn = 0
