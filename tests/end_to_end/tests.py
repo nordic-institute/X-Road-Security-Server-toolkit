@@ -352,12 +352,12 @@ class EndToEndTest(unittest.TestCase):
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert response[0].logged_in is True
-                assert response[0].possible_actions == ['LOGOUT', 'GENERATE_KEY']
+                assert response[0].possible_actions == ['TOKEN_CHANGE_PIN', 'LOGOUT', 'GENERATE_KEY']
                 token_controller.remote_token_login(configuration, security_server)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert response[0].logged_in is True
-                assert response[0].possible_actions == ['LOGOUT', 'GENERATE_KEY']
+                assert response[0].possible_actions == ['TOKEN_CHANGE_PIN', 'LOGOUT', 'GENERATE_KEY']
 
     def step_token_init_keys(self):
         with XRDSSTTest() as app:
