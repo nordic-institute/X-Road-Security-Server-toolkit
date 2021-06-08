@@ -127,14 +127,14 @@ class IntegrationTestBase(unittest.TestCase):
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
                           'rest_service_code': 'Petstore',
                           'type': 'OPENAPI3',
-                          'access': ['BUS'],
+                          'access': ['DEV:security-server-owners'],
                           'url_all': False,
                           'timeout_all': False,
                           'ssl_auth_all': False,
                           'services': [
                               {
                                   'service_code': 'Petstore',
-                                  'access': ['BUS'],
+                                  'access': ['DEV:security-server-owners'],
                                   'timeout': 120,
                                   'ssl_auth': False,
                                   'url': 'http://petstore.xxx'
