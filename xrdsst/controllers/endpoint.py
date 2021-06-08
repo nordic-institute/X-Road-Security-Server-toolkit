@@ -55,14 +55,24 @@ class EndpointController(BaseController):
                                                       service_description_dic["client"],
                                                       service_description_dic["service_description"],
                                                       endpoint_conf)
-
+            else:
+                if service_description_dic["service_description"]["type"] != ServiceType().WSDL:
+                    BaseController.log_info("Skipping endpoint creation for client '%s', service '%s', no endpoints defined" %
+                                            (ClientController().get_client_conf_id(service_description_dic["client"]),
+                                                service_description_dic["service_description"]["rest_service_code"]))
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def add_endpoint_access(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
         for service_description_dic in self.get_services_description(config):
-            self.remote_add_endpoints_access(service_description_dic["ss_api_config"], service_description_dic["security_server"],
-                                             service_description_dic["client"], service_description_dic["service_description"])
+            if "endpoints" in service_description_dic["service_description"]:
+                self.remote_add_endpoints_access(service_description_dic["ss_api_config"], service_description_dic["security_server"],
+                                                 service_description_dic["client"], service_description_dic["service_description"])
+            else:
+                if service_description_dic["service_description"]["type"] != ServiceType().WSDL:
+                    BaseController.log_info("Skipping add access to endpoint for client %s, service %s, no endpoints defined" %
+                                            (ClientController().get_client_conf_id(service_description_dic["client"]),
+                                             service_description_dic["service_description"]["rest_service_code"]))
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -131,7 +141,7 @@ class EndpointController(BaseController):
     def remote_add_endpoint_access(self, ss_api_config, service_description, service_description_conf, service_clients_candidates):
         for endpoint_conf in service_description_conf["endpoints"]:
             try:
-                access_list = endpoint_conf["access"] if endpoint_conf["access"] else []
+                access_list = endpoint_conf["access"] if "access" in endpoint_conf else []
                 if len(access_list) > 0:
                     self.add_access_from_list(ss_api_config, service_description, service_clients_candidates, endpoint_conf, access_list)
             except ApiException as find_err:
@@ -163,7 +173,7 @@ class EndpointController(BaseController):
                 endpoints_api = EndpointsApi(ApiClient(ss_api_config))
                 response = endpoints_api.add_endpoint_service_clients(endpoint[0].id, body=ServiceClients(items=candidate))
                 if response:
-                    BaseController.log_info("Added client access rights: '" + candidate[0].id + "'for endpoint '"
+                    BaseController.log_info("Added client access rights: '" + candidate[0].id + "' for endpoint '"
                                             + endpoint[0].method + "' '" + endpoint[0].path
                                             + "' in service '"
                                             + service_description.services[0].id + "'")
@@ -171,7 +181,7 @@ class EndpointController(BaseController):
                 if err.status == 409:
                     BaseController.log_info(
                         "Added client access rights: '" + candidate[
-                            0].id + "'for endpoint '" + endpoint[0].method +
+                            0].id + "' for endpoint '" + endpoint[0].method +
                         "' '" + endpoint[0].path + "' in service '" +
                         service_description.services[0].id + "' already added")
                 else:

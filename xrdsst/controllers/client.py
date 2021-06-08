@@ -3,7 +3,7 @@ from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.token import TokenController
-from xrdsst.core.conf_keys import ConfKeysSecurityServer
+from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 from xrdsst.core.util import convert_swagger_enum
 from xrdsst.models import ClientAdd, Client, ConnectionType, ClientStatus
 from xrdsst.rest.rest import ApiException
@@ -185,7 +185,6 @@ class ClientController(BaseController):
                 security_server_conf[ConfKeysSecurityServer.CONF_KEY_NAME] + ": Error, multiple matching clients found for " + self.partial_client_id(client_conf)
             )
             return None
-        BaseController.log_info("client found: " + found_clients[0].id)
         return found_clients[0]
 
     @staticmethod
@@ -211,3 +210,11 @@ class ClientController(BaseController):
     @staticmethod
     def is_client_base_member(client_conf, security_server_conf):
         return client_conf["member_class"] == security_server_conf["owner_member_class"] and client_conf["member_code"] == security_server_conf["owner_member_code"]
+
+    @staticmethod
+    def get_client_conf_id(client_conf):
+        client_id = "%s/%s/%s" % (client_conf["member_class"], client_conf["member_code"], client_conf["member_name"])
+        if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client_conf:
+            client_id = client_id + "/" + client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE]
+
+        return client_id
