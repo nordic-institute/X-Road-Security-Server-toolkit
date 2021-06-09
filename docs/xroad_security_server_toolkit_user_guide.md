@@ -391,7 +391,7 @@ It must have the same value as <OWNER_MEMBER_CLASS> if is a subsystem of the own
 It must have the same value as <OWNER_MEMBER_CLASS> if is a subsystem of the owner client.
 * <MEMBER_NAME> should be substituted with the member name obtained from the Central Server, e.g. COMPANY.
 It must have the same value as <OWNER_DISTINGUISHED_NAME_ORGANIZATION>  if is a subsystem of the owner client.
-* <SUBSYSTEM_CODE> X-Road member/client subsystem code.
+* <SUBSYSTEM_CODE> (Optional, not required for members) X-Road member/client subsystem code.
 * <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
 
 #### 3.2.3 Services Configuration
@@ -423,7 +423,7 @@ service_descriptions:
 			  access: 
 			    - <ENDPOINTS_ACCESS>
 ```
-<strong>Service description:</strong>
+<strong>Service description (Optional):</strong>
 
 * <SERVICE_DESCRIPTION_URL> URL for service description.
 * <REST_SERVICE_CODE> rest service code, not used for WSDL services.
