@@ -6,7 +6,7 @@ from xrdsst.controllers.client import ClientController
 from xrdsst.models import ServiceDescriptionAdd, ServiceClients, ServiceUpdate
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
-from xrdsst.core.conf_keys import ConfKeysSecServerClientServiceDesc
+from xrdsst.core.conf_keys import ConfKeysSecServerClientServiceDesc, ConfKeysSecServerClients
 
 class ServiceController(BaseController):
     class Meta:
@@ -91,7 +91,11 @@ class ServiceController(BaseController):
                     if client.get("service_descriptions"):
                         for service_description in client["service_descriptions"]:
                             self.remote_add_service_description(ss_api_config, security_server, client, service_description)
-
+                    else:
+                        if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client:
+                            BaseController.log_info(
+                                "Skipping add service description for client: '%s', no service description defined" %
+                                ClientController().get_client_conf_id(client))
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def enable_service_description(self, config):
@@ -122,7 +126,7 @@ class ServiceController(BaseController):
                                 self.remote_add_access_rights(ss_api_config, security_server, client, service_description)
                             else:
                                 BaseController.log_info(
-                                    "Skipping add service access rights for client: %s, service %s, no access rights defined" %
+                                    "Skipping add service access rights for client: '%s', service '%s', no access rights defined" %
                                     (ClientController().get_client_conf_id(client),
                                      service_description["url"]))
 
@@ -163,7 +167,7 @@ class ServiceController(BaseController):
                 try:
                     response = clients_api.add_client_service_description(client.id, body=description_add)
                     if response:
-                        BaseController.log_info("Added service description with type '" + response.type + "' and url '" + response.url +
+                        BaseController.log_info("Added service description for client '" + client.id + "' with type '" + response.type + "' and url '" + response.url +
                                                 "' (got full id " + response.id + ")")
                 except ApiException as err:
                     if err.status == 409:
