@@ -196,7 +196,7 @@ class TestService(unittest.TestCase):
                                         service_controller.apply()
 
                                         out, err = self.capsys.readouterr()
-                                        assert out.count("Added service description with type") > 0
+                                        assert out.count("Added service description") > 0
                                         assert out.count("enabled successfully") > 0
                                         assert out.count("Added access rights") > 0
                                         assert out.count("Updated service parameters") > 0
@@ -227,7 +227,7 @@ class TestService(unittest.TestCase):
                     service_controller.add_description()
 
                     out, err = self.capsys.readouterr()
-                    assert out.count("Added service description with type") > 0
+                    assert out.count("Added service description") > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
