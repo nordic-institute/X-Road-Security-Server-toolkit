@@ -301,43 +301,12 @@ class EndToEndTest(unittest.TestCase):
                 assert len(response[0].name) > 0
                 assert len(response[0].url) > 0
 
-    def step_token_login_fail_when_pin_missing(self):
-        token_pin = []
-        with XRDSSTTest() as app:
-            token_controller = TokenController()
-            token_controller.app = app
-
-            ssn = 0
-            for security_server in self.config["security_server"]:
-                token_pin.append(security_server["software_token_pin"])
-                self.config["security_server"][ssn]["software_token_pin"] = ''
-                ssn = ssn + 1
-
-            for security_server in self.config["security_server"]:
-                configuration = token_controller.create_api_config(security_server, self.config)
-                response = token_controller.remote_get_tokens(configuration)
-                assert len(response) > 0
-                assert response[0].logged_in is False
-                token_controller.remote_token_login(configuration, security_server)
-                response = token_controller.remote_get_tokens(configuration)
-                assert len(response) > 0
-                assert response[0].logged_in is False
-
-            ssn = 0
-            for security_server in self.config["security_server"]:
-                self.config["security_server"][ssn]["software_token_pin"] = token_pin[ssn]
-                ssn = ssn + 1
-
     def step_token_login(self):
         with XRDSSTTest() as app:
             token_controller = TokenController()
             token_controller.app = app
             for security_server in self.config["security_server"]:
                 configuration = token_controller.create_api_config(security_server, self.config)
-                response = token_controller.remote_get_tokens(configuration)
-                assert len(response) > 0
-                #assert response[0].logged_in is False
-                #assert response[0].possible_actions == ['LOGIN']
                 token_controller.remote_token_login(configuration, security_server)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
@@ -926,7 +895,6 @@ class EndToEndTest(unittest.TestCase):
         self.step_init()
         self.step_timestamp_init()
 
-        # self.step_token_login_fail_when_pin_missing()
         self.step_token_login()
         self.step_token_login_already_logged_in()
 
