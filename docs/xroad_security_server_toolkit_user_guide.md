@@ -431,7 +431,7 @@ service_descriptions:
 * <SERVICE_DESCRIPTION_ACCESS> (Optional) list of subsystems ids, composed by <INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>, or security serverver owners composed 
 by <INSTANCE>:security-server-owners.
 * <SERVICE_URL_FOR_ALL> boolean value determining if the URL prefix should be applied for all the services.
-* <SERVICE_TIMEOUT_FOR_ALL> boolean value specifying timeout should be the same for all services in service description.
+* <SERVICE_TIMEOUT_FOR_ALL> boolean value specifying if the timeout should be applied for all the services in the service description.
 * <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description.
 
 <strong>Services (Optional):</strong>
