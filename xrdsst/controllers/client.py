@@ -224,7 +224,6 @@ class ClientController(BaseController):
                             BaseController.log_api_error('ClientsApi->import_tls_certificate', err)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
-        return
 
     def find_client(self, clients_api, client_conf):
         if 'subsystem_code' in client_conf:
