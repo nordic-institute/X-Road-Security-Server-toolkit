@@ -311,7 +311,7 @@ security_server:
 
 #### 3.2.1 Access Configuration
 
-In this section is configured the security server access as described in
+This section shows how to configure the security server access as described in
 [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
 ```
 admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
