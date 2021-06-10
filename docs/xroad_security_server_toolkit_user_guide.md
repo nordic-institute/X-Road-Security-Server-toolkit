@@ -354,7 +354,7 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
 ```
 * <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
-* <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> (Optional) If is set it will overwritte the <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
+* <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> (Optional) If is set it will overwrite the <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
 * <CONFIGURATION_ANCHOR_PATH> Path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
 *  <SIGN_CERT_PATH> should be given as path referring to sign certificates location.
 *  <AUTH_CERT_PATH> should be given as path referring to auth certificate location.
