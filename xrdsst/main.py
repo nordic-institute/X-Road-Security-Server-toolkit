@@ -242,6 +242,7 @@ class XRDSSTTest(TestApp, XRDSST):
 
         handlers = XRDSST.Meta.handlers
 
+    api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
 
 def main_excepthook(type_, value, traceback_):
     if type_ == urllib3.exceptions.MaxRetryError:  # Retried traceback lengths otherwise multiple screens.

@@ -8,7 +8,6 @@ from xrdsst.resources.texts import texts
 
 class UserException(Exception):
     """Exception raised for errors related to UserController.
-
     Attributes:
         message -- explanation of the error
     """
@@ -16,6 +15,7 @@ class UserException(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
 
 
 class UserController(BaseController):
@@ -36,21 +36,26 @@ class UserController(BaseController):
         self.create_user(self.load_config())
 
     def create_user(self, conf):
+        user_created = []
         for security_server in conf["security_server"]:
             self.log_debug('Creating admin user for security server: ' + security_server['name'])
             admin_credentials = get_admin_credentials(security_server, conf)
-            if admin_credentials is None:
-                raise UserException('UserController->create_user: required admin credentials missing for security server ' + security_server['name'])
+            if admin_credentials is None or len(admin_credentials) == 0:
+                self.log_info('UserController->create_user: required admin credentials missing for security server ' + security_server['name'])
+                return None
             user_name, pwd = admin_credentials.split(":")
             ssh_key = get_ssh_key(security_server, conf)
-            if ssh_key is None:
-                raise UserException('UserController->create_user: required SSH private key missing for security server ' + security_server['name'])
+            if ssh_key is None or len(ssh_key) == 0:
+                self.log_info('UserController->create_user: required SSH private key missing for security server ' + security_server['name'])
+                return None
             ssh_user = get_ssh_user(security_server, conf)
-            if ssh_user is None:
-                raise UserException('UserController->create_user: required SSH username missing for security server ' + security_server['name'])
-            self.add_user_with_groups(self._GROUP_NAMES, user_name, pwd, ssh_key, ssh_user, security_server)
+            if ssh_user is None or len(ssh_user) == 0:
+                self.log_info('UserController->create_user: required SSH username missing for security server ' + security_server['name'])
+                return None
+            user_created.append(self.add_user_with_groups(self._GROUP_NAMES, user_name, pwd, ssh_key, ssh_user, security_server))
             self.log_info('Admin user \"' + user_name + '\" for security server ' + security_server['name'] +
                           ' created.')
+        return user_created
 
     def add_user_with_groups(self, groups, user_name, pwd, ssh_key, ssh_user, security_server):
         self.log_debug('Adding user \'' + user_name + '\' into groups \'' + str(groups) + '\' for security server: ' + security_server['name'])
@@ -85,3 +90,4 @@ class UserController(BaseController):
         else:
             raise UserException("UserController->create_user: Adding new user for {0} failed "
                                 "(exit_code = {1}, data = {2})".format(security_server['name'], exitcode, data))
+        return True
