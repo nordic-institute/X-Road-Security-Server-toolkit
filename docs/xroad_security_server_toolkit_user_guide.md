@@ -499,7 +499,7 @@ For performing the configuration step by step instead, please start from [4.3 In
 
 ### 4.2 X-Road Security Server  Toolkit commands
 
-* Access rightss: All commands require at least the role XROAD_SYSTEM_ADMINISTRATOR.
+* Access rights: All commands require at least the role XROAD_SYSTEM_ADMINISTRATOR.
 
 #### 4.2.1 Creating admin user command
 
