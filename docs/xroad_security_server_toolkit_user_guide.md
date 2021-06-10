@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 1.3.9
+Version: 1.3.10
 Doc. ID: XRDSST-CONF
 
 ---
@@ -40,7 +40,7 @@ Doc. ID: XRDSST-CONF
 | 24.05.2021 | 1.3.7       | Added download-internal-tsl command                                          | Alberto Fernandez  |
 | 28.05.2021 | 1.3.8       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
 | 28.05.2021 | 1.3.9       | Update service management                                                    | Bert Viikmäe       |
-| 04.06.2021 | 1.3.8       | Refactor documentation                                                       | Alberto Fernandez  |
+| 04.06.2021 | 1.3.10       | Refactor documentation                                                       | Alberto Fernandez  |
 ## Table of Contents <!-- omit in toc -->
 
 <!-- toc -->
@@ -52,7 +52,7 @@ Doc. ID: XRDSST-CONF
       * [1.2 References](#12-references)
    * [2. Installation](#2-installation)
       * [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
-      * [2.2 Installation procedure](#22-installation-procedure)
+      * [2.2 Installing the official released version](#22-installing-the-official-released-version)
    * [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
       * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
          * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
@@ -61,7 +61,7 @@ Doc. ID: XRDSST-CONF
       * [3.2 Format of configuration file](#32-format-of-configuration-file)
          * [3.2.1 Access Configuration](#321-access-configuration)
          * [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-         * [3.2.3 Clients Servers Configuration](#323-clients-servers-configuration)
+         * [3.2.3 Client Configuration](#323-client-configuration)
          * [3.2.3 Services Configuration](#323-services-configuration)
       * [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
    * [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
@@ -138,7 +138,17 @@ The document is intended for readers with a good knowledge of Linux server manag
 * PIP 21.0+
 * Installed X-Road security server packages
 
-### 2.2 Installation procedure
+## 2.2 Installation
+
+Installation is performed with pip (use pip or pip3, whichever is used)
+
+```
+$ pip install -r requirements.txt
+
+$ pip install setup.py
+```
+
+### 2.2 Installing the official released version
 
 The X-Road Security Server Toolkit package can be installed using PIP (use pip or pip3, whichever is used):
 
@@ -371,7 +381,7 @@ security_server:
 * <SSH_USER_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_USER_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
 * <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
 
-#### 3.2.3 Clients Servers Configuration
+#### 3.2.3 Client Configuration
 
 The security server client information is configured in this section. It is possible to set up a list of subsystems belonging to the owner member
 configured in the [security server configuration](#322-security-servers-configuration) or add them to a new member as described
@@ -445,6 +455,7 @@ for the single service.
 * <SERVICE_URL> URL for single service
 
 <strong>Endpoints (Optional):</strong>
+The endpoints are only available for service descriptions of type REST or OPENAPI3.
 
 * <ENDPOINT_PATH> path for the endpoint.
 * <ENDPOINT_METHOD> method for the endpoint (GET, POST, PUT...)
@@ -650,7 +661,7 @@ This command will save a zip file in the `/tmp/` folder containing the public an
 #### 4.2.5 Client management commands
 
 Client are managed with ``xrdsst client`` subcommands.
-Configuration parameters involved are the `certificates` list described in [3.2.3 Clients Servers Configuration](#323-clients-servers-configuration)
+Configuration parameters involved are the `certificates` list described in [3.2.3 Clients Configuration](#323-client-configuration)
 
 ##### 4.2.5.1 Client add
 
@@ -1142,3 +1153,22 @@ xrdsst cert import
 ```
 xrdsst client register
 ```
+
+## 9 Renew expiring certificates
+
+It is recommended to renew the certificates in advance before they expire. You can check the expiration date through the 
+UI in the tab <strong>KEYS AND CERTIFICATE</strong> => <strong>SIGN AND AUTH KEYS</strong> column <strong>Expires</strong>.
+To renew the certificates we must:
+
+1. Go to the UI and generate new CRS keys for the certificates we want to renew:
+2. Download and sign the new certificates.
+3. Add the signed certificates to the [certificates list](#322-security-servers-configuration) of the security server 
+   in the configuration file.
+4. Import the certificates by running the [certificate import](#4252-certificate-import) command.
+5. Activate the certificates by running the [certificate activation](#4254-certificate-activation) command.
+6. Register the new certificates by running the [certificate registration](#4253-certificate-registration) command.
+7. Wait until the new certificates have the OCSP is Good state and the Status in Registered. We can check this
+   through the UI in the tab <strong>KEYS AND CERTIFICATE</strong> => <strong>SIGN AND AUTH KEYS</strong>. 
+   It's recommended to wait at least one day so that the new certificates can be distributed for the access server does not crash.
+8. Unregister and delete the old certifcates through the UI.
+

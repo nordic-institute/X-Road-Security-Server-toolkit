@@ -205,33 +205,31 @@ class CertController(BaseController):
 
     @staticmethod
     def remote_register_certificate(ss_api_config, security_server):
-        registrable_cert = CertController.find_actionable_auth_certificate(ss_api_config, security_server, 'REGISTER')
-        if not registrable_cert:
-            return None
-
-        token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
-        ss_address = SecurityServerAddress(BaseController.security_server_address(security_server))
-        try:
-            response = token_cert_api.register_certificate(registrable_cert.certificate_details.hash, body=ss_address)
-            BaseController.log_info("Registered certificate " + registrable_cert.certificate_details.hash + " for address '" + str(ss_address) + "'")
-            return response
-        except ApiException as err:
-            BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
+        registrable_certs = CertController.find_actionable_auth_certificate(ss_api_config, security_server, 'REGISTER')
+        if registrable_certs:
+            for registrable_cert in registrable_certs:
+                token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
+                ss_address = SecurityServerAddress(BaseController.security_server_address(security_server))
+                try:
+                    token_cert_api.register_certificate(registrable_cert.certificate_details.hash, body=ss_address)
+                    BaseController.log_info("Registered certificate " + registrable_cert.certificate_details.hash + " for address '" + str(ss_address) + "'")
+                except ApiException as err:
+                    BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
 
     @staticmethod
     def remote_activate_certificate(ss_api_config, security_server):
-        activatable_cert = CertController.find_actionable_auth_certificate(ss_api_config, security_server, 'ACTIVATE')
-        if not activatable_cert:
-            return None
-
-        token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
-        token_cert_api.activate_certificate(activatable_cert.certificate_details.hash)  # responseless PUT
-        cert_actions = token_cert_api.get_possible_actions_for_certificate(activatable_cert.certificate_details.hash)
-        if 'ACTIVATE' not in cert_actions:
-            BaseController.log_info("Activated certificate " + activatable_cert.certificate_details.hash)
-        else:
-            BaseController.log_info("Could not activate certificate " + activatable_cert.certificate_details.hash)
-        return cert_actions
+        activatable_certs = CertController.find_actionable_auth_certificate(ss_api_config, security_server, 'ACTIVATE')
+        cert_actions = []
+        if activatable_certs:
+            for activatable_cert in activatable_certs:
+                token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
+                token_cert_api.activate_certificate(activatable_cert.certificate_details.hash)  # responseless PUT
+                cert_actions.append(token_cert_api.get_possible_actions_for_certificate(activatable_cert.certificate_details.hash))
+                if 'ACTIVATE' not in cert_actions:
+                    BaseController.log_info("Activated certificate " + activatable_cert.certificate_details.hash)
+                else:
+                    BaseController.log_info("Could not activate certificate " + activatable_cert.certificate_details.hash)
+            return cert_actions
 
     def remote_download_csrs(self, ss_api_config, security_server):
 
@@ -340,11 +338,8 @@ class CertController(BaseController):
         if len(actionable_certs) == 0:
             BaseController.log_info("No certificates to '" + cert_action + "' for key labelled '" + auth_key_label + "'.")
             return None
-        if len(actionable_certs) > 1:
-            BaseController.log_info("Multiple certificates to '" + cert_action + "' for key labelled '" + auth_key_label + "'.")
-            return None
 
-        return actionable_certs[0]
+        return actionable_certs
 
     def get_key_labels(self, security_server):
         key_labels = {

@@ -13,11 +13,13 @@ This repository contains information about the X-Road Security Server Toolkit, s
 [X-Road Security Server Toolkit User Guide](https://github.com/nordic-institute/X-Road-Security-Server-toolkit/blob/master/docs/xroad_security_server_toolkit_user_guide.md)
 
 
-## Installation
+## Installing the latest development version
 
 Installation is performed with pip (use pip or pip3, whichever is used)
 
 ```
+$ git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
+
 $ pip install -r requirements.txt
 
 $ pip install setup.py
