@@ -514,7 +514,7 @@ Note: This is an optional step in the configuration process and should only be r
       SSH (SSH user and a private key) is used for creating the admin user. If the admin user has been created before, then it is 
       enough to just add the credentials to the configuration file as ``admin_credentials`` and this step can be skipped totally.
 
-** It is a security risk to store the SSH access related credentials into to configuration file as plain text. **
+**It is a security risk to store the SSH access-related credentials into to configuration file as plain text.**
 
 #### 4.2.2 Initializing the security server command
 
