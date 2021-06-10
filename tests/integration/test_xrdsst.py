@@ -16,7 +16,6 @@ from xrdsst.controllers.status import ServerStatus
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.endpoint import EndpointController
-from xrdsst.controllers.user import UserController
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
@@ -250,12 +249,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert response[0].logged_in is True
-                assert response[0].possible_actions == ['TOKEN_CHANGE_PIN', 'LOGOUT', 'GENERATE_KEY']
+                assert 'LOGOUT' in response[0].possible_actions
                 token_controller.remote_token_login(configuration, security_server)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert response[0].logged_in is True
-                assert response[0].possible_actions == ['TOKEN_CHANGE_PIN', 'LOGOUT', 'GENERATE_KEY']
+                assert 'LOGOUT' in response[0].possible_actions
 
     def step_token_init_keys(self):
         with XRDSSTTest() as app:
@@ -753,7 +752,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         # Wait for global configuration status updates
         ssn = 0
         for security_server in self.config["security_server"]:
-            waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config, ssn), self.retry_wait, 400)
+            waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config, ssn), self.retry_wait, self.max_retries)
             self.query_status()
             ssn = ssn + 1
 
