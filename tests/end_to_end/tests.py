@@ -875,6 +875,12 @@ class EndToEndTest(unittest.TestCase):
             ssn = ssn + 1
 
     def step_import_tls_certificate(self):
+        tls_certificate = "tests/resources/cert.pem"
+        for security_server in self.config["security_server"]:
+            security_server["tls_certificates"] = [os.path.join(ROOT_DIR, tls_certificate)]
+            for client in security_server["clients"]:
+                if "tls_certificates" in client:
+                    client["tls_certificates"] = [os.path.join(ROOT_DIR, tls_certificate)]
         with XRDSSTTest() as app:
             client_controller = ClientController()
             client_controller.app = app
