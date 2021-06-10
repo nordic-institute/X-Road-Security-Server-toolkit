@@ -432,7 +432,7 @@ service_descriptions:
 by <INSTANCE>:security-server-owners.
 * <SERVICE_URL_FOR_ALL> boolean value determining if the URL prefix should be applied for all the services.
 * <SERVICE_TIMEOUT_FOR_ALL> boolean value specifying if the timeout should be applied for all the services in the service description.
-* <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value for specifying whether SSL authentication should be used for all services for a given service description.
+* <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value specifying whether SSL authentication should be used for all the services in the service description.
 
 <strong>Services (Optional):</strong>
 It's possible to create services manually but usually it's not required because they are parsed from the service descriptions automatically. Adding a service manually is needed when a service description isn't available, there is a need to customize the access rights, or there is a need to customize the parameters.
