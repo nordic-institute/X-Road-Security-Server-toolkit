@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 import requests
 
 from xrdsst.controllers.base import BaseController
+from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.status import ServerStatus
 from xrdsst.core.api_util import StatusRoles, StatusVersion, StatusGlobal, StatusServerInitialization, \
     StatusServerTimestamping, StatusToken, StatusKeys, StatusCsrs, StatusCerts
@@ -179,7 +180,7 @@ def assert_server_statuses_transitioned(sl1: [ServerStatus], sl2: [ServerStatus]
     # Ignore the global status, roles, for same reasons as in server_statuses_equal()
     # Rely on booleans only, multi-server configs cannot have more
     for i in range(0, len(sl1)):
-        assert sl1[i].security_server_name == sl2[i].security_server_name # Config match sanity check
+        assert sl1[i].security_server_name == sl2[i].security_server_name  # Config match sanity check
 
         assert sl1[i].server_init_status.has_anchor is not True
         assert sl2[i].server_init_status.has_anchor is True
@@ -264,65 +265,69 @@ def api_GET(api_url, api_path, api_key):
 
 
 # Returns service description for given client
-def get_service_description(config, client_id, _type='OPENAPI3'):
-    try:
-        api_key = os.getenv(config["security_server"][0]["api_key"], "")
-        services = api_GET(
-                config["security_server"][0]["url"],
-                "clients/" + client_id + "/service-descriptions",
-                api_key
-            )
-        return next(serv for serv in services if serv["type"] == _type)
-    except:
-        raise Exception("test_util=>get_service_description, could not fiend client with id: " + client_id)
+def get_service_description(config, client_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
+    return response[0] if len(response) > 0 else None
+
 
 # Returns service clients for given service
-def get_service_clients(config, service_id):
-    try:
-        api_key = os.getenv(config["security_server"][0]["api_key"], "")
-        return api_GET(
-                config["security_server"][0]["url"],
-                "services/" + service_id + "/service-clients",
-                api_key
-            )
-    except:
-        raise Exception("test_util=>get_service_clients, could not fiend service with id: " + service_id)
-# Returns service clients for giving endpoints
-def get_endpoint_service_clients(config, endpoint_id):
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+def get_service_clients(config, service_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     return api_GET(
-            config["security_server"][0]["url"],
-            "endpoints/" + endpoint_id + "/service-clients",
-            api_key
-        )
+        config["security_server"][ssn]["url"],
+        "services/" + service_id + "/service-clients",
+        api_key
+    )
+
+
+# Returns service clients for giving endpoints
+def get_endpoint_service_clients(config, endpoint_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    return api_GET(
+        config["security_server"][ssn]["url"],
+        "endpoints/" + endpoint_id + "/service-clients",
+        api_key
+    )
+
 
 # Returns client
-def get_client(config):
-    conn_type = convert_swagger_enum(ConnectionType, config['security_server'][0]['clients'][0]['connection_type'])
-    member_class = config['security_server'][0]['clients'][0]['member_class']
-    member_code = config['security_server'][0]['clients'][0]['member_code']
-    subsystem_code = config['security_server'][0]['clients'][0]['subsystem_code']
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
-    client = requests.get(
-        config["security_server"][0]["url"] + "/clients",
-        {'member_class': member_class,
-         'member_code': member_code,
-         'subsystem_code': subsystem_code,
-         'connection_type': conn_type},
-        headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
-        verify=False)
+def get_client(config, client, ssn):
+    conn_type = convert_swagger_enum(ConnectionType, client['connection_type'])
+    member_class = client['member_class']
+    member_code = client['member_code']
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    if ClientController.is_client_base_member(client, config["security_server"][ssn]):
+        client = requests.get(
+            config["security_server"][ssn]["url"] + "/clients",
+            {'member_class': member_class,
+             'member_code': member_code,
+             'subsystem_code': client['subsystem_code'],
+             'connection_type': conn_type},
+            headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
+            verify=False)
+    else:
+        client = requests.get(
+            config["security_server"][ssn]["url"] + "/clients",
+            {'member_class': member_class,
+             'member_code': member_code,
+             'connection_type': conn_type},
+            headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
+            verify=False)
     client_json = json.loads(str(client.content, 'utf-8').strip())
-    return client_json[0]
+    return client_json
 
-def getClientTlsCertificates(config):
-    client = get_client(config)
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+
+def getClientTlsCertificates(config, client_conf, ssn):
+    client = get_client(config, client_conf, ssn)
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     tls_certificates = requests.get(
-        config["security_server"][0]["url"] + "/clients/" + client["id"] + "/tls-certificates",
+        config["security_server"][ssn]["url"] + "/clients/" + client[0]["id"] + "/tls-certificates",
         headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
         verify=False)
     client_json = json.loads(str(tls_certificates.content, 'utf-8').strip())
     return client_json
+
 
 # Deduce possible TEST CA URL from configuration anchor
 def find_test_ca_sign_url(conf_anchor_file_loc):
@@ -339,14 +344,14 @@ def find_test_ca_sign_url(conf_anchor_file_loc):
 
 
 # Check for auth cert registration update receival
-def auth_cert_registration_global_configuration_update_received(config):
+def auth_cert_registration_global_configuration_update_received(config, ssn):
     def registered_auth_key(key):
-        return default_auth_key_label(config["security_server"][0]) == key['label'] and \
+        return default_auth_key_label(config["security_server"][ssn]) == key['label'] and \
                'REGISTERED' == key['certificates'][0]['status']
 
-    api_key = os.getenv(config["security_server"][0]["api_key"], "")
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     result = requests.get(
-        config["security_server"][0]["url"] + "/tokens/" + str(config["security_server"][0]['software_token_id']),
+        config["security_server"][ssn]["url"] + "/tokens/" + str(config["security_server"][ssn]['software_token_id']),
         None,
         headers={
             'Authorization': BaseController.authorization_header(api_key),

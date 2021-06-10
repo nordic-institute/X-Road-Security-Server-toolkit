@@ -1,3 +1,5 @@
+import os
+
 from cement import ex
 from xrdsst.controllers.base import BaseController
 from xrdsst.models import InitialServerConf
@@ -59,11 +61,14 @@ class InitServerController(BaseController):
         try:
             self.log_info('Uploading configuration anchor for security server: ' + security_server['name'])
             system_api = SystemApi(ApiClient(ss_api_config))
-            anchor = open(security_server["configuration_anchor"], "r")
-            response = system_api.upload_initial_anchor(body=anchor.read())
-            self.log_info('Upload of configuration anchor from \"' + security_server["configuration_anchor"] +
-                          '\" successful')
-            return response
+            if os.path.exists(security_server["configuration_anchor"]):
+                anchor = open(security_server["configuration_anchor"], "r")
+                response = system_api.upload_initial_anchor(body=anchor.read())
+                self.log_info('Upload of configuration anchor from \"' + security_server["configuration_anchor"] +
+                              '\" successful')
+                return response
+            else:
+                return None
         except ApiException as err:
             self.log_api_error('SystemApi->upload_initial_anchor', err)
 

@@ -6,7 +6,7 @@ from xrdsst.controllers.client import ClientController
 from xrdsst.models import ServiceDescriptionAdd, ServiceClients, ServiceUpdate
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
-
+from xrdsst.core.conf_keys import ConfKeysSecServerClientServiceDesc, ConfKeysSecServerClients
 
 class ServiceController(BaseController):
     class Meta:
@@ -16,6 +16,13 @@ class ServiceController(BaseController):
         description = texts['service.controller.description']
 
     SERVICE_DESCRIPTION_FOR = 'Service description for'
+
+    @ex(help="Execute all sub-commands", arguments=[])
+    def apply(self):
+        self.add_description()
+        self.enable_description()
+        self.add_access()
+        self.update_parameters()
 
     @ex(help="Add service description", arguments=[])
     def add_description(self):
@@ -84,7 +91,11 @@ class ServiceController(BaseController):
                     if client.get("service_descriptions"):
                         for service_description in client["service_descriptions"]:
                             self.remote_add_service_description(ss_api_config, security_server, client, service_description)
-
+                    else:
+                        if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client:
+                            BaseController.log_info(
+                                "Skipping add service description for client: '%s', no service description defined" %
+                                ClientController().get_client_conf_id(client))
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def enable_service_description(self, config):
@@ -111,7 +122,13 @@ class ServiceController(BaseController):
                 for client in security_server["clients"]:
                     if "service_descriptions" in client:
                         for service_description in client["service_descriptions"]:
-                            self.remote_add_access_rights(ss_api_config, security_server, client, service_description)
+                            if self.has_service_access(service_description):
+                                self.remote_add_access_rights(ss_api_config, security_server, client, service_description)
+                            else:
+                                BaseController.log_info(
+                                    "Skipping add service access rights for client: '%s', service '%s', no access rights defined" %
+                                    (ClientController().get_client_conf_id(client),
+                                     service_description["url"]))
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -125,13 +142,19 @@ class ServiceController(BaseController):
                 for client in security_server["clients"]:
                     if "service_descriptions" in client:
                         for service_description in client["service_descriptions"]:
-                            self.remote_update_service_parameters(ss_api_config, security_server, client, service_description)
-
+                            if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES in service_description:
+                                self.remote_update_service_parameters(ss_api_config, security_server, client, service_description)
+                            else:
+                                BaseController.log_info(
+                                    "Skipping update service parameters for client %s, service %s, no services defined" %
+                                    (ClientController().get_client_conf_id(client),
+                                     service_description["url"]))
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     @staticmethod
     def remote_add_service_description(ss_api_config, security_server_conf, client_conf, service_description_conf):
-        code = service_description_conf['rest_service_code'] if service_description_conf['rest_service_code'] else None
+        code = service_description_conf['rest_service_code'] if \
+            ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_REST_SERVICE_CODE in service_description_conf else None
         description_add = ServiceDescriptionAdd(url=service_description_conf['url'],
                                                 rest_service_code=code,
                                                 ignore_warnings=True,
@@ -144,7 +167,7 @@ class ServiceController(BaseController):
                 try:
                     response = clients_api.add_client_service_description(client.id, body=description_add)
                     if response:
-                        BaseController.log_info("Added service description with type '" + response.type + "' and url '" + response.url +
+                        BaseController.log_info("Added service description for client '" + client.id + "' with type '" + response.type + "' and url '" + response.url +
                                                 "' (got full id " + response.id + ")")
                 except ApiException as err:
                     if err.status == 409:
@@ -211,20 +234,19 @@ class ServiceController(BaseController):
                                              service):
         try:
             services_api = ServicesApi(ApiClient(ss_api_config))
-            access_list = service_description_conf["access"] if service_description_conf["access"] else []
-            configurable_services = service_description_conf["services"] if service_description_conf["services"] else []
+            access_list = service_description_conf["access"] if "access" in service_description_conf else []
+            configurable_services = service_description_conf["services"] if "services" in service_description_conf else []
             for configurable_service in configurable_services:
                 if service.service_code == configurable_service["service_code"]:
-                    access_list = configurable_service["access"] if configurable_service["access"] else []
+                    service_access_list = configurable_service["access"] if "access" in configurable_service else []
+                    access_list = service_access_list if len(service_access_list) > 0 else access_list
 
-                    self.remote_add_access_from_access_list(client_controller,
-                                                            clients_api,
-                                                            services_api,
-                                                            client,
-                                                            service,
-                                                            access_list)
-                else:
-                    BaseController.log_info("Access rights are not defined for service ")
+            self.remote_add_access_from_access_list(client_controller,
+                                                    clients_api,
+                                                    services_api,
+                                                    client,
+                                                    service,
+                                                    access_list)
         except ApiException as err:
             if err.status == 409:
                 BaseController.log_info("Access rights for client '" + client.id + "' using service '" + service.id + "' already added")
@@ -302,3 +324,17 @@ class ServiceController(BaseController):
         for service_description in service_descriptions:
             if service_description.url == url and service_description.type == service_type:
                 return service_description
+
+    @staticmethod
+    def has_service_access(service_desc_conf):
+        has_access = False
+        if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS in service_desc_conf:
+            if service_desc_conf[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS] != None:
+                has_access = True
+        else:
+            if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES in service_desc_conf:
+                for service in service_desc_conf[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES]:
+                    if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS in service:
+                        if service[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS] != None:
+                            has_access = True
+        return has_access

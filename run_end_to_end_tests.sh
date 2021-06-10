@@ -50,14 +50,40 @@ exit_abnormal() {
 update_config() {
   local cmd
   cmd=""
-  cmd=".security_server[0].ssh_private_key=\"$5\""
-  cmd="${cmd}|.security_server[0].api_key=\"$9\""
-  cmd="${cmd}|.security_server[0].admin_credentials=\"$6\""
-  cmd="${cmd}|.security_server[0].ssh_user=\"$8\""
-  cmd="${cmd}|.security_server[0].configuration_anchor=\"$2\""
-  cmd="${cmd}|.security_server[0].name=\"$4\""
-  cmd="${cmd}|.security_server[0].security_server_code=\"$4\""
-  cmd="${cmd}|.security_server[0].url=\"https://$3:4000/api/v1\""
+
+  ssn=0
+  api_keys=$(echo "$9" | tr "," "\n")
+  for api_key in $api_keys
+  do
+    cmd="${cmd}.security_server[$ssn].api_key=\"$api_key\"|"
+    ((ssn=ssn+1))
+  done
+
+  ssn=0
+  names=$(echo "$4" | tr "," "\n")
+  for name in $names
+  do
+    cmd="${cmd}.security_server[$ssn].ssh_private_key=\"$5\"|"
+    cmd="${cmd}.security_server[$ssn].admin_credentials=\"$6\"|"
+    cmd="${cmd}.security_server[$ssn].ssh_user=\"$8\"|"
+    cmd="${cmd}.security_server[$ssn].configuration_anchor=\"$2\"|"
+    cmd="${cmd}.security_server[$ssn].name=\"$name\"|"
+    cmd="${cmd}.security_server[$ssn].security_server_code=\"$name\"|"
+    ((ssn=ssn+1))
+  done
+
+  ssn=0
+  hosts=$(echo "$3" | tr "," "\n")
+  for host in $hosts
+  do
+    if [[ $ssn == 0 ]]; then
+      cmd="${cmd}.security_server[$ssn].url=\"https://$host:4000/api/v1\"|"
+    else
+      cmd="${cmd}.security_server[$ssn].url=\"https://$host:4000/api/v1\""
+    fi
+    ((ssn=ssn+1))
+  done
+
   yq -y "$cmd" "$1" > "$7"
   chmod 777 "$7"
 }

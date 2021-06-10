@@ -4,6 +4,8 @@ import subprocess
 from xrdsst.core.conf_keys import ConfKeysSecServerClients
 import yaml
 
+from xrdsst.core.definitions import ROOT_DIR
+
 
 def get_admin_credentials(security_server, config):
     admin_credentials_env_variable = security_server["admin_credentials"] if security_server.get("admin_credentials", "") else config["admin_credentials"]
@@ -110,31 +112,35 @@ def is_ss_connectable(ss_url, sock_timeout=1):
 
 
 def revoke_api_key(app):
-    if len(app.argv) > 1:
-        api_key_id = app.Meta.handlers[0].api_key_id
-        if api_key_id:
+    api_key_id = app.Meta.handlers[0].api_key_id
+    if api_key_id:
+        if app.pargs:
             config_file = app.pargs.configfile if app.pargs.configfile else app.Meta.handlers[0].config_file
-            if not os.path.exists(config_file):
-                config_file = os.path.join("..", config_file)
-            with open(config_file, "r") as yml_file:
-                config = yaml.safe_load(yml_file)
-            for ssn in api_key_id.keys():
-                logging.debug('Revoking API key for security server ' + ssn)
-                for security_server in config["security_server"]:
-                    if ssn == security_server["name"]:
-                        credentials = get_admin_credentials(security_server, config)
-                        ssh_key = get_ssh_key(security_server, config)
-                        ssh_user = get_ssh_user(security_server, config)
-                        url = security_server["api_key_url"]
-                        curl_cmd = "curl -X DELETE -u " + credentials + " --silent " + url + "/" + str(api_key_id[ssn][0]) + " -k"
-                        cmd = "ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
-                              ssh_key + "\" " + ssh_user + "@" + api_key_id[ssn][1] + " \"" + curl_cmd + "\""
-                        exitcode, data = subprocess.getstatusoutput(cmd)
-                        api_key_token = app.api_keys[ssn]
-                        if exitcode == 0:
-                            log_info("API key '" + api_key_token + "' for security server " + ssn + " revoked.")
-                        else:
-                            logging.warning("Revocation of API key '" + api_key_token + "' for security server ' + ssn + ' failed")
+        else:
+            config_file = app.Meta.handlers[0].config_file
+        if not os.path.exists(config_file):
+            config_file = os.path.join(ROOT_DIR, config_file)
+        if not os.path.exists(config_file):
+            return None
+        with open(config_file, "r") as yml_file:
+            config = yaml.safe_load(yml_file)
+        for ssn in api_key_id.keys():
+            logging.debug('Revoking API key for security server ' + ssn)
+            for security_server in config["security_server"]:
+                if ssn == security_server["name"]:
+                    credentials = get_admin_credentials(security_server, config)
+                    ssh_key = get_ssh_key(security_server, config)
+                    ssh_user = get_ssh_user(security_server, config)
+                    url = security_server["api_key_url"]
+                    curl_cmd = "curl -X DELETE -u " + credentials + " --silent " + url + "/" + str(api_key_id[ssn][0]) + " -k"
+                    cmd = "ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
+                          ssh_key + "\" " + ssh_user + "@" + api_key_id[ssn][1] + " \"" + curl_cmd + "\""
+                    exitcode, data = subprocess.getstatusoutput(cmd)
+                    api_key_token = app.api_keys[ssn]
+                    if exitcode == 0:
+                        log_info("API key '" + api_key_token + "' for security server " + ssn + " revoked.")
+                    else:
+                        logging.warning("Revocation of API key '" + api_key_token + "' for security server ' + ssn + ' failed")
 
 
 def log_info(message):

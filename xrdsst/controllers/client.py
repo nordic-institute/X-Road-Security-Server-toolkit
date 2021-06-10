@@ -3,13 +3,12 @@ from cement import ex
 from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
-from xrdsst.controllers.token import TokenController
-from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 from xrdsst.core.util import convert_swagger_enum
 from xrdsst.models import ClientAdd, Client, ConnectionType, ClientStatus
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
+
 
 class ClientController(BaseController):
     class Meta:
@@ -131,7 +130,8 @@ class ClientController(BaseController):
             if "clients" in security_server:
                 for client_conf in security_server["clients"]:
                     if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES in client_conf:
-                        self.remote_import_tls_certificate(ss_api_config, client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES], client_conf)
+                        self.remote_import_tls_certificate(ss_api_config, client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES],
+                                                           client_conf)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -239,7 +239,7 @@ class ClientController(BaseController):
                 member_code=str(client_conf['member_code']),
                 name=client_conf["member_name"]
             )
-            found_clients = list(found_client for found_client in all_clients if found_client.subsystem_code == None)
+            found_clients = list(found_client for found_client in all_clients if found_client.subsystem_code is None)
         if not found_clients:
             BaseController.log_info(
                 client_conf["member_name"] + ": Client matching " + self.partial_client_id(client_conf) + " not found")
@@ -254,7 +254,7 @@ class ClientController(BaseController):
 
     @staticmethod
     def partial_client_id(client_conf):
-        client_id =  str(client_conf['member_class']) + ":" + str(client_conf['member_code'])
+        client_id = str(client_conf['member_class']) + ":" + str(client_conf['member_code'])
         if 'subsystem_code' in client_conf and client_conf['subsystem_code'] is not None:
             client_id = client_id + ":" + client_conf['subsystem_code']
         return client_id
@@ -274,4 +274,13 @@ class ClientController(BaseController):
 
     @staticmethod
     def is_client_base_member(client_conf, security_server_conf):
-        return client_conf["member_class"] == security_server_conf["owner_member_class"] and client_conf["member_code"] == security_server_conf["owner_member_code"]
+        return client_conf["member_class"] == security_server_conf["owner_member_class"] and client_conf["member_code"] == security_server_conf[
+            "owner_member_code"]
+
+    @staticmethod
+    def get_client_conf_id(client_conf):
+        client_id = "%s/%s/%s" % (client_conf["member_class"], client_conf["member_code"], client_conf["member_name"])
+        if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client_conf:
+            client_id = client_id + "/" + client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE]
+
+        return client_id
