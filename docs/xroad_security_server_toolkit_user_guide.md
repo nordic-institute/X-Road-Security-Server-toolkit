@@ -368,7 +368,7 @@ security_server:
 * <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code.
 * <SECURITY_SERVER_EXTERNAL_FQDN> externally accessible FQDN for the security server. It's applied to the security server certificates.
 * <SECURITY_SERVER_INTERNAL_FQDN_OR_IP> should be substituted with internal IP address or host name of the installed security server, e.g. ``ss1``
-* <SSH_USER_OS_ENV_VAR_NAME> (Optional) If is set it will overwritte the <SSH_USER_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
+* <SSH_USER_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_USER_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
 * <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> (Optional) If is set it will overwritte the <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
 
 #### 3.2.3 Clients Servers Configuration
