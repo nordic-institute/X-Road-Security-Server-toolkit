@@ -2,7 +2,8 @@ import sys
 import unittest
 import copy
 from unittest import mock
-
+import os
+from xrdsst.core.definitions import ROOT_DIR
 import pytest
 from urllib3._collections import HTTPHeaderDict
 
@@ -43,6 +44,8 @@ class ClientTestData:
 
 
 class TestClient(unittest.TestCase):
+    tls_cert_existing = os.path.join(ROOT_DIR, "tests/resources/cert.pem")
+    tls_cert_non_existing = os.path.join(ROOT_DIR, "tests/resources/111cert.pem")
     ss_config = {
         'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
@@ -54,6 +57,7 @@ class TestClient(unittest.TestCase):
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'owner_member_class': 'GOV',
               'owner_member_code': '9876',
+              'owner_dn_org': 'NIIS',
               'clients': [
                   {
                       'member_class': 'GOV',
@@ -80,6 +84,7 @@ class TestClient(unittest.TestCase):
               'api_key_url': 'https://localhost:4000/api/v1/api-keys',
               'owner_member_class': 'GOV',
               'owner_member_code': '9876',
+              'owner_dn_org': 'NIIS',
               'clients': [
                   {
                       'member_class': 'GOV',
@@ -101,6 +106,16 @@ class TestClient(unittest.TestCase):
                   }
               ]}
              ]}
+
+    def ss_config_with_tls_cert(self):
+        config = copy.deepcopy(self.ss_config)
+        config['security_server'][0]['tls_certificates'] = [self.tls_cert_existing]
+        return config
+
+    def ss_config_with_tls_cert_non_existing(self):
+        config = copy.deepcopy(self.ss_config)
+        config['security_server'][0]['tls_certificates'] = [self.tls_cert_non_existing]
+        return config
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
@@ -326,6 +341,126 @@ class TestClient(unittest.TestCase):
 
                     out, err = self.capsys.readouterr()
                     assert out.count("Updated client") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_client_import_tls_certificate(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                    id='DEV:GOV:9876:SUB1',
+                    instance_id='DEV',
+                    member_class='GOV',
+                    member_code='9876',
+                    member_name='TEST',
+                    subsystem_code=None,
+                    connection_type=ConnectionType.HTTP,
+                    status=ClientStatus.REGISTERED,
+                    owner=True,
+                    has_valid_local_sign_cert=True
+            )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_tls_certificate', return_value=None):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert())
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    client_controller.import_tls_certs()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Import TLS certificate '%s' for client" % self.tls_cert_existing) > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_client_import_tls_certificate(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                    id='DEV:GOV:9876:SUB1',
+                    instance_id='DEV',
+                    member_class='GOV',
+                    member_code='9876',
+                    member_name='TEST',
+                    subsystem_code=None,
+                    connection_type=ConnectionType.HTTP,
+                    status=ClientStatus.REGISTERED,
+                    owner=True,
+                    has_valid_local_sign_cert=True
+            )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_tls_certificate', return_value=None):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert())
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    client_controller.import_tls_certs()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Import TLS certificate '%s' for client" % self.tls_cert_existing) > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_client_import_tls_certificate_not_existing(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                    id='DEV:GOV:9876:SUB1',
+                    instance_id='DEV',
+                    member_class='GOV',
+                    member_code='9876',
+                    member_name='TEST',
+                    subsystem_code=None,
+                    connection_type=ConnectionType.HTTP,
+                    status=ClientStatus.REGISTERED,
+                    owner=True,
+                    has_valid_local_sign_cert=True
+            )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_tls_certificate', return_value=None):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert_non_existing())
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    client_controller.import_tls_certs()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("references non-existent file '%s'" % self.tls_cert_non_existing) > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_client_import_tls_certificate_already_imported(self):
+        class AlreadyImportedResponse:
+            status = 409
+            data = '{"status":409,"error":{"code":"service_endpoint_already_enabled"}}'
+            reason = None
+
+            def getheaders(self): return None
+
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
+                    id='DEV:GOV:9876:SUB1',
+                    instance_id='DEV',
+                    member_class='GOV',
+                    member_code='9876',
+                    member_name='TEST',
+                    subsystem_code=None,
+                    connection_type=ConnectionType.HTTP,
+                    status=ClientStatus.REGISTERED,
+                    owner=True,
+                    has_valid_local_sign_cert=True
+            )]):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_tls_certificate',
+                                side_effect=ApiException(http_resp=AlreadyImportedResponse())):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert())
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    client_controller.import_tls_certs()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("TLS certificate '%s' for client DEV:GOV:9876:SUB1 already exists" % self.tls_cert_existing) > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)

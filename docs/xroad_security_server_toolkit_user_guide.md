@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 1.3.10
+Version: 1.3.11
 Doc. ID: XRDSST-CONF
 
 ---
@@ -37,10 +37,13 @@ Doc. ID: XRDSST-CONF
 | 10.05.2021 | 1.3.4       | Added Load Balancer setup description                                        | Alberto Fernandez  |            
 | 13.05.2021 | 1.3.5       | Added description about load-balancing                                       | Bert Viikmäe       |
 | 14.05.2021 | 1.3.6       | Notes on client management                                                   | Bert Viikmäe       |
-| 24.05.2021 | 1.3.7       | Added download-internal-tsl command                                          | Alberto Fernandez  |
+| 24.05.2021 | 1.3.7       | Added download-internal-tls command                                          | Alberto Fernandez  |
 | 28.05.2021 | 1.3.8       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
 | 28.05.2021 | 1.3.9       | Update service management                                                    | Bert Viikmäe       |
-| 04.06.2021 | 1.3.10       | Refactor documentation                                                       | Alberto Fernandez  |
+| 04.06.2021 | 1.3.10       | Refactor documentation                                                      | Alberto Fernandez  |
+| 04.06.2021 | 1.3.11       | Added TLS certificates import                                               | Alberto Fernandez  |
+
+
 ## Table of Contents <!-- omit in toc -->
 
 <!-- toc -->
@@ -87,6 +90,7 @@ Doc. ID: XRDSST-CONF
             * [4.2.5.1 Client add](#4251-client-add)
             * [4.2.5.2 Client register](#4252-client-register)
             * [4.2.5.3 Client update](#4253-client-update)
+            * [4.2.5.4 Client import TSL certificates](#4254-client-import-tsl-certificates)
          * [4.2.6 Service management commands](#426-service-management-commands)
             * [4.2.6.1 Service add description](#4261-service-add-description)
             * [4.2.6.2 Service add access rights](#4262-service-add-access-rights)
@@ -290,12 +294,16 @@ security_server:
   url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
   ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  tls_certificates:
+  	- /path/to/tls_cert
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
       member_name: <MEMBER_NAME>
       subsystem_code: <SUBSYSTEM_CODE>
       connection_type: <CONNECTION_TYPE>
+      tls_certificates:
+  		- /path/to/tls_cert
       service_descriptions:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
@@ -688,6 +696,13 @@ xrdsst client register
 Subsystem parameters can be updated with:
 ```
 xrdsst client update
+```
+
+##### 4.2.5.4 Client import TSL certificates
+
+TLS certificates can be imported and added to a client's whitelist with
+```
+xrdsst client import-tls-certs
 ```
 
 #### 4.2.6 Service management commands

@@ -8,7 +8,7 @@ import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
     assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients
+    get_endpoint_service_clients, getClientTlsCertificates
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -23,7 +23,7 @@ from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import ClientStatus
+from xrdsst.models import ClientStatus, CertificateDetails
 
 
 class EndToEndTest(unittest.TestCase):
@@ -321,12 +321,12 @@ class EndToEndTest(unittest.TestCase):
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert response[0].logged_in is True
-                assert response[0].possible_actions == ['TOKEN_CHANGE_PIN', 'LOGOUT', 'GENERATE_KEY']
+                assert 'LOGOUT' in response[0].possible_actions
                 token_controller.remote_token_login(configuration, security_server)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert response[0].logged_in is True
-                assert response[0].possible_actions == ['TOKEN_CHANGE_PIN', 'LOGOUT', 'GENERATE_KEY']
+                assert 'LOGOUT' in response[0].possible_actions
 
     def step_token_init_keys(self):
         with XRDSSTTest() as app:
@@ -371,6 +371,15 @@ class EndToEndTest(unittest.TestCase):
 
             return csrs
 
+    def step_cert_download_internal_tls(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.config["security_server"]:
+                ss_configuration = cert_controller.create_api_config(security_server, self.config)
+                result = cert_controller.remote_download_internal_tls(ss_configuration, security_server)
+                assert len(result) == 1
+
     @staticmethod
     def step_acquire_certs(downloaded_csrs, security_server):
         tca_sign_url = find_test_ca_sign_url(security_server['configuration_anchor'])
@@ -413,13 +422,13 @@ class EndToEndTest(unittest.TestCase):
                 configuration = cert_controller.create_api_config(security_server, self.config)
                 cert_controller.remote_register_certificate(configuration, security_server)
 
-    def step_cert_download_internal_tsl(self):
+    def step_cert_download_internal_tls(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
             for security_server in self.config["security_server"]:
                 configuration = cert_controller.create_api_config(security_server, self.config)
-                result = cert_controller.remote_download_internal_tsl(configuration, security_server)
+                result = cert_controller.remote_download_internal_tls(configuration, security_server)
                 assert len(result) == 1
 
     def step_cert_import(self):
@@ -865,6 +874,34 @@ class EndToEndTest(unittest.TestCase):
                     assert str(service_clients[0]["id"]) == "DEV:security-server-owners"
             ssn = ssn + 1
 
+    def step_import_tls_certificate(self):
+        tls_certificate = "tests/resources/cert.pem"
+        for security_server in self.config["security_server"]:
+            security_server["tls_certificates"] = [os.path.join(ROOT_DIR, tls_certificate)]
+            for client in security_server["clients"]:
+                if "tls_certificates" in client:
+                    client["tls_certificates"] = [os.path.join(ROOT_DIR, tls_certificate)]
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
+                client_conf = {
+                    "member_name": security_server["owner_dn_org"],
+                    "member_code": security_server["owner_member_code"],
+                    "member_class": security_server["owner_member_class"]
+                }
+                client_controller.remote_import_tls_certificate(configuration, security_server["tls_certificates"], client_conf)
+
+                if "clients" in security_server:
+                    for client in security_server["clients"]:
+                        if "tls_certificates" in client:
+                            client_controller.remote_import_tls_certificate(configuration, client["tls_certificates"], client)
+                            tls_certs = getClientTlsCertificates(self.config, client, ssn)
+                            assert len(tls_certs) == 1
+                ssn = ssn + 1
+
     def query_status(self):
         with XRDSSTTest() as app:
             status_controller = StatusController()
@@ -927,6 +964,7 @@ class EndToEndTest(unittest.TestCase):
             ssn = ssn + 1
 
         self.step_cert_activate()
+        self.step_import_tls_certificate()
         self.step_add_service_description_fail_url_missing()
         self.step_add_service_description_fail_type_missing()
         self.step_enable_service_description_fail_service_description_not_added()
@@ -945,7 +983,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
-        self.step_cert_download_internal_tsl()
+        self.step_cert_download_internal_tls()
 
         configured_servers_at_end = self.query_status()
 

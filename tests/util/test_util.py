@@ -301,20 +301,31 @@ def get_client(config, client, ssn):
         client = requests.get(
             config["security_server"][ssn]["url"] + "/clients",
             {'member_class': member_class,
-            'member_code': member_code,
-            'subsystem_code': client['subsystem_code'],
-            'connection_type': conn_type},
+             'member_code': member_code,
+             'subsystem_code': client['subsystem_code'],
+             'connection_type': conn_type},
             headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
             verify=False)
     else:
         client = requests.get(
             config["security_server"][ssn]["url"] + "/clients",
             {'member_class': member_class,
-            'member_code': member_code,
-            'connection_type': conn_type},
+             'member_code': member_code,
+             'connection_type': conn_type},
             headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
             verify=False)
     client_json = json.loads(str(client.content, 'utf-8').strip())
+    return client_json
+
+
+def getClientTlsCertificates(config, client_conf, ssn):
+    client = get_client(config, client_conf, ssn)
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    tls_certificates = requests.get(
+        config["security_server"][ssn]["url"] + "/clients/" + client[0]["id"] + "/tls-certificates",
+        headers={'Authorization': BaseController.authorization_header(api_key), 'accept': 'application/json'},
+        verify=False)
+    client_json = json.loads(str(tls_certificates.content, 'utf-8').strip())
     return client_json
 
 

@@ -22,12 +22,14 @@ security_server:
   url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
   ssh_user:
   ssh_private_key:
+  tls_certificates:
   clients:
     - member_class: ORG
       member_code: 111
       member_name: NIIS
       subsystem_code: TEST
       connection_type: HTTP
+      tls_certificates:
       service_descriptions:
         - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
           rest_service_code: Petstore
@@ -72,12 +74,14 @@ security_server:
   url: https://<SECURITY_SERVER_FQDN_OR_IP>:4000/api/v1
   ssh_user:
   ssh_private_key:
+  tls_certificates:
   clients:
     - member_class: ORG
       member_code: 111
       member_name: NIIS
       subsystem_code: TEST
       connection_type: HTTP
+      tls_certificates:
       service_descriptions:
         - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
           rest_service_code: Petstore

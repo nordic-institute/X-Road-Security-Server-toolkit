@@ -69,11 +69,11 @@ class IntegrationOpBase:
                 auto_controller.app = app
                 auto_controller._default()
 
-    def step_cert_download_internal_tsl(self):
+    def step_cert_download_internal_tls(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
             for security_server in self.config["security_server"]:
                 configuration = cert_controller.create_api_config(security_server, self.config)
-                result = cert_controller.remote_download_internal_tsl(configuration, security_server)
+                result = cert_controller.remote_download_internal_tls(configuration, security_server)
                 assert len(result) == 1

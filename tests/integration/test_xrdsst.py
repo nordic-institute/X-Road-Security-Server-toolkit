@@ -5,7 +5,7 @@ import urllib3
 from tests.integration.integration_base import IntegrationTestBase
 from tests.integration.integration_ops import IntegrationOpBase
 from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients
+    get_endpoint_service_clients, getClientTlsCertificates
 from tests.util.test_util import get_service_description, assert_server_statuses_transitioned
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -16,6 +16,7 @@ from xrdsst.controllers.status import ServerStatus
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.endpoint import EndpointController
+from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
@@ -712,6 +713,28 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             self.apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
+    def step_import_tls_certificate(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
+                client_conf = {
+                    "member_name": security_server["owner_dn_org"],
+                    "member_code": security_server["owner_member_code"],
+                    "member_class": security_server["owner_member_class"]
+                }
+                client_controller.remote_import_tls_certificate(configuration, security_server["tls_certificates"], client_conf)
+
+                if "clients" in security_server:
+                    for client in security_server["clients"]:
+                        if "tls_certificates" in client:
+                            client_controller.remote_import_tls_certificate(configuration, client["tls_certificates"], client)
+                            tls_certs = getClientTlsCertificates(self.config, client, ssn)
+                            assert len(tls_certs) == 1
+                ssn = ssn + 1
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
@@ -764,6 +787,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_add_service_description()
         self.step_enable_service_description()
         self.step_add_service_access()
+        self.step_import_tls_certificate()
 
         self.query_status()
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
@@ -772,7 +796,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
-        self.step_cert_download_internal_tsl()
+        self.step_cert_download_internal_tls()
 
         configured_servers_at_end = self.query_status()
 
