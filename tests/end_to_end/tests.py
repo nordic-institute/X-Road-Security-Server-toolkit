@@ -8,7 +8,7 @@ import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
     assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients
+    get_endpoint_service_clients, getClientTlsCertificates
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -878,12 +878,23 @@ class EndToEndTest(unittest.TestCase):
         with XRDSSTTest() as app:
             client_controller = ClientController()
             client_controller.app = app
+            ssn = 0
             for security_server in self.config["security_server"]:
-                for client in security_server["clients"]:
-                    configuration = client_controller.create_api_config(security_server, self.config)
-                    tls_certificates = [os.path.join(ROOT_DIR, "tests/resources/cert.pem")]
-                    response = client_controller.remote_import_tls_certificate(configuration, tls_certificates, client)
-                    assert (type(response) is CertificateDetails)
+                configuration = client_controller.create_api_config(security_server, self.config)
+                client_conf = {
+                    "member_name": security_server["owner_dn_org"],
+                    "member_code": security_server["owner_member_code"],
+                    "member_class": security_server["owner_member_class"]
+                }
+                client_controller.remote_import_tls_certificate(configuration, security_server["tls_certificates"], client_conf)
+
+                if "clients" in security_server:
+                    for client in security_server["clients"]:
+                        if "tls_certificates" in client:
+                            client_controller.remote_import_tls_certificate(configuration, client["tls_certificates"], client)
+                            tls_certs = getClientTlsCertificates(self.config, client, ssn)
+                            assert len(tls_certs) == 1
+                ssn = ssn + 1
 
     def query_status(self):
         with XRDSSTTest() as app:
@@ -948,7 +959,6 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_cert_activate()
         self.step_import_tls_certificate()
-        self.step_cert_download_internal_tls()
         self.step_add_service_description_fail_url_missing()
         self.step_add_service_description_fail_type_missing()
         self.step_enable_service_description_fail_service_description_not_added()
