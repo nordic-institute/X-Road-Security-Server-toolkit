@@ -88,15 +88,7 @@ class ServiceController(BaseController):
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting service description add process for security server: ' + security_server['name'])
             if "clients" in security_server:
-                for client in security_server["clients"]:
-                    if client.get("service_descriptions"):
-                        for service_description in client["service_descriptions"]:
-                            self.remote_add_service_description(ss_api_config, security_server, client, service_description)
-                    else:
-                        if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client:
-                            BaseController.log_info(
-                                "Skipping add service description for client: '%s', no service description defined" %
-                                ClientController().get_client_conf_id(client))
+                self.add_client_service_description(ss_api_config, security_server)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def enable_service_description(self, config):
@@ -151,6 +143,17 @@ class ServiceController(BaseController):
                                     (ClientController().get_client_conf_id(client),
                                      service_description["url"]))
         BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def add_client_service_description(self, ss_api_config, security_server):
+        for client in security_server["clients"]:
+            if client.get("service_descriptions"):
+                for service_description in client["service_descriptions"]:
+                    self.remote_add_service_description(ss_api_config, security_server, client, service_description)
+            else:
+                if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client:
+                    BaseController.log_info(
+                        "Skipping add service description for client: '%s', no service description defined" %
+                        ClientController().get_client_conf_id(client))
 
     @staticmethod
     def remote_add_service_description(ss_api_config, security_server_conf, client_conf, service_description_conf):
@@ -338,5 +341,5 @@ class ServiceController(BaseController):
                 for service in service_desc_conf[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES]:
                     if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS in service and \
                             service[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS] is not None:
-                                has_access = True
+                        has_access = True
         return has_access
