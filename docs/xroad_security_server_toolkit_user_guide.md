@@ -330,7 +330,7 @@ ssh_access:
 
 #### 3.2.2 Security Servers Configuration
 
-In this section is configured the security servers information. It is possible to set multiple security servers that will run in a sequential batch mode.
+This section shows how to set up the security server information. It is possible to configure multiple security servers at the same time. The toolkit will execute the configurations sequentially.
 ```
 security_server:
 - api_key: <API_KEY_ENV_VAR_NAME>
