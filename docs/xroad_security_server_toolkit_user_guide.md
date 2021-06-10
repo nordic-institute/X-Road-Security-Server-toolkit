@@ -394,7 +394,7 @@ It must have the same value as <OWNER_DISTINGUISHED_NAME_ORGANIZATION>  if is a 
 * <SUBSYSTEM_CODE> (Optional, not required for members) X-Road member/client subsystem code.
 * <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
 
-#### 3.2.3 Services Configuration
+#### 3.2.3 Service Configuration
 
 In this section services with type ``OPENAPI3``, ``REST``, ``WSDL`` can be configured by adding a service description
 with parameters ``url``, ``rest_service_code``, ``type`` and ``access``. In order to provide access to the services added with that
