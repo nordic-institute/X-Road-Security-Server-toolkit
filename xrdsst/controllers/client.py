@@ -203,27 +203,31 @@ class ClientController(BaseController):
             client = self.find_client(clients_api, client_conf)
             if client:
                 for tls_cert in tls_certs:
-                    try:
-                        location = cement.utils.fs.join_exists(tls_cert)
-                        if not location[1]:
-                            BaseController.log_info("Import TLS certificate '%s' for client %s does not exist" % (location[0], client.id))
-                        else:
-                            cert_file_loc = location[0]
-                            cert_file = open(cert_file_loc, "rb")
-                            cert_data = cert_file.read()
-                            cert_file.close()
-                            response = clients_api.add_client_tls_certificate(client.id, body=cert_data)
-                            BaseController.log_info(
-                                "Import TLS certificate '%s' for client %s" % (tls_cert, client.id))
-                            return response
-                    except ApiException as err:
-                        if err.status == 409:
-                            BaseController.log_info(
-                                "TLS certificate '%s' for client %s already exists" % (tls_cert, client.id))
-                        else:
-                            BaseController.log_api_error('ClientsApi->import_tls_certificate', err)
+                    self.remote_add_client_tls_certificate(tls_cert, clients_api, client)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
+
+    @staticmethod
+    def remote_add_client_tls_certificate(tls_cert, clients_api, client):
+        try:
+            location = cement.utils.fs.join_exists(tls_cert)
+            if not location[1]:
+                BaseController.log_info("Import TLS certificate '%s' for client %s does not exist" % (location[0], client.id))
+            else:
+                cert_file_loc = location[0]
+                cert_file = open(cert_file_loc, "rb")
+                cert_data = cert_file.read()
+                cert_file.close()
+                response = clients_api.add_client_tls_certificate(client.id, body=cert_data)
+                BaseController.log_info(
+                    "Import TLS certificate '%s' for client %s" % (tls_cert, client.id))
+                return response
+        except ApiException as err:
+            if err.status == 409:
+                BaseController.log_info(
+                    "TLS certificate '%s' for client %s already exists" % (tls_cert, client.id))
+            else:
+                BaseController.log_api_error('ClientsApi->import_tls_certificate', err)
 
     def find_client(self, clients_api, client_conf):
         if 'subsystem_code' in client_conf:
