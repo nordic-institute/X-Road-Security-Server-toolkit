@@ -507,8 +507,7 @@ X-Road admin user can be created with
 ```
 xrdsst user create-admin
 ```
-Configuration parameters involved are the described in [3.2.1 Access Configuration](#321-access-configuration), 
-specifically, the administrator user will have the name: password those defined in the property admin_credentials 
+Configuration parameters involved are described in [3.2.1 Access Configuration](#321-access-configuration). Specifically, the administrator user will have the `name: password` defined in the property `admin_credentials`.
 
 
 Note: This is an optional step in the configuration process and should only be run if the admin user has not been created before. 
