@@ -8,6 +8,7 @@ from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 from xrdsst.core.conf_keys import ConfKeysSecServerClientServiceDesc, ConfKeysSecServerClients
 
+
 class ServiceController(BaseController):
     class Meta:
         label = 'service'
@@ -167,8 +168,9 @@ class ServiceController(BaseController):
                 try:
                     response = clients_api.add_client_service_description(client.id, body=description_add)
                     if response:
-                        BaseController.log_info("Added service description for client '" + client.id + "' with type '" + response.type + "' and url '" + response.url +
-                                                "' (got full id " + response.id + ")")
+                        BaseController.log_info(
+                            "Added service description for client '" + client.id + "' with type '" + response.type + "' and url '" + response.url +
+                            "' (got full id " + response.id + ")")
                 except ApiException as err:
                     if err.status == 409:
                         BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client_controller.partial_client_id(client_conf) +
@@ -329,12 +331,12 @@ class ServiceController(BaseController):
     def has_service_access(service_desc_conf):
         has_access = False
         if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS in service_desc_conf:
-            if service_desc_conf[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS] != None:
+            if service_desc_conf[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS] is not None:
                 has_access = True
         else:
             if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES in service_desc_conf:
                 for service in service_desc_conf[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES]:
-                    if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS in service:
-                        if service[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS] != None:
-                            has_access = True
+                    if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS in service and \
+                            service[ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS] is not None:
+                                has_access = True
         return has_access
