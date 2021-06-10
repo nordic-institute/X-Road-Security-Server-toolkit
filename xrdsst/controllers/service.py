@@ -112,16 +112,7 @@ class ServiceController(BaseController):
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting service description access adding process for security server: ' + security_server['name'])
             if "clients" in security_server:
-                for client in security_server["clients"]:
-                    if "service_descriptions" in client:
-                        for service_description in client["service_descriptions"]:
-                            if self.has_service_access(service_description):
-                                self.remote_add_access_rights(ss_api_config, security_server, client, service_description)
-                            else:
-                                BaseController.log_info(
-                                    "Skipping add service access rights for client: '%s', service '%s', no access rights defined" %
-                                    (ClientController().get_client_conf_id(client),
-                                     service_description["url"]))
+                self.add_client_service_access_rights(ss_api_config, security_server)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -132,16 +123,7 @@ class ServiceController(BaseController):
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting service description updating parameters process for security server: ' + security_server['name'])
             if "clients" in security_server:
-                for client in security_server["clients"]:
-                    if "service_descriptions" in client:
-                        for service_description in client["service_descriptions"]:
-                            if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES in service_description:
-                                self.remote_update_service_parameters(ss_api_config, security_server, client, service_description)
-                            else:
-                                BaseController.log_info(
-                                    "Skipping update service parameters for client %s, service %s, no services defined" %
-                                    (ClientController().get_client_conf_id(client),
-                                     service_description["url"]))
+                self.update_client_service_parameters(ss_api_config, security_server)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def add_client_service_description(self, ss_api_config, security_server):
@@ -208,6 +190,18 @@ class ServiceController(BaseController):
                     BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
+
+    def add_client_service_access_rights(self, ss_api_config, security_server):
+        for client in security_server["clients"]:
+            if "service_descriptions" in client:
+                for service_description in client["service_descriptions"]:
+                    if self.has_service_access(service_description):
+                        self.remote_add_access_rights(ss_api_config, security_server, client, service_description)
+                    else:
+                        BaseController.log_info(
+                            "Skipping add service access rights for client: '%s', service '%s', no access rights defined" %
+                            (ClientController().get_client_conf_id(client),
+                             service_description["url"]))
 
     def remote_add_access_rights(self, ss_api_config, security_server_conf, client_conf, service_description_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -278,6 +272,18 @@ class ServiceController(BaseController):
                     for service_clients in service_clients_candidates:
                         BaseController.log_info("Added access rights for client '" + service_clients.id +
                                                 "' to use service '" + service.id + "' (full id " + response[0].id + ")")
+
+    def update_client_service_parameters(self, ss_api_config, security_server):
+        for client in security_server["clients"]:
+            if "service_descriptions" in client:
+                for service_description in client["service_descriptions"]:
+                    if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_SERVICES in service_description:
+                        self.remote_update_service_parameters(ss_api_config, security_server, client, service_description)
+                    else:
+                        BaseController.log_info(
+                            "Skipping update service parameters for client %s, service %s, no services defined" %
+                            (ClientController().get_client_conf_id(client),
+                             service_description["url"]))
 
     def remote_update_service_parameters(self, ss_api_config, security_server_conf, client_conf, service_description_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
