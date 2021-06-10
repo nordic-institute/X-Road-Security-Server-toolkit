@@ -374,7 +374,7 @@ security_server:
 #### 3.2.3 Clients Servers Configuration
 
 The security server client information is configured in this section. It is possible to set up a list of subsystems belonging to the owner member
-configured in the [security server configuration](#322-security-servers-configuration) or it's possible to add a new member with its subsystems as described
+configured in the [security server configuration](#322-security-servers-configuration) or add them to a new member as described
 in [8 Multitenancy](#8-multitenancy).
 ```
 clients:
