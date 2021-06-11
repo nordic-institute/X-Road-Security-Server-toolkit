@@ -50,6 +50,13 @@ $ pip3 install --pre --extra-index-url http://niis-xrdsst-development.s3-website
 
 ```
 
+## Upgrading the latest released development version from AWS repository
+
+```
+$ pip3 install --upgrade --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
+
+```
+
 ## Development
 
 This project includes a number of helpers in the `Makefile` to streamline common development tasks.
