@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0-final.0] - 2021-06-11
+- X-Road-Security Server Toolkit release version 2.0
+
 ## [1.4.0-beta.0] - 2021-06-11
 - add ``xrdsst client`` and sub-command ``import-tls-certs``
 - fix spelling mistake in sub-command ``download-internal-tls``
