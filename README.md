@@ -20,9 +20,9 @@ Installation is performed with pip (use pip or pip3, whichever is used)
 ```
 $ git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
 
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 
-$ pip install setup.py
+$ python3 setup.py install
 ```
 
 ## Development
