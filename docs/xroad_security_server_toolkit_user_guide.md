@@ -151,9 +151,9 @@ The X-Road Security Server Toolkit package can be installed using PIP (use pip o
 **Installing the latest development version**
 
 ```
-git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
-pip3 install -r requirements.txt
-python3 setup.py install
+$ git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
+$ pip3 install -r requirements.txt
+$ python3 setup.py install
 ```
 
 **Installing the official released version**
