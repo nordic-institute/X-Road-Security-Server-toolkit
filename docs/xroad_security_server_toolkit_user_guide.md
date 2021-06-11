@@ -55,7 +55,7 @@ Doc. ID: XRDSST-CONF
       * [1.2 References](#12-references)
    * [2. Installation](#2-installation)
       * [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
-      * [2.2 Installing the official released version](#22-installing-the-official-released-version)
+      * [2.2 Installation](#22-installation)
    * [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
       * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
          * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
@@ -136,28 +136,30 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 ## 2. Installation
 
-### 2.1 Prerequisites to Installation
+## 2.1 Prerequisites to Installation
 
 * Python version 3.6+
 * PIP 21.0+
+  - apt install -y python3-pip
+  - python3 -m pip install --upgrade pip
 * Installed X-Road security server packages
 
 ## 2.2 Installation
 
-Installation is performed with pip (use pip or pip3, whichever is used)
+The X-Road Security Server Toolkit package can be installed using PIP (use pip or pip3, whichever is used)
+
+**Installing the latest development version**
 
 ```
-$ pip install -r requirements.txt
-
-$ pip install setup.py
+git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
+pip3 install -r requirements.txt
+python3 setup.py install
 ```
 
-### 2.2 Installing the official released version
-
-The X-Road Security Server Toolkit package can be installed using PIP (use pip or pip3, whichever is used):
+**Installing the official released version**
 
 ```
-$ pip install --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
+$ pip3 install --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
 ```
 
 Package signing public key for can be retrieved from SKS keyserver pool (pool.sks-keyservers.net), key fingerprint is ``BEC35825BBAB4288933F0354116AC90A8F670D74``, publisher ``Jenkins (X-Road Development Signing Key) <jenkins@niis.org>``.
