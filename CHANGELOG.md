@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0-beta.0] - 2021-06-11
+- add ``xrdsst client`` and sub-command ``import-tls-certs``
+- fix spelling mistake in sub-command ``download-internal-tls``
+- fix adding of service description to not require ``rest_service_code`` parameter and ``endpoints`` section in the configuration
+- update the documentation to be more clear
+
 ## [1.3.0-beta.0] - 2021-05-31
 - Refactorization of end to end and integration tests to support negative cases and multiple security servers
 
