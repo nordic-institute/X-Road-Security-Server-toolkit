@@ -178,14 +178,22 @@ $ pip3 install --pre --extra-index-url http://niis-xrdsst-development.s3-website
 $ pip3 install --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
 ```
 
+**Upgrading the official released version from a previously released version**
+
+```
+$ pip3 install --upgrade --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
+```
+
 Package signing public key for can be retrieved from SKS keyserver pool (pool.sks-keyservers.net), key fingerprint is ``BEC35825BBAB4288933F0354116AC90A8F670D74``, publisher ``Jenkins (X-Road Development Signing Key) <jenkins@niis.org>``.
 
 Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.sig
+Signature ``xrdsst-2.0.0.sig`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.sig
 
 Downloaded packages with detached signatures can be verified after adding signing public key to local keyring:
 ```
 $ gpg --keyserver pool.sks-keyservers.net --search-keys  BEC35825BBAB4288933F0354116AC90A8F670D74
 $ gpg --verify xrdsst-1.0.0.sig xrdsst-1.0.0.tar.gz
+$ gpg --verify xrdsst-2.0.0.sig xrdsst-2.0.0.tar.gz
 ```
 
 After installation, ``xrdsst`` command runs the toolkit, when invoked without any parameters,
