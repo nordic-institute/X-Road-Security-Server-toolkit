@@ -18,15 +18,18 @@ This repository contains information about the X-Road Security Server Toolkit, s
 **Prerequisites to Installation**
 
 * Python version 3.6+
+* apt-get update needs to be run before installing
 * PIP 21.0+
   - apt install -y python3-pip
   - python3 -m pip install --upgrade pip
-* Installed X-Road security server packages
+* Installed X-Road security server packages on target machine(s)
 
 **Installation is performed with pip (use pip or pip3, whichever is used)**
 
 ```
 $ git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
+
+$ cd X-Road-Security-Server-toolkit
 
 $ pip3 install -r requirements.txt
 
