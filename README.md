@@ -65,6 +65,8 @@ The following demonstrates setting up and working with a development environment
 ```
 ### create a virtualenv for development
 
+$ pip3 install virtualenv
+
 $ make virtualenv
 
 $ source env/bin/activate
