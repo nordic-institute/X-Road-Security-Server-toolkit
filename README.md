@@ -13,7 +13,7 @@ This repository contains information about the X-Road Security Server Toolkit, s
 [X-Road Security Server Toolkit User Guide](https://github.com/nordic-institute/X-Road-Security-Server-toolkit/blob/master/docs/xroad_security_server_toolkit_user_guide.md)
 
 
-## Installing the latest development version
+## Installing the latest development version from GitHub
 
 **Prerequisites to Installation**
 
@@ -34,6 +34,20 @@ $ cd X-Road-Security-Server-toolkit
 $ pip3 install -r requirements.txt
 
 $ python3 setup.py install
+```
+
+## Installing the latest released development version from AWS repository
+
+```
+$ pip3 install --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
+
+```
+
+## Installing the latest un-released (beta) development version from AWS repository
+
+```
+$ pip3 install --pre --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
+
 ```
 
 ## Development
