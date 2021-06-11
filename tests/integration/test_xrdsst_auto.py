@@ -103,21 +103,21 @@ class TestXrdsstAuto(IntegrationTestBase, IntegrationOpBase):
         self.step_autoconf()
         self.config = copy.deepcopy(conf)
 
-        # # Wait for global configuration status updates
-        # ssn = 0
-        # for security_server in self.config["security_server"]:
-        #     waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config, ssn), self.retry_wait, self.max_retries)
-        #     self.query_status()
-        #     ssn = ssn + 1
-        #
-        # # Now that registered auth cert is globally accepted, should proceed with everything else to successful end.
-        # self.step_autoconf()
-        #
+        # Wait for global configuration status updates
+        ssn = 0
+        for security_server in self.config["security_server"]:
+            waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config, ssn), self.retry_wait, self.max_retries)
+            self.query_status()
+            ssn = ssn + 1
+
+        # Now that registered auth cert is globally accepted, should proceed with everything else to successful end.
+        self.step_autoconf()
+
         # configured_servers_at_end = self.query_status()
         # assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-        #
-        # # Verify non-base operation transitions
+
+        # Verify non-base operation transitions
         # ssn = 0
         # for security_server in self.config["security_server"]:
-        #     assert_non_status_ops_transitioned(security_server["url"], os.getenv(IntegrationTestBase.api_key_env[ssn], ""))
-        #     ssn = ssn + 1
+        #    assert_non_status_ops_transitioned(security_server["url"], os.getenv(IntegrationTestBase.api_key_env[ssn], ""))
+        #    ssn = ssn + 1

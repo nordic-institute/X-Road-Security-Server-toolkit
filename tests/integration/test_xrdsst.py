@@ -16,7 +16,6 @@ from xrdsst.controllers.status import ServerStatus
 from xrdsst.controllers.timestamp import TimestampController
 from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.endpoint import EndpointController
-from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
@@ -292,7 +291,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for security_server in self.config["security_server"]:
                 configuration = cert_controller.create_api_config(security_server, self.config)
                 response = cert_controller.remote_import_certificates(configuration, security_server)
-                assert response is None
+                assert len(response) == 0
 
     def step_cert_register_fail_certificates_not_imported(self):
         with XRDSSTTest() as app:
@@ -308,7 +307,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             cert_controller.app = app
             for security_server in self.config["security_server"]:
                 configuration = cert_controller.create_api_config(security_server, self.config)
-                cert_controller.remote_import_certificates(configuration, security_server)
+                response = cert_controller.remote_import_certificates(configuration, security_server)
+                assert len(response) > 0
 
     def step_cert_register(self):
         with XRDSSTTest() as app:
@@ -767,8 +767,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         self.query_status()
         self.step_cert_register_fail_certificates_not_imported()
-        self.step_cert_import()
-        self.step_cert_import()
         self.step_cert_import()
         self.step_cert_register()
 

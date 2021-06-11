@@ -3,7 +3,8 @@ import os
 
 import cement.utils.fs
 
-from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients, ConfKeysSecServerClientServiceDesc, ConfKeysSecServerClientServiceDescEndpoints
+from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients, ConfKeysSecServerClientServiceDesc, \
+    ConfKeysSecServerClientServiceDescEndpoints
 from xrdsst.core.util import convert_swagger_enum
 from xrdsst.models import ConnectionType, ServiceType
 
@@ -18,6 +19,7 @@ def require_fill(key, ss_config, operation, errors):
     if val is None:
         errors.append(validator_msg_prefix(ss_config, operation) + "'" + key + "'" + " missing required value.")
     return bool(val)
+
 
 def require_fill_length(key, ss_config, operation, errors):
     val = ss_config.get(key)
@@ -67,34 +69,6 @@ def require_readable_file_path(key, ss_config, operation, errors):
 
     return True
 
-def require_file_exists(file_path, operation, errors):
-    file_path = cement.utils.fs.join_exists(file_path)
-    if not file_path[1]:
-        errors.append(validator_msg_prefix(ss_config, operation) + "'" + key + "'" + " references non-existent file '" +
-                      file_path[0] + "'.")
-        return False
-
-    if os.path.isdir(file_path[0]):
-        errors.append(
-            validator_msg_prefix(ss_config, operation) + "'" + key + "'" + " references directory '" + file_path[
-                0] + "'.")
-        return False
-
-    try:
-        fh = open(file_path[0], 'rb')
-        single_byte = fh.read(1)
-        fh.close()
-        if len(single_byte) != 1:
-            errors.append(
-                validator_msg_prefix(ss_config, operation) + "'" + key + "'" + " references empty file '" + file_path[
-                    0] + "'.")
-            return False
-    except PermissionError:
-        errors.append(
-            validator_msg_prefix(ss_config, operation) + "'" + key + "'" + " references unreadable file '" + file_path[
-                0] + "'.")
-
-    return True
 
 def validate_config_init(ss_config, operation, errors):
     err_cnt = len(errors)
@@ -286,7 +260,6 @@ def validate_config_service_access(ss_config, operation, errors):
                 ConfKeysSecurityServer.CONF_KEY_CLIENTS + '[' + str(client_ix + 1) + ']'
         )
 
-
         service_desc_config = copy.deepcopy(clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SERVICE_DESCS])
         for service_desc_ix in range(0, len(service_desc_config)):
             service_desc_config[service_desc_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
@@ -305,7 +278,7 @@ def validate_config_service_access(ss_config, operation, errors):
                     for service_ix in range(0, len(services)):
                         if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_CLIENT_ACCESS in services[service_ix]:
                             services[service_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
-                                "%s.service.[%s]" % (service_desc_config[service_desc_ix][ConfKeysSecurityServer.CONF_KEY_NAME], str(service_ix + 1))
+                                    "%s.service.[%s]" % (service_desc_config[service_desc_ix][ConfKeysSecurityServer.CONF_KEY_NAME], str(service_ix + 1))
                             )
                             has_access = True
                             require_fill_length(
@@ -410,7 +383,8 @@ def validate_config_service_desc_service_endpoints(ss_config, operation, errors)
                         service_desc_config[service_desc_ix], operation, errors)
 
                     if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS in service_desc_config[service_desc_ix]:
-                        endpoints_config = copy.deepcopy(service_desc_config[service_desc_ix][ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS])
+                        endpoints_config = copy.deepcopy(
+                            service_desc_config[service_desc_ix][ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS])
                         if endpoints_config:
                             for endpoint_ix in range(0, len(endpoints_config)):
                                 endpoints_config[endpoint_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
@@ -460,7 +434,8 @@ def validate_config_service_desc_service_endpoints_access(ss_config, operation, 
                         service_desc_config[service_desc_ix], operation, errors)
 
                     if ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS in service_desc_config[service_desc_ix]:
-                        endpoints_config = copy.deepcopy(service_desc_config[service_desc_ix][ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS])
+                        endpoints_config = copy.deepcopy(
+                            service_desc_config[service_desc_ix][ConfKeysSecServerClientServiceDesc.CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINTS])
                         if endpoints_config:
                             for endpoint_ix in range(0, len(endpoints_config)):
                                 endpoints_config[endpoint_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
@@ -506,7 +481,7 @@ def validate_config_tls_cert_import(ss_config, operation, errors):
     if ConfKeysSecurityServer.CONF_KEY_CLIENTS in ss_config:
         clients_config = copy.deepcopy(ss_config[ConfKeysSecurityServer.CONF_KEY_CLIENTS])
         for client_ix in range(0, len(clients_config)):
-            if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES in clients_config[client_ix] and\
+            if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES in clients_config[client_ix] and \
                     clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES] is not None:
 
                 tls_certs_config = copy.deepcopy(clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES])

@@ -185,6 +185,7 @@ class CertController(BaseController):
     @staticmethod
     def remote_import_certificates(ss_api_config, security_server):
         token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
+        imported_certs = []
         for cert in security_server["certificates"]:
             location = cement.utils.fs.join_exists(cert)
             if not location[1]:
@@ -197,12 +198,13 @@ class CertController(BaseController):
                     cert_file.close()
                     response = token_cert_api.import_certificate(body=cert_data)
                     BaseController.log_info("Imported certificate '" + cert_file_loc + "'")
-                    return response
+                    imported_certs.append(response)
                 except ApiException as err:
                     if err.status == 409 and err.body.count("certificate_already_exists"):
                         BaseController.log_info("Certificate '" + cert_file_loc + "' already imported.")
                     else:
                         BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
+        return imported_certs
 
     @staticmethod
     def remote_register_certificate(ss_api_config, security_server):
