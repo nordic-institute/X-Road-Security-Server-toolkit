@@ -149,13 +149,27 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 The X-Road Security Server Toolkit package can be installed using PIP (use pip or pip3, whichever is used)
 
-**Installing the latest development version**
+**Installing the latest development version from GitHub**
 
 ```
 $ git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
 $ cd X-Road-Security-Server-toolkit
 $ pip3 install -r requirements.txt
 $ python3 setup.py install
+```
+
+**Installing the latest released development version from AWS repository**
+
+```
+$ pip3 install --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
+
+```
+
+**Installing the latest un-released (beta) development version from AWS repository**
+
+```
+$ pip3 install --pre --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
+
 ```
 
 **Installing the official released version**
