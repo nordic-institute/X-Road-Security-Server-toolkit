@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  toolkit:
+    image: toolkit-dev
+    container_name: toolkit
+    networks:
+      - xroad-network
+    build: .
+    volumes:
+      - .:/usr/src/configuration/:delegated
+
+networks:
+  xroad-network:
+    name: xroad-network
+    driver: bridge
