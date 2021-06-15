@@ -543,3 +543,46 @@ class TestCert(unittest.TestCase):
 
                 assert ssY_cert == reported_downloads[1].fs_loc
                 assert os.path.exists(ssY_cert)
+
+    def test_cert_list(self):
+        response = [Token(
+            id="0",
+            name="softToken-0",
+            type="SOFTWARE",
+            status="REGISTERED",
+            logged_in=True,
+            available=True,
+            saved_to_configuration=True,
+            token_infos=[],
+            read_only=False,
+            possible_actions=[],
+            keys=[
+                Key(
+                    id="0",
+                    name="test",
+                    label="test",
+                    certificates=[CertTestData.single_cert],
+                    certificate_signing_requests=[]
+            )]
+        )]
+
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.tokens_api.TokensApi.get_tokens',
+                            return_value=response):
+                cert_controller = CertController()
+                cert_controller.app = app
+                cert_controller.load_config = (lambda: self.ss_config)
+                cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                list = cert_controller.list()
+
+                rendered = cert_controller.app._last_rendered
+                assert len(list) == 2
+                assert len(rendered[0]) == 3
+
+                for header in ['security_server', 'label', 'type', 'hash', 'active', 'expiration', 'ocsp_status', 'status', 'subject']:
+                    assert header in rendered[0][0]
+
+                out, err = self.capsys.readouterr()
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)

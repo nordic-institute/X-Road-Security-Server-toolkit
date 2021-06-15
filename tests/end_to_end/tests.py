@@ -43,6 +43,7 @@ class EndToEndTest(unittest.TestCase):
             base = BaseController()
             base.app = app
             self.config = base.load_config(baseconfig=self.config_file)
+            # self.config = base.load_config(baseconfig='/home/alberto/Proyects/X-Road-Security-Server-toolkit/tests/resources/test-config-tests.yaml')
             ssn = 0
             for security_server in self.config["security_server"]:
                 if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
@@ -910,6 +911,21 @@ class EndToEndTest(unittest.TestCase):
 
             return servers
 
+    def list_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+
+            for header in ['security_server', 'label', 'type', 'hash', 'active', 'expiration', 'ocsp_status', 'status',
+                           'subject']:
+                assert header in cert_controller.app._last_rendered[0][0]
+
+            assert len(certificates) == 6
+            assert len(cert_controller.app._last_rendered[0]) == 7
+
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -954,6 +970,9 @@ class EndToEndTest(unittest.TestCase):
             ssn = ssn + 1
 
         self.step_cert_activate()
+
+        self.list_certificates()
+
         self.step_import_tls_certificate()
         self.step_add_service_description_fail_url_missing()
         self.step_add_service_description_fail_type_missing()

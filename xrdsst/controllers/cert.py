@@ -132,15 +132,15 @@ class CertController(BaseController):
         active_config = self.load_config()
         list = self.list_certificates(active_config)
 
-        render_data = []
-        for item in list:
-            headers = [*item["certificates"][0]]
+        if len(list) > 0:
+            render_data = []
+            headers = [*list[0]]
             render_data.append(headers)
-            for cert in item["certificates"]:
-                render_data.append([*cert.values()])
+            for item in list:
+                render_data.append([*item.values()])
 
             self.render(render_data)
-        return list
+            return list
 
     def import_certificates(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -201,16 +201,14 @@ class CertController(BaseController):
     def list_certificates(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"],
                                      map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
-        certificates_list=[]
+        certificates_list = []
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
-            certificates = self.remote_list_certificates(ss_api_config)
-            if certificates:
-                certificates_list.append({
-                    'security_server': security_server["name"],
-                    'certificates': certificates
-                })
-
+            certificates = self.remote_list_certificates(ss_api_config, security_server["name"])
+            if len(certificates) > 0:
+                certificates_list.extend(certificates)
+            else:
+                BaseController.log_info("No certificates found for security server: %s" % security_server["name"])
         BaseController.log_keyless_servers(ss_api_conf_tuple)
         return certificates_list
 
@@ -349,11 +347,11 @@ class CertController(BaseController):
         return downloaded_internal
 
     @staticmethod
-    def remote_list_certificates(ss_api_config):
+    def remote_list_certificates(ss_api_config, ss_name):
         tokens_api = TokensApi(ApiClient(ss_api_config))
         try:
             tokens = tokens_api.get_tokens()
-            return TokenController().parse_tokens_into_cert_table(tokens)
+            return parse_tokens_into_cert_table(tokens, ss_name)
         except ApiException as err:
             BaseController.log_api_error('TokensApi->get_tokens', err)
 
@@ -401,13 +399,27 @@ class CertController(BaseController):
         return key_labels
 
 
-
-
-
 def csr_file_prefix(_type, key, csr):
     return key.name + '-' + _type + "-CSR-" + csr.id + "-"
 
 
+def parse_tokens_into_cert_table(tokens, ss_name):
+    certificates_table = []
+    for token in tokens:
+        for key in token.keys:
+            for certificate in key.certificates:
+                certificates_table.append({
+                    'security_server': ss_name,
+                    'label': key.label,
+                    'type': key.usage,
+                    'hash': certificate.certificate_details.hash,
+                    'active': certificate.active,
+                    'expiration': certificate.certificate_details.not_after,
+                    'ocsp_status': certificate.ocsp_status,
+                    'status': certificate.status,
+                    'subject': certificate.certificate_details.subject_distinguished_name
+                })
+    return certificates_table
 
 
 
