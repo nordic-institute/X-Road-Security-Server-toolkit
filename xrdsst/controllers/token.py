@@ -301,6 +301,23 @@ class TokenController(BaseController):
                                     '/'.join([ssi.instance_id, ss_code, new_member_class, str(new_member_code)])
                                     + "already exists")
 
+    @staticmethod
+    def parse_tokens_into_cert_table(tokens):
+        certificates_table = []
+        for token in tokens:
+            for key in token.keys:
+                for certificate in key.certificates:
+                    certificates_table.append({
+                        'key': key.name,
+                        'type': key.usage,
+                        'hash': certificate.certificate_details.hash,
+                        'active': certificate.active,
+                        'expiration': certificate.certificate_details.not_after,
+                        'ocsp_status': certificate.ocsp_status,
+                        'status': certificate.status
+                    })
+        return certificates_table
+
 
 def remote_get_security_server_instance(ss_api_config):
     ss_api = SecurityServersApi(ApiClient(ss_api_config))
@@ -318,3 +335,5 @@ def remote_get_sign_certificate_authority(ss_api_config):
     ca_api = CertificateAuthoritiesApi(ApiClient(ss_api_config))
     ca_api_response = ca_api.get_approved_certificate_authorities(key_usage_type=KeyUsageType.SIGNING)
     return ca_api_response.pop()
+
+

@@ -6,13 +6,15 @@ from cement import ex
 
 from xrdsst.api import KeysApi, SystemApi
 from xrdsst.api.token_certificates_api import TokenCertificatesApi
+from xrdsst.api.tokens_api import TokensApi
 from xrdsst.controllers.base import BaseController
+from xrdsst.controllers.token import TokenController
 from xrdsst.core.api_util import remote_get_token
 from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label
 from xrdsst.models import SecurityServerAddress, CsrFormat
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts
-
+from xrdsst.controllers.status import StatusController
 from xrdsst.rest.rest import ApiException
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 
@@ -125,6 +127,21 @@ class CertController(BaseController):
 
         return self._download_internal_tls(active_config)
 
+    @ex(help="List certificates with status information.", arguments=[])
+    def list(self):
+        active_config = self.load_config()
+        list = self.list_certificates(active_config)
+
+        render_data = []
+        for item in list:
+            headers = [*item["certificates"][0]]
+            render_data.append(headers)
+            for cert in item["certificates"]:
+                render_data.append([*cert.values()])
+
+            self.render(render_data)
+        return list
+
     def import_certificates(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -180,6 +197,22 @@ class CertController(BaseController):
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
         return downloaded_internal
+
+    def list_certificates(self, config):
+        ss_api_conf_tuple = list(zip(config["security_server"],
+                                     map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+        certificates_list=[]
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
+            certificates = self.remote_list_certificates(ss_api_config)
+            if certificates:
+                certificates_list.append({
+                    'security_server': security_server["name"],
+                    'certificates': certificates
+                })
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+        return certificates_list
 
     # requires token to be logged in
     @staticmethod
@@ -315,6 +348,14 @@ class CertController(BaseController):
         self.render(render_data)
         return downloaded_internal
 
+    @staticmethod
+    def remote_list_certificates(ss_api_config):
+        tokens_api = TokensApi(ApiClient(ss_api_config))
+        try:
+            tokens = tokens_api.get_tokens()
+            return TokenController().parse_tokens_into_cert_table(tokens)
+        except ApiException as err:
+            BaseController.log_api_error('TokensApi->get_tokens', err)
 
     @staticmethod
     def find_actionable_auth_certificate(ss_api_config, security_server, cert_action):
@@ -358,6 +399,9 @@ class CertController(BaseController):
                         key_labels["sign"].append(key_label)
 
         return key_labels
+
+
+
 
 
 def csr_file_prefix(_type, key, csr):
