@@ -105,7 +105,6 @@ class EndpointController(BaseController):
     def remote_add_endpoint(ss_api_config, service_description, service_description_conf, endpoint_conf):
         endpoint = Endpoint(id=None, service_code=service_description_conf["rest_service_code"], method=endpoint_conf["method"], path=endpoint_conf["path"],
                             generated=None)
-
         try:
             services_api = ServicesApi(ApiClient(ss_api_config))
             response = services_api.add_endpoint(id=service_description.services[0].id, body=endpoint)
@@ -144,6 +143,10 @@ class EndpointController(BaseController):
                 access_list = endpoint_conf["access"] if "access" in endpoint_conf else []
                 if len(access_list) > 0:
                     self.add_access_from_list(ss_api_config, service_description, service_clients_candidates, endpoint_conf, access_list)
+                else:
+                    BaseController.log_info(
+                        "Skipping endpoint add access for service '%s', endpoint %s-%s no endpoints defined" %
+                        (service_description_conf["rest_service_code"], endpoint_conf["method"], endpoint_conf["path"]))
             except ApiException as find_err:
                 BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
 
