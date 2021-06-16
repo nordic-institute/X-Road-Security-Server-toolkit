@@ -17,6 +17,7 @@ from xrdsst.resources.texts import texts
 from xrdsst.controllers.status import StatusController
 from xrdsst.rest.rest import ApiException
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
+from datetime import datetime
 
 class DownloadedCsr:
     def __init__(self, csr_id, key_id, key_type, fs_loc):
@@ -409,17 +410,19 @@ def parse_tokens_into_cert_table(tokens, ss_name):
         for key in token.keys:
             for certificate in key.certificates:
                 certificates_table.append({
-                    'security_server': ss_name,
+                    'ss': ss_name,
                     'label': key.label,
                     'type': key.usage,
                     'hash': certificate.certificate_details.hash,
                     'active': certificate.active,
-                    'expiration': certificate.certificate_details.not_after,
+                    'expiration': certificate.certificate_details.not_after.strftime("%Y/%m/%d"),
                     'ocsp_status': certificate.ocsp_status,
                     'status': certificate.status,
-                    'subject': certificate.certificate_details.subject_distinguished_name
+                    'subject': getSerialNumber(certificate.certificate_details.subject_distinguished_name)
                 })
     return certificates_table
 
 
+def getSerialNumber(subject):
+    return subject.split(',')[0].split('=')[1] if subject else ''
 

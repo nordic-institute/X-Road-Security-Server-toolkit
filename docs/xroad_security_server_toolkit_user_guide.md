@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 1.3.11
+Version: 1.3.12
 Doc. ID: XRDSST-CONF
 
 ---
@@ -42,6 +42,7 @@ Doc. ID: XRDSST-CONF
 | 28.05.2021 | 1.3.9       | Update service management                                                    | Bert Viikmäe       |
 | 04.06.2021 | 1.3.10       | Refactor documentation                                                      | Alberto Fernandez  |
 | 04.06.2021 | 1.3.11       | Added TLS certificates import                                               | Alberto Fernandez  |
+| 16.06.2021 | 1.3.12       | Added TLS certificates import                                               | Alberto Fernandez  |
 
 
 ## Table of Contents <!-- omit in toc -->
@@ -691,6 +692,36 @@ Internal TSL certificates can be downloaded with:
 xrdsst cert download-internal-tsl
 ```
 This command will save a zip file in the `/tmp/` folder containing the public and private keys of the internal TSL certificates.
+
+##### 4.2.5.6 List certificates
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+SIGN and AUTH certificate information of the security servers can be listed with:
+```
+xrdsst cert list
+```
+╒══════╤════════════════════════════════╤════════════════╤══════════════════════════════════════════╤══════════╤══════════════╤════════════════════╤════════════╤═════════════╕
+│ ss   │ label                          │ type           │ hash                                     │ active   │ expiration   │ ocsp_status        │ status     │ subject     │
+╞══════╪════════════════════════════════╪════════════════╪══════════════════════════════════════════╪══════════╪══════════════╪════════════════════╪════════════╪═════════════╡
+│ ss1  │ ss1-default-auth-key           │ AUTHENTICATION │ 8EA19FE5CDD100390353EB40F6D6C2C70FE0AAFD │ True     │ 2041/06/10   │ OCSP_RESPONSE_GOOD │ REGISTERED │ DEV/ss1/ORG │
+├──────┼────────────────────────────────┼────────────────┼──────────────────────────────────────────┼──────────┼──────────────┼────────────────────┼────────────┼─────────────┤
+│ ss1  │ ss1-default-sign-key           │ SIGNING        │ 397401787220FCB20A2194DAD3066DF4A0C8C5A6 │ True     │ 2041/06/10   │ OCSP_RESPONSE_GOOD │ REGISTERED │ DEV/ss1/ORG │
+├──────┼────────────────────────────────┼────────────────┼──────────────────────────────────────────┼──────────┼──────────────┼────────────────────┼────────────┼─────────────┤
+│ ss1  │ ss1-default-sign-key_COM_12345 │ SIGNING        │ CF09F4944E0EC2B2E3B149C1AC9C0DD4990C62D6 │ True     │ 2041/06/10   │ OCSP_RESPONSE_GOOD │ REGISTERED │ DEV/ss1/COM │
+╘══════╧════════════════════════════════╧════════════════╧══════════════════════════════════════════╧══════════╧══════════════╧════════════════════╧════════════╧═════════════╛
+
+The table above shows the following information about the certificates:
+
+* ss: Name of the security server where the certificate is installed.
+* label: Label of the certificate.
+* type: Type of the certificate, could be AUTHENTICATION or SIGNING
+* hash: Unique identifier of the certificate
+* active: Boolean for checking if the certificate is currently active.
+* expiration: Expiration date expressed in 'yyyy/mm/dd'
+* ocsp_status: OCSP status response
+* status: Status of the certificate between: 'GLOBAL ERROR', 'SAVED', 'REGISTERED', 'REGISTRATION IN PROGRESS', 'DELETION IN PROGRESS', 'DELETED'
+* subject: Owner member of the certificate. 
 
 #### 4.2.5 Client management commands
 

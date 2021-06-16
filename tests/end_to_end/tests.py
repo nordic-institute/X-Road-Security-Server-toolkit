@@ -917,9 +917,8 @@ class EndToEndTest(unittest.TestCase):
             cert_controller.load_config = (lambda: self.config)
 
             certificates = cert_controller.list()
-
-            for header in ['security_server', 'label', 'type', 'hash', 'active', 'expiration', 'ocsp_status', 'status',
-                           'subject']:
+            headers = [*certificates[0]]
+            for header in headers:
                 assert header in cert_controller.app._last_rendered[0][0]
 
             assert len(certificates) == 6

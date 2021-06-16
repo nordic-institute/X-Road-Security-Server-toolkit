@@ -579,7 +579,8 @@ class TestCert(unittest.TestCase):
                 assert len(list) == 2
                 assert len(rendered[0]) == 3
 
-                for header in ['security_server', 'label', 'type', 'hash', 'active', 'expiration', 'ocsp_status', 'status', 'subject']:
+                headers = [*list[0]]
+                for header in headers:
                     assert header in rendered[0][0]
 
                 out, err = self.capsys.readouterr()

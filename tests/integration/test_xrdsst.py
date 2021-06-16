@@ -735,6 +735,20 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                             assert len(tls_certs) == 1
                 ssn = ssn + 1
 
+    def list_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+
+            assert len(certificates) > 0
+            headers = [*certificates[0]]
+            for header in headers:
+                assert header in cert_controller.app._last_rendered[0][0]
+            return certificates
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
@@ -779,6 +793,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         self.query_status()
         self.step_cert_activate()
+        self.list_certificates()
         self.step_add_service_description_fail_url_missing()
         self.step_add_service_description_fail_type_missing()
         self.step_enable_service_description_fail_service_description_not_added()
