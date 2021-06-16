@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1-beta.0] - 2021-06-16
+- Add Jenkinsfile for running integration tests on pull requests
+- Add Docker support
+- Fix validation of optional parameters
+
 ## [2.0.0-final.0] - 2021-06-11
 - X-Road-Security Server Toolkit release version 2.0
 
