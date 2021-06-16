@@ -87,6 +87,7 @@ Doc. ID: XRDSST-CONF
             * [4.2.5.3 Certificate registration](#4253-certificate-registration)
             * [4.2.5.4 Certificate activation](#4254-certificate-activation)
             * [4.2.5.5 Download internal TSL certificates](#4255-download-internal-tsl-certificates)
+            * [4.2.5.6 List certificates](#4256-list-certificates)
          * [4.2.5 Client management commands](#425-client-management-commands)
             * [4.2.5.1 Client add](#4251-client-add)
             * [4.2.5.2 Client register](#4252-client-register)
