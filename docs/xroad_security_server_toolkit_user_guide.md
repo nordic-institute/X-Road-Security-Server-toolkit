@@ -42,7 +42,7 @@ Doc. ID: XRDSST-CONF
 | 28.05.2021 | 1.3.9       | Update service management                                                    | Bert Viikmäe       |
 | 04.06.2021 | 1.3.10       | Refactor documentation                                                      | Alberto Fernandez  |
 | 04.06.2021 | 1.3.11       | Added TLS certificates import                                               | Alberto Fernandez  |
-| 16.06.2021 | 1.3.12       | Added TLS certificates import                                               | Alberto Fernandez  |
+| 16.06.2021 | 1.3.12       | Added certificate list command description                                  | Alberto Fernandez  |
 
 
 ## Table of Contents <!-- omit in toc -->
