@@ -125,6 +125,20 @@ class CertController(BaseController):
 
         return self._download_internal_tls(active_config)
 
+    @ex(help="Disable certificate(s)", arguments=[])
+    def disable(self):
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, insufficient_state_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, insufficient_state_servers)
+
+        self.disable_certificate(active_config)
+
     def import_certificates(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -181,6 +195,19 @@ class CertController(BaseController):
 
         return downloaded_internal
 
+    def disable_certificate(self, config):
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server in config["security_server"]:
+            if "certificate_operations_hash" in security_server:
+                BaseController.log_debug(
+                    'Starting certificate disable process for security server: ' + security_server['name'])
+                for certificate_hash in security_server["certificate_operations_hash"]:
+                    ss_api_config = self.create_api_config(security_server, config)
+                    self.remote_disable_certificate(ss_api_config, security_server, certificate_hash)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
     # requires token to be logged in
     @staticmethod
     def remote_import_certificates(ss_api_config, security_server):
@@ -233,6 +260,19 @@ class CertController(BaseController):
                 else:
                     BaseController.log_info("Could not activate certificate " + activatable_cert.certificate_details.hash)
             return cert_actions
+
+    @staticmethod
+    def remote_disable_certificate(ss_api_config, security_server, hash):
+
+        token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
+        ss_address = SecurityServerAddress(BaseController.security_server_address(security_server))
+        try:
+            token_cert_api.disable_certificate(hash)
+            BaseController.log_info(
+                "Registered certificate " + registrable_cert.certificate_details.hash + " for address '" + str(
+                    ss_address) + "'")
+        except ApiException as err:
+            BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
 
     def remote_download_csrs(self, ss_api_config, security_server):
 
