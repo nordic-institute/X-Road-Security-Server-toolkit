@@ -910,6 +910,20 @@ class EndToEndTest(unittest.TestCase):
 
             return servers
 
+    def list_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+            headers = [*certificates[0]]
+            for header in headers:
+                assert header in cert_controller.app._last_rendered[0][0]
+
+            assert len(certificates) == 6
+            assert len(cert_controller.app._last_rendered[0]) == 7
+
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -954,6 +968,9 @@ class EndToEndTest(unittest.TestCase):
             ssn = ssn + 1
 
         self.step_cert_activate()
+
+        self.list_certificates()
+
         self.step_import_tls_certificate()
         self.step_add_service_description_fail_url_missing()
         self.step_add_service_description_fail_type_missing()

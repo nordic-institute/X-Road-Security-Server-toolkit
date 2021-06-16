@@ -301,7 +301,6 @@ class TokenController(BaseController):
                                     '/'.join([ssi.instance_id, ss_code, new_member_class, str(new_member_code)])
                                     + "already exists")
 
-
 def remote_get_security_server_instance(ss_api_config):
     ss_api = SecurityServersApi(ApiClient(ss_api_config))
     ss_api_response = ss_api.get_security_servers(current_server=True)
@@ -318,3 +317,5 @@ def remote_get_sign_certificate_authority(ss_api_config):
     ca_api = CertificateAuthoritiesApi(ApiClient(ss_api_config))
     ca_api_response = ca_api.get_approved_certificate_authorities(key_usage_type=KeyUsageType.SIGNING)
     return ca_api_response.pop()
+
+
