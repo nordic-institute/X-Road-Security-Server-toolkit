@@ -1,7 +1,7 @@
 pipeline {
     agent { label 'dev-test' }
     parameters {
-        string(name: 'AWS_BUCKET', defaultValue: 'niis-xrdsst-development', description: 'Bucket for downloading configuration anchor')
+        string(name: 'AWS_BUCKET', defaultValue: 'niis-xrdsst-development', description: 'Bucket name for downloading configuration anchor')
     }
     options {
         timeout(time: 90, unit: 'MINUTES')
