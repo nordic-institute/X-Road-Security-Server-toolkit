@@ -508,3 +508,13 @@ def validate_config_tls_cert_import(ss_config, operation, errors):
             errors.pop() if errors else '' + " Internal TLS certificates, missing required value. ")
 
     return len(errors) <= err_cnt
+
+def validate_config_certificate_operations(ss_config, operation, errors):
+    err_cnt = len(errors)
+
+    if ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT_HASH in ss_config:
+        require_fill_length(
+            ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT_HASH,
+            ss_config, operation, errors)
+    return len(errors) <= err_cnt
+

@@ -231,13 +231,14 @@ class CertController(BaseController):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
-            if "certificate_operations_hash" in security_server:
+            if ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT_HASH in security_server:
                 BaseController.log_debug(
                     'Starting certificate disable process for security server: ' + security_server['name'])
-                for certificate_hash in security_server["certificate_operations_hash"]:
-                    ss_api_config = self.create_api_config(security_server, config)
+                ss_api_config = self.create_api_config(security_server, config)
+                for certificate_hash in security_server[ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT_HASH]:
                     self.remote_disable_certificate(ss_api_config, security_server, certificate_hash)
-
+            else:
+                BaseController.log_info("Skipping disable certificates for security server: %s no hash found" % security_server["name"])
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     # requires token to be logged in
@@ -295,19 +296,23 @@ class CertController(BaseController):
 
     @staticmethod
     def remote_disable_certificate(ss_api_config, security_server, hash):
-
         token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
-        ss_address = SecurityServerAddress(BaseController.security_server_address(security_server))
         try:
-            token_cert_api.disable_certificate(hash)
-            BaseController.log_info(
-                "Registered certificate " + registrable_cert.certificate_details.hash + " for address '" + str(
-                    ss_address) + "'")
+            token_certificate =token_cert_api.get_certificate(hash)
+            try:
+                token_cert_api.disable_certificate(hash)
+                BaseController.log_info("Disable certificate with hash: '%s', subject: '%s', exoiration date: '%s' for security server '%s'"
+                                        % (token_certificate.certificate_details.hash, token_certificate.certificate_details.subject_distinguished_name,
+                                           token_certificate.certificate_details.not_after.strftime("%Y/%m/%d"), security_server["name"]))
+            except ApiException as err:
+                if err.status == 409 and err.body.count("action_not_possible"):
+                    BaseController.log_info("Disable certificate with hash: '%s' for security server: '%s', already disabled" % (hash, security_server["name"]))
+                else:
+                    BaseController.log_api_error('TokenCertificatesApi->disable_certificate', err)
         except ApiException as err:
-            BaseController.log_api_error('TokenCertificatesApi->import_certificate', err)
+            BaseController.log_info("Could not find certificate with hash: '%s' for security server: '%s'" % (hash, security_server["name"]))
 
     def remote_download_csrs(self, ss_api_config, security_server):
-
         key_labels = self.get_key_labels(security_server)
 
         token = remote_get_token(ss_api_config, security_server)
@@ -465,4 +470,3 @@ def parse_tokens_into_cert_table(tokens, ss_name):
 
 def getSerialNumber(subject):
     return subject.split(',')[0].split('=')[1] if subject else ''
-
