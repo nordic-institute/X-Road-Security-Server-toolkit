@@ -749,6 +749,24 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
 
+    def step_disable_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+
+            for security_server in self.config["security_server"]:
+                security_server["certificate_management_hash"] = [cert["hash"] for cert in certificates if cert["ss"] == security_server["name"]]
+
+            cert_controller.load_config = (lambda: self.config)
+            cert_controller.disable()
+            certificates_disabled = cert_controller.list()
+            for cert_disabled in certificates_disabled:
+                assert cert_disabled["ocsp_status"] == "DISABLED"
+
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
@@ -810,6 +828,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
         self.step_cert_download_internal_tls()
+
+        self.step_disable_certificates()
 
         configured_servers_at_end = self.query_status()
 

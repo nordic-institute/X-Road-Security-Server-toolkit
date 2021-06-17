@@ -261,7 +261,8 @@ class TestCert(unittest.TestCase):
               'owner_member_code': '4321',
               'security_server_code': 'SS3',
               'software_token_id': '0',
-              'software_token_pin': '1122'},
+              'software_token_pin': '1122',
+              'certificate_management_hash': [CertTestData.single_cert.certificate_details.hash]},
              {'name': 'ssY',
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'certificates': [
@@ -276,7 +277,8 @@ class TestCert(unittest.TestCase):
               'owner_member_code': '4321',
               'security_server_code': 'SS3',
               'software_token_id': '0',
-              'software_token_pin': '1122'}
+              'software_token_pin': '1122',
+              'certificate_management_hash': [CertTestData.single_cert.certificate_details.hash]}
              ]}
 
     def ss_config_with_authcert(self):
@@ -587,3 +589,54 @@ class TestCert(unittest.TestCase):
                 with self.capsys.disabled():
                     sys.stdout.write(out)
                     sys.stderr.write(err)
+
+    def test_cert_disable(self):
+       with XRDSSTTest() as app:
+           with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
+                           return_value=CertTestData.single_cert):
+               with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.disable_certificate',
+                               return_value={}):
+                   cert_controller = CertController()
+                   cert_controller.app = app
+                   cert_controller.load_config = (lambda: self.ss_config)
+                   cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                   cert_controller.disable()
+
+                   out, err = self.capsys.readouterr()
+
+                   assert out.count("Disable certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
+
+                   with self.capsys.disabled():
+                       sys.stdout.write(out)
+                       sys.stderr.write(err)
+
+
+    def test_cert_disable_already_disabled(self):
+
+        class AlreadyDisabledResponse:
+            status = 409
+            data = '{"status":409,"error":{"code":"action_not_possible"}}'
+            reason = None
+
+            def getheaders(self): return None
+
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
+                            return_value=CertTestData.single_cert):
+                with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.disable_certificate',
+                                side_effect=ApiException(http_resp=AlreadyDisabledResponse())):
+
+                    cert_controller = CertController()
+                    cert_controller.app = app
+                    cert_controller.load_config = (lambda: self.ss_config)
+                    cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    cert_controller.disable()
+
+                    out, err = self.capsys.readouterr()
+
+                    assert out.count(
+                        "Disable certificate with hash: '%s' for security server: 'ssX', already disabled" % CertTestData.single_cert.certificate_details.hash) > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
