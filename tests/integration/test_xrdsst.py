@@ -1,4 +1,5 @@
 import os
+from argparse import Namespace
 
 import urllib3
 
@@ -11,6 +12,7 @@ from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.init import InitServerController
+from xrdsst.controllers.member import MemberController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import ServerStatus
 from xrdsst.controllers.timestamp import TimestampController
@@ -42,6 +44,16 @@ def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
 
 class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
     __test__ = True
+
+    def step_member_find(self):
+        with XRDSSTTest() as app:
+            member_controller = MemberController()
+            member_controller.app = app
+            member_controller.load_config = (lambda: self.config)
+            app._parsed_args = Namespace(mclass=self.config["security_server"][0]["owner_member_class"],
+                                         mcode=self.config["security_server"][0]["owner_member_code"])
+            member_controller.find()
+            assert member_controller.app._last_rendered[0][1][0] == self.config["security_server"][0]["owner_dn_org"]
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()
@@ -754,6 +766,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         unconfigured_servers_at_start = self.query_status()
 
         self.query_status()
+        self.step_member_find()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
         self.step_initalize_server_owner_member_class_missing()

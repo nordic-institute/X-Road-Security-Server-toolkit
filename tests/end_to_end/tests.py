@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 import unittest
+from argparse import Namespace
 
 import urllib3
 
@@ -14,6 +15,7 @@ from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.controllers.init import InitServerController
+from xrdsst.controllers.member import MemberController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
@@ -23,7 +25,7 @@ from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import ClientStatus, CertificateDetails
+from xrdsst.models import ClientStatus
 
 
 class EndToEndTest(unittest.TestCase):
@@ -114,6 +116,16 @@ class EndToEndTest(unittest.TestCase):
             else:
                 transient_api_key_id.append('error')
         assert len(transient_api_key_id) == 0
+
+    def step_member_find(self):
+        with XRDSSTTest() as app:
+            member_controller = MemberController()
+            member_controller.app = app
+            member_controller.load_config = (lambda: self.config)
+            app._parsed_args = Namespace(mclass=self.config["security_server"][0]["owner_member_class"],
+                                         mcode=self.config["security_server"][0]["owner_member_code"])
+            member_controller.find()
+            assert member_controller.app._last_rendered[0][1][0] == self.config["security_server"][0]["owner_dn_org"]
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()
@@ -927,6 +939,7 @@ class EndToEndTest(unittest.TestCase):
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
+        self.step_member_find()
         self.step_verify_initial_transient_api_keys()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
