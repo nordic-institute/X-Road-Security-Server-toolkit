@@ -24,7 +24,7 @@ from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus, CertificateDetails
-
+from xrdsst.models.key_usage_type import KeyUsageType
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -940,6 +940,25 @@ class EndToEndTest(unittest.TestCase):
             certificates_disabled = cert_controller.list()
             for cert_disabled in certificates_disabled:
                 assert cert_disabled["ocsp_status"] == "DISABLED"
+
+    def step_unregister_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+
+            for security_server in self.config["security_server"]:
+                security_server["certificate_management_hash"] = [cert["hash"] for cert in certificates
+                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+
+            cert_controller.load_config = (lambda: self.config)
+            cert_controller.unregister()
+            certificates_unregister = cert_controller.list()
+            for cert_disabled in certificates_unregister:
+                if cert_disabled["type"] == KeyUsageType.AUTHENTICATION:
+                    assert cert_disabled["status"] == "DELETION_IN_PROGRESS"
 
 
 

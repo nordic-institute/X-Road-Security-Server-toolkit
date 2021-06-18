@@ -56,7 +56,7 @@ OP_ADD_ENDPOINTS = "ADD\nENDPOINT"
 OP_ADD_ENDPOINT_ACCESS = "ADD ENDPOINTS\nACCESS"
 OP_IMPORT_TLS_CERT = "IMPORT\n TLS CERTIFICATES"
 OP_DISABLE_CERT = "DISABLE\n TLS CERTIFICATES"
-
+OP_UNREGISTER_CERT = "UNREGISTER\n TLS CERTIFICATES"
 # Operations supported and known at the dependency graph level
 class OPS:
     INIT = OP_INIT
@@ -77,6 +77,7 @@ class OPS:
     ADD_ENDPOINT_ACCESS = OP_ADD_ENDPOINT_ACCESS
     IMPORT_TLS_CERT = OP_IMPORT_TLS_CERT
     DISABLE_CERT = OP_DISABLE_CERT
+    UNREGISTER_CERT = OP_UNREGISTER_CERT
 
 VALIDATORS = {
     OPS.INIT: validate_config_init,
@@ -96,7 +97,8 @@ VALIDATORS = {
     OPS.ADD_ENDPOINTS: validate_config_service_desc_service_endpoints,
     OPS.ADD_ENDPOINT_ACCESS: validate_config_service_desc_service_endpoints_access,
     OPS.IMPORT_TLS_CERT: validate_config_tls_cert_import,
-    OPS.DISABLE_CERT: validate_config_certificate_operations
+    OPS.DISABLE_CERT: validate_config_certificate_operations,
+    OPS.UNREGISTER_CERT: validate_config_certificate_operations
 }
 
 # Initialize operational dependency graph for the security server operations
@@ -176,7 +178,6 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_ENDPOINTS, EndpointController, EndpointController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
     add_op_node(g, OPS.IMPORT_TLS_CERT, ClientController, ClientController.import_tls_certs, is_done=(lambda ssn: True))
-    add_op_node(g, OPS.DISABLE_CERT, CertController, CertController.disable, is_done=(lambda ssn: True))
 
     g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
     g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
@@ -195,7 +196,7 @@ def opdep_init(app):
     g.add_edge(OPS.ADD_ENDPOINT_ACCESS, OPS.REGISTER_CLIENT)
     g.add_edge(OPS.REGISTER_CLIENT, OPS.UPDATE_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.IMPORT_TLS_CERT)
-    g.add_edge(OPS.IMPORT_TLS_CERT, OPS.DISABLE_CERT)
+
 
     topologically_sorted = list(networkx.topological_sort(g))
     app.OP_GRAPH = g

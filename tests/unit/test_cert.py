@@ -640,3 +640,23 @@ class TestCert(unittest.TestCase):
                     with self.capsys.disabled():
                         sys.stdout.write(out)
                         sys.stderr.write(err)
+
+    def test_cert_unregister(self):
+       with XRDSSTTest() as app:
+           with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
+                           return_value=CertTestData.single_cert):
+               with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.disable_certificate',
+                               return_value={}):
+                   cert_controller = CertController()
+                   cert_controller.app = app
+                   cert_controller.load_config = (lambda: self.ss_config)
+                   cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                   cert_controller.unregister()
+
+                   out, err = self.capsys.readouterr()
+
+                   assert out.count("Unregister certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
+
+                   with self.capsys.disabled():
+                       sys.stdout.write(out)
+                       sys.stderr.write(err)
