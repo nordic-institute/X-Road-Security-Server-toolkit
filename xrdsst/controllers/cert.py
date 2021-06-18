@@ -231,11 +231,11 @@ class CertController(BaseController):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
-            if ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT_HASH in security_server:
+            if ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT in security_server:
                 BaseController.log_debug(
                     'Starting certificate disable process for security server: ' + security_server['name'])
                 ss_api_config = self.create_api_config(security_server, config)
-                for certificate_hash in security_server[ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT_HASH]:
+                for certificate_hash in security_server[ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT]:
                     self.remote_disable_certificate(ss_api_config, security_server, certificate_hash)
             else:
                 BaseController.log_info("Skipping disable certificates for security server: %s no hash found" % security_server["name"])
@@ -301,7 +301,7 @@ class CertController(BaseController):
             token_certificate =token_cert_api.get_certificate(hash)
             try:
                 token_cert_api.disable_certificate(hash)
-                BaseController.log_info("Disable certificate with hash: '%s', subject: '%s', exoiration date: '%s' for security server '%s'"
+                BaseController.log_info("Disable certificate with hash: '%s', subject: '%s', expiration date: '%s' for security server '%s'"
                                         % (token_certificate.certificate_details.hash, token_certificate.certificate_details.subject_distinguished_name,
                                            token_certificate.certificate_details.not_after.strftime("%Y/%m/%d"), security_server["name"]))
             except ApiException as err:

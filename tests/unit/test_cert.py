@@ -262,7 +262,7 @@ class TestCert(unittest.TestCase):
               'security_server_code': 'SS3',
               'software_token_id': '0',
               'software_token_pin': '1122',
-              'certificate_management_hash': [CertTestData.single_cert.certificate_details.hash]},
+              'certificate_management': [CertTestData.single_cert.certificate_details.hash]},
              {'name': 'ssY',
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'certificates': [
@@ -278,7 +278,7 @@ class TestCert(unittest.TestCase):
               'security_server_code': 'SS3',
               'software_token_id': '0',
               'software_token_pin': '1122',
-              'certificate_management_hash': [CertTestData.single_cert.certificate_details.hash]}
+              'certificate_management': [CertTestData.single_cert.certificate_details.hash]}
              ]}
 
     def ss_config_with_authcert(self):

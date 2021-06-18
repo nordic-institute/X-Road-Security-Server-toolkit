@@ -24,7 +24,7 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
     - /path/to/tls_cert
-  certificate_management_hash:
+  certificate_management:
     - <CERTIFICATE_HASH>
   clients:
     - member_class: <MEMBER_CLASS>
