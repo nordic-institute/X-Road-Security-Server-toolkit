@@ -890,7 +890,7 @@ There are no configuration parameters involved, command line arguments are used 
 
 ##### 4.2.8.1 Member find
 
-* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Finding member can be done with:
 ```
