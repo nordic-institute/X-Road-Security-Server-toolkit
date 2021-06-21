@@ -958,7 +958,7 @@ class EndToEndTest(unittest.TestCase):
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
-        self.step_member_find()
+        # self.step_member_find()
         self.step_verify_initial_transient_api_keys()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
