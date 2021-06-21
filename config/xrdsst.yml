@@ -23,7 +23,7 @@ security_server:
   ssh_user: XRDSST_SSH_USER
   ssh_private_key: XRDSST_SSH_KEY
   certificate_management:
-    - AE746ABA0F625EB8D171A4312DB4640F712FC4DF
+    - 50AA7551B57829AE57712F653368BC769BF36A20
   clients:
     - member_class: ORG
       member_code: 111

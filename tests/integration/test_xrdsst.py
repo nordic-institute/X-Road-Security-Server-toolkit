@@ -19,6 +19,7 @@ from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
+from xrdsst.models import KeyUsageType
 
 
 def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
@@ -766,6 +767,43 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for cert_disabled in certificates_disabled:
                 assert cert_disabled["ocsp_status"] == "DISABLED"
 
+    def step_unregister_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+
+            for security_server in self.config["security_server"]:
+                security_server["certificate_management"] = [cert["hash"] for cert in certificates
+                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+
+            cert_controller.load_config = (lambda: self.config)
+            cert_controller.unregister()
+            certificates_unregister = cert_controller.list()
+            for cert_unregister in certificates_unregister:
+                if cert_unregister["type"] == KeyUsageType.AUTHENTICATION:
+                    assert cert_unregister["status"] == "DELETION_IN_PROGRESS"
+
+    def step_delete_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+
+            for security_server in self.config["security_server"]:
+                security_server["certificate_management"] = [cert["hash"] for cert in certificates
+                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+
+            cert_controller.load_config = (lambda: self.config)
+            cert_controller.delete()
+            certificates = cert_controller.list()
+            for cert in certificates:
+                assert cert["type"] != KeyUsageType.AUTHENTICATION
+
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -828,9 +866,11 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
         self.step_cert_download_internal_tls()
-
-        self.step_disable_certificates()
-
         configured_servers_at_end = self.query_status()
 
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
+
+        # Certificate operations
+        self.step_disable_certificates()
+        self.step_unregister_certificates()
+        self.step_delete_certificates()
