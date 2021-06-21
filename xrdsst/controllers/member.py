@@ -56,7 +56,7 @@ class MemberController(BaseController):
             ss_api_config = self.create_api_config(security_server, config)
             member_names_api = MemberNamesApi(ApiClient(ss_api_config))
             try:
-                result = {'member_name':'NIIS'} # member_names_api.find_member_name(member_class=member_class, member_code=member_code)
+                result = member_names_api.find_member_name(member_class=member_class, member_code=member_code)
                 render_data = []
                 if self.is_output_tabulated():
                     render_data = [MemberNameListMapper.headers()]
