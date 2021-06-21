@@ -87,7 +87,7 @@ class ConfKeysSecurityServer:
     CONF_KEY_SSH_USER = 'ssh_user'
     CONF_KEY_SSH_PRIVATE_KEY = 'ssh_private_key'
     CONF_KEY_TLS_CERTS = 'tls_certificates'
-    CONF_KEY_CERTS_MANAGEMENT_HASH = 'certificate_management_hash'
+    CONF_KEY_CERTS_MANAGEMENT = 'certificate_management'
 
     @staticmethod
     def descendant_conf_keys():

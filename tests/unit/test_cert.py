@@ -262,7 +262,7 @@ class TestCert(unittest.TestCase):
               'security_server_code': 'SS3',
               'software_token_id': '0',
               'software_token_pin': '1122',
-              'certificate_management_hash': [CertTestData.single_cert.certificate_details.hash]},
+              'certificate_management': [CertTestData.single_cert.certificate_details.hash]},
              {'name': 'ssY',
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'certificates': [
@@ -278,7 +278,7 @@ class TestCert(unittest.TestCase):
               'security_server_code': 'SS3',
               'software_token_id': '0',
               'software_token_pin': '1122',
-              'certificate_management_hash': [CertTestData.single_cert.certificate_details.hash]}
+              'certificate_management': [CertTestData.single_cert.certificate_details.hash]}
              ]}
 
     def ss_config_with_authcert(self):
@@ -635,7 +635,7 @@ class TestCert(unittest.TestCase):
                     out, err = self.capsys.readouterr()
 
                     assert out.count(
-                        "Disable certificate with hash: '%s' for security server: 'ssX', already disabled" % CertTestData.single_cert.certificate_details.hash) > 0
+                        "Disable certificate with hash: '%s' for security server: 'ssX', already disable" % CertTestData.single_cert.certificate_details.hash) > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
@@ -645,7 +645,7 @@ class TestCert(unittest.TestCase):
        with XRDSSTTest() as app:
            with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
                            return_value=CertTestData.single_cert):
-               with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.disable_certificate',
+               with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.unregister_auth_certificate',
                                return_value={}):
                    cert_controller = CertController()
                    cert_controller.app = app
@@ -656,6 +656,27 @@ class TestCert(unittest.TestCase):
                    out, err = self.capsys.readouterr()
 
                    assert out.count("Unregister certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
+
+                   with self.capsys.disabled():
+                       sys.stdout.write(out)
+                       sys.stderr.write(err)
+
+
+    def test_cert_delete(self):
+       with XRDSSTTest() as app:
+           with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
+                           return_value=CertTestData.single_cert):
+               with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.delete_certificate',
+                               return_value={}):
+                   cert_controller = CertController()
+                   cert_controller.app = app
+                   cert_controller.load_config = (lambda: self.ss_config)
+                   cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                   cert_controller.delete()
+
+                   out, err = self.capsys.readouterr()
+
+                   assert out.count("Delete certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
 
                    with self.capsys.disabled():
                        sys.stdout.write(out)

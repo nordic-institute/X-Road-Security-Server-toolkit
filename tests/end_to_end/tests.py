@@ -933,7 +933,7 @@ class EndToEndTest(unittest.TestCase):
             certificates = cert_controller.list()
 
             for security_server in self.config["security_server"]:
-                security_server["certificate_management_hash"] = [cert["hash"] for cert in certificates if cert["ss"] == security_server["name"]]
+                security_server["certificate_management"] = [cert["hash"] for cert in certificates if cert["ss"] == security_server["name"]]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.disable()
@@ -950,7 +950,7 @@ class EndToEndTest(unittest.TestCase):
             certificates = cert_controller.list()
 
             for security_server in self.config["security_server"]:
-                security_server["certificate_management_hash"] = [cert["hash"] for cert in certificates
+                security_server["certificate_management"] = [cert["hash"] for cert in certificates
                                                                   if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)

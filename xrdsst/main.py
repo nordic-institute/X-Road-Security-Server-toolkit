@@ -55,8 +55,6 @@ OP_UPDATE_SERVICE = "UPDATE\nSERVICE"
 OP_ADD_ENDPOINTS = "ADD\nENDPOINT"
 OP_ADD_ENDPOINT_ACCESS = "ADD ENDPOINTS\nACCESS"
 OP_IMPORT_TLS_CERT = "IMPORT\n TLS CERTIFICATES"
-OP_DISABLE_CERT = "DISABLE\n TLS CERTIFICATES"
-OP_UNREGISTER_CERT = "UNREGISTER\n TLS CERTIFICATES"
 # Operations supported and known at the dependency graph level
 class OPS:
     INIT = OP_INIT
@@ -76,8 +74,6 @@ class OPS:
     ADD_ENDPOINTS = OP_ADD_ENDPOINTS
     ADD_ENDPOINT_ACCESS = OP_ADD_ENDPOINT_ACCESS
     IMPORT_TLS_CERT = OP_IMPORT_TLS_CERT
-    DISABLE_CERT = OP_DISABLE_CERT
-    UNREGISTER_CERT = OP_UNREGISTER_CERT
 
 VALIDATORS = {
     OPS.INIT: validate_config_init,
@@ -96,9 +92,7 @@ VALIDATORS = {
     OPS.UPDATE_SERVICE: validate_config_service_desc_service,
     OPS.ADD_ENDPOINTS: validate_config_service_desc_service_endpoints,
     OPS.ADD_ENDPOINT_ACCESS: validate_config_service_desc_service_endpoints_access,
-    OPS.IMPORT_TLS_CERT: validate_config_tls_cert_import,
-    OPS.DISABLE_CERT: validate_config_certificate_operations,
-    OPS.UNREGISTER_CERT: validate_config_certificate_operations
+    OPS.IMPORT_TLS_CERT: validate_config_tls_cert_import
 }
 
 # Initialize operational dependency graph for the security server operations

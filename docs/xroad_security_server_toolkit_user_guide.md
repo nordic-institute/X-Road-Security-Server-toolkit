@@ -89,7 +89,7 @@ Doc. ID: XRDSST-CONF
             * [4.2.5.4 Certificate activation](#4254-certificate-activation)
             * [4.2.5.5 Download internal TSL certificates](#4255-download-internal-tsl-certificates)
             * [4.2.5.6 List certificates](#4256-list-certificates)
-            * [4.2.5.6 Disable certificates](#4256-disable-certificates)
+            * [4.2.5.7 Disable certificates](#4257-disable-certificates)
          * [4.2.5 Client management commands](#425-client-management-commands)
             * [4.2.5.1 Client add](#4251-client-add)
             * [4.2.5.2 Client register](#4252-client-register)
@@ -326,7 +326,7 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
   	- /path/to/tls_cert
-  certificate_management_hash:
+  certificate_management:
     - <CERTIFICATE_HASH>
   clients:
     - member_class: <MEMBER_CLASS>
@@ -404,7 +404,7 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
     - <TLS_CERT_PATH>
-  certificate_management_hash:
+  certificate_management:
     - <CERTIFICATE_HASH>
 ```
 * <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
@@ -737,11 +737,11 @@ The table above shows the following information about the certificates:
 * status: Status of the certificate between: 'GLOBAL ERROR', 'SAVED', 'REGISTERED', 'REGISTRATION IN PROGRESS', 'DELETION IN PROGRESS', 'DELETED'
 * subject: Owner member of the certificate. 
 
-##### 4.2.5.6 Disable certificates
+##### 4.2.5.7 Disable certificates
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
-Configuration parameters involved are the `certificate_management_hash` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-In the `certificate_management_hash` we must set the list of hashes of the certificates we want to disable, we can get the hashes of the certificates
+Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
+In the `certificate_management` we must set the list of hashes of the certificates we want to disable, we can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Disable the certificates can be done with:

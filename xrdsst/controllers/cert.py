@@ -19,6 +19,7 @@ from xrdsst.rest.rest import ApiException
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 from xrdsst.core.validator import validate_config_certificate_operations
 from xrdsst.models.key_usage_type import KeyUsageType
+
 class DownloadedCsr:
     def __init__(self, csr_id, key_id, key_type, fs_loc):
         self.csr_id = csr_id
@@ -61,6 +62,13 @@ class CertOperations:
         return {
             "method": token_cert_api.unregister_auth_certificate,
             "message": "Unregister"
+        }
+
+    @staticmethod
+    def delete(token_cert_api):
+        return {
+            "method": token_cert_api.delete_certificate,
+            "message": "Delete"
         }
 
 class DownloadedCsrListMapper:
@@ -170,6 +178,12 @@ class CertController(BaseController):
 
         self.cert_operation(active_config, CertOperations.unregister)
 
+    @ex(help="Delete certificate(s)", arguments=[])
+    def delete(self):
+        active_config = self.load_config()
+
+        self.cert_operation(active_config, CertOperations.delete)
+
     def import_certificates(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -244,11 +258,11 @@ class CertController(BaseController):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
-            if security_server.get(ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT_HASH):
+            if security_server.get(ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT):
                 BaseController.log_debug(
                     'Starting certificate operation process for security server: ' + security_server['name'])
                 ss_api_config = self.create_api_config(security_server, config)
-                for certificate_hash in security_server[ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT_HASH]:
+                for certificate_hash in security_server[ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT]:
                     self.remote_cert_operation(ss_api_config, security_server, certificate_hash, operation)
             else:
                 BaseController.log_info("Skipping disable certificates for security server: %s no hash found" % security_server["name"])
@@ -323,7 +337,8 @@ class CertController(BaseController):
                                                token_certificate.certificate_details.not_after.strftime("%Y/%m/%d"), security_server["name"]))
                 except ApiException as err:
                     if err.status == 409 and err.body.count("action_not_possible"):
-                        BaseController.log_info("Disable certificate with hash: '%s' for security server: '%s', already %s" % (hash, security_server["name"], operation_dict["message"].lower()))
+                        BaseController.log_info("%s certificate with hash: '%s' for security server: '%s', already %s"
+                                                % (operation_dict["message"], hash, security_server["name"], operation_dict["message"].lower()))
                     else:
                         BaseController.log_api_error('TokenCertificatesApi->disable_certificate', err)
             else:
@@ -393,7 +408,7 @@ class CertController(BaseController):
                         downloaded_internal.append(DownloadedTLS(security_server["name"], file.name))
                 else:
                     BaseController.log_info(
-                        "Failed to download TLS internal certifucate for security server '" + security_server["name"] + "' (HTTP " + http_response.status + ", " + http_response.reason + ")"
+                        "Failed to download TLS internal certificate for security server '" + security_server["name"] + "' (HTTP " + http_response.status + ", " + http_response.reason + ")"
                     )
 
                 # Remove empty folder that fs.Tmp creates and that would remain with auto-clean off
