@@ -53,6 +53,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             app._parsed_args = Namespace(mclass=self.config["security_server"][0]["owner_member_class"],
                                          mcode=self.config["security_server"][0]["owner_member_code"])
             member_controller.find()
+            assert member_controller.app._last_rendered is None
             assert member_controller.app._last_rendered[0][1][0] == self.config["security_server"][0]["owner_dn_org"]
 
     def step_upload_anchor_fail_file_missing(self):
