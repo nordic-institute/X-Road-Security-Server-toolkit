@@ -42,10 +42,10 @@ class MemberController(BaseController):
 
         if self.app.pargs.mclass is None:
             self.log_info('Member class parameter is required for searching member names')
-            return
+            # return
         if self.app.pargs.mcode is None:
             self.log_info('Member code parameter is required for searching member names')
-            return
+            # return
 
         self.find_name(active_config, self.app.pargs.mclass, self.app.pargs.mcode)
 
