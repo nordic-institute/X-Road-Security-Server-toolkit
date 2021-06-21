@@ -10,6 +10,7 @@ from xrdsst.controllers.auto import AutoController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
+from xrdsst.controllers.member import MemberController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
@@ -231,7 +232,7 @@ class XRDSST(App):
         # register handlers
         handlers = [BaseController, StatusController, ClientController, CertController, TimestampController,
                     TokenController, InitServerController, AutoController, ServiceController, UserController,
-                    EndpointController]
+                    EndpointController, MemberController]
 
     api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
 

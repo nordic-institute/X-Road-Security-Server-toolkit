@@ -17,6 +17,7 @@ texts = {
     'status.controller.description': 'Query for server configuration statuses.',
     'user.controller.description': 'Creates admin user on the security server.',
     'endpoint.controller.description': 'Commands for perform service endpoints operations.',
+    'member.controller.description': 'Commands for performing member operations.',
     # Messages
     'message.file.not.found': "File '{}' not found.",
     'message.file.unreadable': "Could not read file '{}'.",
