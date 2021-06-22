@@ -58,7 +58,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                                                               security_server,
                                                               security_server["owner_member_class"],
                                                               security_server["owner_member_code"])
-                assert response is {'member_name': security_server["owner_dn_org"]}
+                assert response == {'member_name': security_server["owner_dn_org"]}
 
     def step_member_list_classes(self):
         with XRDSSTTest() as app:
@@ -68,7 +68,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for security_server in self.config["security_server"]:
                 configuration = base.create_api_config(security_server, self.config)
                 response = member_controller.remote_list_classes(configuration, security_server, 'DEV')
-                assert response is 'GOV'
+                assert response == 'GOV'
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()
