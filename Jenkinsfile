@@ -12,7 +12,7 @@ pipeline {
                 echo "Checking out X-Road Security Server Toolkit..."
                 checkout(changelog: false, poll: false, scm: [
                         $class                           : 'GitSCM',
-                        branches                         : [[name: 'master']],
+                        branches                         : [[name: ${ghprbSourceBranch}]],
                         doGenerateSubmoduleConfigurations: false,
                         extensions                       : [[$class: 'CleanCheckout']],
                         gitTool                          : 'Default',
