@@ -835,7 +835,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         unconfigured_servers_at_start = self.query_status()
 
         self.query_status()
-        self.step_member_find()
+        # self.step_member_find()
         self.step_member_list_classes()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
