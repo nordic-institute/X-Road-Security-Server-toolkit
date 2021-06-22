@@ -835,8 +835,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         unconfigured_servers_at_start = self.query_status()
 
         self.query_status()
-        # self.step_member_find()
-        self.step_member_list_classes()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
         self.step_initalize_server_owner_member_class_missing()
@@ -884,6 +882,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_enable_service_description()
         self.step_add_service_access()
         self.step_import_tls_certificate()
+
+        self.step_member_find()
+        self.step_member_list_classes()
 
         self.query_status()
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
