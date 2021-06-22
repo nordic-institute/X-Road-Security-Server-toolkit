@@ -1,5 +1,5 @@
 from cement import ex
-from xrdsst.api import MemberNamesApi, MemberClassesApi, XroadInstancesApi
+from xrdsst.api import MemberNamesApi, MemberClassesApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.resources.texts import texts
@@ -9,35 +9,39 @@ from xrdsst.rest.rest import ApiException
 class MemberNameListMapper:
     @staticmethod
     def headers():
-        return ['MEMBER-NAME', 'MEMBER-CLASS', 'MEMBER-CODE']
+        return ['SECURITY-SERVER', 'MEMBER-NAME', 'MEMBER-CLASS', 'MEMBER-CODE']
 
     @staticmethod
     def as_list(member):
-        return [member.get('member_name'), member.get('member_class'), member.get('member_code')]
+        return [member.get('security_server'), member.get('member_name'), member.get('member_class'), member.get('member_code')]
 
     @staticmethod
     def as_object(member):
         return {
+            'security_server': member.get('security_server'),
             'member_name': member.get('member_name'),
             'member_class': member.get('member_class'),
             'member_code': member.get('member_code')
         }
 
+
 class MemberClassListMapper:
     @staticmethod
     def headers():
-        return ['INSTANCE', 'MEMBER-CLASS']
+        return ['SECURITY-SERVER', 'INSTANCE', 'MEMBER-CLASS']
 
     @staticmethod
     def as_list(member):
-        return [member.get('instance'), member.get('member_class')]
+        return [member.get('security_server'), member.get('instance'), member.get('member_class')]
 
     @staticmethod
     def as_object(member):
         return {
+            'security_server': member.get('security_server'),
             'instance': member.get('instance'),
             'member_class': member.get('member_class')
         }
+
 
 class MemberController(BaseController):
     class Meta:
@@ -85,11 +89,13 @@ class MemberController(BaseController):
                 render_data = []
                 if self.is_output_tabulated():
                     render_data = [MemberNameListMapper.headers()]
-                    render_data.extend(map(MemberNameListMapper.as_list, [{'member_name': result.member_name,
+                    render_data.extend(map(MemberNameListMapper.as_list, [{'security_server': security_server["name"],
+                                                                           'member_name': result.member_name,
                                                                            'member_class': member_class,
                                                                            'member_code': member_code}]))
                 else:
-                    render_data.extend(map(MemberNameListMapper.as_object, [{'member_name': result.member_name,
+                    render_data.extend(map(MemberNameListMapper.as_object, [{'security_server': security_server["name"],
+                                                                             'member_name': result.member_name,
                                                                              'member_class': member_class,
                                                                              'member_code': member_code}]))
                 self.render(render_data)
@@ -104,18 +110,15 @@ class MemberController(BaseController):
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
             member_classes_api = MemberClassesApi(ApiClient(ss_api_config))
-            xroad_instances_api = XroadInstancesApi(ApiClient(ss_api_config))
             try:
-                member_classes = member_classes_api.get_member_classes(current_instance=False)
-                instances = xroad_instances_api.get_xroad_instances()
-                print(instances)
+                member_classes = member_classes_api.get_member_classes_for_instance(id=instance)
                 member_class_list = []
                 for member_class in member_classes:
-                    member_class_list.append({'instance': instance, 'member_class': member_class})
+                    member_class_list.append({'security_server': security_server["name"], 'instance': instance, 'member_class': member_class})
                 render_data = []
                 if self.is_output_tabulated():
-                     render_data = [MemberClassListMapper.headers()]
-                     render_data.extend(map(MemberClassListMapper.as_list, member_class_list))
+                    render_data = [MemberClassListMapper.headers()]
+                    render_data.extend(map(MemberClassListMapper.as_list, member_class_list))
                 else:
                     render_data.extend(map(MemberClassListMapper.as_object, member_class_list))
                 self.render(render_data)

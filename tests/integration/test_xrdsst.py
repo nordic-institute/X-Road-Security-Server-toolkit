@@ -56,6 +56,16 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             member_controller.find()
             assert member_controller.app._last_rendered[0][1][0] == self.config["security_server"][0]["owner_dn_org"]
 
+    def step_member_list_classes(self):
+        with XRDSSTTest() as app:
+            member_controller = MemberController()
+            member_controller.app = app
+            member_controller.load_config = (lambda: self.config)
+            app._parsed_args = Namespace(instance='DEV')
+            member_controller.find()
+            assert member_controller.app._last_rendered[0][1][2] == 'GOV'
+            assert member_controller.app._last_rendered[0][2][2] == 'COM'
+
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()
         init = InitServerController()
@@ -823,6 +833,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         self.query_status()
         # self.step_member_find()
+        self.step_member_list_classes()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
         self.step_initalize_server_owner_member_class_missing()

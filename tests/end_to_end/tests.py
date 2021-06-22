@@ -25,9 +25,9 @@ from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import ClientStatus, CertificateDetails
-from xrdsst.models.key_usage_type import KeyUsageType
 from xrdsst.models import ClientStatus
+from xrdsst.models.key_usage_type import KeyUsageType
+
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -127,6 +127,16 @@ class EndToEndTest(unittest.TestCase):
                                          mcode=self.config["security_server"][0]["owner_member_code"])
             member_controller.find()
             assert member_controller.app._last_rendered[0][1][0] == self.config["security_server"][0]["owner_dn_org"]
+
+    def step_member_list_classes(self):
+        with XRDSSTTest() as app:
+            member_controller = MemberController()
+            member_controller.app = app
+            member_controller.load_config = (lambda: self.config)
+            app._parsed_args = Namespace(instance='DEV')
+            member_controller.find()
+            assert member_controller.app._last_rendered[0][1][2] == 'GOV'
+            assert member_controller.app._last_rendered[0][2][2] == 'COM'
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()
@@ -994,7 +1004,8 @@ class EndToEndTest(unittest.TestCase):
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
-        # self.step_member_find()
+        self.step_member_find()
+        self.step_member_list_classes()
         self.step_verify_initial_transient_api_keys()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
