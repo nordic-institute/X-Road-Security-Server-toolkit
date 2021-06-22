@@ -832,7 +832,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         unconfigured_servers_at_start = self.query_status()
 
         self.query_status()
-        # self.step_member_find()
+        self.step_member_find()
         self.step_member_list_classes()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
@@ -890,11 +890,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
         self.step_cert_download_internal_tls()
-        configured_servers_at_end = self.query_status()
-
-        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-
-        # Certificate operations
         self.step_disable_certificates()
-        self.step_unregister_certificates()
+        # self.step_unregister_certificates()
         self.step_delete_certificates()
+
+        configured_servers_at_end = self.query_status()
+        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
