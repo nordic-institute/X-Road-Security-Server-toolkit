@@ -62,7 +62,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             member_controller.app = app
             member_controller.load_config = (lambda: self.config)
             app._parsed_args = Namespace(instance='DEV')
-            member_controller.find()
+            member_controller.list_classes()
             assert member_controller.app._last_rendered[0][1][2] == 'GOV'
             assert member_controller.app._last_rendered[0][2][2] == 'COM'
 
