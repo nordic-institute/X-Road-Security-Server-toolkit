@@ -833,7 +833,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         self.query_status()
         # self.step_member_find()
-        self.step_member_list_classes()
+        # self.step_member_list_classes()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
         self.step_initalize_server_owner_member_class_missing()
@@ -891,7 +891,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_update_service_parameters()
         self.step_cert_download_internal_tls()
         self.step_disable_certificates()
-        # self.step_unregister_certificates()
+        self.step_unregister_certificates()
         self.step_delete_certificates()
 
         configured_servers_at_end = self.query_status()
