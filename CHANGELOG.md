@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0-beta.0] - 2021-06-22
+- add ``xrdsst member`` and sub-command ``list-classes``
+- add ``xrdsst cert`` and sub-commands ``delete`` and ``unregister``
+
 ## [2.0.2-beta.0] - 2021-06-18
 - add ``xrdsst member`` and sub-command ``find``
 - add ``xrdsst cert`` and sub-commands ``list`` and ``disable``
