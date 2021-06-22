@@ -7,20 +7,6 @@ pipeline {
         timeout(time: 90, unit: 'MINUTES')
     }
     stages {
-        //stage('checkout X-Road Security Server Toolkit') {
-        //    steps {
-        //        echo "Checking out X-Road Security Server Toolkit..."
-        //        checkout(changelog: false, poll: false, scm: [
-        //                $class                           : 'GitSCM',
-        //                branches                         : [[name: 'master']],
-        //                doGenerateSubmoduleConfigurations: false,
-        //                extensions                       : [[$class: 'CleanCheckout']],
-        //                gitTool                          : 'Default',
-        //                submoduleCfg                     : [],
-        //                userRemoteConfigs                : [[url: 'https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git']]
-        //        ])
-        //    }
-        //}
         stage('Download configuration anchor from S3') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'AWS', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY'), file(credentialsId: "jenkins-gpg-key", variable: 'KEY')]) {
