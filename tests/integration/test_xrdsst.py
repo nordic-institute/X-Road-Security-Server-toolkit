@@ -58,7 +58,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                                                               security_server,
                                                               security_server["owner_member_class"],
                                                               security_server["owner_member_code"])
-                assert response == {'member_name': security_server["owner_dn_org"]}
+                assert response.member_name == security_server["owner_dn_org"]
 
     def step_member_list_classes(self):
         with XRDSSTTest() as app:
