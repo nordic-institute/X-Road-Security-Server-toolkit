@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.1
+Version: 2.0.2
 Doc. ID: XRDSST-CONF
 
 ---
@@ -42,8 +42,10 @@ Doc. ID: XRDSST-CONF
 | 28.05.2021 | 1.3.9       | Update service management                                                    | Bert Viikmäe       |
 | 04.06.2021 | 1.3.10      | Refactor documentation                                                       | Alberto Fernandez  |
 | 04.06.2021 | 1.3.11      | Added TLS certificates import                                                | Alberto Fernandez  |
-| 16.06.2021 | 2.0.0       | Added certificate list command description                                   | Alberto Fernandez  |
-| 17.06.2021 | 2.0.1       | Notes on member management                                                   | Bert Viikmäe       |
+| 16.06.2021 | 1.3.12      | Added certificate list command description                                   | Alberto Fernandez  |
+| 21.06.2021 | 2.0.0       | Notes on member management                                                   | Bert Viikmäe       |
+| 17.06.2021 | 2.0.1       | Added disable certificates command                                           | Alberto Fernandez  |
+| 21.06.2021 | 2.0.2       | Added delete and unregister certificates command                             | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -55,8 +57,8 @@ Doc. ID: XRDSST-CONF
       * [1.1 Target Audience](#11-target-audience)
       * [1.2 References](#12-references)
    * [2. Installation](#2-installation)
-      * [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
-      * [2.2 Installation](#22-installation)
+   * [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
+   * [2.2 Installation](#22-installation)
    * [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
       * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
          * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
@@ -66,7 +68,7 @@ Doc. ID: XRDSST-CONF
          * [3.2.1 Access Configuration](#321-access-configuration)
          * [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
          * [3.2.3 Client Configuration](#323-client-configuration)
-         * [3.2.3 Services Configuration](#323-services-configuration)
+         * [3.2.3 Service Configuration](#323-service-configuration)
       * [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
    * [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
       * [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
@@ -88,6 +90,9 @@ Doc. ID: XRDSST-CONF
             * [4.2.5.4 Certificate activation](#4254-certificate-activation)
             * [4.2.5.5 Download internal TSL certificates](#4255-download-internal-tsl-certificates)
             * [4.2.5.6 List certificates](#4256-list-certificates)
+            * [4.2.5.7 Certificate disable](#4257-certificate-disable)
+            * [4.2.5.8 Certificate unregister](#4258-certificate-unregister)
+            * [4.2.5.9 Certificate delete](#4259-certificate-delete)
          * [4.2.5 Client management commands](#425-client-management-commands)
             * [4.2.5.1 Client add](#4251-client-add)
             * [4.2.5.2 Client register](#4252-client-register)
@@ -115,6 +120,8 @@ Doc. ID: XRDSST-CONF
    * [6 Load balancer setup](#6-load-balancer-setup)
    * [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
    * [8 Multitenancy](#8-multitenancy)
+   * [9 Renew expiring certificates](#9-renew-expiring-certificates)
+
 
 
 <!-- vim-markdown-toc -->
@@ -326,6 +333,8 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
   	- /path/to/tls_cert
+  certificate_management:
+    - <CERTIFICATE_HASH>
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
@@ -400,6 +409,10 @@ security_server:
   url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
   ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  tls_certificates:
+    - <TLS_CERT_PATH>
+  certificate_management:
+    - <CERTIFICATE_HASH>
 ```
 * <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
 * <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> (Optional) If is set it will overwrite the <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
@@ -418,6 +431,8 @@ security_server:
 * <SECURITY_SERVER_INTERNAL_FQDN_OR_IP> should be substituted with internal IP address or host name of the installed security server, e.g. ``ss1``
 * <SSH_USER_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_USER_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
 * <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
+* <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g. "/etc/xroad/cert.pem"
+* <CERTIFICATE_HASH> List of certificate hash on which we are going to apply operations such as disable, unregister, delete...
 
 #### 3.2.3 Client Configuration
 
@@ -431,6 +446,8 @@ clients:
 	  member_name: <MEMBER_NAME>
 	  subsystem_code: <SUBSYSTEM_CODE>
 	  connection_type: <CONNECTION_TYPE>
+	  tls_certificates:
+        - <TLS_CERT_PATH>
 ```
 
 * <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV.
@@ -441,6 +458,7 @@ It must have the same value as <OWNER_MEMBER_CLASS> if is a subsystem of the own
 It must have the same value as <OWNER_DISTINGUISHED_NAME_ORGANIZATION>  if is a subsystem of the owner client.
 * <SUBSYSTEM_CODE> (Optional, not required for members) X-Road member/client subsystem code.
 * <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
+* <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g. "/etc/xroad/cert.pem"
 
 #### 3.2.3 Service Configuration
 
@@ -726,6 +744,45 @@ The table above shows the following information about the certificates:
 * status: Status of the certificate between: 'GLOBAL ERROR', 'SAVED', 'REGISTERED', 'REGISTRATION IN PROGRESS', 'DELETION IN PROGRESS', 'DELETED'
 * subject: Owner member of the certificate. 
 
+##### 4.2.5.7 Certificate disable
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
+In the `certificate_management` we must set the list of hashes of the certificates we want to disable, we can get the hashes of the certificates
+installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
+
+Disable the certificates can be done with:
+```
+xrdsst cert disable
+```
+
+##### 4.2.5.8 Certificate unregister
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
+In the `certificate_management` we must set the list of hashes of the authentication certificates we want to disable, we can get the hashes of the certificates
+installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
+
+Unregister the authentication certificates can be done with:
+```
+xrdsst cert unregister
+```
+
+##### 4.2.5.9 Certificate delete
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
+In the `certificate_management` we must set the list of hashes of the certificates we want to delete, we can get the hashes of the certificates
+installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
+
+Delete the certificates can be done with:
+```
+xrdsst cert delete
+```
+
 #### 4.2.5 Client management commands
 
 Client are managed with ``xrdsst client`` subcommands.
@@ -865,7 +922,7 @@ There are no configuration parameters involved, command line arguments are used 
 
 ##### 4.2.8.1 Member find
 
-* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Finding member can be done with:
 ```

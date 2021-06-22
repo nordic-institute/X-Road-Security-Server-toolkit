@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [2.0.2-beta.0] - 2021-06-18
 - add ``xrdsst member`` and sub-command ``find``
+- add ``xrdsst cert`` and sub-commands ``list`` and ``disable``
 
 ## [2.0.1-beta.0] - 2021-06-16
 - Add Jenkinsfile for running integration tests on pull requests
