@@ -83,30 +83,33 @@ class MemberController(BaseController):
 
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
-            member_names_api = MemberNamesApi(ApiClient(ss_api_config))
-            try:
-                result = member_names_api.find_member_name(member_class=member_class, member_code=member_code)
-                render_data = []
-                if self.is_output_tabulated():
-                    render_data = [MemberNameListMapper.headers()]
-                    render_data.extend(map(MemberNameListMapper.as_list, [{'security_server': security_server["name"],
-                                                                           'member_name': result.member_name,
-                                                                           'member_class': member_class,
-                                                                           'member_code': member_code}]))
-                else:
-                    render_data.extend(map(MemberNameListMapper.as_object, [{'security_server': security_server["name"],
-                                                                             'member_name': result.member_name,
-                                                                             'member_class': member_class,
-                                                                             'member_code': member_code}]))
-                self.render(render_data)
-            except ApiException as err:
-                BaseController.log_api_error('MemberNamesApi->find_member_name', err)
+            self.remote_find_name(ss_api_config, security_server, member_class, member_code)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def remote_find_name(self, ss_api_config, security_server, member_class, member_code):
+        member_names_api = MemberNamesApi(ApiClient(ss_api_config))
+        try:
+            result = member_names_api.find_member_name(member_class=member_class, member_code=member_code)
+            render_data = []
+            member_data = {'security_server': security_server["name"],
+                           'member_name': result.member_name,
+                           'member_class': member_class,
+                           'member_code': member_code}
+            if self.is_output_tabulated():
+                render_data = [MemberNameListMapper.headers()]
+                render_data.extend(map(MemberNameListMapper.as_list, [member_data]))
+            else:
+                render_data.extend(map(MemberNameListMapper.as_object, [member_data]))
+            self.render(render_data)
+            return member_data
+        except ApiException as err:
+            BaseController.log_api_error('MemberNamesApi->find_member_name', err)
 
     def list_member_classes(self, config, instance):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
+        member_classes = []
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
             member_classes_api = MemberClassesApi(ApiClient(ss_api_config))
@@ -121,8 +124,10 @@ class MemberController(BaseController):
                     render_data.extend(map(MemberClassListMapper.as_list, member_class_list))
                 else:
                     render_data.extend(map(MemberClassListMapper.as_object, member_class_list))
+                member_classes.append(member_class_list)
                 self.render(render_data)
             except ApiException as err:
                 BaseController.log_api_error('MemberClassesApi->get_member_classes', err)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
+        return member_classes

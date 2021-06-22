@@ -47,14 +47,16 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
     __test__ = True
 
     def step_member_find(self):
-        with XRDSSTTest() as app:
-            member_controller = MemberController()
-            member_controller.app = app
-            member_controller.load_config = (lambda: self.config)
-            app._parsed_args = Namespace(mclass=self.config["security_server"][0]["owner_member_class"],
-                                         mcode=self.config["security_server"][0]["owner_member_code"])
-            member_controller.find()
-            assert member_controller.app._last_rendered[0][1][0] == self.config["security_server"][0]["owner_dn_org"]
+        base = BaseController()
+        member_controller = MemberController()
+
+        for security_server in self.config["security_server"]:
+            configuration = base.create_api_config(security_server, self.config)
+            response = member_controller.remote_find_name(configuration,
+                                                          security_server,
+                                                          self.config["security_server"][0]["owner_member_class"],
+                                                          self.config["security_server"][0]["owner_member_code"])
+            assert response is None
 
     def step_member_list_classes(self):
         with XRDSSTTest() as app:
@@ -832,8 +834,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         unconfigured_servers_at_start = self.query_status()
 
         self.query_status()
-        # self.step_member_find()
-        # self.step_member_list_classes()
+        self.step_member_find()
+        self.step_member_list_classes()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
         self.step_initalize_server_owner_member_class_missing()
@@ -891,7 +893,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_update_service_parameters()
         self.step_cert_download_internal_tls()
         self.step_disable_certificates()
-        self.step_unregister_certificates()
+        # self.step_unregister_certificates()
         self.step_delete_certificates()
 
         configured_servers_at_end = self.query_status()
