@@ -128,7 +128,6 @@ class MemberController(BaseController):
                 render_data.extend(map(MemberClassListMapper.as_list, member_class_list))
             else:
                 render_data.extend(map(MemberClassListMapper.as_object, member_class_list))
-            member_classes.append(member_class_list)
             self.render(render_data)
             return member_classes
         except ApiException as err:
