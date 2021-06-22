@@ -47,23 +47,28 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
     __test__ = True
 
     def step_member_find(self):
-        base = BaseController()
-        member_controller = MemberController()
-        for security_server in self.config["security_server"]:
-            configuration = base.create_api_config(security_server, self.config)
-            response = member_controller.remote_find_name(configuration,
-                                                          security_server,
-                                                          security_server["owner_member_class"],
-                                                          security_server["owner_member_code"])
-            assert response is {'member_name': security_server["owner_dn_org"]}
+        with XRDSSTTest() as app:
+            base = BaseController()
+            member_controller = MemberController()
+            member_controller.app = app
+
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = member_controller.remote_find_name(configuration,
+                                                              security_server,
+                                                              security_server["owner_member_class"],
+                                                              security_server["owner_member_code"])
+                assert response is {'member_name': security_server["owner_dn_org"]}
 
     def step_member_list_classes(self):
-        base = BaseController()
-        member_controller = MemberController()
-        for security_server in self.config["security_server"]:
-            configuration = base.create_api_config(security_server, self.config)
-            response = member_controller.remote_list_classes(configuration, security_server, 'DEV')
-            assert response is 'GOV'
+        with XRDSSTTest() as app:
+            base = BaseController()
+            member_controller = MemberController()
+            member_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = member_controller.remote_list_classes(configuration, security_server, 'DEV')
+                assert response is 'GOV'
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()
