@@ -49,7 +49,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
     def step_member_find(self):
         base = BaseController()
         member_controller = MemberController()
-
         for security_server in self.config["security_server"]:
             configuration = base.create_api_config(security_server, self.config)
             response = member_controller.remote_find_name(configuration,
@@ -59,14 +58,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             assert response is None
 
     def step_member_list_classes(self):
-        with XRDSSTTest() as app:
-            member_controller = MemberController()
-            member_controller.app = app
-            member_controller.load_config = (lambda: self.config)
-            app._parsed_args = Namespace(instance='DEV')
-            member_controller.list_classes()
-            assert member_controller.app._last_rendered[0][1][2] == 'GOV'
-            assert member_controller.app._last_rendered[0][2][2] == 'COM'
+        base = BaseController()
+        member_controller = MemberController()
+        for security_server in self.config["security_server"]:
+            configuration = base.create_api_config(security_server, self.config)
+            response = member_controller.remote_list_classes(configuration, security_server, 'DEV')
+            assert response is None
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()

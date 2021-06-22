@@ -102,32 +102,34 @@ class MemberController(BaseController):
             else:
                 render_data.extend(map(MemberNameListMapper.as_object, [member_data]))
             self.render(render_data)
-            return member_data
+            return result
         except ApiException as err:
             BaseController.log_api_error('MemberNamesApi->find_member_name', err)
 
     def list_member_classes(self, config, instance):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        member_classes = []
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
-            member_classes_api = MemberClassesApi(ApiClient(ss_api_config))
-            try:
-                member_classes = member_classes_api.get_member_classes_for_instance(id=instance)
-                member_class_list = []
-                for member_class in member_classes:
-                    member_class_list.append({'security_server': security_server["name"], 'instance': instance, 'member_class': member_class})
-                render_data = []
-                if self.is_output_tabulated():
-                    render_data = [MemberClassListMapper.headers()]
-                    render_data.extend(map(MemberClassListMapper.as_list, member_class_list))
-                else:
-                    render_data.extend(map(MemberClassListMapper.as_object, member_class_list))
-                member_classes.append(member_class_list)
-                self.render(render_data)
-            except ApiException as err:
-                BaseController.log_api_error('MemberClassesApi->get_member_classes', err)
+            self.remote_list_classes(ss_api_config, security_server, instance)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
-        return member_classes
+
+    def remote_list_classes(self, ss_api_config, security_server, instance):
+        member_classes_api = MemberClassesApi(ApiClient(ss_api_config))
+        try:
+            member_classes = member_classes_api.get_member_classes_for_instance(id=instance)
+            member_class_list = []
+            for member_class in member_classes:
+                member_class_list.append({'security_server': security_server["name"], 'instance': instance, 'member_class': member_class})
+            render_data = []
+            if self.is_output_tabulated():
+                render_data = [MemberClassListMapper.headers()]
+                render_data.extend(map(MemberClassListMapper.as_list, member_class_list))
+            else:
+                render_data.extend(map(MemberClassListMapper.as_object, member_class_list))
+            member_classes.append(member_class_list)
+            self.render(render_data)
+            return member_classes
+        except ApiException as err:
+            BaseController.log_api_error('MemberClassesApi->get_member_classes', err)
