@@ -1307,7 +1307,7 @@ It is recommended to renew the certificates in advance before they expire. You c
 UI in the tab <strong>KEYS AND CERTIFICATE</strong> => <strong>SIGN AND AUTH KEYS</strong> column <strong>Expires</strong>.
 To renew the certificates we must:
 
-1. Go to the UI and generate new CRS keys for the certificates we want to renew:
+1. Create new CRS keys for the new certificates using the command:
 2. Download and sign the new certificates.
 3. Add the signed certificates to the [certificates list](#322-security-servers-configuration) of the security server 
    in the configuration file.
@@ -1315,7 +1315,9 @@ To renew the certificates we must:
 5. Activate the certificates by running the [certificate activation](#4254-certificate-activation) command.
 6. Register the new certificates by running the [certificate registration](#4253-certificate-registration) command.
 7. Wait until the new certificates have the OCSP is Good state and the Status in Registered. We can check this
-   through the UI in the tab <strong>KEYS AND CERTIFICATE</strong> => <strong>SIGN AND AUTH KEYS</strong>. 
+   through by running the [List certificates](#4256-list-certificates) command. 
    It's recommended to wait at least one day so that the new certificates can be distributed for the access server does not crash.
-8. Unregister and delete the old certifcates through the UI.
+7. Disable the old certificates by running the [Certificate disable](#4257-certificate-disable) command.
+8. Unregister the old  certificates by running the [Certificate unregister](#4258-certificate-unregister) command.
+9. Delete the old AUTH certificate by running the [Certificate delete](#4259-certificate-delete) command.
 

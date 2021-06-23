@@ -346,12 +346,20 @@ class CertController(BaseController):
         except ApiException as err:
             BaseController.log_info("Could not find certificate with hash: '%s' for security server: '%s'" % (hash, security_server["name"]))
 
+
+
     def remote_download_csrs(self, ss_api_config, security_server):
+        def contains_label(csrs_key, key_labels):
+            for key_label in key_labels:
+                if key_label in csrs_key.label:
+                    return True
+            return False
+
         key_labels = self.get_key_labels(security_server)
 
         token = remote_get_token(ss_api_config, security_server)
-        auth_keys = list(filter(lambda key: key.label in key_labels['auth'], token.keys))
-        sign_keys = list(filter(lambda key: key.label in key_labels['sign'], token.keys))
+        auth_keys = list(filter(lambda key: contains_label(key, key_labels['auth']), token.keys))
+        sign_keys = list(filter(lambda key: contains_label(key, key_labels['sign']), token.keys))
 
         if not (auth_keys or sign_keys):
             return []
@@ -440,26 +448,23 @@ class CertController(BaseController):
         token = remote_get_token(ss_api_config, security_server)
         # Find the authentication certificate by conventional name
         auth_key_label = default_auth_key_label(security_server)
-        auth_keys = list(filter(lambda key: key.label == auth_key_label, token.keys))
+        auth_keys = list(filter(lambda key: auth_key_label in key.label, token.keys))
         found_auth_key_count = len(auth_keys)
         if found_auth_key_count == 0:
             BaseController.log_info("Did not found authentication key labelled '" + auth_key_label + "'.")
             return None
-        if found_auth_key_count > 1:
-            BaseController.log_info("Found multiple authentication keys labelled '" + auth_key_label + "', skipping registration.")
-            return None
 
+        actionable_certs = []
         # So far so good, are there actual certificates attached to key?
-        auth_key = auth_keys[0]
-        if not auth_key.certificates:
-            BaseController.log_info("No certificates available for authentication key labelled '" + auth_key_label + "'.")
-            return None
+        for auth_key in auth_keys:
+            if not auth_key.certificates:
+                BaseController.log_info("No certificates available for authentication key labelled '" + auth_key_label + "'.")
+                return None
 
-        # Find actionable certs
-        actionable_certs = list(filter(lambda c: cert_action in c.possible_actions, auth_key.certificates))
-        if len(actionable_certs) == 0:
-            BaseController.log_info("No certificates to '" + cert_action + "' for key labelled '" + auth_key_label + "'.")
-            return None
+            # Find actionable certs
+            actionable_certs.extend(list(filter(lambda c: cert_action in c.possible_actions, auth_key.certificates)))
+            if len(actionable_certs) == 0:
+                BaseController.log_info("No certificates to '" + cert_action + "' for key labelled '" + auth_key_label + "'.")
 
         return actionable_certs
 

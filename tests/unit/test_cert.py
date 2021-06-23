@@ -440,23 +440,6 @@ class TestCert(unittest.TestCase):
                     sys.stdout.write(out)
                     sys.stderr.write(err)
 
-    def test_cert_register_multiple_auth_labelled_keys(self):
-        with XRDSSTTest() as app:
-            with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
-                            return_value=CertTestData.multiple_keys_labelled_as_auth_response):
-                cert_controller = CertController()
-                cert_controller.app = app
-                cert_controller.load_config = (lambda: self.ss_config_with_authcert())
-                cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                cert_controller.register()
-
-                out, err = self.capsys.readouterr()
-                assert out.count("multiple authentication keys") > 0
-
-                with self.capsys.disabled():
-                    sys.stdout.write(out)
-                    sys.stderr.write(err)
-
     def test_cert_register_no_certs_for_auth_key(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
