@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.2
+Version: 2.0.3
 Doc. ID: XRDSST-CONF
 
 ---
@@ -46,6 +46,7 @@ Doc. ID: XRDSST-CONF
 | 21.06.2021 | 2.0.0       | Notes on member management                                                   | Bert Viikmäe       |
 | 17.06.2021 | 2.0.1       | Added disable certificates command                                           | Alberto Fernandez  |
 | 21.06.2021 | 2.0.2       | Added delete and unregister certificates command                             | Alberto Fernandez  |
+| 22.06.2021 | 2.0.3       | Notes on member management                                                   | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -109,6 +110,7 @@ Doc. ID: XRDSST-CONF
             * [4.2.7.2 Endpoint add access rights](#4272-endpoint-add-access-rights)
          * [4.2.8 Member management](#428-member-management)
             * [4.2.8.1 Member find](#4281-member-find)
+            * [4.2.8.2 Member list member classes](#4282-member-list-member-classes)
    * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
       * [5.1 Configuration flow](#51-configuration-flow)
       * [5.2 First-run failures](#52-first-run-failures)
@@ -927,6 +929,15 @@ There are no configuration parameters involved, command line arguments are used 
 Finding member can be done with:
 ```
 xrdsst member find --class <MEMBER_CLASS> --code <MEMBER_CODE>
+```
+
+##### 4.2.8.2 Member list member classes
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+Finding member can be done with:
+```
+xrdsst member list-classes --instance <XROAD-INSTANCE>
 ```
 
 ## 5 Failure recovery and interpretation of errors

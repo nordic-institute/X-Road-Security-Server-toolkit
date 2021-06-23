@@ -48,13 +48,27 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
     def step_member_find(self):
         with XRDSSTTest() as app:
+            base = BaseController()
             member_controller = MemberController()
             member_controller.app = app
-            member_controller.load_config = (lambda: self.config)
-            app._parsed_args = Namespace(mclass=self.config["security_server"][0]["owner_member_class"],
-                                         mcode=self.config["security_server"][0]["owner_member_code"])
-            member_controller.find()
-            assert member_controller.app._last_rendered[0][1][0] == self.config["security_server"][0]["owner_dn_org"]
+
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = member_controller.remote_find_name(configuration,
+                                                              security_server,
+                                                              security_server["owner_member_class"],
+                                                              security_server["owner_member_code"])
+                assert response.member_name == security_server["owner_dn_org"]
+
+    def step_member_list_classes(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            member_controller = MemberController()
+            member_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = member_controller.remote_list_classes(configuration, security_server, 'DEV')
+                assert response == ['COM', 'PRIVATE-FOR-DEV', 'ORG', 'GOV']
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()
@@ -722,7 +736,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
         for security_server in self.config["security_server"]:
-            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn*3):(ssn * 3 + 3)], security_server)
+            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
             self.apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
@@ -789,7 +803,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.unregister()
@@ -808,7 +822,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.delete()
@@ -816,13 +830,11 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for cert in certificates:
                 assert cert["type"] != KeyUsageType.AUTHENTICATION
 
-
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
 
         self.query_status()
-        # self.step_member_find()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
         self.step_initalize_server_owner_member_class_missing()
@@ -871,6 +883,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_add_service_access()
         self.step_import_tls_certificate()
 
+        self.step_member_find()
+        self.step_member_list_classes()
+
         self.query_status()
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
         self.step_add_service_endpoints()
@@ -879,11 +894,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
         self.step_cert_download_internal_tls()
-        configured_servers_at_end = self.query_status()
-
-        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-
-        # Certificate operations
         self.step_disable_certificates()
-        self.step_unregister_certificates()
-        self.step_delete_certificates()
+        # self.step_unregister_certificates()
+        # self.step_delete_certificates()
+
+        configured_servers_at_end = self.query_status()
+        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

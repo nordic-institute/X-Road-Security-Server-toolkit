@@ -83,7 +83,7 @@ class TestMember(unittest.TestCase):
                     member_controller.load_config = (lambda: self.ss_config)
                     member_controller.find()
 
-                assert member_controller.app._last_rendered[0][1][0] is 'ACME'
+                assert member_controller.app._last_rendered[0][1][1] is 'ACME'
 
     def test_member_find_render_as_object(self):
         with XRDSSTTest() as app:
@@ -118,5 +118,44 @@ class TestMember(unittest.TestCase):
                     member_controller.app = app
                     member_controller.load_config = (lambda: self.ss_config)
                     member_controller.find()
+
+                assert member_controller.app._last_rendered is None
+
+    def test_member_list_classes_render_tabulated(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(instance='DEV')
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
+                with mock.patch('xrdsst.api.member_classes_api.MemberClassesApi.get_member_classes_for_instance',
+                                return_value=['GOV']):
+                    member_controller = MemberController()
+                    member_controller.app = app
+                    member_controller.load_config = (lambda: self.ss_config)
+                    member_controller.list_classes()
+
+                assert member_controller.app._last_rendered[0][1][2] is 'GOV'
+
+    def test_member_list_classes_render_as_object(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(instance='DEV')
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=False):
+                with mock.patch('xrdsst.api.member_classes_api.MemberClassesApi.get_member_classes_for_instance',
+                                return_value=['GOV']):
+                    member_controller = MemberController()
+                    member_controller.app = app
+                    member_controller.load_config = (lambda: self.ss_config)
+                    member_controller.list_classes()
+
+                assert member_controller.app._last_rendered[0][0]["member_class"] is 'GOV'
+
+    def test_member_list_classes_fail_instance_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(instance=None)
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
+                with mock.patch('xrdsst.api.member_classes_api.MemberClassesApi.get_member_classes_for_instance',
+                                return_value=['GOV']):
+                    member_controller = MemberController()
+                    member_controller.app = app
+                    member_controller.load_config = (lambda: self.ss_config)
+                    member_controller.list_classes()
 
                 assert member_controller.app._last_rendered is None

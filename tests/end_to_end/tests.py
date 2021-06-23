@@ -25,9 +25,9 @@ from xrdsst.core.conf_keys import ConfKeysSecurityServer
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import ClientStatus, CertificateDetails
-from xrdsst.models.key_usage_type import KeyUsageType
 from xrdsst.models import ClientStatus
+from xrdsst.models.key_usage_type import KeyUsageType
+
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -120,13 +120,27 @@ class EndToEndTest(unittest.TestCase):
 
     def step_member_find(self):
         with XRDSSTTest() as app:
+            base = BaseController()
             member_controller = MemberController()
             member_controller.app = app
-            member_controller.load_config = (lambda: self.config)
-            app._parsed_args = Namespace(mclass=self.config["security_server"][0]["owner_member_class"],
-                                         mcode=self.config["security_server"][0]["owner_member_code"])
-            member_controller.find()
-            assert member_controller.app._last_rendered[0][1][0] == self.config["security_server"][0]["owner_dn_org"]
+
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = member_controller.remote_find_name(configuration,
+                                                              security_server,
+                                                              security_server["owner_member_class"],
+                                                              security_server["owner_member_code"])
+                assert response.member_name == security_server["owner_dn_org"]
+
+    def step_member_list_classes(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            member_controller = MemberController()
+            member_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = member_controller.remote_list_classes(configuration, security_server, 'DEV')
+                assert response == ['COM', 'PRIVATE-FOR-DEV', 'ORG', 'GOV']
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()
@@ -994,7 +1008,6 @@ class EndToEndTest(unittest.TestCase):
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
-        # self.step_member_find()
         self.step_verify_initial_transient_api_keys()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
@@ -1047,6 +1060,9 @@ class EndToEndTest(unittest.TestCase):
         self.step_enable_service_description()
         self.step_add_service_access()
 
+        self.step_member_find()
+        self.step_member_list_classes()
+
         self.step_create_admin_user_fail_admin_credentials_missing()
         self.step_create_admin_user_fail_ssh_user_missing()
         self.step_create_admin_user_fail_ssh_private_key_missing()
@@ -1060,10 +1076,9 @@ class EndToEndTest(unittest.TestCase):
         self.step_update_service_parameters()
         self.step_cert_download_internal_tls()
 
-        configured_servers_at_end = self.query_status()
-
-        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-
         self.step_disable_certificates()
-        self.step_unregister_certificates()
-        self.step_delete_certificates()
+        # self.step_unregister_certificates()
+        # self.step_delete_certificates()
+
+        configured_servers_at_end = self.query_status()
+        assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
