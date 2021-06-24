@@ -895,8 +895,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_update_service_parameters()
         self.step_cert_download_internal_tls()
         self.step_disable_certificates()
-        # self.step_unregister_certificates()
-        # self.step_delete_certificates()
+        self.step_unregister_certificates()
+        self.step_delete_certificates()
 
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
