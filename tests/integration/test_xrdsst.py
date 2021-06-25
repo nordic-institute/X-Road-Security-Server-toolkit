@@ -677,12 +677,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         client_id = found_client[0]['id']
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
                         assert len(response) == 1
-                        assert response[0].security_server == security_server["name"]
-                        assert response[0].client_id == 'DEV:ORG:111:BUS'
-                        assert response[0].url == 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml'
-                        assert response[0].type == 'OPENAPI3'
-                        assert response[0].disabled is False
-                        assert response[0].services == 1
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
+                        assert response[0]["url"] == 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml'
+                        assert response[0]["type"] == 'OPENAPI3'
+                        assert response[0]["disabled"] is False
+                        assert response[0]["services"] == 1
                 ssn = ssn + 1
 
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
