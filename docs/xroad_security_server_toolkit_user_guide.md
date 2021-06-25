@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.4
+Version: 2.0.5
 Doc. ID: XRDSST-CONF
 
 ---
@@ -48,6 +48,7 @@ Doc. ID: XRDSST-CONF
 | 21.06.2021 | 2.0.2       | Added delete and unregister certificates command                             | Alberto Fernandez  |
 | 22.06.2021 | 2.0.3       | Notes on member management                                                   | Bert Viikmäe       |
 | 25.06.2021 | 2.0.4       | Update service management                                                    | Bert Viikmäe       |
+| 25.06.2021 | 2.0.5       | Update service management                                                    | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -106,7 +107,8 @@ Doc. ID: XRDSST-CONF
             * [4.2.6.3 Enable service](#4263-enable-service)
             * [4.2.6.4 Service update parameters](#4264-service-update-parameters)
             * [4.2.6.5 Service list descriptions](#4265-service-list-descriptions)
-            * [4.2.6.6 Service apply](#4266-service-apply)
+            * [4.2.6.6 Service list services](#4266-service-list-services)
+            * [4.2.6.7 Service apply](#4267-service-apply)
          * [4.2.7 Endpoint management](#427-endpoint-management)
             * [4.2.7.1 Endpoint add](#4271-endpoint-add)
             * [4.2.7.2 Endpoint add access rights](#4272-endpoint-add-access-rights)
@@ -891,8 +893,20 @@ xrdsst service list-descriptions --client <CLIENT_ID>
 ```
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST, multiple values can also be given, separated by comma, e.g. DEV:GOV:1234:TEST,DEV:GOV:1234:MANAGEMENT
 
+##### 4.2.6.6 Service list services
 
-##### 4.2.6.6 Service apply
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+There are no configuration parameters involved, command line arguments are used instead
+
+Listing services for client's service descriptions can be done with:
+```
+xrdsst service list-services --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
+```
+* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+
+##### 4.2.6.7 Service apply
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 

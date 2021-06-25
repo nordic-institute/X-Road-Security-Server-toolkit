@@ -36,6 +36,32 @@ class ServiceDescriptionListMapper:
             'services': description.get('services')
         }
 
+class ServiceListMapper:
+    @staticmethod
+    def headers():
+        return ['SS', 'CLIENT', 'DESCRIPTION', 'SERVICE', 'CODE', 'TIMEOUT', 'URL']
+
+    @staticmethod
+    def as_list(service):
+        return [service.get('security_server'),
+                service.get('client_id'),
+                service.get('description_id'),
+                service.get('service_id'),
+                service.get('service_code'),
+                service.get('timeout'),
+                service.get('url')]
+
+    @staticmethod
+    def as_object(service):
+        return {
+            'security_server': service.get('security_server'),
+            'client_id': service.get('client_id'),
+            'description_id': service.get('description_id'),
+            'service_id': service.get('service_id'),
+            'service_code': service.get('service_code'),
+            'timeout': service.get('timeout'),
+            'url': service.get('url')
+        }
 
 class ServiceController(BaseController):
     class Meta:
@@ -109,6 +135,31 @@ class ServiceController(BaseController):
 
         self.update_service_parameters(active_config)
 
+    @ex(help="List service descriptions", arguments=[(['--client'], {'help': 'Client id', 'dest': 'client'})])
+    def list_descriptions(self):
+        active_config = self.load_config()
+
+        if self.app.pargs.client is None:
+            self.log_info('Client parameter is required for listing client service descriptions')
+            return
+
+        self.list_service_descriptions(active_config, self.app.pargs.client)
+
+    @ex(help="List services", arguments=[(['--client'], {'help': 'Client id', 'dest': 'client'}),
+                                         (['--description'], {'help': 'Service description id', 'dest': 'description'})])
+    def list_services(self):
+        active_config = self.load_config()
+
+        if self.app.pargs.client is None:
+            self.log_info('Client parameter is required for listing client service descriptions')
+            return
+
+        if self.app.pargs.description is None:
+            self.log_info('Description parameter is required for listing service description services')
+            return
+
+        self.list_service_description_services(active_config, self.app.pargs.client, self.app.pargs.description)
+
     def add_service_description(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -153,16 +204,6 @@ class ServiceController(BaseController):
             if "clients" in security_server:
                 self.update_client_service_parameters(ss_api_config, security_server)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
-
-    @ex(help="List service descriptions", arguments=[(['--client'], {'help': 'Client id', 'dest': 'client'})])
-    def list_descriptions(self):
-        active_config = self.load_config()
-
-        if self.app.pargs.client is None:
-            self.log_info('Client parameter is required for listing client service descriptions')
-            return
-
-        self.list_service_descriptions(active_config, self.app.pargs.client)
 
     def add_client_service_description(self, ss_api_config, security_server):
         for client in security_server["clients"]:
@@ -332,6 +373,15 @@ class ServiceController(BaseController):
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
+    def list_service_description_services(self, config, client, description):
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server in config["security_server"]:
+            ss_api_config = self.create_api_config(security_server, config)
+            self.remote_list_services(ss_api_config, security_server, client, description)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
     def remote_update_service_parameters(self, ss_api_config, security_server_conf, client_conf, service_description_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
@@ -390,13 +440,40 @@ class ServiceController(BaseController):
                                                       'type': service_description.type,
                                                       'disabled': service_description.disabled,
                                                       'services': len(service_description.services)})
-                if self.is_output_tabulated():
-                    render_data = [ServiceDescriptionListMapper.headers()]
-                    render_data.extend(map(ServiceDescriptionListMapper.as_list, service_descriptions_list))
-                else:
-                    render_data.extend(map(ServiceDescriptionListMapper.as_object, service_descriptions_list))
-                self.render(render_data)
+            if self.is_output_tabulated():
+                render_data = [ServiceDescriptionListMapper.headers()]
+                render_data.extend(map(ServiceDescriptionListMapper.as_list, service_descriptions_list))
+            else:
+                render_data.extend(map(ServiceDescriptionListMapper.as_object, service_descriptions_list))
+            self.render(render_data)
             return service_descriptions_list
+        except ApiException as err:
+            BaseController.log_api_error('ClientsApi->get_client_service_descriptions', err)
+
+    def remote_list_services(self, ss_api_config, security_server, client, description):
+        clients_api = ClientsApi(ApiClient(ss_api_config))
+        try:
+            services_list = []
+            render_data = []
+            description_ids = description.split(',')
+            service_descriptions = clients_api.get_client_service_descriptions(id=client)
+            for service_description in service_descriptions:
+                if service_description.id in description_ids:
+                    for service in service_description.services:
+                        services_list.append({'security_server': security_server["name"],
+                                              'client_id': client,
+                                              'description_id': service_description.id,
+                                              'service_id': service.id,
+                                              'service_code': service.service_code,
+                                              'timeout': service.timeout,
+                                              'url': service.url})
+            if self.is_output_tabulated():
+                render_data = [ServiceListMapper.headers()]
+                render_data.extend(map(ServiceListMapper.as_list, services_list))
+            else:
+                render_data.extend(map(ServiceListMapper.as_object, services_list))
+            self.render(render_data)
+            return services_list
         except ApiException as err:
             BaseController.log_api_error('ClientsApi->get_client_service_descriptions', err)
 
