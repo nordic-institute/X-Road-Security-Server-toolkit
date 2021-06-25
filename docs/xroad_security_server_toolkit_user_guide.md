@@ -883,6 +883,8 @@ for all the services in the description if the boolean parameters are set to Tru
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
+There are no configuration parameters involved, command line arguments are used instead
+
 Listing service descriptions can be done with:
 ```
 xrdsst service list-descriptions --client <CLIENT_ID>
@@ -939,19 +941,25 @@ There are no configuration parameters involved, command line arguments are used 
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
-Finding member can be done with:
+Finding a member for current X-Road instance can be done with:
 ```
 xrdsst member find --class <MEMBER_CLASS> --code <MEMBER_CODE>
 ```
+
+* <MEMBER_CLASS> member class for the member to be searched, e.g. GOV
+* <MEMBER_CODE> member code for the member to be searched, e.g. 1234
 
 ##### 4.2.8.2 Member list member classes
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
-Finding member can be done with:
+Listing member classes can be done with:
 ```
 xrdsst member list-classes --instance <XROAD-INSTANCE>
 ```
+**When ``instance`` command-line parameter is not provided, current instance is assumed**
+
+* <XROAD-INSTANCE> X-Road instance for the member classes to be searched, e.g. DEV
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
