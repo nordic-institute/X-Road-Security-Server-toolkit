@@ -10,7 +10,7 @@ from xrdsst.api.tokens_api import TokensApi
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.api_util import remote_get_token
-from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label
+from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label, parse_argument_list
 from xrdsst.models import SecurityServerAddress, CsrFormat
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts
@@ -166,23 +166,50 @@ class CertController(BaseController):
             self.render(render_data)
             return list
 
+    @ex(help="Find member name",
+        arguments=[
+            (['--hash'], {'help': 'certificate hash', 'dest': 'hash'})
+        ]
+        )
     @ex(help="Disable certificate(s)", arguments=[])
     def disable(self):
         active_config = self.load_config()
 
-        self.cert_operation(active_config, CertOperations.disable)
+        if self.app.pargs.hash is None:
+            self.log_info('Member class parameter is required for searching member names')
+            return
 
+        self.cert_operation(active_config, CertOperations.disable, parse_argument_list(self.app.pargs.hash))
+
+    @ex(help="Find member name",
+        arguments=[
+            (['--hash'], {'help': 'certificate hash', 'dest': 'hash'})
+        ]
+        )
     @ex(help="Unregister certificate(s)", arguments=[])
     def unregister(self):
         active_config = self.load_config()
 
-        self.cert_operation(active_config, CertOperations.unregister)
+        if self.app.pargs.hash is None:
+            self.log_info('Member class parameter is required for searching member names')
+            return
 
+        self.cert_operation(active_config, CertOperations.unregister, parse_argument_list(self.app.pargs.hash))
+
+    @ex(help="Find member name",
+        arguments=[
+            (['--hash'], {'help': 'certificate hash', 'dest': 'hash'})
+        ]
+        )
     @ex(help="Delete certificate(s)", arguments=[])
     def delete(self):
         active_config = self.load_config()
 
-        self.cert_operation(active_config, CertOperations.delete)
+        if self.app.pargs.hash is None:
+            self.log_info('Member class parameter is required for searching member names')
+            return
+
+        self.cert_operation(active_config, CertOperations.delete, parse_argument_list(self.app.pargs.hash))
 
     def import_certificates(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -254,18 +281,15 @@ class CertController(BaseController):
         BaseController.log_keyless_servers(ss_api_conf_tuple)
         return certificates_list
 
-    def cert_operation(self, config, operation):
+    def cert_operation(self, config, operation, hashes):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
-            if security_server.get(ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT):
-                BaseController.log_debug(
-                    'Starting certificate operation process for security server: ' + security_server['name'])
-                ss_api_config = self.create_api_config(security_server, config)
-                for certificate_hash in security_server[ConfKeysSecurityServer.CONF_KEY_CERTS_MANAGEMENT]:
-                    self.remote_cert_operation(ss_api_config, security_server, certificate_hash, operation)
-            else:
-                BaseController.log_info("Skipping disable certificates for security server: %s no hash found" % security_server["name"])
+            BaseController.log_debug(
+                'Starting certificate operation process for security server: ' + security_server['name'])
+            ss_api_config = self.create_api_config(security_server, config)
+            for certificate_hash in hashes:
+                self.remote_cert_operation(ss_api_config, security_server, certificate_hash, operation)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
 
@@ -349,17 +373,17 @@ class CertController(BaseController):
 
 
     def remote_download_csrs(self, ss_api_config, security_server):
-        def contains_label(csrs_key, key_labels):
-            for key_label in key_labels:
-                if key_label in csrs_key.label:
-                    return True
-            return False
+        # def contains_label(csrs_key, key_labels):
+        #     for key_label in key_labels:
+        #         if key_label in csrs_key.label:
+        #             return True
+        #     return False
 
-        key_labels = self.get_key_labels(security_server)
+        # key_labels = self.get_key_labels(security_server)
 
         token = remote_get_token(ss_api_config, security_server)
-        auth_keys = list(filter(lambda key: contains_label(key, key_labels['auth']), token.keys))
-        sign_keys = list(filter(lambda key: contains_label(key, key_labels['sign']), token.keys))
+        auth_keys = list(filter(lambda key: key.usage == KeyUsageType.AUTHENTICATION, token.keys))
+        sign_keys = list(filter(lambda key: key.usage == KeyUsageType.SIGNING, token.keys))
 
         if not (auth_keys or sign_keys):
             return []

@@ -9,7 +9,7 @@ import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
     assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients, getClientTlsCertificates
+    get_endpoint_service_clients, getClientTlsCertificates, get_service_descriptions
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -27,6 +27,7 @@ from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key,
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from xrdsst.models.key_usage_type import KeyUsageType
+from tests.end_to_end.renew_certificate import RenewCertificate
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -44,7 +45,8 @@ class EndToEndTest(unittest.TestCase):
                     self.config_file = sys.argv[idx]
             base = BaseController()
             base.app = app
-            self.config = base.load_config(baseconfig='/home/alberto/Proyects/X-Road-Security-Server-toolkit/tests/resources/test-config.yaml')
+            # self.config = base.load_config(baseconfig='/home/alberto/Proyects/X-Road-Security-Server-toolkit/tests/resources/test-config.yaml')
+            self.config = base.load_config(baseconfig=self.config_file)
             ssn = 0
             for security_server in self.config["security_server"]:
                 if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
@@ -399,7 +401,7 @@ class EndToEndTest(unittest.TestCase):
             cert_controller.load_config = (lambda: self.config)
             result = cert_controller.download_csrs()
 
-            # assert len(result) == 6
+            assert len(result) == 6
 
             fs_loc_list = []
             csrs = []
@@ -747,14 +749,15 @@ class EndToEndTest(unittest.TestCase):
                 if "service_descriptions" in client:
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert description["disabled"] is True
-                    for service_description in client["service_descriptions"]:
-                        service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
-                    found_client = get_client(self.config, client, ssn)
-                    client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert description["disabled"] is False
+                    descriptions = get_service_descriptions(self.config, client_id, ssn)
+                    for description in descriptions:
+                        assert description["disabled"] is True
+                        for service_description in client["service_descriptions"]:
+                            service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_description(self.config, client_id, ssn)
+                        assert description["disabled"] is False
             ssn = ssn + 1
 
     def step_add_service_access(self):
@@ -781,9 +784,11 @@ class EndToEndTest(unittest.TestCase):
                 if "service_descriptions" in client:
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert description["services"][0]["timeout"] == 60
-                    assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
+                    descriptions = get_service_descriptions(self.config, client_id, ssn)
+                    for description in descriptions:
+                        if description["type"] != "WSDL":
+                            assert description["services"][0]["timeout"] == 60
+                            assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
             ssn = ssn + 1
 
         ssn = 0
@@ -795,9 +800,11 @@ class EndToEndTest(unittest.TestCase):
                         service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert description["services"][0]["timeout"] == 120
-                    assert description["services"][0]["url"] == 'http://petstore.xxx'
+                    descriptions = get_service_descriptions(self.config, client_id, ssn)
+                    for description in descriptions:
+                        if description["type"] != "WSDL":
+                            assert description["services"][0]["timeout"] == 120
+                            assert description["services"][0]["url"] == 'http://petstore.xxx'
             ssn = ssn + 1
 
     def step_create_admin_user_fail_admin_credentials_missing(self):
@@ -883,10 +890,12 @@ class EndToEndTest(unittest.TestCase):
 
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert len(description["services"][0]["endpoints"]) == 5
-                    assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
-                    assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
+                    descriptions = get_service_descriptions(self.config, client_id, ssn)
+                    for description in descriptions:
+                        if description["type"] != "WSDL":
+                            assert len(description["services"][0]["endpoints"]) == 5
+                            assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
+                            assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
             ssn = ssn + 1
 
     def step_add_endpoints_access(self):
@@ -1022,28 +1031,28 @@ class EndToEndTest(unittest.TestCase):
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
-        # self.step_verify_initial_transient_api_keys()
-        # self.step_upload_anchor_fail_file_missing()
-        # self.step_upload_anchor_fail_file_bogus_content()
-        # self.step_initalize_server_owner_member_class_missing()
-        # self.step_initalize_server_owner_member_code_missing()
-        # self.step_initalize_server_server_code_missing()
-        # self.step_initalize_server_token_pin_missing()
+        self.step_verify_initial_transient_api_keys()
+        self.step_upload_anchor_fail_file_missing()
+        self.step_upload_anchor_fail_file_bogus_content()
+        self.step_initalize_server_owner_member_class_missing()
+        self.step_initalize_server_owner_member_code_missing()
+        self.step_initalize_server_server_code_missing()
+        self.step_initalize_server_token_pin_missing()
 
-        # self.step_init()
-        # self.step_timestamp_init()
+        self.step_init()
+        self.step_timestamp_init()
 
-        # self.step_token_login()
-        # self.step_token_login_already_logged_in()
+        self.step_token_login()
+        self.step_token_login_already_logged_in()
 
-        # self.step_subsystem_add_client_fail_member_class_missing()
-        # self.step_subsystem_add_client_fail_member_code_missing()
-        # self.step_subsystem_register_fail_client_not_saved()
-        # self.step_add_service_description_fail_client_not_saved()
-        # self.step_subsystem_add_client()
-        # self.step_token_init_keys()
+        self.step_subsystem_add_client_fail_member_class_missing()
+        self.step_subsystem_add_client_fail_member_code_missing()
+        self.step_subsystem_register_fail_client_not_saved()
+        self.step_add_service_description_fail_client_not_saved()
+        self.step_subsystem_add_client()
+        self.step_token_init_keys()
 
-        # self.step_cert_import_fail_certificates_missing()
+        self.step_cert_import_fail_certificates_missing()
         ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
         for security_server in self.config["security_server"]:
@@ -1051,7 +1060,7 @@ class EndToEndTest(unittest.TestCase):
             self.apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
-        # self.step_cert_register_fail_certificates_not_imported()
+        self.step_cert_register_fail_certificates_not_imported()
         self.step_cert_import()
         self.step_cert_register()
 
@@ -1085,14 +1094,12 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
         self.step_add_service_endpoints()
         self.step_add_endpoints_access()
-       # self.step_subsystem_register()
+        self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
         self.step_cert_download_internal_tls()
 
-        self.step_disable_certificates()
-        # self.step_unregister_certificates()
-        # self.step_delete_certificates()
+        RenewCertificate(self).test_run_configuration()
 
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

@@ -335,8 +335,6 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
   	- /path/to/tls_cert
-  certificate_management:
-    - <CERTIFICATE_HASH>
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
@@ -413,8 +411,6 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
     - <TLS_CERT_PATH>
-  certificate_management:
-    - <CERTIFICATE_HASH>
 ```
 * <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
 * <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> (Optional) If is set it will overwrite the <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
@@ -750,39 +746,36 @@ The table above shows the following information about the certificates:
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-In the `certificate_management` we must set the list of hashes of the certificates we want to disable, we can get the hashes of the certificates
+We must set as argument hash (or list of hashes separated by comma) of the certificates we want to disable, we can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Disable the certificates can be done with:
 ```
-xrdsst cert disable
+xrdsst cert disable --hash <CERTIFICATE_HASH>
 ```
 
 ##### 4.2.5.8 Certificate unregister
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-In the `certificate_management` we must set the list of hashes of the authentication certificates we want to disable, we can get the hashes of the certificates
+We must set as argument hash (or list of hashes separated by comma) of the authentication certificates we want to delete, we can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Unregister the authentication certificates can be done with:
 ```
-xrdsst cert unregister
+xrdsst cert unregister --hash <CERTIFICATE_HASH>
 ```
 
 ##### 4.2.5.9 Certificate delete
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-In the `certificate_management` we must set the list of hashes of the certificates we want to delete, we can get the hashes of the certificates
+We must set as argument hash (or list of hashes separated by comma) of the certificates we want to delete, we can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Delete the certificates can be done with:
 ```
-xrdsst cert delete
+xrdsst cert delete --hash <CERTIFICATE_HASH>
 ```
 
 #### 4.2.5 Client management commands

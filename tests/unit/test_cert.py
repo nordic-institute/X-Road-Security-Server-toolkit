@@ -4,7 +4,7 @@ import sys
 import unittest
 from datetime import datetime
 from unittest import mock
-
+from argparse import Namespace
 import pytest
 from dateutil.tz import tzutc
 
@@ -262,7 +262,7 @@ class TestCert(unittest.TestCase):
               'security_server_code': 'SS3',
               'software_token_id': '0',
               'software_token_pin': '1122',
-              'certificate_management': [CertTestData.single_cert.certificate_details.hash]},
+              },
              {'name': 'ssY',
               'url': 'https://non.existing.url.blah:8999/api/v1',
               'certificates': [
@@ -278,7 +278,7 @@ class TestCert(unittest.TestCase):
               'security_server_code': 'SS3',
               'software_token_id': '0',
               'software_token_pin': '1122',
-              'certificate_management': [CertTestData.single_cert.certificate_details.hash]}
+              }
              ]}
 
     def ss_config_with_authcert(self):
@@ -312,12 +312,16 @@ class TestCert(unittest.TestCase):
             raise Exception("No mock for CSR '" + csr_id + "'")
 
         with XRDSSTTest() as app:
+
+            single_server_config = copy.deepcopy(self.ss_config)
+            del single_server_config["security_server"][-1]
+
             with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
                             return_value=CertTestData.token_with_two_csrs_response):
                 with mock.patch('xrdsst.api.keys_api.KeysApi.download_csr', new=mocked_download_csr):
                     cert_controller = CertController()
                     cert_controller.app = app
-                    cert_controller.load_config = (lambda: self.ss_config)
+                    cert_controller.load_config = (lambda: single_server_config)
                     cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
                     reported_downloads = cert_controller.download_csrs()
 
@@ -575,6 +579,7 @@ class TestCert(unittest.TestCase):
 
     def test_cert_disable(self):
        with XRDSSTTest() as app:
+           app._parsed_args = Namespace(hash='111111111')
            with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
                            return_value=CertTestData.single_cert):
                with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.disable_certificate',
@@ -604,6 +609,8 @@ class TestCert(unittest.TestCase):
             def getheaders(self): return None
 
         with XRDSSTTest() as app:
+            hash = '111111111'
+            app._parsed_args = Namespace(hash=hash)
             with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
                             return_value=CertTestData.single_cert):
                 with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.disable_certificate',
@@ -618,7 +625,7 @@ class TestCert(unittest.TestCase):
                     out, err = self.capsys.readouterr()
 
                     assert out.count(
-                        "Disable certificate with hash: '%s' for security server: 'ssX', already disable" % CertTestData.single_cert.certificate_details.hash) > 0
+                        "Disable certificate with hash: '%s' for security server: 'ssX', already disable" % hash) > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
@@ -626,6 +633,8 @@ class TestCert(unittest.TestCase):
 
     def test_cert_unregister(self):
        with XRDSSTTest() as app:
+           hash = '111111111'
+           app._parsed_args = Namespace(hash=hash)
            with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
                            return_value=CertTestData.single_cert):
                with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.unregister_auth_certificate',
@@ -647,6 +656,8 @@ class TestCert(unittest.TestCase):
 
     def test_cert_delete(self):
        with XRDSSTTest() as app:
+           hash = '111111111'
+           app._parsed_args = Namespace(hash=hash)
            with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
                            return_value=CertTestData.single_cert):
                with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.delete_certificate',
