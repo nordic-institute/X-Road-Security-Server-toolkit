@@ -33,7 +33,7 @@ class ServiceDescriptionListMapper:
             'url': description.get('url'),
             'type': description.get('type'),
             'disabled': description.get('disabled'),
-            'no_of_services': description.get('services')
+            'services': description.get('services')
         }
 
 
