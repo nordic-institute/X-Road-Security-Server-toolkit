@@ -23,7 +23,6 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from xrdsst.core.conf_keys import ConfKeysSecServerClients,ConfKeysSecurityServer
 
-from xrdsst.models import KeyUsageType
 
 
 def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
