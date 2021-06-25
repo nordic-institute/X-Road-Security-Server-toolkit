@@ -52,7 +52,6 @@ security_server:
               access:
                 - DEV:security-server-owners
         - url: http://dev-cs.i.x-road.rocks/managementservices.wsdl
-          rest_service_code: None
           type: WSDL
           access:
               - DEV:security-server-owners
@@ -117,7 +116,6 @@ security_server:
               access:
                 - DEV:security-server-owners
         - url: http://dev-cs.i.x-road.rocks/managementservices.wsdl
-          rest_service_code: None
           type: WSDL
           access:
               - DEV:security-server-owners
