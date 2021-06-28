@@ -54,33 +54,6 @@ class RenewCertificate():
                 assert len(sign_cert) == 1
                 assert len(sign_cert_new_member) == 1
 
-    def step_cert_download_csrs(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            cert_controller.load_config = (lambda: self.test.config)
-            result = cert_controller.download_csrs()
-
-            assert len(result) == 6
-
-            fs_loc_list = []
-            csrs = []
-            for csr in result:
-                fs_loc_list.append(csr.fs_loc)
-                csrs.append((str(csr.key_type).lower(), csr.fs_loc))
-            flag = len(set(fs_loc_list)) == len(fs_loc_list)
-
-            assert flag is True
-
-            return csrs
-
-    def step_cert_activate(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            for security_server in self.test.config["security_server"]:
-                configuration = cert_controller.create_api_config(security_server, self.config)
-                cert_controller.remote_activate_certificate(configuration, security_server)
 
     def step_unregister_certificates(self, old_certificates):
         with XRDSSTTest() as app:
@@ -150,7 +123,7 @@ class RenewCertificate():
 
         self.step_token_create_new_keys()
 
-        downloaded_csrs = self.step_cert_download_csrs()
+        downloaded_csrs = self.test.step_cert_download_csrs()
         ssn = 0
         for security_server in self.test.config["security_server"]:
             signed_certs = self.test.step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
