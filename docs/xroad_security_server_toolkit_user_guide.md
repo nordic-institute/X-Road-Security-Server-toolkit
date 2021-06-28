@@ -81,6 +81,7 @@ Doc. ID: XRDSST-CONF
             * [4.2.3.1 Token login command](#4231-token-login-command)
             * [4.2.3.2 Token list](#4232-token-list)
             * [4.2.3.3 Token init-keys](#4233-token-init-keys)
+            * [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys)
          * [4.2.4 Timestamp commands](#424-timestamp-commands)
             * [4.2.4.1 Timestamp init](#4241-timestamp-init)
             * [4.2.4.2 Timestamp list approved](#4242-timestamp-list-approved)
