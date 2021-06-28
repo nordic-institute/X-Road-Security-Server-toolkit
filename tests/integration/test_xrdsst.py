@@ -702,7 +702,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert len(response) == 1
                         assert response[0]["security_server"] == security_server["name"]
                         assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
-                        assert response[0]["description_id"] > 0
                         assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
                         assert response[0]["service_code"] == 'Petstore'
                         assert response[0]["timeout"] == 120
