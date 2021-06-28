@@ -1325,7 +1325,7 @@ It is recommended to renew the certificates in advance before they expire. You c
 UI in the tab <strong>KEYS AND CERTIFICATE</strong> => <strong>SIGN AND AUTH KEYS</strong> column <strong>Expires</strong>.
 To renew the certificates we must:
 
-1. Create new CRS keys for the new certificates using the command:
+1. Create new CRS keys for the new certificates using the [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys) command. 
 2. Download and sign the new certificates.
 3. Add the signed certificates to the [certificates list](#322-security-servers-configuration) of the security server 
    in the configuration file.
