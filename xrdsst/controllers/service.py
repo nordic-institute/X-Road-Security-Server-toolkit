@@ -3,6 +3,7 @@ from xrdsst.api import ClientsApi, ServiceDescriptionsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
+from xrdsst.core.util import parse_argument_list
 from xrdsst.models import ServiceDescriptionAdd, ServiceClients, ServiceUpdate
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
@@ -36,6 +37,7 @@ class ServiceDescriptionListMapper:
             'services': description.get('services')
         }
 
+
 class ServiceListMapper:
     @staticmethod
     def headers():
@@ -62,6 +64,7 @@ class ServiceListMapper:
             'timeout': service.get('timeout'),
             'url': service.get('url')
         }
+
 
 class ServiceController(BaseController):
     class Meta:
@@ -429,7 +432,7 @@ class ServiceController(BaseController):
         try:
             service_descriptions_list = []
             render_data = []
-            client_ids = client.split(',')
+            client_ids = parse_argument_list(client)
             for client_id in client_ids:
                 service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
                 for service_description in service_descriptions:
@@ -439,7 +442,7 @@ class ServiceController(BaseController):
                                                       'url': service_description.url,
                                                       'type': service_description.type,
                                                       'disabled': service_description.disabled,
-                                                      'services': len(service_description.services)})
+                                                      'services': len(service_description.services) if service_description.services else 0})
             if self.is_output_tabulated():
                 render_data = [ServiceDescriptionListMapper.headers()]
                 render_data.extend(map(ServiceDescriptionListMapper.as_list, service_descriptions_list))
@@ -455,7 +458,7 @@ class ServiceController(BaseController):
         try:
             services_list = []
             render_data = []
-            description_ids = description.split(',')
+            description_ids = parse_argument_list(description)
             service_descriptions = clients_api.get_client_service_descriptions(id=client)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:

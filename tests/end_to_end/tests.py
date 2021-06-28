@@ -808,6 +808,30 @@ class EndToEndTest(unittest.TestCase):
                         assert response[0]["services"] == 1
                 ssn = ssn + 1
 
+    def step_list_service_description_services(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            service_controller = ServiceController()
+            service_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_description(self.config, client_id, ssn)
+                        response = service_controller.remote_list_services(configuration, security_server, client_id, description.id)
+                        assert len(response) == 1
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
+                        assert response[0]["description_id"] > 0
+                        assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
+                        assert response[0]["service_code"] == 'Petstore'
+                        assert response[0]["timeout"] == 120
+                        assert response[0]["url"] == 'http://petstore.xxx'
+                ssn = ssn + 1
+
     def step_create_admin_user_fail_admin_credentials_missing(self):
         admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
         admin_credentials = os.getenv(admin_credentials_env_var, "")
@@ -1097,6 +1121,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
         self.step_list_service_descriptions()
+        self.step_list_service_description_services()
         self.step_cert_download_internal_tls()
 
         self.step_disable_certificates()
