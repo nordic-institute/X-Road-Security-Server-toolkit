@@ -926,8 +926,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_enable_service_description()
         self.step_add_service_access()
         self.step_import_tls_certificate()
-        self.step_list_service_descriptions()
-        self.step_list_service_description_services()
 
         self.step_member_find()
         self.step_member_list_classes()
@@ -939,6 +937,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
+        self.step_list_service_descriptions()
+        self.step_list_service_description_services()
         self.step_cert_download_internal_tls()
         self.step_disable_certificates()
         # self.step_unregister_certificates()
