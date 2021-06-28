@@ -47,6 +47,7 @@ Doc. ID: XRDSST-CONF
 | 17.06.2021 | 2.0.1       | Added disable certificates command                                           | Alberto Fernandez  |
 | 21.06.2021 | 2.0.2       | Added delete and unregister certificates command                             | Alberto Fernandez  |
 | 22.06.2021 | 2.0.3       | Notes on member management                                                   | Bert Viikmäe       |
+| 28.06.2021 | 2.0.4      | Update renew certificates process                                             | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -628,6 +629,18 @@ The key labels used are conventionally with suffixes ``default-auth-key`` and ``
 those already exist, they will not be duplicated and command acts as no-op for such security server.
 If we are using [Multitenancy](#8-multitenancy) this command will also create an extra key and signing request with the 
 key label suffix ``default-sign-key_<MEMBER_CODE>_<MEMBER_NAME>``
+
+##### 4.2.3.4 Token create-new-keys
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER or XROAD_SECURITY_OFFICER
+
+Token keys for authentication and signatures can be created with:
+```
+xrdsst token create-new-keys
+``` 
+This command works the same as the [4.2.3.3 Token init-keys](#4233-token-init-keys) command,
+the difference is that this command will be used when the certificates already exist and we want to generate 
+new keys to renew them.
 
 #### 4.2.4 Timestamp commands
 
