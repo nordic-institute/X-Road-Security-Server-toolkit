@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1-beta.0] - 2021-06-25
+- Fix ``xrdsst member`` sub-command ``list-classes`` to list classes for current instance when command-line parameter not provided
+- add ``xrdsst service`` and sub-command ``list-descriptions``
+
 ## [2.1.0-beta.0] - 2021-06-22
 - add ``xrdsst member`` and sub-command ``list-classes``
 - add ``xrdsst cert`` and sub-commands ``delete`` and ``unregister``

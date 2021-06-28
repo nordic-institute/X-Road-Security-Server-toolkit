@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.3
+Version: 2.0.4
 Doc. ID: XRDSST-CONF
 
 ---
@@ -47,6 +47,7 @@ Doc. ID: XRDSST-CONF
 | 17.06.2021 | 2.0.1       | Added disable certificates command                                           | Alberto Fernandez  |
 | 21.06.2021 | 2.0.2       | Added delete and unregister certificates command                             | Alberto Fernandez  |
 | 22.06.2021 | 2.0.3       | Notes on member management                                                   | Bert Viikmäe       |
+| 25.06.2021 | 2.0.4       | Update service management                                                    | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -104,7 +105,8 @@ Doc. ID: XRDSST-CONF
             * [4.2.6.2 Service add access rights](#4262-service-add-access-rights)
             * [4.2.6.3 Enable service](#4263-enable-service)
             * [4.2.6.4 Service update parameters](#4264-service-update-parameters)
-            * [4.2.6.5 Service apply](#4265-service-apply)
+            * [4.2.6.5 Service list descriptions](#4265-service-list-descriptions)
+            * [4.2.6.6 Service apply](#4266-service-apply)
          * [4.2.7 Endpoint management](#427-endpoint-management)
             * [4.2.7.1 Endpoint add](#4271-endpoint-add)
             * [4.2.7.2 Endpoint add access rights](#4272-endpoint-add-access-rights)
@@ -877,7 +879,20 @@ xrdsst service update-parameters
 This command will update the parameters of the single services added to the configuration file, or it will update the parameters
 for all the services in the description if the boolean parameters are set to True.
 
-##### 4.2.6.5 Service apply
+##### 4.2.6.5 Service list descriptions
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+There are no configuration parameters involved, command line arguments are used instead
+
+Listing service descriptions can be done with:
+```
+xrdsst service list-descriptions --client <CLIENT_ID>
+```
+* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST, multiple values can also be given, separated by comma, e.g. DEV:GOV:1234:TEST,DEV:GOV:1234:MANAGEMENT
+
+
+##### 4.2.6.6 Service apply
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -926,19 +941,25 @@ There are no configuration parameters involved, command line arguments are used 
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
-Finding member can be done with:
+Finding a member for current X-Road instance can be done with:
 ```
 xrdsst member find --class <MEMBER_CLASS> --code <MEMBER_CODE>
 ```
+
+* <MEMBER_CLASS> member class for the member to be searched, e.g. GOV
+* <MEMBER_CODE> member code for the member to be searched, e.g. 1234
 
 ##### 4.2.8.2 Member list member classes
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
-Finding member can be done with:
+Listing member classes can be done with:
 ```
 xrdsst member list-classes --instance <XROAD-INSTANCE>
 ```
+**When ``instance`` command-line parameter is not provided, current instance is assumed**
+
+* <XROAD-INSTANCE> X-Road instance for the member classes to be searched, e.g. DEV
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney

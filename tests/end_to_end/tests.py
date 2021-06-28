@@ -786,6 +786,28 @@ class EndToEndTest(unittest.TestCase):
                     assert description["services"][0]["url"] == 'http://petstore.xxx'
             ssn = ssn + 1
 
+    def step_list_service_descriptions(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            service_controller = ServiceController()
+            service_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
+                        assert len(response) == 1
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == 'DEV:ORG:111:TEST'
+                        assert response[0]["url"] == 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml'
+                        assert response[0]["type"] == 'OPENAPI3'
+                        assert response[0]["disabled"] is False
+                        assert response[0]["services"] == 1
+                ssn = ssn + 1
+
     def step_create_admin_user_fail_admin_credentials_missing(self):
         admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
         admin_credentials = os.getenv(admin_credentials_env_var, "")
@@ -1074,6 +1096,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
+        self.step_list_service_descriptions()
         self.step_cert_download_internal_tls()
 
         self.step_disable_certificates()
