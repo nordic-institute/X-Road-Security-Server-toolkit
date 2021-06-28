@@ -71,11 +71,6 @@ class MemberController(BaseController):
     @ex(help="List member classes", arguments=[(['--instance'], {'help': 'X-Road instance', 'dest': 'instance'})])
     def list_classes(self):
         active_config = self.load_config()
-
-        if self.app.pargs.instance is None:
-            self.log_info('X-Road instance parameter is required for listing member classes')
-            return
-
         self.list_member_classes(active_config, self.app.pargs.instance)
 
     def find_name(self, config, member_class, member_code):
@@ -118,7 +113,10 @@ class MemberController(BaseController):
     def remote_list_classes(self, ss_api_config, security_server, instance):
         member_classes_api = MemberClassesApi(ApiClient(ss_api_config))
         try:
-            member_classes = member_classes_api.get_member_classes_for_instance(id=instance)
+            if instance is None:
+                member_classes = member_classes_api.get_member_classes(current_instance=True)
+            else:
+                member_classes = member_classes_api.get_member_classes_for_instance(id=instance)
             member_class_list = []
             for member_class in member_classes:
                 member_class_list.append({'security_server': security_server["name"], 'instance': instance, 'member_class': member_class})

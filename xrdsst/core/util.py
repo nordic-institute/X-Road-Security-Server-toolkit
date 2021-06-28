@@ -147,6 +147,6 @@ def log_info(message):
     logging.info(message)
     print(message)
 
+
 def parse_argument_list(arg):
-    list = arg.split(',')
-    return list
+    return arg.split(',')

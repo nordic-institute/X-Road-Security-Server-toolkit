@@ -147,15 +147,15 @@ class TestMember(unittest.TestCase):
 
                 assert member_controller.app._last_rendered[0][0]["member_class"] is 'GOV'
 
-    def test_member_list_classes_fail_instance_missing(self):
+    def test_member_list_classes_for_current_instance_when_instance_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(instance=None)
             with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
-                with mock.patch('xrdsst.api.member_classes_api.MemberClassesApi.get_member_classes_for_instance',
+                with mock.patch('xrdsst.api.member_classes_api.MemberClassesApi.get_member_classes',
                                 return_value=['GOV']):
                     member_controller = MemberController()
                     member_controller.app = app
                     member_controller.load_config = (lambda: self.ss_config)
                     member_controller.list_classes()
 
-                assert member_controller.app._last_rendered is None
+                assert member_controller.app._last_rendered[0][1][2] is 'GOV'

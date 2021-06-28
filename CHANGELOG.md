@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1-beta.0] - 2021-06-25
+- Fix ``xrdsst member`` sub-command ``list-classes`` to list classes for current instance when command-line parameter not provided
+- add ``xrdsst service`` and sub-command ``list-descriptions``
+
 ## [2.1.4-beta.0] - 2021-06-28
 - add ``xrdsst token create-new-keys`` command
 - refactor code to been able to register cert when multiple auth certificates
