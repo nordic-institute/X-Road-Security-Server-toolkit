@@ -146,3 +146,7 @@ def revoke_api_key(app):
 def log_info(message):
     logging.info(message)
     print(message)
+
+
+def parse_argument_list(arg):
+    return arg.split(',')

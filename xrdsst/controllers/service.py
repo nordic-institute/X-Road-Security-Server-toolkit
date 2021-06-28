@@ -3,6 +3,7 @@ from xrdsst.api import ClientsApi, ServiceDescriptionsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
+from xrdsst.core.util import parse_argument_list
 from xrdsst.models import ServiceDescriptionAdd, ServiceClients, ServiceUpdate
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
@@ -379,7 +380,7 @@ class ServiceController(BaseController):
         try:
             service_descriptions_list = []
             render_data = []
-            client_ids = client.split(',')
+            client_ids = parse_argument_list(client)
             for client_id in client_ids:
                 service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
                 for service_description in service_descriptions:
@@ -389,7 +390,7 @@ class ServiceController(BaseController):
                                                       'url': service_description.url,
                                                       'type': service_description.type,
                                                       'disabled': service_description.disabled,
-                                                      'services': len(service_description.services)})
+                                                      'services': len(service_description.services) if service_description.services else 0})
                 if self.is_output_tabulated():
                     render_data = [ServiceDescriptionListMapper.headers()]
                     render_data.extend(map(ServiceDescriptionListMapper.as_list, service_descriptions_list))
