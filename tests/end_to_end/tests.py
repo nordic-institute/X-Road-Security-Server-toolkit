@@ -56,9 +56,9 @@ class EndToEndTest(unittest.TestCase):
 
             print(self.config_file)
 
-            self.config = base.load_config(baseconfig=self.config_file)
+            # self.config = base.load_config(baseconfig=self.config_file)
 
-            # self.config = base.load_config(baseconfig='tests/resources/test-config-template.yaml')
+            self.config = base.load_config(baseconfig='tests/resources/test-config-template.yaml')
             print(self.config)
 
             ssn = 0
