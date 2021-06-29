@@ -37,28 +37,14 @@ class EndToEndTest(unittest.TestCase):
     def setUp(self):
         with XRDSSTTest() as app:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-            print("Inicio")
             idx = 0
             for arg in sys.argv:
-
-                print("entra en el args 1 ")
-
                 idx += 1
                 if arg == "-c":
-
-                    print("entra en el args 2 ")
                     self.config_file = sys.argv[idx]
-
-                    print(sys.argv)
-
             base = BaseController()
             base.app = app
-
-            print(self.config_file)
-
-            # self.config = base.load_config(baseconfig=self.config_file)
-
-            self.config = base.load_config(baseconfig='tests/resources/test-config-template.yaml')
+            self.config = base.load_config(baseconfig=self.config_file)
             print(self.config)
 
             ssn = 0

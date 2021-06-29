@@ -342,8 +342,6 @@ class BaseController(Controller):
         if self.config:
             conf_key_errors = validate_conf_keys(self.config)
             for conf_key_error in conf_key_errors:
-                print("No hay config errors")
-
                 padding = (len(conf_key_error[0]) - len(conf_key_error[1]) - 1)
                 print(conf_key_error[0], 'NOT AMONG', file=sys.stderr)
                 for known_key in sorted(conf_key_error[2]):
@@ -351,8 +349,6 @@ class BaseController(Controller):
                 print('', file=sys.stderr)
 
             if conf_key_errors:
-                print("hay config errors")
-
                 self.log_info("Invalid configuration keys encountered in '{}'.".format(self.config_file))
                 self.app.close(os.EX_CONFIG)
                 return None
