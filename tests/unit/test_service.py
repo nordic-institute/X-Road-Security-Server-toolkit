@@ -534,12 +534,12 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.list_descriptions()
 
-                assert service_controller.app._last_rendered[0][1][1] == 'DEV:GOV:9876:SUB1'
-                assert service_controller.app._last_rendered[0][1][2] == 'DEV:GOV:9876:SUB1'
-                assert service_controller.app._last_rendered[0][1][3] == 'https://openapi3'
-                assert service_controller.app._last_rendered[0][1][4] == 'OPENAPI3'
-                assert service_controller.app._last_rendered[0][1][5] is True
-                assert service_controller.app._last_rendered[0][1][6] == 1
+                    assert service_controller.app._last_rendered[0][1][1] == 'DEV:GOV:9876:SUB1'
+                    assert service_controller.app._last_rendered[0][1][2] == 'DEV:GOV:9876:SUB1'
+                    assert service_controller.app._last_rendered[0][1][3] == 'https://openapi3'
+                    assert service_controller.app._last_rendered[0][1][4] == 'OPENAPI3'
+                    assert service_controller.app._last_rendered[0][1][5] is True
+                    assert service_controller.app._last_rendered[0][1][6] == 1
 
     def test_service_list_descriptions_render_as_object(self):
         with XRDSSTTest() as app:
@@ -552,12 +552,12 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.list_descriptions()
 
-                assert service_controller.app._last_rendered[0][0]["client_id"] == 'DEV:GOV:9876:SUB1'
-                assert service_controller.app._last_rendered[0][0]["description_id"] == 'DEV:GOV:9876:SUB1'
-                assert service_controller.app._last_rendered[0][0]["url"] == 'https://openapi3'
-                assert service_controller.app._last_rendered[0][0]["type"] == 'OPENAPI3'
-                assert service_controller.app._last_rendered[0][0]["disabled"] is True
-                assert service_controller.app._last_rendered[0][0]["services"] == 1
+                    assert service_controller.app._last_rendered[0][0]["client_id"] == 'DEV:GOV:9876:SUB1'
+                    assert service_controller.app._last_rendered[0][0]["description_id"] == 'DEV:GOV:9876:SUB1'
+                    assert service_controller.app._last_rendered[0][0]["url"] == 'https://openapi3'
+                    assert service_controller.app._last_rendered[0][0]["type"] == 'OPENAPI3'
+                    assert service_controller.app._last_rendered[0][0]["disabled"] is True
+                    assert service_controller.app._last_rendered[0][0]["services"] == 1
 
     def test_service_list_descriptions_fail_client_missing(self):
         with XRDSSTTest() as app:
@@ -570,4 +570,67 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.list_descriptions()
 
-                assert service_controller.app._last_rendered is None
+                    assert service_controller.app._last_rendered is None
+
+    def test_service_list_services_render_tabulated(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                                return_value=[ServiceTestData.add_description_response]):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.list_services()
+
+                    assert service_controller.app._last_rendered[0][1][1] == 'DEV:GOV:9876:SUB1'
+                    assert service_controller.app._last_rendered[0][1][2] == 'DEV:GOV:9876:SUB1'
+                    assert service_controller.app._last_rendered[0][1][3] == 'DEV:GOV:9876:SUB1:Petstore'
+                    assert service_controller.app._last_rendered[0][1][4] == 'Petstore'
+                    assert service_controller.app._last_rendered[0][1][5] == 60
+                    assert service_controller.app._last_rendered[0][1][6] == 'url'
+
+    def test_service_list_services_render_as_object(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=False):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                                return_value=[ServiceTestData.add_description_response]):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.list_services()
+
+                    assert service_controller.app._last_rendered[0][0]["client_id"] == 'DEV:GOV:9876:SUB1'
+                    assert service_controller.app._last_rendered[0][0]["description_id"] == 'DEV:GOV:9876:SUB1'
+                    assert service_controller.app._last_rendered[0][0]["service_id"] == 'DEV:GOV:9876:SUB1:Petstore'
+                    assert service_controller.app._last_rendered[0][0]["service_code"] == 'Petstore'
+                    assert service_controller.app._last_rendered[0][0]["timeout"] == 60
+                    assert service_controller.app._last_rendered[0][0]["url"] == 'url'
+
+    def test_service_list_services_fail_client_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(client=None, description='DEV:GOV:9876:SUB1:Petstore')
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                                return_value=[ServiceTestData.add_description_response]):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.list_services()
+
+                    assert service_controller.app._last_rendered is None
+
+
+    def test_service_list_services_fail_description_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(client='DEV:GOV:9876:SUB1', description=None)
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                                return_value=[ServiceTestData.add_description_response]):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.list_services()
+
+                    assert service_controller.app._last_rendered is None
