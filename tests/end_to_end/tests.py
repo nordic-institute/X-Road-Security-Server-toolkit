@@ -45,8 +45,6 @@ class EndToEndTest(unittest.TestCase):
             base = BaseController()
             base.app = app
             self.config = base.load_config(baseconfig=self.config_file)
-            print(self.config)
-
             ssn = 0
             for security_server in self.config["security_server"]:
                 if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):

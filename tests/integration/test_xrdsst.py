@@ -20,7 +20,7 @@ from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from xrdsst.core.conf_keys import ConfKeysSecServerClients,ConfKeysSecurityServer
-
+from tests.integration.renew_certificate_test import RenewCertificate
 
 
 def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
@@ -906,5 +906,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_list_service_descriptions()
         self.step_list_service_description_services()
         self.step_cert_download_internal_tls()
+
+        RenewCertificate(self).test_run_configuration()
+
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

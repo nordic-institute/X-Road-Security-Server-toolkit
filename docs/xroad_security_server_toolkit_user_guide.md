@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.5
+Version: 2.0.6
 Doc. ID: XRDSST-CONF
 
 ---
@@ -49,7 +49,7 @@ Doc. ID: XRDSST-CONF
 | 22.06.2021 | 2.0.3       | Notes on member management                                                   | Bert Viikmäe       |
 | 25.06.2021 | 2.0.4       | Update service management                                                    | Bert Viikmäe       |
 | 25.06.2021 | 2.0.5       | Update service management                                                    | Bert Viikmäe       |
-| 28.06.2021 | 2.0.4      | Update renew certificates process                                             | Alberto Fernandez  |
+| 28.06.2021 | 2.0.6       | Update renew certificates process                                             | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
