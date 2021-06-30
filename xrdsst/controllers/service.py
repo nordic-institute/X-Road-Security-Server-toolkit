@@ -515,6 +515,8 @@ class ServiceController(BaseController):
                     try:
                         service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_api_config))
                         service_descriptions_api.delete_service_description(id=service_description.id)
+                        BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client +
+                                                "' with id: '" + service_description.id + "' deleted successfully.")
                     except ApiException as err:
                         BaseController.log_api_error('ServiceDescriptionsApi->delete_service_description', err)
 

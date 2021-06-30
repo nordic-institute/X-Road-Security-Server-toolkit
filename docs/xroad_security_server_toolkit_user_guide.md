@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.5
+Version: 2.0.6
 Doc. ID: XRDSST-CONF
 
 ---
@@ -47,8 +47,9 @@ Doc. ID: XRDSST-CONF
 | 17.06.2021 | 2.0.1       | Added disable certificates command                                           | Alberto Fernandez  |
 | 21.06.2021 | 2.0.2       | Added delete and unregister certificates command                             | Alberto Fernandez  |
 | 22.06.2021 | 2.0.3       | Notes on member management                                                   | Bert Viikmäe       |
-| 25.06.2021 | 2.0.4       | Update service management                                                    | Bert Viikmäe       |
-| 25.06.2021 | 2.0.5       | Update service management                                                    | Bert Viikmäe       |
+| 25.06.2021 | 2.0.4       | Update service management with listing of service descriptions               | Bert Viikmäe       |
+| 25.06.2021 | 2.0.5       | Update service management with listing of service description services       | Bert Viikmäe       |
+| 30.06.2021 | 2.0.6       | Update service management with deletion of service descriptions              | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -108,7 +109,8 @@ Doc. ID: XRDSST-CONF
             * [4.2.6.4 Service update parameters](#4264-service-update-parameters)
             * [4.2.6.5 Service list descriptions](#4265-service-list-descriptions)
             * [4.2.6.6 Service list services](#4266-service-list-services)
-            * [4.2.6.7 Service apply](#4267-service-apply)
+            * [4.2.6.7 Service delete descriptions](#4267-service-delete-descriptions)            
+            * [4.2.6.8 Service apply](#4268-service-apply)
          * [4.2.7 Endpoint management](#427-endpoint-management)
             * [4.2.7.1 Endpoint add](#4271-endpoint-add)
             * [4.2.7.2 Endpoint add access rights](#4272-endpoint-add-access-rights)
@@ -906,7 +908,20 @@ xrdsst service list-services --client <CLIENT_ID> --description <SERVICE_DESCRIP
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
-##### 4.2.6.7 Service apply
+##### 4.2.6.7 Service delete descriptions
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+There are no configuration parameters involved, command line arguments are used instead
+
+Deletion of service descriptions can be done with:
+```
+xrdsst service delete-descriptions --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
+```
+* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+
+##### 4.2.6.8 Service apply
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
