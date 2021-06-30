@@ -176,7 +176,7 @@ class CertController(BaseController):
         active_config = self.load_config()
 
         if self.app.pargs.hash is None:
-            self.log_info('Member class parameter is required for searching member names')
+            self.log_info('Certificate hash parameter is required for disable certificates')
             return
 
         self.cert_operation(active_config, CertOperations.disable, parse_argument_list(self.app.pargs.hash))
@@ -191,7 +191,7 @@ class CertController(BaseController):
         active_config = self.load_config()
 
         if self.app.pargs.hash is None:
-            self.log_info('Member class parameter is required for searching member names')
+            self.log_info('Certificate hash parameter is required for unregister certificates')
             return
 
         self.cert_operation(active_config, CertOperations.unregister, parse_argument_list(self.app.pargs.hash))
@@ -206,7 +206,7 @@ class CertController(BaseController):
         active_config = self.load_config()
 
         if self.app.pargs.hash is None:
-            self.log_info('Member class parameter is required for searching member names')
+            self.log_info('Certificate hash parameter is required for delete certificates')
             return
 
         self.cert_operation(active_config, CertOperations.delete, parse_argument_list(self.app.pargs.hash))
@@ -373,14 +373,6 @@ class CertController(BaseController):
 
 
     def remote_download_csrs(self, ss_api_config, security_server):
-        # def contains_label(csrs_key, key_labels):
-        #     for key_label in key_labels:
-        #         if key_label in csrs_key.label:
-        #             return True
-        #     return False
-
-        # key_labels = self.get_key_labels(security_server)
-
         token = remote_get_token(ss_api_config, security_server)
         auth_keys = list(filter(lambda key: key.usage == KeyUsageType.AUTHENTICATION, token.keys))
         sign_keys = list(filter(lambda key: key.usage == KeyUsageType.SIGNING, token.keys))

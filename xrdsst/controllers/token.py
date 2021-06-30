@@ -285,58 +285,6 @@ class TokenController(BaseController):
 
         log_creations(responses)
 
-
-    # @staticmethod
-    # def remote_token_add_signing_key_new_member(ss_api_config, security_server, client):
-    #     new_member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
-    #     new_member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
-    #     new_member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
-    #
-    #     token_id = security_server[ConfKeysSecurityServer.CONF_KEY_SOFT_TOKEN_ID]
-    #     ss_code = security_server[ConfKeysSecurityServer.CONF_KEY_SERVER_CODE]
-    #     dn_country = security_server[ConfKeysSecurityServer.CONF_KEY_DN_C]
-    #
-    #     sign_key_label = default_member_sign_key_label(security_server, client)
-    #     ssi = remote_get_security_server_instance(ss_api_config)
-    #     token = remote_get_token(ss_api_config, security_server)
-    #     sign_ca = remote_get_sign_certificate_authority(ss_api_config)
-    #
-    #     token_key_labels = list(map(lambda key: key.label, token.keys))
-    #     has_sign_key = sign_key_label in token_key_labels
-    #
-    #     sign_cert_subject = {
-    #         'C': dn_country,
-    #         'O': new_member_name,
-    #         'CN': new_member_code,
-    #         'serialNumber': '/'.join([ssi.instance_id, ss_code, new_member_class])
-    #     }
-    #
-    #     sign_key_req_param = KeyLabelWithCsrGenerate(
-    #         key_label=sign_key_label,
-    #         csr_generate_request=CsrGenerate(
-    #             key_usage_type=KeyUsageType.SIGNING,
-    #             ca_name=sign_ca.name,
-    #             csr_format=CsrFormat.DER,  # Test CA setup at least only works with DER
-    #             member_id=':'.join([ssi.instance_id, new_member_class, str(new_member_code)]),
-    #             subject_field_values=sign_cert_subject
-    #         )
-    #     )
-    #     token_api = TokensApi(ApiClient(ss_api_config))
-    #     if not has_sign_key:
-    #         try:
-    #             BaseController.log_info(TokenLabels.generate_key(token_id, sign_key_label, 'SIGN'))
-    #             response = token_api.add_key_and_csr(token_id, body=sign_key_req_param)
-    #             BaseController.log_info(
-    #                 "Created " + str(response.key.usage) + " CSR '" + response.csr_id +
-    #                 "' for key '" + response.key.id + "' as '" + response.key.label + "'"
-    #             )
-    #         except ApiException as err:
-    #             BaseController.log_api_error(TokenLabels.error(), err)
-    #     else:
-    #         BaseController.log_info("Skipping KEY and CSR creation, key for member " +
-    #                                 '/'.join([ssi.instance_id, ss_code, new_member_class, str(new_member_code)])
-    #                                 + "already exists")
-
 def remote_get_security_server_instance(ss_api_config):
     ss_api = SecurityServersApi(ApiClient(ss_api_config))
     ss_api_response = ss_api.get_security_servers(current_server=True)

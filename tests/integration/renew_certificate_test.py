@@ -133,7 +133,7 @@ class RenewCertificate():
         self.test.step_cert_import()
         self.test.step_cert_register()
         self.test.step_cert_activate()
-
+        self.step_disable_certificates(old_certificates)
 
 
 
