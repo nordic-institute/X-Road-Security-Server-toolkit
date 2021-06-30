@@ -166,12 +166,11 @@ class CertController(BaseController):
             self.render(render_data)
             return list
 
-    @ex(help="Find member name",
+    @ex(help="Disable certificate(s)",
         arguments=[
             (['--hash'], {'help': 'certificate hash', 'dest': 'hash'})
         ]
         )
-    @ex(help="Disable certificate(s)", arguments=[])
     def disable(self):
         active_config = self.load_config()
 
@@ -181,12 +180,11 @@ class CertController(BaseController):
 
         self.cert_operation(active_config, CertOperations.disable, parse_argument_list(self.app.pargs.hash))
 
-    @ex(help="Find member name",
+    @ex(help="Unregister certificate(s)",
         arguments=[
             (['--hash'], {'help': 'certificate hash', 'dest': 'hash'})
         ]
         )
-    @ex(help="Unregister certificate(s)", arguments=[])
     def unregister(self):
         active_config = self.load_config()
 
@@ -196,12 +194,11 @@ class CertController(BaseController):
 
         self.cert_operation(active_config, CertOperations.unregister, parse_argument_list(self.app.pargs.hash))
 
-    @ex(help="Find member name",
+    @ex(help="Delete certificate(s)",
         arguments=[
             (['--hash'], {'help': 'certificate hash', 'dest': 'hash'})
         ]
         )
-    @ex(help="Delete certificate(s)", arguments=[])
     def delete(self):
         active_config = self.load_config()
 
