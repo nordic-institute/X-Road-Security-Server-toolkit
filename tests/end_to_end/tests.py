@@ -9,7 +9,7 @@ import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
     assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients, getClientTlsCertificates
+    get_endpoint_service_clients, getClientTlsCertificates, get_service_descriptions
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -19,15 +19,15 @@ from xrdsst.controllers.member import MemberController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
-from xrdsst.controllers.token import TokenController
+from xrdsst.controllers.token import TokenController, KeyTypes
 from xrdsst.controllers.user import UserController
-from xrdsst.core.conf_keys import ConfKeysSecurityServer
+from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from xrdsst.models.key_usage_type import KeyUsageType
-
+from tests.end_to_end.renew_certificate import RenewCertificate
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -37,7 +37,6 @@ class EndToEndTest(unittest.TestCase):
     def setUp(self):
         with XRDSSTTest() as app:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
             idx = 0
             for arg in sys.argv:
                 idx += 1
@@ -364,17 +363,32 @@ class EndToEndTest(unittest.TestCase):
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert len(response[0].keys) == 0
-                token_controller.remote_token_add_keys_with_csrs(configuration, security_server)
+                member_class = security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CLASS]
+                member_code = security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CODE]
+                member_name = security_server[ConfKeysSecurityServer.CONF_KEY_DN_ORG]
+
+                auth_key_label = security_server['name'] + '-default-auth-key'
+                sign_key_label = security_server['name'] + '-default-sign-key'
+                token_controller.remote_token_add_keys_with_csrs(configuration, security_server, KeyTypes.ALL,
+                                                                            member_class, member_code, member_name,
+                                                                            auth_key_label, sign_key_label)
                 if "clients" in security_server:
                     for client in security_server["clients"]:
                         if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != \
                                 security_server["owner_member_code"]:
-                            token_controller.remote_token_add_signing_key_new_member(configuration, security_server, client)
+                            new_member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
+                            new_member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
+                            new_member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
+
+                            auth_key_label_new_member = security_server['name'] + '-default-auth-key_new_member'
+                            sign_key_label_new_member = security_server['name'] + '-default-sign-key_new_member'
+
+                            token_controller.remote_token_add_keys_with_csrs(configuration, security_server, KeyTypes.SIGN,
+                                                                            new_member_class, new_member_code, new_member_name,
+                                                                            auth_key_label_new_member, sign_key_label_new_member)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert len(response[0].keys) == 3
-                auth_key_label = security_server['name'] + '-default-auth-key'
-                sign_key_label = security_server['name'] + '-default-sign-key'
                 assert str(response[0].keys[0].label) == auth_key_label
                 assert str(response[0].keys[1].label) == sign_key_label
 
@@ -733,14 +747,15 @@ class EndToEndTest(unittest.TestCase):
                 if "service_descriptions" in client:
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert description["disabled"] is True
-                    for service_description in client["service_descriptions"]:
-                        service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
-                    found_client = get_client(self.config, client, ssn)
-                    client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert description["disabled"] is False
+                    descriptions = get_service_descriptions(self.config, client_id, ssn)
+                    for description in descriptions:
+                        assert description["disabled"] is True
+                        for service_description in client["service_descriptions"]:
+                            service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_description(self.config, client_id, ssn)
+                        assert description["disabled"] is False
             ssn = ssn + 1
 
     def step_add_service_access(self):
@@ -767,9 +782,11 @@ class EndToEndTest(unittest.TestCase):
                 if "service_descriptions" in client:
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert description["services"][0]["timeout"] == 60
-                    assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
+                    descriptions = get_service_descriptions(self.config, client_id, ssn)
+                    for description in descriptions:
+                        if description["type"] != "WSDL":
+                            assert description["services"][0]["timeout"] == 60
+                            assert description["services"][0]["url"] == 'http://petstore.swagger.io/v1'
             ssn = ssn + 1
 
         ssn = 0
@@ -781,9 +798,11 @@ class EndToEndTest(unittest.TestCase):
                         service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert description["services"][0]["timeout"] == 120
-                    assert description["services"][0]["url"] == 'http://petstore.xxx'
+                    descriptions = get_service_descriptions(self.config, client_id, ssn)
+                    for description in descriptions:
+                        if description["type"] != "WSDL":
+                            assert description["services"][0]["timeout"] == 120
+                            assert description["services"][0]["url"] == 'http://petstore.xxx'
             ssn = ssn + 1
 
     def step_list_service_descriptions(self):
@@ -914,10 +933,12 @@ class EndToEndTest(unittest.TestCase):
 
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert len(description["services"][0]["endpoints"]) == 5
-                    assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
-                    assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
+                    descriptions = get_service_descriptions(self.config, client_id, ssn)
+                    for description in descriptions:
+                        if description["type"] != "WSDL":
+                            assert len(description["services"][0]["endpoints"]) == 5
+                            assert str(description["services"][0]["endpoints"][4]["path"]) == "/testPath"
+                            assert str(description["services"][0]["endpoints"][4]["method"]) == "POST"
             ssn = ssn + 1
 
     def step_add_endpoints_access(self):
@@ -1123,9 +1144,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_list_service_description_services()
         self.step_cert_download_internal_tls()
 
-        self.step_disable_certificates()
-        # self.step_unregister_certificates()
-        # self.step_delete_certificates()
+        RenewCertificate(self).test_run_configuration()
 
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
