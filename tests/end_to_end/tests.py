@@ -3,7 +3,6 @@ import os
 import subprocess
 import sys
 import unittest
-from argparse import Namespace
 
 import urllib3
 
