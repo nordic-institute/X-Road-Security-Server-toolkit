@@ -4,7 +4,7 @@ import urllib3
 from tests.integration.integration_base import IntegrationTestBase
 from tests.integration.integration_ops import IntegrationOpBase
 from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients, getClientTlsCertificates
+    get_endpoint_service_clients, getClientTlsCertificates, get_service_descriptions
 from tests.util.test_util import get_service_description, assert_server_statuses_transitioned
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -739,7 +739,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     if "service_descriptions" in client:
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_description(self.config, client_id, ssn)
+                        description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
                         assert len(response) == 1
@@ -752,7 +752,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
                         service_controller.remote_delete_service_descriptions(configuration, client_id, description["id"])
 
-                        description = get_service_description(self.config, client_id, ssn)
+                        description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 0
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
                         assert len(response) == 0
