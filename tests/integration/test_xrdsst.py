@@ -14,12 +14,13 @@ from xrdsst.controllers.member import MemberController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import ServerStatus
 from xrdsst.controllers.timestamp import TimestampController
-from xrdsst.controllers.token import TokenController
+from xrdsst.controllers.token import TokenController, KeyTypes
 from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
-from xrdsst.models import KeyUsageType
+from xrdsst.core.conf_keys import ConfKeysSecServerClients,ConfKeysSecurityServer
+from tests.integration.renew_certificate_test import RenewCertificate
 
 
 def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
@@ -290,17 +291,35 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert len(response[0].keys) == 0
-                token_controller.remote_token_add_keys_with_csrs(configuration, security_server)
+                member_class = security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CLASS]
+                member_code = security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CODE]
+                member_name = security_server[ConfKeysSecurityServer.CONF_KEY_DN_ORG]
+
+                auth_key_label = security_server['name'] + '-default-auth-key'
+                sign_key_label = security_server['name'] + '-default-sign-key'
+                token_controller.remote_token_add_keys_with_csrs(configuration, security_server, KeyTypes.ALL,
+                                                                 member_class, member_code, member_name,
+                                                                 auth_key_label, sign_key_label)
                 if "clients" in security_server:
                     for client in security_server["clients"]:
                         if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != \
                                 security_server["owner_member_code"]:
-                            token_controller.remote_token_add_signing_key_new_member(configuration, security_server, client)
+                            new_member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
+                            new_member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
+                            new_member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
+
+                            auth_key_label_new_member = security_server['name'] + '-default-auth-key_new_member'
+                            sign_key_label_new_member = security_server['name'] + '-default-sign-key_new_member'
+
+                            token_controller.remote_token_add_keys_with_csrs(configuration, security_server,
+                                                                             KeyTypes.SIGN,
+                                                                             new_member_class, new_member_code,
+                                                                             new_member_name,
+                                                                             auth_key_label_new_member,
+                                                                             sign_key_label_new_member)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert len(response[0].keys) == 3
-                auth_key_label = security_server['name'] + '-default-auth-key'
-                sign_key_label = security_server['name'] + '-default-sign-key'
                 assert str(response[0].keys[0].label) == auth_key_label
                 assert str(response[0].keys[1].label) == sign_key_label
 
@@ -850,59 +869,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
 
-    def step_disable_certificates(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            cert_controller.load_config = (lambda: self.config)
 
-            certificates = cert_controller.list()
-
-            for security_server in self.config["security_server"]:
-                security_server["certificate_management"] = [cert["hash"] for cert in certificates if cert["ss"] == security_server["name"]]
-
-            cert_controller.load_config = (lambda: self.config)
-            cert_controller.disable()
-            certificates_disabled = cert_controller.list()
-            for cert_disabled in certificates_disabled:
-                assert cert_disabled["ocsp_status"] == "DISABLED"
-
-    def step_unregister_certificates(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            cert_controller.load_config = (lambda: self.config)
-
-            certificates = cert_controller.list()
-
-            for security_server in self.config["security_server"]:
-                security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
-
-            cert_controller.load_config = (lambda: self.config)
-            cert_controller.unregister()
-            certificates_unregister = cert_controller.list()
-            for cert_unregister in certificates_unregister:
-                if cert_unregister["type"] == KeyUsageType.AUTHENTICATION:
-                    assert cert_unregister["status"] == "DELETION_IN_PROGRESS"
-
-    def step_delete_certificates(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            cert_controller.load_config = (lambda: self.config)
-
-            certificates = cert_controller.list()
-
-            for security_server in self.config["security_server"]:
-                security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
-
-            cert_controller.load_config = (lambda: self.config)
-            cert_controller.delete()
-            certificates = cert_controller.list()
-            for cert in certificates:
-                assert cert["type"] != KeyUsageType.AUTHENTICATION
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -971,9 +938,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_list_service_description_services()
         self.step_delete_service_description()
         self.step_cert_download_internal_tls()
-        self.step_disable_certificates()
-        # self.step_unregister_certificates()
-        # self.step_delete_certificates()
+
+        RenewCertificate(self).test_run_configuration()
 
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.6
+Version: 2.0.7
 Doc. ID: XRDSST-CONF
 
 ---
@@ -49,7 +49,8 @@ Doc. ID: XRDSST-CONF
 | 22.06.2021 | 2.0.3       | Notes on member management                                                   | Bert Viikmäe       |
 | 25.06.2021 | 2.0.4       | Update service management with listing of service descriptions               | Bert Viikmäe       |
 | 25.06.2021 | 2.0.5       | Update service management with listing of service description services       | Bert Viikmäe       |
-| 30.06.2021 | 2.0.6       | Update service management with deletion of service descriptions              | Bert Viikmäe       |
+| 28.06.2021 | 2.0.6       | Update renew certificates process                                            | Alberto Fernandez  |
+| 30.06.2021 | 2.0.7       | Update service management with deletion of service descriptions              | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -83,6 +84,7 @@ Doc. ID: XRDSST-CONF
             * [4.2.3.1 Token login command](#4231-token-login-command)
             * [4.2.3.2 Token list](#4232-token-list)
             * [4.2.3.3 Token init-keys](#4233-token-init-keys)
+            * [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys)
          * [4.2.4 Timestamp commands](#424-timestamp-commands)
             * [4.2.4.1 Timestamp init](#4241-timestamp-init)
             * [4.2.4.2 Timestamp list approved](#4242-timestamp-list-approved)
@@ -341,8 +343,6 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
   	- /path/to/tls_cert
-  certificate_management:
-    - <CERTIFICATE_HASH>
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
@@ -419,8 +419,6 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
     - <TLS_CERT_PATH>
-  certificate_management:
-    - <CERTIFICATE_HASH>
 ```
 * <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
 * <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> (Optional) If is set it will overwrite the <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
@@ -639,6 +637,18 @@ those already exist, they will not be duplicated and command acts as no-op for s
 If we are using [Multitenancy](#8-multitenancy) this command will also create an extra key and signing request with the 
 key label suffix ``default-sign-key_<MEMBER_CODE>_<MEMBER_NAME>``
 
+##### 4.2.3.4 Token create-new-keys
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER or XROAD_SECURITY_OFFICER
+
+Token keys for authentication and signatures can be created with:
+```
+xrdsst token create-new-keys
+``` 
+This command works the same as the [4.2.3.3 Token init-keys](#4233-token-init-keys) command,
+the difference is that this command will be used when the certificates already exist and we want to generate 
+new keys to renew them.
+
 #### 4.2.4 Timestamp commands
 
 Configuration parameters involved are the described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
@@ -756,39 +766,36 @@ The table above shows the following information about the certificates:
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-In the `certificate_management` we must set the list of hashes of the certificates we want to disable, we can get the hashes of the certificates
+We must set as argument hash (or list of hashes separated by comma) of the certificates we want to disable, we can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Disable the certificates can be done with:
 ```
-xrdsst cert disable
+xrdsst cert disable --hash <CERTIFICATE_HASH>
 ```
 
 ##### 4.2.5.8 Certificate unregister
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-In the `certificate_management` we must set the list of hashes of the authentication certificates we want to disable, we can get the hashes of the certificates
+We must set as argument hash (or list of hashes separated by comma) of the authentication certificates we want to delete, we can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Unregister the authentication certificates can be done with:
 ```
-xrdsst cert unregister
+xrdsst cert unregister --hash <CERTIFICATE_HASH>
 ```
 
 ##### 4.2.5.9 Certificate delete
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-Configuration parameters involved are the `certificate_management` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-In the `certificate_management` we must set the list of hashes of the certificates we want to delete, we can get the hashes of the certificates
+We must set as argument hash (or list of hashes separated by comma) of the certificates we want to delete, we can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Delete the certificates can be done with:
 ```
-xrdsst cert delete
+xrdsst cert delete --hash <CERTIFICATE_HASH>
 ```
 
 #### 4.2.5 Client management commands
@@ -1368,7 +1375,7 @@ It is recommended to renew the certificates in advance before they expire. You c
 UI in the tab <strong>KEYS AND CERTIFICATE</strong> => <strong>SIGN AND AUTH KEYS</strong> column <strong>Expires</strong>.
 To renew the certificates we must:
 
-1. Go to the UI and generate new CRS keys for the certificates we want to renew:
+1. Create new CRS keys for the new certificates using the [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys) command. 
 2. Download and sign the new certificates.
 3. Add the signed certificates to the [certificates list](#322-security-servers-configuration) of the security server 
    in the configuration file.
@@ -1376,7 +1383,9 @@ To renew the certificates we must:
 5. Activate the certificates by running the [certificate activation](#4254-certificate-activation) command.
 6. Register the new certificates by running the [certificate registration](#4253-certificate-registration) command.
 7. Wait until the new certificates have the OCSP is Good state and the Status in Registered. We can check this
-   through the UI in the tab <strong>KEYS AND CERTIFICATE</strong> => <strong>SIGN AND AUTH KEYS</strong>. 
+   through by running the [List certificates](#4256-list-certificates) command. 
    It's recommended to wait at least one day so that the new certificates can be distributed for the access server does not crash.
-8. Unregister and delete the old certifcates through the UI.
+7. Disable the old certificates by running the [Certificate disable](#4257-certificate-disable) command.
+8. Unregister the old  certificates by running the [Certificate unregister](#4258-certificate-unregister) command.
+9. Delete the old AUTH certificate by running the [Certificate delete](#4259-certificate-delete) command.
 
