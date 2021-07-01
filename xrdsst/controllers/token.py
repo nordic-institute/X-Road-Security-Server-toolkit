@@ -17,6 +17,7 @@ from xrdsst.resources.texts import texts
 from enum import Enum
 from datetime import datetime
 
+
 class TokenLabels(object):
     @staticmethod
     def generate_key(token_id, sign_key_label, type):
@@ -25,6 +26,7 @@ class TokenLabels(object):
     @staticmethod
     def error():
         return 'TokensApi->add_key_and_csr'
+
 
 class TokenListMapper:
     @staticmethod
@@ -44,13 +46,14 @@ class TokenListMapper:
             'logged_in': token.logged_in
         }
 
+
 class KeyTypes(Enum):
     AUTH = 1
     SIGN = 2
     ALL = 3
 
-class TokenController(BaseController):
 
+class TokenController(BaseController):
     class Meta:
         label = 'token'
         stacked_on = 'base'
@@ -174,29 +177,34 @@ class TokenController(BaseController):
             member_code = security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CODE]
             member_name = security_server[ConfKeysSecurityServer.CONF_KEY_DN_ORG]
 
-            self.remote_token_add_keys_with_csrs(ss_api_config, security_server, KeyTypes.ALL, member_class, member_code, member_name, auth_key_label, sign_key_label)
-            if "clients" in security_server:
-                for client in security_server["clients"]:
-                    if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != security_server["owner_member_code"]:
+            self.remote_token_add_keys_with_csrs(ss_api_config, security_server, KeyTypes.ALL, member_class, member_code, member_name, auth_key_label,
+                                                 sign_key_label)
+            self.token_add_keys_with_csrs_for_new_member(ss_api_config, security_server, is_new_key)
 
-                        new_member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
-                        new_member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
-                        new_member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
-
-                        sign_key_label = default_member_sign_key_label(security_server, client)
-                        if is_new_key:
-                            date = datetime.today().strftime('%Y_%m_%d')
-                            sign_key_label = "%s_%s" % (sign_key_label, date)
-
-                        self.remote_token_add_keys_with_csrs(ss_api_config, security_server, KeyTypes.SIGN,
-                                                             new_member_class, new_member_code, new_member_name,
-                                                             sign_key_label=sign_key_label)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
+    def token_add_keys_with_csrs_for_new_member(self, ss_api_config, security_server, is_new_key=False):
+        if "clients" in security_server:
+            for client in security_server["clients"]:
+                if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != security_server["owner_member_code"]:
+
+                    new_member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
+                    new_member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
+                    new_member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
+
+                    sign_key_label = default_member_sign_key_label(security_server, client)
+                    if is_new_key:
+                        date = datetime.today().strftime('%Y_%m_%d')
+                        sign_key_label = "%s_%s" % (sign_key_label, date)
+
+                    self.remote_token_add_keys_with_csrs(ss_api_config, security_server, KeyTypes.SIGN,
+                                                         new_member_class, new_member_code, new_member_name,
+                                                         sign_key_label=sign_key_label)
 
     # requires token to be logged in
     @staticmethod
-    def remote_token_add_keys_with_csrs(ss_api_config, security_server, key_type, member_class, member_code, member_name, auth_key_label=None, sign_key_label=None):
+    def remote_token_add_keys_with_csrs(ss_api_config, security_server, key_type, member_class, member_code, member_name, auth_key_label=None,
+                                        sign_key_label=None):
         def log_creations(results):
             for result in results:
                 BaseController.log_info(
@@ -213,7 +221,6 @@ class TokenController(BaseController):
 
         token_id = security_server[ConfKeysSecurityServer.CONF_KEY_SOFT_TOKEN_ID]
         ss_code = security_server[ConfKeysSecurityServer.CONF_KEY_SERVER_CODE]
-        member_class = member_class
         dn_country = security_server[ConfKeysSecurityServer.CONF_KEY_DN_C]
         dn_common_name = member_code
         dn_org = member_name
@@ -285,6 +292,7 @@ class TokenController(BaseController):
 
         log_creations(responses)
 
+
 def remote_get_security_server_instance(ss_api_config):
     ss_api = SecurityServersApi(ApiClient(ss_api_config))
     ss_api_response = ss_api.get_security_servers(current_server=True)
@@ -301,5 +309,3 @@ def remote_get_sign_certificate_authority(ss_api_config):
     ca_api = CertificateAuthoritiesApi(ApiClient(ss_api_config))
     ca_api_response = ca_api.get_approved_certificate_authorities(key_usage_type=KeyUsageType.SIGNING)
     return ca_api_response.pop()
-
-
