@@ -177,8 +177,22 @@ class TokenController(BaseController):
             member_code = security_server[ConfKeysSecurityServer.CONF_KEY_MEMBER_CODE]
             member_name = security_server[ConfKeysSecurityServer.CONF_KEY_DN_ORG]
 
-            self.remote_token_add_all_keys_with_csrs(ss_api_config, security_server, member_class, member_code, member_name, auth_key_label, sign_key_label)
-            self.remote_token_add_sign_keys_with_csrs(ss_api_config, security_server, is_new_key, auth_key_label, sign_key_label)
+            self.remote_token_add_all_keys_with_csrs(ss_api_config,
+                                                     security_server,
+                                                     member_class,
+                                                     member_code,
+                                                     member_name,
+                                                     auth_key_label,
+                                                     sign_key_label)
+
+            if "clients" in security_server:
+                for client in security_server["clients"]:
+                    if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != security_server["owner_member_code"]:
+                        self.remote_token_add_sign_keys_with_csrs(ss_api_config,
+                                                                  security_server,
+                                                                  is_new_key,
+                                                                  client,
+                                                                  auth_key_label)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -272,7 +286,7 @@ class TokenController(BaseController):
 
     # requires token to be logged in
     @staticmethod
-    def remote_token_add_sign_keys_with_csrs(ss_api_config, security_server, is_new_key, auth_key_label=None, sign_key_label=None):
+    def remote_token_add_sign_keys_with_csrs(ss_api_config, security_server, is_new_key, client, auth_key_label=None):
         def log_creations(results):
             for result in results:
                 BaseController.log_info(
@@ -280,18 +294,13 @@ class TokenController(BaseController):
                     "' for key '" + result.key.id + "' as '" + result.key.label + "'"
                 )
 
-        if "clients" not in security_server:
-            return
-
-        for client in security_server["clients"]:
-            if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != security_server["owner_member_code"]:
-                member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
-                member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
-                member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
-                sign_key_label = default_member_sign_key_label(security_server, client)
-                if is_new_key:
-                    date = datetime.today().strftime('%Y_%m_%d')
-                    sign_key_label = "%s_%s" % (sign_key_label, date)
+        member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
+        member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
+        member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
+        sign_key_label = default_member_sign_key_label(security_server, client)
+        if is_new_key:
+            date = datetime.today().strftime('%Y_%m_%d')
+            sign_key_label = "%s_%s" % (sign_key_label, date)
 
         responses = []
 
