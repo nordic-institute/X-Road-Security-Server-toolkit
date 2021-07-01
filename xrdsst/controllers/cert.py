@@ -8,17 +8,15 @@ from xrdsst.api import KeysApi, SystemApi
 from xrdsst.api.token_certificates_api import TokenCertificatesApi
 from xrdsst.api.tokens_api import TokensApi
 from xrdsst.controllers.base import BaseController
-from xrdsst.controllers.token import TokenController
 from xrdsst.core.api_util import remote_get_token
 from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label, parse_argument_list
 from xrdsst.models import SecurityServerAddress, CsrFormat
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts
-from xrdsst.controllers.status import StatusController
 from xrdsst.rest.rest import ApiException
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
-from xrdsst.core.validator import validate_config_certificate_operations
 from xrdsst.models.key_usage_type import KeyUsageType
+
 
 class DownloadedCsr:
     def __init__(self, csr_id, key_id, key_type, fs_loc):
@@ -32,6 +30,7 @@ class DownloadedTLS:
     def __init__(self, security_server, fs_loc):
         self.security_server = security_server
         self.fs_loc = fs_loc
+
 
 class DownloadedTLSListMapper:
     @staticmethod
@@ -48,6 +47,7 @@ class DownloadedTLSListMapper:
             'security_server': dwn_tls.security_server,
             'fs_loc': dwn_tls.fs_loc
         }
+
 
 class CertOperations:
     @staticmethod
@@ -70,6 +70,7 @@ class CertOperations:
             "method": token_cert_api.delete_certificate,
             "message": "Delete"
         }
+
 
 class DownloadedCsrListMapper:
     @staticmethod
@@ -102,7 +103,7 @@ class CertController(BaseController):
         active_config = self.load_config()
         full_op_path = self.op_path()
 
-        active_config, invalid_conf_servers =  self.validate_op_config(active_config)
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
         self.log_skipped_op_conf_invalid(invalid_conf_servers)
 
         if not self.is_autoconfig():
@@ -289,7 +290,6 @@ class CertController(BaseController):
                 self.remote_cert_operation(ss_api_config, security_server, certificate_hash, operation)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-
     # requires token to be logged in
     @staticmethod
     def remote_import_certificates(ss_api_config, security_server):
@@ -347,14 +347,15 @@ class CertController(BaseController):
     def remote_cert_operation(ss_api_config, security_server, hash, operation):
         token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
         try:
-            operation_dict= operation(token_cert_api)
+            operation_dict = operation(token_cert_api)
             token_certificate = token_cert_api.get_certificate(hash)
 
             if token_certificate:
                 try:
                     result = operation_dict["method"](hash)
                     BaseController.log_info("%s certificate with hash: '%s', subject: '%s', exoiration date: '%s' for security server '%s'"
-                                            % (operation_dict["message"], token_certificate.certificate_details.hash, token_certificate.certificate_details.subject_distinguished_name,
+                                            % (operation_dict["message"], token_certificate.certificate_details.hash,
+                                               token_certificate.certificate_details.subject_distinguished_name,
                                                token_certificate.certificate_details.not_after.strftime("%Y/%m/%d"), security_server["name"]))
                 except ApiException as err:
                     if err.status == 409 and err.body.count("action_not_possible"):
@@ -363,11 +364,9 @@ class CertController(BaseController):
                     else:
                         BaseController.log_api_error('TokenCertificatesApi->disable_certificate', err)
             else:
-                BaseController.log_info("Could not find any certificate with hash; '%s' for security server: '%s'" % (hash,security_server["name"]))
+                BaseController.log_info("Could not find any certificate with hash; '%s' for security server: '%s'" % (hash, security_server["name"]))
         except ApiException as err:
             BaseController.log_info("Could not find certificate with hash: '%s' for security server: '%s'" % (hash, security_server["name"]))
-
-
 
     def remote_download_csrs(self, ss_api_config, security_server):
         token = remote_get_token(ss_api_config, security_server)
@@ -429,7 +428,8 @@ class CertController(BaseController):
                         downloaded_internal.append(DownloadedTLS(security_server["name"], file.name))
                 else:
                     BaseController.log_info(
-                        "Failed to download TLS internal certificate for security server '" + security_server["name"] + "' (HTTP " + http_response.status + ", " + http_response.reason + ")"
+                        "Failed to download TLS internal certificate for security server '" + security_server[
+                            "name"] + "' (HTTP " + http_response.status + ", " + http_response.reason + ")"
                     )
 
                 # Remove empty folder that fs.Tmp creates and that would remain with auto-clean off
