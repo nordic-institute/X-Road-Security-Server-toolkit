@@ -3,7 +3,6 @@ import os
 import subprocess
 import sys
 import unittest
-
 import urllib3
 
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
