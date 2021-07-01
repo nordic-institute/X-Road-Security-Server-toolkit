@@ -884,9 +884,9 @@ class EndToEndTest(unittest.TestCase):
                         service_controller.remote_delete_service_descriptions(configuration, client_id, description["id"])
 
                         description = get_service_description(self.config, client_id, ssn)
-                        assert len(description) == 0
+                        assert description is None
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-                        assert len(response) == 0
+                        assert response is None
                 ssn = ssn + 1
 
     def step_create_admin_user_fail_admin_credentials_missing(self):
