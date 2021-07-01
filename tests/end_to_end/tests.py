@@ -655,7 +655,9 @@ class EndToEndTest(unittest.TestCase):
         ssn = 0
         for security_server in self.config["security_server"]:
             description_url.append(security_server["clients"][0]["service_descriptions"][0]["url"])
+            description_url.append(security_server["clients"][0]["service_descriptions"][1]["url"])
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = ''
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["url"] = ''
             ssn = ssn + 1
 
         service_controller = ServiceController()
@@ -674,7 +676,8 @@ class EndToEndTest(unittest.TestCase):
 
         ssn = 0
         for security_server in self.config["security_server"]:
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[ssn]
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[0]
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[1]
             ssn = ssn + 1
 
     def step_add_service_description_fail_type_missing(self):
@@ -682,7 +685,9 @@ class EndToEndTest(unittest.TestCase):
         ssn = 0
         for security_server in self.config["security_server"]:
             type.append(security_server["clients"][0]["service_descriptions"][0]["type"])
+            type.append(security_server["clients"][0]["service_descriptions"][1]["type"])
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = ''
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["type"] = ''
             ssn = ssn + 1
 
         service_controller = ServiceController()
@@ -701,7 +706,8 @@ class EndToEndTest(unittest.TestCase):
 
         ssn = 0
         for security_server in self.config["security_server"]:
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = type[ssn]
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = type[0]
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["type"] = type[1]
             ssn = ssn + 1
 
     def step_enable_service_description_fail_service_description_not_added(self):
