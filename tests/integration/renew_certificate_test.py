@@ -2,9 +2,9 @@
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
+from xrdsst.core.util import default_sign_key_label
 from xrdsst.main import XRDSSTTest
 from xrdsst.models.key_usage_type import KeyUsageType
-from xrdsst.controllers.token import KeyTypes
 from xrdsst.controllers.cert import CertOperations
 from datetime import datetime
 
@@ -36,8 +36,10 @@ class RenewCertificate:
 
                 for client in security_server["clients"]:
                     if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE not in client:
-                        sign_key_label_new_member = security_server["name"] + "-default-sign-key_new_member" \
-                                                    + "_" + datetime.today().strftime('%Y_%m_%d')
+                        sign_key_label_new_member = default_sign_key_label(security_server) + "_" \
+                                                    + client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS] + "_" \
+                                                    + str(client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]) + "_" \
+                                                    + datetime.today().strftime('%Y_%m_%d')
                         token_controller.remote_token_add_sign_keys_with_csrs(configuration,
                                                                               security_server,
                                                                               True,
