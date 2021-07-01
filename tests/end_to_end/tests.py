@@ -843,8 +843,8 @@ class EndToEndTest(unittest.TestCase):
                         response = service_controller.remote_list_services(configuration, security_server, client_id, description["id"])
                         assert len(response) == 1
                         assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
-                        assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
+                        assert response[0]["client_id"] == 'DEV:ORG:111:TEST'
+                        assert response[0]["service_id"] == 'DEV:ORG:111:TEST:Petstore'
                         assert response[0]["service_code"] == 'Petstore'
                         assert response[0]["timeout"] == 120
                         assert response[0]["url"] == 'http://petstore.xxx'
