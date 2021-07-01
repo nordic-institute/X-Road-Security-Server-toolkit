@@ -19,7 +19,7 @@ from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
-from xrdsst.core.conf_keys import ConfKeysSecServerClients,ConfKeysSecurityServer
+from xrdsst.core.conf_keys import ConfKeysSecServerClients, ConfKeysSecurityServer
 from tests.integration.renew_certificate_test import RenewCertificate
 
 
@@ -868,8 +868,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for header in headers:
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
-
-
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

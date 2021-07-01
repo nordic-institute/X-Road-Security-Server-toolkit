@@ -3,7 +3,6 @@ import os
 import subprocess
 import sys
 import unittest
-from argparse import Namespace
 
 import urllib3
 
@@ -28,6 +27,7 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from xrdsst.models.key_usage_type import KeyUsageType
 from tests.end_to_end.renew_certificate import RenewCertificate
+
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -370,8 +370,8 @@ class EndToEndTest(unittest.TestCase):
                 auth_key_label = security_server['name'] + '-default-auth-key'
                 sign_key_label = security_server['name'] + '-default-sign-key'
                 token_controller.remote_token_add_keys_with_csrs(configuration, security_server, KeyTypes.ALL,
-                                                                            member_class, member_code, member_name,
-                                                                            auth_key_label, sign_key_label)
+                                                                 member_class, member_code, member_name,
+                                                                 auth_key_label, sign_key_label)
                 if "clients" in security_server:
                     for client in security_server["clients"]:
                         if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != \
@@ -384,8 +384,8 @@ class EndToEndTest(unittest.TestCase):
                             sign_key_label_new_member = security_server['name'] + '-default-sign-key_new_member'
 
                             token_controller.remote_token_add_keys_with_csrs(configuration, security_server, KeyTypes.SIGN,
-                                                                            new_member_class, new_member_code, new_member_name,
-                                                                            auth_key_label_new_member, sign_key_label_new_member)
+                                                                             new_member_class, new_member_code, new_member_name,
+                                                                             auth_key_label_new_member, sign_key_label_new_member)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert len(response[0].keys) == 3
@@ -839,15 +839,23 @@ class EndToEndTest(unittest.TestCase):
                     if "service_descriptions" in client:
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_description(self.config, client_id, ssn)
-                        response = service_controller.remote_list_services(configuration, security_server, client_id, description["id"])
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
                         assert len(response) == 1
                         assert response[0]["security_server"] == security_server["name"]
                         assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
-                        assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
-                        assert response[0]["service_code"] == 'Petstore'
-                        assert response[0]["timeout"] == 120
-                        assert response[0]["url"] == 'http://petstore.xxx'
+                        assert response[0]["url"] == 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml'
+                        assert response[0]["type"] == 'OPENAPI3'
+                        assert response[0]["disabled"] is False
+                        assert response[0]["services"] == 1
+
+                        service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
+
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 0
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
+                        assert len(response) == 0
                 ssn = ssn + 1
 
     def step_delete_service_description(self):
@@ -1075,7 +1083,7 @@ class EndToEndTest(unittest.TestCase):
 
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.unregister()
@@ -1094,7 +1102,7 @@ class EndToEndTest(unittest.TestCase):
 
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.delete()
@@ -1130,7 +1138,7 @@ class EndToEndTest(unittest.TestCase):
         ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
         for security_server in self.config["security_server"]:
-            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn*3):(ssn * 3 + 3)], security_server)
+            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
             self.apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
