@@ -755,7 +755,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert description is None
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-                        assert response is None
+                        assert len(response) == 0
                 ssn = ssn + 1
 
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
