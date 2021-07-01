@@ -750,7 +750,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["disabled"] is False
                         assert response[0]["services"] == 1
 
-                        service_controller.remote_delete_service_descriptions(configuration, client_id, description["id"])
+                        service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
 
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 0
