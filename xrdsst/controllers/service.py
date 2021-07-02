@@ -558,35 +558,39 @@ class ServiceController(BaseController):
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
-    @staticmethod
-    def remote_update_service_descriptions(ss_api_config, client, description, new_code, new_url):
+    def remote_update_service_descriptions(self, ss_api_config, client, description, new_code, new_url):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             description_ids = parse_argument_list(description)
             service_descriptions = clients_api.get_client_service_descriptions(id=client)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:
-                    try:
-                        service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_api_config))
-                        if service_description.type is not ServiceType.WSDL:
-                            service_description_update = ServiceDescriptionUpdate(url=new_url if new_url is not None else service_description.url,
-                                                                                  rest_service_code=service_description.services[0].service_code,
-                                                                                  new_rest_service_code=new_code,
-                                                                                  type=service_description.type,
-                                                                                  ignore_warnings=True)
-                        else:
-                            service_description_update = ServiceDescriptionUpdate(url=new_url if new_url is not None else service_description.url,
-                                                                                  type=service_description.type,
-                                                                                  ignore_warnings=True)
-                        response = service_descriptions_api.update_service_description(service_description.id, body=service_description_update)
-                        BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client +
-                                                "'" + ServiceController.WITH_ID + "'" + service_description.id + "' updated successfully.")
-                        return response
-                    except ApiException as err:
-                        BaseController.log_api_error('ServiceDescriptionsApi->update_service_description', err)
+                    response = self.remote_update_service_description(ss_api_config, service_description, new_url, new_code, client)
+                    return response
 
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
+
+    @staticmethod
+    def remote_update_service_description(ss_api_config, service_description, new_url, new_code, client):
+        try:
+            service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_api_config))
+            if service_description.type is not ServiceType.WSDL:
+                service_description_update = ServiceDescriptionUpdate(url=new_url if new_url is not None else service_description.url,
+                                                                      rest_service_code=service_description.services[0].service_code,
+                                                                      new_rest_service_code=new_code,
+                                                                      type=service_description.type,
+                                                                      ignore_warnings=True)
+            else:
+                service_description_update = ServiceDescriptionUpdate(url=new_url if new_url is not None else service_description.url,
+                                                                      type=service_description.type,
+                                                                      ignore_warnings=True)
+            response = service_descriptions_api.update_service_description(service_description.id, body=service_description_update)
+            BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client +
+                                    "'" + ServiceController.WITH_ID + "'" + service_description.id + "' updated successfully.")
+            return response
+        except ApiException as err:
+            BaseController.log_api_error('ServiceDescriptionsApi->update_service_description', err)
 
     @staticmethod
     def get_client_service_description(clients_api, client, service_description_conf):
