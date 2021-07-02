@@ -747,7 +747,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
 
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 0
+                        assert description is None
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
                         assert response is None
                 ssn = ssn + 1
