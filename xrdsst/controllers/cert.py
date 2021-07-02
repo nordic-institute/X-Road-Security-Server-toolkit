@@ -344,28 +344,29 @@ class CertController(BaseController):
             return cert_actions
 
     @staticmethod
-    def remote_cert_operation(ss_api_config, security_server, hash, operation):
+    def remote_cert_operation(ss_api_config, security_server, hash_value, operation):
         token_cert_api = TokenCertificatesApi(ApiClient(ss_api_config))
         try:
             operation_dict = operation(token_cert_api)
-            token_certificate = token_cert_api.get_certificate(hash)
+            token_certificate = token_cert_api.get_certificate(hash_value)
 
             if token_certificate:
                 try:
-                    operation_dict["method"](hash)
+                    operation_dict["method"](hash_value)
                     BaseController.log_info("%s certificate with hash: '%s', subject: '%s', exoiration date: '%s' for security server '%s'"
-                                            % (operation_dict["message"], token_certificate.certificate_details.hash, token_certificate.certificate_details.subject_distinguished_name,
+                                            % (operation_dict["message"], token_certificate.certificate_details.hash,
+                                               token_certificate.certificate_details.subject_distinguished_name,
                                                token_certificate.certificate_details.not_after.strftime("%Y/%m/%d"), security_server["name"]))
                 except ApiException as err:
                     if err.status == 409 and err.body.count("action_not_possible"):
                         BaseController.log_info("%s certificate with hash: '%s' for security server: '%s', already %s"
-                                                % (operation_dict["message"], hash, security_server["name"], operation_dict["message"].lower()))
+                                                % (operation_dict["message"], hash_value, security_server["name"], operation_dict["message"].lower()))
                     else:
                         BaseController.log_api_error('TokenCertificatesApi->disable_certificate', err)
             else:
-                BaseController.log_info("Could not find any certificate with hash; '%s' for security server: '%s'" % (hash, security_server["name"]))
-        except ApiException as err:
-            BaseController.log_info("Could not find certificate with hash: '%s' for security server: '%s'" % (hash, security_server["name"]))
+                BaseController.log_info("Could not find any certificate with hash; '%s' for security server: '%s'" % (hash_value, security_server["name"]))
+        except ApiException:
+            BaseController.log_info("Could not find certificate with hash: '%s' for security server: '%s'" % (hash_value, security_server["name"]))
 
     def remote_download_csrs(self, ss_api_config, security_server):
         token = remote_get_token(ss_api_config, security_server)
@@ -480,7 +481,8 @@ class CertController(BaseController):
 
         return actionable_certs
 
-    def get_key_labels(self, security_server):
+    @staticmethod
+    def get_key_labels(security_server):
         key_labels = {
             'auth': [default_auth_key_label(security_server)],
             'sign': [default_sign_key_label(security_server)]

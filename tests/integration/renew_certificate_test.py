@@ -1,8 +1,6 @@
-
 from xrdsst.controllers.cert import CertController
-from xrdsst.controllers.token import TokenController
+from xrdsst.controllers.token import TokenController, KeyTypes
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
-from xrdsst.core.util import default_sign_key_label
 from xrdsst.main import XRDSSTTest
 from xrdsst.models.key_usage_type import KeyUsageType
 from xrdsst.controllers.cert import CertOperations

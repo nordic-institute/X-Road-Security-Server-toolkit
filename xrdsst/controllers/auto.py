@@ -7,6 +7,7 @@ from xrdsst.core.conf_keys import ConfKeysRoot, ConfKeysSecurityServer
 from xrdsst.core.util import op_node_to_ctr_cmd_text
 from xrdsst.resources.texts import texts
 
+
 class AutoException(Exception):
     """Exception raised for errors related to UserController.
 
@@ -17,6 +18,7 @@ class AutoException(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
 
 class AutoController(BaseController):
     class Meta:

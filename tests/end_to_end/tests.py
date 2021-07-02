@@ -138,7 +138,7 @@ class EndToEndTest(unittest.TestCase):
             for security_server in self.config["security_server"]:
                 configuration = base.create_api_config(security_server, self.config)
                 response = member_controller.remote_list_classes(configuration, security_server, 'DEV')
-                assert response == ['COM', 'PRIVATE-FOR-DEV', 'ORG', 'GOV']
+                assert response == ['COM', 'GOV']
 
     def step_upload_anchor_fail_file_missing(self):
         base = BaseController()

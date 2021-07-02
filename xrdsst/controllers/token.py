@@ -20,8 +20,8 @@ from datetime import datetime
 
 class TokenLabels(object):
     @staticmethod
-    def generate_key(token_id, sign_key_label, type):
-        return 'Generating software token %s key labelled " %s " and %s CSR: ' % (token_id, sign_key_label, type)
+    def generate_key(token_id, sign_key_label, key_type):
+        return 'Generating software token %s key labelled " %s " and %s CSR: ' % (token_id, sign_key_label, key_type)
 
     @staticmethod
     def error():
