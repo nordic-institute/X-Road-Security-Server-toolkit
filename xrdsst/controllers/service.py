@@ -74,6 +74,7 @@ class ServiceController(BaseController):
         description = texts['service.controller.description']
 
     SERVICE_DESCRIPTION_FOR = 'Service description for'
+    WITH_ID = 'with id'
 
     @ex(help="Execute all sub-commands", arguments=[])
     def apply(self):
@@ -276,11 +277,11 @@ class ServiceController(BaseController):
                         try:
                             service_descriptions_api.enable_service_description(service_description.id)
                             BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client_controller.partial_client_id(client_conf) +
-                                                    "' with id: '" + service_description.id + "' enabled successfully.")
+                                                    "'" + ServiceController.WITH_ID + "'" + service_description.id + "' enabled successfully.")
                         except ApiException as err:
                             if err.status == 409:
                                 BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client_controller.partial_client_id(client_conf) +
-                                                        "' with id: '" + service_description.id + "' already enabled.")
+                                                        "'" + ServiceController.WITH_ID + "'" + service_description.id + "' already enabled.")
                             else:
                                 BaseController.log_api_error('ServiceDescriptionsApi->enable_service_description', err)
                 except ApiException as find_err:
@@ -475,7 +476,7 @@ class ServiceController(BaseController):
             self.render(render_data)
             return service_descriptions_list
         except ApiException as err:
-            BaseController.log_api_error('ClientsApi->get_client_service_descriptions', err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
     def remote_list_services(self, ss_api_config, security_server, client, description):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -502,7 +503,7 @@ class ServiceController(BaseController):
             self.render(render_data)
             return services_list
         except ApiException as err:
-            BaseController.log_api_error('ClientsApi->get_client_service_descriptions', err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
     @staticmethod
     def remote_delete_service_descriptions(ss_api_config, client, description):
@@ -516,12 +517,12 @@ class ServiceController(BaseController):
                         service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_api_config))
                         service_descriptions_api.delete_service_description(id=service_description.id)
                         BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client +
-                                                "' with id: '" + service_description.id + "' deleted successfully.")
+                                                "'" + ServiceController.WITH_ID + "'" + service_description.id + "' deleted successfully.")
                     except ApiException as err:
                         BaseController.log_api_error('ServiceDescriptionsApi->delete_service_description', err)
 
         except ApiException as err:
-            BaseController.log_api_error('ClientsApi->get_client_service_descriptions', err)
+            BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
     @staticmethod
     def get_client_service_description(clients_api, client, service_description_conf):
