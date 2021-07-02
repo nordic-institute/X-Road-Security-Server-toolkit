@@ -1138,7 +1138,6 @@ class EndToEndTest(unittest.TestCase):
             ssn = ssn + 1
 
         self.step_cert_activate()
-
         self.list_certificates()
 
         self.step_import_tls_certificate()
