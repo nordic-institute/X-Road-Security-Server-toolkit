@@ -297,26 +297,20 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
                 auth_key_label = security_server['name'] + '-default-auth-key'
                 sign_key_label = security_server['name'] + '-default-sign-key'
-                token_controller.remote_token_add_keys_with_csrs(configuration, security_server, KeyTypes.ALL,
-                                                                 member_class, member_code, member_name,
-                                                                 auth_key_label, sign_key_label)
-                if "clients" in security_server:
-                    for client in security_server["clients"]:
-                        if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != \
-                                security_server["owner_member_code"]:
-                            new_member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
-                            new_member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
-                            new_member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
-
-                            auth_key_label_new_member = security_server['name'] + '-default-auth-key_new_member'
-                            sign_key_label_new_member = security_server['name'] + '-default-sign-key_new_member'
-
-                            token_controller.remote_token_add_keys_with_csrs(configuration, security_server,
-                                                                             KeyTypes.SIGN,
-                                                                             new_member_class, new_member_code,
-                                                                             new_member_name,
-                                                                             auth_key_label_new_member,
-                                                                             sign_key_label_new_member)
+                token_controller.remote_token_add_all_keys_with_csrs(configuration,
+                                                                     security_server,
+                                                                     member_class,
+                                                                     member_code,
+                                                                     member_name,
+                                                                     auth_key_label,
+                                                                     sign_key_label)
+                for client in security_server["clients"]:
+                    if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE not in client:
+                        token_controller.remote_token_add_sign_keys_with_csrs(configuration,
+                                                                              security_server,
+                                                                              False,
+                                                                              client,
+                                                                              auth_key_label)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert len(response[0].keys) == 3
@@ -740,22 +734,32 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
+                        assert len(description) == 2
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-                        assert len(response) == 1
+
+                        assert len(response) == 2
                         assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
-                        assert response[0]["url"] == 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml'
-                        assert response[0]["type"] == 'OPENAPI3'
+                        assert response[0]["client_id"] == client_id
+                        assert response[0]["type"] == 'WSDL'
                         assert response[0]["disabled"] is False
-                        assert response[0]["services"] == 1
+                        assert response[0]["services"] == 4
+                        assert response[1]["security_server"] == security_server["name"]
+                        assert response[1]["client_id"] == client_id
+                        assert response[1]["type"] == 'OPENAPI3'
+                        assert response[1]["disabled"] is False
+                        assert response[1]["services"] == 1
 
                         service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
 
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert description is None
+                        assert len(description) == 1
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-                        assert len(response) == 0
+                        assert len(response) == 1
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == client_id
+                        assert response[0]["type"] == 'OPENAPI3'
+                        assert response[0]["disabled"] is False
+                        assert response[0]["services"] == 1
                 ssn = ssn + 1
 
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):

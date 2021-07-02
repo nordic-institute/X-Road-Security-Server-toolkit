@@ -1,14 +1,14 @@
-
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
+from xrdsst.core.util import default_sign_key_label
 from xrdsst.main import XRDSSTTest
 from xrdsst.models.key_usage_type import KeyUsageType
-from xrdsst.controllers.token import KeyTypes
 from xrdsst.controllers.cert import CertOperations
 from datetime import datetime
 
-class RenewCertificate():
+
+class RenewCertificate:
 
     def __init__(self, end_to_end_tests):
         self.test = end_to_end_tests
@@ -25,23 +25,26 @@ class RenewCertificate():
 
                 auth_key_label = security_server["name"] + "-default-auth-key" + "_" + datetime.today().strftime('%Y_%m_%d')
                 sign_key_label = security_server["name"] + "-default-sign-key" + "_" + datetime.today().strftime('%Y_%m_%d')
-                response = token_controller.remote_token_add_keys_with_csrs(configuration, security_server, KeyTypes.ALL,
-                                                                            member_class, member_code, member_name, auth_key_label, sign_key_label)
+                token_controller.remote_token_add_all_keys_with_csrs(configuration,
+                                                                     security_server,
+                                                                     member_class,
+                                                                     member_code,
+                                                                     member_name,
+                                                                     auth_key_label,
+                                                                     sign_key_label)
 
                 for client in security_server["clients"]:
                     if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE not in client:
-                        member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
-                        member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
-                        member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
+                        sign_key_label_new_member = default_sign_key_label(security_server) + "_" \
+                                                    + client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS] + "_" \
+                                                    + str(client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]) + "_" \
+                                                    + datetime.today().strftime('%Y_%m_%d')
 
-                        sign_key_label_new_member = security_server["name"] + "-default-sign-key_new_member"\
-                                                    + "_" + datetime.today().strftime('%Y_%m_%d')
-                        response = token_controller.remote_token_add_keys_with_csrs(configuration, security_server,
-                                                                                    KeyTypes.SIGN,
-                                                                                    member_class, member_code,
-                                                                                    member_name, auth_key_label=None,
-                                                                                    sign_key_label= sign_key_label_new_member)
-
+                        token_controller.remote_token_add_sign_keys_with_csrs(configuration,
+                                                                              security_server,
+                                                                              True,
+                                                                              client,
+                                                                              auth_key_label)
 
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
@@ -53,7 +56,6 @@ class RenewCertificate():
                 assert len(auth_cert) == 1
                 assert len(sign_cert) == 1
                 assert len(sign_cert_new_member) == 1
-
 
     def step_unregister_certificates(self, old_certificates):
         with XRDSSTTest() as app:
@@ -134,9 +136,6 @@ class RenewCertificate():
         self.test.step_cert_register()
         self.test.step_cert_activate()
 
-        self.step_unregister_certificates(old_certificates)
+        # self.step_unregister_certificates(old_certificates)
         self.step_disable_certificates(old_certificates)
-        self.step_delete_certificates(old_certificates)
-
-
-
+        # self.step_delete_certificates(old_certificates)
