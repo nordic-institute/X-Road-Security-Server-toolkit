@@ -734,15 +734,10 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 2
+                        assert len(description) == 1
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
 
-                        assert len(response) == 2
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == client_id
-                        assert response[0]["type"] == 'WSDL'
-                        assert response[0]["disabled"] is False
-                        assert response[0]["services"] == 4
+                        assert len(response) == 1
                         assert response[1]["security_server"] == security_server["name"]
                         assert response[1]["client_id"] == client_id
                         assert response[1]["type"] == 'OPENAPI3'
@@ -752,14 +747,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
 
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
+                        assert len(description) == 0
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-                        assert len(response) == 1
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == client_id
-                        assert response[0]["type"] == 'OPENAPI3'
-                        assert response[0]["disabled"] is False
-                        assert response[0]["services"] == 1
+                        assert response is None
                 ssn = ssn + 1
 
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
