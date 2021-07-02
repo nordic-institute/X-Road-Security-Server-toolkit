@@ -673,7 +673,7 @@ class EndToEndTest(unittest.TestCase):
         ssn = 0
         for security_server in self.config["security_server"]:
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[0]
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[1]
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["url"] = description_url[1]
             ssn = ssn + 1
 
     def step_add_service_description_fail_type_missing(self):
