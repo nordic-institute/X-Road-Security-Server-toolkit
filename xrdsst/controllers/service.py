@@ -4,7 +4,7 @@ from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
 from xrdsst.core.util import parse_argument_list
-from xrdsst.models import ServiceDescriptionAdd, ServiceClients, ServiceUpdate, ServiceDescriptionUpdate, ServiceType
+from xrdsst.models import ServiceDescriptionAdd, ServiceClients, ServiceUpdate, ServiceDescriptionUpdate, ServiceType, ServiceDescriptionDisabledNotice
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 from xrdsst.core.conf_keys import ConfKeysSecServerClientServiceDesc, ConfKeysSecServerClients
@@ -240,7 +240,8 @@ class ServiceController(BaseController):
 
     @ex(help="Disable service descriptions", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
                                                        (['--client'], {'help': 'Client id', 'dest': 'client'}),
-                                                       (['--description'], {'help': 'Service description id', 'dest': 'description'})])
+                                                       (['--description'], {'help': 'Service description id', 'dest': 'description'}),
+                                                       (['--notice'], {'help': 'Disable notice', 'dest': 'notice'})])
     def disable_descriptions(self):
         active_config = self.load_config()
 
@@ -256,10 +257,15 @@ class ServiceController(BaseController):
             self.log_info('Description parameter is required for disabling service descriptions')
             return
 
+        if self.app.pargs.notice is None:
+            self.log_info('Notice parameter is required for disabling service descriptions')
+            return
+
         self.disable_service_descriptions(active_config,
                                           self.app.pargs.ss,
                                           self.app.pargs.client,
-                                          self.app.pargs.description)
+                                          self.app.pargs.description,
+                                          self.app.pargs.notice)
 
     def add_service_description(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -516,14 +522,14 @@ class ServiceController(BaseController):
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def disable_service_descriptions(self, config, ss, client, description):
+    def disable_service_descriptions(self, config, ss, client, description, notice):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         ss_names = parse_argument_list(ss)
         for security_server in config["security_server"]:
             if security_server["name"] in ss_names:
                 ss_api_config = self.create_api_config(security_server, config)
-                self.remote_disable_service_descriptions(ss_api_config, client, description)
+                self.remote_disable_service_descriptions(ss_api_config, client, description, notice)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -667,14 +673,14 @@ class ServiceController(BaseController):
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
-    def remote_disable_service_descriptions(self, ss_api_config, client, description):
+    def remote_disable_service_descriptions(self, ss_api_config, client, description, notice):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             description_ids = parse_argument_list(description)
             service_descriptions = clients_api.get_client_service_descriptions(id=client)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:
-                    self.remote_disable_service_description(ss_api_config, service_description, client)
+                    self.remote_disable_service_description(ss_api_config, service_description, client, notice)
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
@@ -711,10 +717,11 @@ class ServiceController(BaseController):
             BaseController.log_api_error('ServiceDescriptionsApi->refresh_service_description', err)
 
     @staticmethod
-    def remote_disable_service_description(ss_api_config, service_description, client):
+    def remote_disable_service_description(ss_api_config, service_description, client, notice):
         try:
             service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_api_config))
-            service_descriptions_api.disable_service_description(service_description.id)
+            service_description_disabled_notice = ServiceDescriptionDisabledNotice(disabled_notice=notice)
+            service_descriptions_api.disable_service_description(service_description.id, body=service_description_disabled_notice)
             BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client +
                                     "'" + ServiceController.WITH_ID + "'" + service_description.id + "' disabled successfully.")
         except ApiException as err:

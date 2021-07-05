@@ -786,7 +786,7 @@ class TestService(unittest.TestCase):
 
     def test_service_disable_descriptions(self):
         with XRDSSTTest() as app:
-            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1')
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1', notice='disabled')
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                             return_value=[ServiceTestData.add_description_response]):
                 with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.disable_service_description',
@@ -805,7 +805,7 @@ class TestService(unittest.TestCase):
 
     def test_service_disable_descriptions_fail_client_missing(self):
         with XRDSSTTest() as app:
-            app._parsed_args = Namespace(ss='ssX', client=None, description='DEV:GOV:9876:SUB1')
+            app._parsed_args = Namespace(ss='ssX', client=None, description='DEV:GOV:9876:SUB1', notice='disabled')
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                             return_value=[ServiceTestData.add_description_response]):
                 with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.disable_service_description',
@@ -817,7 +817,19 @@ class TestService(unittest.TestCase):
 
     def test_service_disable_descriptions_fail_description_missing(self):
         with XRDSSTTest() as app:
-            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description=None)
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description=None, notice='disabled')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                            return_value=[ServiceTestData.add_description_response]):
+                with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.disable_service_description',
+                                return_value=None):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.disable_descriptions()
+
+    def test_service_disable_descriptions_fail_notice_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1', notice=None)
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                             return_value=[ServiceTestData.add_description_response]):
                 with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.disable_service_description',

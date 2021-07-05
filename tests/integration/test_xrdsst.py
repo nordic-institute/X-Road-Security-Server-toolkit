@@ -815,7 +815,10 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert len(description) == 1
                         assert description[0]["disabled"] is False
 
-                        service_controller.remote_disable_service_descriptions(configuration, client_id, description[0]["id"])
+                        service_controller.remote_disable_service_descriptions(configuration,
+                                                                               client_id,
+                                                                               description[0]["id"],
+                                                                               'disable notice')
 
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1

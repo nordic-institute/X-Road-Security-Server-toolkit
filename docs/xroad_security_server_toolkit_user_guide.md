@@ -980,11 +980,12 @@ There are no configuration parameters involved, command line arguments are used 
 
 Disabling of service descriptions can be done with:
 ```
-xrdsst service disable-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
+xrdsst service disable-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --notice <NOTICE>
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+* <NOTICE> disabling notice, e.g. "Not used"
 
 ##### 4.2.6.11 Service apply
 
