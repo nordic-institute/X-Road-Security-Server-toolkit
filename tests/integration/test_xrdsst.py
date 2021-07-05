@@ -743,7 +743,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert len(description) == 1
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
-                        assert description[0]["disabled"] is False
                         assert len(description[0]["services"]) == 1
                         assert description[0]["services"][0]["service_code"] == 'Petstore'
 
@@ -757,7 +756,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert len(description) == 1
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
-                        assert description[0]["disabled"] is False
                         assert len(description[0]["services"]) == 1
                         assert description[0]["services"][0]["service_code"] == 'NewPetstore'
                 ssn = ssn + 1
@@ -782,7 +780,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert len(description) == 1
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
-                        assert description[0]["disabled"] is False
                         assert len(description[0]["services"]) == 1
                         assert description[0]["services"][0]["service_code"] == 'Petstore'
 
@@ -794,7 +791,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert len(description) == 1
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
-                        assert description[0]["disabled"] is False
                         assert len(description[0]["services"]) == 1
                         assert description[0]["services"][0]["service_code"] == 'Petstore'
                 ssn = ssn + 1
@@ -846,7 +842,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["security_server"] == security_server["name"]
                         assert response[0]["client_id"] == client_id
                         assert response[0]["type"] == 'OPENAPI3'
-                        assert response[0]["disabled"] is False
                         assert response[0]["services"] == 1
 
                         service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])

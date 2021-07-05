@@ -891,7 +891,6 @@ class EndToEndTest(unittest.TestCase):
                         assert len(description) == 1
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
-                        assert description[0]["disabled"] is False
                         assert len(description[0]["services"]) == 1
                         assert description[0]["services"][0]["service_code"] == 'Petstore'
 
@@ -905,7 +904,6 @@ class EndToEndTest(unittest.TestCase):
                         assert len(description) == 1
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
-                        assert description[0]["disabled"] is False
                         assert len(description[0]["services"]) == 1
                         assert description[0]["services"][0]["service_code"] == 'NewPetstore'
                 ssn = ssn + 1
@@ -930,7 +928,6 @@ class EndToEndTest(unittest.TestCase):
                         assert len(description) == 1
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
-                        assert description[0]["disabled"] is False
                         assert len(description[0]["services"]) == 1
                         assert description[0]["services"][0]["service_code"] == 'Petstore'
 
@@ -942,7 +939,6 @@ class EndToEndTest(unittest.TestCase):
                         assert len(description) == 1
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
-                        assert description[0]["disabled"] is False
                         assert len(description[0]["services"]) == 1
                         assert description[0]["services"][0]["service_code"] == 'Petstore'
                 ssn = ssn + 1
@@ -994,12 +990,10 @@ class EndToEndTest(unittest.TestCase):
                         assert response[0]["security_server"] == security_server["name"]
                         assert response[0]["client_id"] == client_id
                         assert response[0]["type"] == 'WSDL'
-                        assert response[0]["disabled"] is False
                         assert response[0]["services"] == 4
                         assert response[1]["security_server"] == security_server["name"]
                         assert response[1]["client_id"] == client_id
                         assert response[1]["type"] == 'OPENAPI3'
-                        assert response[1]["disabled"] is False
                         assert response[1]["services"] == 1
 
 
@@ -1012,7 +1006,6 @@ class EndToEndTest(unittest.TestCase):
                         assert response[0]["security_server"] == security_server["name"]
                         assert response[0]["client_id"] == client_id
                         assert response[0]["type"] == 'OPENAPI3'
-                        assert response[0]["disabled"] is False
                         assert response[0]["services"] == 1
                 ssn = ssn + 1
 
