@@ -309,9 +309,6 @@ class TokenController(BaseController):
         token_id = security_server[ConfKeysSecurityServer.CONF_KEY_SOFT_TOKEN_ID]
         ss_code = security_server[ConfKeysSecurityServer.CONF_KEY_SERVER_CODE]
         dn_country = security_server[ConfKeysSecurityServer.CONF_KEY_DN_C]
-        dn_common_name = member_code
-        dn_org = member_name
-        fqdn = security_server[ConfKeysSecurityServer.CONF_KEY_FQDN]
 
         try:
             token_key_labels = list(map(lambda key: key.label, token.keys))
@@ -319,13 +316,10 @@ class TokenController(BaseController):
 
             sign_cert_subject = {
                 'C': dn_country,
-                'O': dn_org,
-                'CN': dn_common_name,
-                'serialNumber': '/'.join([ssi.member_class, ss_code, member_class])
+                'O': member_name,
+                'CN': member_code,
+                'serialNumber': '/'.join([ssi.instance_id, ss_code, member_class])
             }
-
-            auth_cert_subject = copy.deepcopy(sign_cert_subject)
-            auth_cert_subject['CN'] = fqdn
 
             if has_sign_key:
                 BaseController.log_info("No key initialization needed.")
@@ -338,7 +332,7 @@ class TokenController(BaseController):
                     key_usage_type=KeyUsageType.SIGNING,
                     ca_name=sign_ca.name,
                     csr_format=CsrFormat.DER,  # Test CA setup at least only works with DER
-                    member_id=':'.join([ssi.instance_id, ssi.member_class, ssi.member_code]),
+                    member_id=':'.join([ssi.instance_id, member_class, str(member_code)]),
                     subject_field_values=sign_cert_subject
                 )
             )

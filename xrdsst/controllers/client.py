@@ -157,7 +157,7 @@ class ClientController(BaseController):
         ss_api_conf_tuple = list(zip(config["security_server"],
                                      map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        security_server = filter(lambda ss_server: ss_server["name"] == security_server_name, config["security_server"])
+        security_server = list(filter(lambda ss_server: ss_server["name"] == security_server_name, config["security_server"]))
         if len(security_server) == 0:
             BaseController.log_info("Security server with name: %s not found in config file" % security_server_name)
         else:
@@ -245,10 +245,10 @@ class ClientController(BaseController):
         for clientId in clientsId:
             try:
                 result = clients_api.unregister_client(clientId)
-                BaseController.log_info("Unregister client: %s for security server: %s" % (clientId, security_server))
+                BaseController.log_info("Unregister client: '%s' for security server: '%s'" % (clientId, security_server))
             except ApiException as err:
                 if err.status == 409:
-                    BaseController.log_info("Client: %s for security server: %s" % (clientId, security_server))
+                    BaseController.log_info("Client: '%s' for security server: '%s'" % (clientId, security_server))
                 else:
                     BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, err)
 
