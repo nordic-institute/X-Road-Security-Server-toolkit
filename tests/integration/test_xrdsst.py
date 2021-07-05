@@ -741,15 +741,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-
-                        assert len(response) == 1
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == client_id
-                        assert response[0]["type"] == 'OPENAPI3'
-                        assert response[0]["disabled"] is False
-                        assert len(response[0]["services"]) == 1
-                        assert response[0]["services"][0]["service_code"] == 'Petstore'
+                        assert description[0]["security_server"] == security_server["name"]
+                        assert description[0]["client_id"] == client_id
+                        assert description[0]["type"] == 'OPENAPI3'
+                        assert description[0]["disabled"] is False
+                        assert len(description[0]["services"]) == 1
+                        assert description[0]["services"][0]["service_code"] == 'Petstore'
 
                         service_controller.remote_update_service_descriptions(configuration,
                                                                               client_id,
@@ -759,14 +756,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-                        assert len(response) == 1
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == client_id
-                        assert response[0]["type"] == 'OPENAPI3'
-                        assert response[0]["disabled"] is False
-                        assert response[0]["services"] == 1
-                        assert response[0]["services"][0]["service_code"] == 'NewPetstore'
+                        assert description[0]["security_server"] == security_server["name"]
+                        assert description[0]["client_id"] == client_id
+                        assert description[0]["type"] == 'OPENAPI3'
+                        assert description[0]["disabled"] is False
+                        assert len(description[0]["services"]) == 1
+                        assert description[0]["services"][0]["service_code"] == 'NewPetstore'
                 ssn = ssn + 1
         ssn = 0
         for security_server in self.config["security_server"]:
@@ -794,7 +789,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["client_id"] == client_id
                         assert response[0]["type"] == 'OPENAPI3'
                         assert response[0]["disabled"] is False
-                        assert len(response[0]["services"]) == 1
+                        assert response[0]["services"] == 1
 
                         service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
 

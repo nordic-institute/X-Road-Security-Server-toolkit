@@ -888,21 +888,13 @@ class EndToEndTest(unittest.TestCase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 2
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-
-                        assert len(response) == 2
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == client_id
-                        assert response[0]["type"] == 'WSDL'
-                        assert response[0]["disabled"] is False
-                        assert len(response[0]["services"]) == 4
-                        assert response[1]["security_server"] == security_server["name"]
-                        assert response[1]["client_id"] == client_id
-                        assert response[1]["type"] == 'OPENAPI3'
-                        assert response[1]["disabled"] is False
-                        assert len(response[1]["services"]) == 1
-                        assert response[1]["services"][0]["service_code"] == 'Petstore'
+                        assert len(description) == 1
+                        assert description[0]["security_server"] == security_server["name"]
+                        assert description[0]["client_id"] == client_id
+                        assert description[0]["type"] == 'OPENAPI3'
+                        assert description[0]["disabled"] is False
+                        assert len(description[0]["services"]) == 1
+                        assert description[0]["services"][0]["service_code"] == 'Petstore'
 
                         service_controller.remote_update_service_descriptions(configuration,
                                                                               client_id,
@@ -911,20 +903,13 @@ class EndToEndTest(unittest.TestCase):
                                                                               None)
 
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 2
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-                        assert len(response) == 2
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == client_id
-                        assert response[0]["type"] == 'WSDL'
-                        assert response[0]["disabled"] is False
-                        assert len(response[0]["services"]) == 4
-                        assert response[1]["security_server"] == security_server["name"]
-                        assert response[1]["client_id"] == client_id
-                        assert response[1]["type"] == 'OPENAPI3'
-                        assert response[1]["disabled"] is False
-                        assert len(response[1]["services"]) == 1
-                        assert response[1]["services"][0]["service_code"] == 'NewPetstore'
+                        assert len(description) == 1
+                        assert description[0]["security_server"] == security_server["name"]
+                        assert description[0]["client_id"] == client_id
+                        assert description[0]["type"] == 'OPENAPI3'
+                        assert description[0]["disabled"] is False
+                        assert len(description[0]["services"]) == 1
+                        assert description[0]["services"][0]["service_code"] == 'NewPetstore'
                 ssn = ssn + 1
         ssn = 0
         for security_server in self.config["security_server"]:
@@ -952,12 +937,12 @@ class EndToEndTest(unittest.TestCase):
                         assert response[0]["client_id"] == client_id
                         assert response[0]["type"] == 'WSDL'
                         assert response[0]["disabled"] is False
-                        assert len(response[0]["services"]) == 4
+                        assert response[0]["services"] == 4
                         assert response[1]["security_server"] == security_server["name"]
                         assert response[1]["client_id"] == client_id
                         assert response[1]["type"] == 'OPENAPI3'
                         assert response[1]["disabled"] is False
-                        assert len(response[1]["services"]) == 1
+                        assert response[1]["services"] == 1
 
 
                         service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
@@ -970,7 +955,7 @@ class EndToEndTest(unittest.TestCase):
                         assert response[0]["client_id"] == client_id
                         assert response[0]["type"] == 'OPENAPI3'
                         assert response[0]["disabled"] is False
-                        assert len(response[0]["services"]) == 1
+                        assert response[0]["services"] == 1
                 ssn = ssn + 1
 
     def step_create_admin_user_fail_admin_credentials_missing(self):
