@@ -923,8 +923,9 @@ There are no configuration parameters involved, command line arguments are used 
 
 Deletion of service descriptions can be done with:
 ```
-xrdsst service delete-descriptions --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
+xrdsst service delete-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
 ```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
