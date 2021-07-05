@@ -749,7 +749,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["type"] == 'OPENAPI3'
                         assert response[0]["disabled"] is False
                         assert response[0]["services"] == 1
-                        assert response[0]["services"]["service_code"] == 'Petstore'
+                        assert response[0]["services"][0]["service_code"] == 'Petstore'
 
                         service_controller.remote_update_service_descriptions(configuration,
                                                                               client_id,
@@ -766,7 +766,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["type"] == 'OPENAPI3'
                         assert response[0]["disabled"] is False
                         assert response[0]["services"] == 1
-                        assert response[0]["services"]["service_code"] == 'NewPetstore'
+                        assert response[0]["services"][0]["service_code"] == 'NewPetstore'
                 ssn = ssn + 1
         ssn = 0
         for security_server in self.config["security_server"]:

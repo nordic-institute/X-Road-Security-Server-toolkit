@@ -902,7 +902,7 @@ class EndToEndTest(unittest.TestCase):
                         assert response[1]["type"] == 'OPENAPI3'
                         assert response[1]["disabled"] is False
                         assert response[1]["services"] == 1
-                        assert response[1]["services"]["service_code"] == 'Petstore'
+                        assert response[1]["services"][0]["service_code"] == 'Petstore'
 
                         service_controller.remote_update_service_descriptions(configuration,
                                                                               client_id,
@@ -924,7 +924,7 @@ class EndToEndTest(unittest.TestCase):
                         assert response[1]["type"] == 'OPENAPI3'
                         assert response[1]["disabled"] is False
                         assert response[1]["services"] == 1
-                        assert response[1]["services"]["service_code"] == 'NewPetstore'
+                        assert response[1]["services"][0]["service_code"] == 'NewPetstore'
                 ssn = ssn + 1
         ssn = 0
         for security_server in self.config["security_server"]:
