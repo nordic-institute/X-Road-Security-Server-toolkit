@@ -78,21 +78,21 @@ class ClientController(BaseController):
 
     @ex(help="Unregister client(s)",
         arguments=[
-            (['--ss'], {'help': 'Security server name', 'dest': 'ss_name'}),
-            (['--clientId'], {'help': 'Client(s) Id', 'dest': 'clientId'})
+            (['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+            (['--client'], {'help': 'Client(s) Id', 'dest': 'clients'})
         ]
         )
     def unregister(self):
         active_config = self.load_config()
 
-        if self.app.pargs.clientId is None:
+        if self.app.pargs.clients is None:
             self.log_info('Client Id is required for unregister clients')
             return
         if self.app.pargs.ss is None:
             self.log_info('Security server name is required for unregister clients')
             return
 
-        self.unregister_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.hash))
+        self.unregister_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.clients))
 
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):

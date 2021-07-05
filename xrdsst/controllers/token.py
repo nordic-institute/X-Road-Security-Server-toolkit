@@ -191,8 +191,7 @@ class TokenController(BaseController):
                         self.remote_token_add_sign_keys_with_csrs(ss_api_config,
                                                                   security_server,
                                                                   is_new_key,
-                                                                  client,
-                                                                  auth_key_label)
+                                                                  client)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -286,7 +285,7 @@ class TokenController(BaseController):
 
     # requires token to be logged in
     @staticmethod
-    def remote_token_add_sign_keys_with_csrs(ss_api_config, security_server, is_new_key, client, auth_key_label=None):
+    def remote_token_add_sign_keys_with_csrs(ss_api_config, security_server, is_new_key, client):
         def log_creations(results):
             for result in results:
                 BaseController.log_info(
@@ -316,7 +315,6 @@ class TokenController(BaseController):
 
         try:
             token_key_labels = list(map(lambda key: key.label, token.keys))
-            has_auth_key = auth_key_label in token_key_labels
             has_sign_key = sign_key_label in token_key_labels
 
             sign_cert_subject = {
@@ -329,7 +327,7 @@ class TokenController(BaseController):
             auth_cert_subject = copy.deepcopy(sign_cert_subject)
             auth_cert_subject['CN'] = fqdn
 
-            if has_sign_key and has_auth_key:
+            if has_sign_key:
                 BaseController.log_info("No key initialization needed.")
                 return
 
