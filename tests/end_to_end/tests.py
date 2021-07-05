@@ -1284,8 +1284,8 @@ class EndToEndTest(unittest.TestCase):
         self.step_update_service_parameters()
         self.step_list_service_descriptions()
         self.step_list_service_description_services()
-        self.step_update_service_description()
         self.step_refresh_service_description()
+        self.step_update_service_description()
         self.step_delete_service_description()
         self.step_cert_download_internal_tls()
 
