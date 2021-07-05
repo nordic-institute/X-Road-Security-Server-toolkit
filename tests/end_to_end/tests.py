@@ -3,7 +3,6 @@ import os
 import subprocess
 import sys
 import unittest
-from argparse import Namespace
 
 import urllib3
 
@@ -369,23 +368,20 @@ class EndToEndTest(unittest.TestCase):
 
                 auth_key_label = security_server['name'] + '-default-auth-key'
                 sign_key_label = security_server['name'] + '-default-sign-key'
-                token_controller.remote_token_add_keys_with_csrs(configuration, security_server, KeyTypes.ALL,
-                                                                            member_class, member_code, member_name,
-                                                                            auth_key_label, sign_key_label)
-                if "clients" in security_server:
-                    for client in security_server["clients"]:
-                        if client["member_class"] != security_server["owner_member_class"] or client["member_code"] != \
-                                security_server["owner_member_code"]:
-                            new_member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
-                            new_member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
-                            new_member_name = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_NAME]
-
-                            auth_key_label_new_member = security_server['name'] + '-default-auth-key_new_member'
-                            sign_key_label_new_member = security_server['name'] + '-default-sign-key_new_member'
-
-                            token_controller.remote_token_add_keys_with_csrs(configuration, security_server, KeyTypes.SIGN,
-                                                                            new_member_class, new_member_code, new_member_name,
-                                                                            auth_key_label_new_member, sign_key_label_new_member)
+                token_controller.remote_token_add_all_keys_with_csrs(configuration,
+                                                                     security_server,
+                                                                     member_class,
+                                                                     member_code,
+                                                                     member_name,
+                                                                     auth_key_label,
+                                                                     sign_key_label)
+                for client in security_server["clients"]:
+                    if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE not in client:
+                        token_controller.remote_token_add_sign_keys_with_csrs(configuration,
+                                                                              security_server,
+                                                                              False,
+                                                                              client,
+                                                                              auth_key_label)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert len(response[0].keys) == 3
@@ -677,7 +673,7 @@ class EndToEndTest(unittest.TestCase):
         ssn = 0
         for security_server in self.config["security_server"]:
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[0]
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[1]
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["url"] = description_url[1]
             ssn = ssn + 1
 
     def step_add_service_description_fail_type_missing(self):
@@ -824,13 +820,17 @@ class EndToEndTest(unittest.TestCase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
-                        assert len(response) == 1
+                        assert len(response) == 2
                         assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == 'DEV:ORG:111:TEST'
-                        assert response[0]["url"] == 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml'
-                        assert response[0]["type"] == 'OPENAPI3'
+                        assert response[0]["client_id"] == client_id
+                        assert response[0]["type"] == 'WSDL'
                         assert response[0]["disabled"] is False
-                        assert response[0]["services"] == 1
+                        assert response[0]["services"] == 4
+                        assert response[1]["security_server"] == security_server["name"]
+                        assert response[1]["client_id"] == client_id
+                        assert response[1]["type"] == 'OPENAPI3'
+                        assert response[1]["disabled"] is False
+                        assert response[1]["services"] == 1
                 ssn = ssn + 1
 
     def step_list_service_description_services(self):
@@ -845,15 +845,28 @@ class EndToEndTest(unittest.TestCase):
                     if "service_descriptions" in client:
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_description(self.config, client_id, ssn)
-                        response = service_controller.remote_list_services(configuration, security_server, client_id, description["id"])
-                        assert len(response) == 1
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == 'DEV:ORG:111:TEST'
-                        assert response[0]["service_id"] == 'DEV:ORG:111:TEST:Petstore'
-                        assert response[0]["service_code"] == 'Petstore'
-                        assert response[0]["timeout"] == 120
-                        assert response[0]["url"] == 'http://petstore.xxx'
+                        description = get_service_descriptions(self.config, client_id, ssn)
+
+                        list_of_services = service_controller.remote_list_services(configuration, security_server, client_id, description[0]["id"])
+                        assert len(list_of_services) == 4
+
+                        service_codes = ['authCertDeletion', 'clientDeletion', 'clientReg', 'ownerChange']
+                        sn = 0
+                        for service in list_of_services:
+                            assert service["security_server"] == security_server["name"]
+                            assert service["client_id"] == client_id
+                            assert service["service_id"] == client_id + ':' + service_codes[sn]
+                            assert service["service_code"] == service_codes[sn]
+                            sn = sn + 1
+
+                        list_of_services = service_controller.remote_list_services(configuration, security_server, client_id, description[1]["id"])
+                        assert len(list_of_services) == 1
+                        assert list_of_services[0]["security_server"] == security_server["name"]
+                        assert list_of_services[0]["client_id"] == client_id
+                        assert list_of_services[0]["service_id"] == client_id+':Petstore'
+                        assert list_of_services[0]["service_code"] == 'Petstore'
+                        assert list_of_services[0]["timeout"] == 120
+                        assert list_of_services[0]["url"] == 'http://petstore.xxx'
                 ssn = ssn + 1
 
     def step_create_admin_user_fail_admin_credentials_missing(self):
@@ -901,7 +914,9 @@ class EndToEndTest(unittest.TestCase):
         ssn = 0
         for security_server in self.config["security_server"]:
             service_type.append(security_server["clients"][0]["service_descriptions"][0]["type"])
+            service_type.append(security_server["clients"][0]["service_descriptions"][1]["type"])
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = 'WSDL'
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["type"] = 'WSDL'
             ssn = ssn + 1
 
         endpoint_controller = EndpointController()
@@ -916,13 +931,15 @@ class EndToEndTest(unittest.TestCase):
                                 endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_description(self.config, client_id, ssn)
-                    assert len(description["services"][0]["endpoints"]) == 4
+                    description = get_service_descriptions(self.config, client_id, ssn)
+                    assert len(description[0]["services"][0]["endpoints"]) == 1
+                    assert len(description[1]["services"][0]["endpoints"]) == 4
             ssn = ssn + 1
 
         ssn = 0
         for security_server in self.config["security_server"]:
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = service_type[ssn]
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = service_type[0]
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["type"] = service_type[1]
             ssn = ssn + 1
 
     def step_add_service_endpoints(self):
@@ -1121,7 +1138,6 @@ class EndToEndTest(unittest.TestCase):
             ssn = ssn + 1
 
         self.step_cert_activate()
-
         self.list_certificates()
 
         self.step_import_tls_certificate()

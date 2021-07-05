@@ -17,7 +17,6 @@ class UserException(Exception):
         super().__init__(self.message)
 
 
-
 class UserController(BaseController):
     _GROUP_NAMES = ['xroad-security-officer',
                     'xroad-registration-officer',
