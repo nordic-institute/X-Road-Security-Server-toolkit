@@ -939,8 +939,9 @@ There are no configuration parameters involved, command line arguments are used 
 
 Update of service descriptions can be done with:
 ```
-xrdsst service update-descriptions --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --code <REST_SERVICE_CODE> --url <SERVICE_DESCRIPTION_URL
+xrdsst service update-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --code <REST_SERVICE_CODE> --url <SERVICE_DESCRIPTION_URL
 ```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 * <REST_SERVICE_CODE> REST service code for service description with type REST/OPENAPI3, e.g. Petstore

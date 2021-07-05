@@ -688,7 +688,7 @@ class TestService(unittest.TestCase):
 
     def test_service_update_descriptions(self):
         with XRDSSTTest() as app:
-            app._parsed_args = Namespace(client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1', code='NewPetstore', url=None)
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1', code='NewPetstore', url=None)
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                             return_value=[ServiceTestData.add_description_response]):
                 with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.update_service_description',
@@ -707,7 +707,7 @@ class TestService(unittest.TestCase):
 
     def test_service_update_descriptions_fail_client_missing(self):
         with XRDSSTTest() as app:
-            app._parsed_args = Namespace(client=None, description='DEV:GOV:9876:SUB1', code='NewPetstore', url=None)
+            app._parsed_args = Namespace(ss='ssX', client=None, description='DEV:GOV:9876:SUB1', code='NewPetstore', url=None)
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                             return_value=[ServiceTestData.add_description_response]):
                 with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.update_service_description',
@@ -719,7 +719,7 @@ class TestService(unittest.TestCase):
 
     def test_service_update_descriptions_fail_description_missing(self):
         with XRDSSTTest() as app:
-            app._parsed_args = Namespace(client='DEV:GOV:9876:SUB1', description=None, code='NewPetstore', url=None)
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description=None, code='NewPetstore', url=None)
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                             return_value=[ServiceTestData.add_description_response]):
                 with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.update_service_description',
@@ -731,7 +731,7 @@ class TestService(unittest.TestCase):
 
     def test_service_update_descriptions_fail_url_and_code_missing(self):
         with XRDSSTTest() as app:
-            app._parsed_args = Namespace(client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1', code=None, url=None)
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1', code=None, url=None)
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                             return_value=[ServiceTestData.add_description_response]):
                 with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.update_service_description',

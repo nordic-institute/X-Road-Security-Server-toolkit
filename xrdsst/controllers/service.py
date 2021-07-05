@@ -184,12 +184,17 @@ class ServiceController(BaseController):
 
         self.delete_service_descriptions(active_config, self.app.pargs.ss, self.app.pargs.client, self.app.pargs.description)
 
-    @ex(help="Update service descriptions", arguments=[(['--client'], {'help': 'Client id', 'dest': 'client'}),
+    @ex(help="Update service descriptions", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+                                                       (['--client'], {'help': 'Client id', 'dest': 'client'}),
                                                        (['--description'], {'help': 'Service description id', 'dest': 'description'}),
                                                        (['--code'], {'help': 'REST service code', 'dest': 'code'}),
                                                        (['--url'], {'help': 'Service description url', 'dest': 'url'})])
     def update_descriptions(self):
         active_config = self.load_config()
+
+        if self.app.pargs.ss is None:
+            self.log_info('Security-server parameter is required for updating service descriptions')
+            return
 
         if self.app.pargs.client is None:
             self.log_info('Client parameter is required for updating service descriptions')
@@ -204,6 +209,7 @@ class ServiceController(BaseController):
             return
 
         self.update_service_descriptions(active_config,
+                                         self.app.pargs.ss,
                                          self.app.pargs.client,
                                          self.app.pargs.description,
                                          self.app.pargs.code,
@@ -442,12 +448,14 @@ class ServiceController(BaseController):
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def update_service_descriptions(self, config, client, description, code, url):
+    def update_service_descriptions(self, config, ss, client, description, code, url):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
+        ss_names = parse_argument_list(ss)
         for security_server in config["security_server"]:
-            ss_api_config = self.create_api_config(security_server, config)
-            self.remote_update_service_descriptions(ss_api_config, client, description, code, url)
+            if security_server["name"] in ss_names:
+                ss_api_config = self.create_api_config(security_server, config)
+                self.remote_update_service_descriptions(ss_api_config, client, description, code, url)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
