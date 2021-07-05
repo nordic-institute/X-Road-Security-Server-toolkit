@@ -741,7 +741,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1
-                        assert description[0]["security_server"] == security_server["name"]
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
                         assert description[0]["disabled"] is False
@@ -756,7 +755,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1
-                        assert description[0]["security_server"] == security_server["name"]
                         assert description[0]["client_id"] == client_id
                         assert description[0]["type"] == 'OPENAPI3'
                         assert description[0]["disabled"] is False
