@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0-beta.0] - 2021-07-01
+- add ``xrdsst service`` and sub-command ``delete-descriptions``
+- add certificate renewal support
+
 ## [2.1.2-beta.0] - 2021-06-28
 - add ``xrdsst service`` and sub-command ``list-services``
 

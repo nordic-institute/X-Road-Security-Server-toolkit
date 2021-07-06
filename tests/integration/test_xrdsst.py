@@ -4,7 +4,7 @@ import urllib3
 from tests.integration.integration_base import IntegrationTestBase
 from tests.integration.integration_ops import IntegrationOpBase
 from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
-    get_endpoint_service_clients, getClientTlsCertificates
+    get_endpoint_service_clients, getClientTlsCertificates, get_service_descriptions
 from tests.util.test_util import get_service_description, assert_server_statuses_transitioned
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
@@ -19,7 +19,7 @@ from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
-from xrdsst.core.conf_keys import ConfKeysSecServerClients,ConfKeysSecurityServer
+from xrdsst.core.conf_keys import ConfKeysSecServerClients, ConfKeysSecurityServer
 from tests.integration.renew_certificate_test import RenewCertificate
 
 
@@ -721,6 +721,37 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["url"] == 'http://petstore.xxx'
                 ssn = ssn + 1
 
+    def step_delete_service_description(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            service_controller = ServiceController()
+            service_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
+
+                        assert len(response) == 1
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == client_id
+                        assert response[0]["type"] == 'OPENAPI3'
+                        assert response[0]["disabled"] is False
+                        assert response[0]["services"] == 1
+
+                        service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
+
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert description is None
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
+                        assert len(response) == 0
+                ssn = ssn + 1
+
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
         service_type = []
         ssn = 0
@@ -832,8 +863,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
 
-
-
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
@@ -899,6 +928,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_update_service_parameters()
         self.step_list_service_descriptions()
         self.step_list_service_description_services()
+        self.step_delete_service_description()
         self.step_cert_download_internal_tls()
 
         RenewCertificate(self).test_run_configuration()

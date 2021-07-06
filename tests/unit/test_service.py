@@ -634,3 +634,36 @@ class TestService(unittest.TestCase):
                     service_controller.list_services()
 
                     assert service_controller.app._last_rendered is None
+
+    def test_service_delete_descriptions(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                            return_value=[ServiceTestData.add_description_response]):
+                with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.delete_service_description', return_value=None):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.delete_descriptions()
+
+    def test_service_delete_descriptions_fail_client_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client=None, description='DEV:GOV:9876:SUB1:Petstore')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                            return_value=[ServiceTestData.add_description_response]):
+                with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.delete_service_description', return_value=None):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.delete_descriptions()
+
+    def test_service_delete_descriptions_fail_description_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description=None)
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                            return_value=[ServiceTestData.add_description_response]):
+                with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.delete_service_description', return_value=None):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.delete_descriptions()

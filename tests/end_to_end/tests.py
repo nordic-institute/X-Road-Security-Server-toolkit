@@ -869,6 +869,48 @@ class EndToEndTest(unittest.TestCase):
                         assert list_of_services[0]["url"] == 'http://petstore.xxx'
                 ssn = ssn + 1
 
+    def step_delete_service_description(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            service_controller = ServiceController()
+            service_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 2
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
+
+                        assert len(response) == 2
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == client_id
+                        assert response[0]["type"] == 'WSDL'
+                        assert response[0]["disabled"] is False
+                        assert response[0]["services"] == 4
+                        assert response[1]["security_server"] == security_server["name"]
+                        assert response[1]["client_id"] == client_id
+                        assert response[1]["type"] == 'OPENAPI3'
+                        assert response[1]["disabled"] is False
+                        assert response[1]["services"] == 1
+
+
+                        service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
+
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
+                        assert len(response) == 1
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == client_id
+                        assert response[0]["type"] == 'OPENAPI3'
+                        assert response[0]["disabled"] is False
+                        assert response[0]["services"] == 1
+                ssn = ssn + 1
+
     def step_create_admin_user_fail_admin_credentials_missing(self):
         admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
         admin_credentials = os.getenv(admin_credentials_env_var, "")
@@ -1164,6 +1206,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_update_service_parameters()
         self.step_list_service_descriptions()
         self.step_list_service_description_services()
+        self.step_delete_service_description()
         self.step_cert_download_internal_tls()
 
         RenewCertificate(self).test_run_configuration()
