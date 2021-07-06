@@ -926,10 +926,10 @@ class EndToEndTest(unittest.TestCase):
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 2
-                        assert description[0]["client_id"] == client_id
-                        assert description[0]["type"] == 'OPENAPI3'
-                        assert len(description[0]["services"]) == 1
-                        assert description[0]["services"][0]["service_code"] == 'Petstore'
+                        assert description[1]["client_id"] == client_id
+                        assert description[1]["type"] == 'OPENAPI3'
+                        assert len(description[1]["services"]) == 1
+                        assert description[1]["services"][0]["service_code"] == 'Petstore'
 
                         service_controller.remote_refresh_service_descriptions(configuration,
                                                                               client_id,
@@ -937,10 +937,10 @@ class EndToEndTest(unittest.TestCase):
 
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 2
-                        assert description[0]["client_id"] == client_id
-                        assert description[0]["type"] == 'OPENAPI3'
-                        assert len(description[0]["services"]) == 1
-                        assert description[0]["services"][0]["service_code"] == 'Petstore'
+                        assert description[1]["client_id"] == client_id
+                        assert description[1]["type"] == 'OPENAPI3'
+                        assert len(description[1]["services"]) == 1
+                        assert description[1]["services"][0]["service_code"] == 'Petstore'
                 ssn = ssn + 1
 
     def step_disable_service_description(self):
@@ -956,7 +956,7 @@ class EndToEndTest(unittest.TestCase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
+                        assert len(description) == 2
                         assert description[0]["disabled"] is False
 
                         service_controller.remote_disable_service_descriptions(configuration,
@@ -965,7 +965,7 @@ class EndToEndTest(unittest.TestCase):
                                                                                'disable notice')
 
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
+                        assert len(description) == 2
                         assert description[0]["client_id"] == client_id
                         assert description[0]["disabled"] is True
                 ssn = ssn + 1
