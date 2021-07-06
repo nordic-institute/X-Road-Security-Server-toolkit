@@ -79,20 +79,20 @@ class ClientController(BaseController):
     @ex(help="Unregister client(s)",
         arguments=[
             (['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
-            (['--client'], {'help': 'Client(s) Id', 'dest': 'clients'})
+            (['--client'], {'help': 'Client(s) Id', 'dest': 'client'})
         ]
         )
     def unregister(self):
         active_config = self.load_config()
 
-        if self.app.pargs.clients is None:
-            self.log_info('Client Id is required for unregister clients')
+        if self.app.pargs.client is None:
+            self.log_info('Client is required for unregister clients')
             return
         if self.app.pargs.ss is None:
             self.log_info('Security server name is required for unregister clients')
             return
 
-        self.unregister_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.clients))
+        self.unregister_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.client))
 
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
@@ -163,7 +163,7 @@ class ClientController(BaseController):
         else:
             ss_api_config = self.create_api_config(security_server[0], config)
             BaseController.log_debug('Starting client unregistration for security server: ' + security_server[0]['name'])
-            self.remote_unregister_client(ss_api_config, security_server[0], clientsId)
+            self.remote_unregister_client(ss_api_config, security_server_name, clientsId)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -238,7 +238,7 @@ class ClientController(BaseController):
                 for tls_cert in tls_certs:
                     self.remote_add_client_tls_certificate(tls_cert, clients_api, client)
         except ApiException as find_err:
-            BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
+            BaseController.log_api_error("ClientsApi->find_client", find_err)
 
     def remote_unregister_client(self, ss_api_config, security_server, clientsId):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -248,9 +248,9 @@ class ClientController(BaseController):
                 BaseController.log_info("Unregister client: '%s' for security server: '%s'" % (clientId, security_server))
             except ApiException as err:
                 if err.status == 409:
-                    BaseController.log_info("Client: '%s' for security server: '%s'" % (clientId, security_server))
+                    BaseController.log_info("Client: '%s' for security server: '%s', already unregister" % (clientId, security_server))
                 else:
-                    BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, err)
+                    BaseController.log_api_error("ClientsApi->unregister_client", err)
 
     @staticmethod
     def remote_add_client_tls_certificate(tls_cert, clients_api, client):
@@ -265,7 +265,7 @@ class ClientController(BaseController):
                 cert_file.close()
                 response = clients_api.add_client_tls_certificate(client.id, body=cert_data)
                 BaseController.log_info(
-                    "Import TLS certificate '%s' for client %s" % (tls_cert, client.id))
+                    "Import TLS certificate '%s' for client '%s'" % (tls_cert, client.id))
                 return response
         except ApiException as err:
             if err.status == 409:
