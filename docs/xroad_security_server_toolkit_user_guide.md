@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.9
+Version: 2.0.10
 Doc. ID: XRDSST-CONF
 
 ---
@@ -53,6 +53,7 @@ Doc. ID: XRDSST-CONF
 | 30.06.2021 | 2.0.7       | Update service management with deletion of service descriptions              | Bert Viikmäe       |
 | 02.07.2021 | 2.0.8       | Update service management with update of service descriptions                | Bert Viikmäe       |
 | 06.07.2021 | 2.0.9       | And client unregister command                                                | Alberto Fernandez  |
+| 05.07.2021 | 2.0.10       | Update service management with refresh of service descriptions               | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -115,8 +116,9 @@ Doc. ID: XRDSST-CONF
             * [4.2.6.5 Service list descriptions](#4265-service-list-descriptions)
             * [4.2.6.6 Service list services](#4266-service-list-services)
             * [4.2.6.7 Service delete descriptions](#4267-service-delete-descriptions)  
-            * [4.2.6.8 Service update descriptions](#4268-service-update-descriptions)            
-            * [4.2.6.8 Service apply](#4269-service-apply)
+            * [4.2.6.8 Service update descriptions](#4268-service-update-descriptions) 
+            * [4.2.6.9 Service refresh descriptions](#4269-service-refresh-descriptions)            
+            * [4.2.6.10 Service apply](#42610-service-apply)
          * [4.2.7 Endpoint management](#427-endpoint-management)
             * [4.2.7.1 Endpoint add](#4271-endpoint-add)
             * [4.2.7.2 Endpoint add access rights](#4272-endpoint-add-access-rights)
@@ -967,7 +969,21 @@ Parameters that can be updated for service description of type REST/OPENAPI3:
 * <REST_SERVICE_CODE>
 * <SERVICE_DESCRIPTION_URL>
 
-##### 4.2.6.9 Service apply
+##### 4.2.6.9 Service refresh descriptions
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+There are no configuration parameters involved, command line arguments are used instead
+
+Refresh of service descriptions can be done with:
+```
+xrdsst service refresh-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
+```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+
+##### 4.2.6.10 Service apply
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
