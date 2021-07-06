@@ -19,6 +19,7 @@ class ClientController(BaseController):
 
     CLIENTS_API_FIND_CLIENTS = 'ClientsApi->find_clients'
     CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION = 'ClientsApi->get_client_service_description'
+    CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS = 'ClientsApi->get_client_service_descriptions'
 
     @ex(help="Add client subsystem", arguments=[])
     def add(self):
