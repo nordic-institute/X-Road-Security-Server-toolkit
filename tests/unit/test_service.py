@@ -740,3 +740,46 @@ class TestService(unittest.TestCase):
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.update_descriptions()
+
+    def test_service_refresh_descriptions(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                            return_value=[ServiceTestData.add_description_response]):
+                with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.refresh_service_description',
+                                return_value=[ServiceTestData.update_description_response]):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.refresh_descriptions()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("refreshed successfully") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_service_refresh_descriptions_fail_client_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client=None, description='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                            return_value=[ServiceTestData.add_description_response]):
+                with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.refresh_service_description',
+                                return_value=[ServiceTestData.update_description_response]):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.refresh_descriptions()
+
+    def test_service_refresh_descriptions_fail_description_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description=None)
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                            return_value=[ServiceTestData.add_description_response]):
+                with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.refresh_service_description',
+                                return_value=[ServiceTestData.update_description_response]):
+                    service_controller = ServiceController()
+                    service_controller.app = app
+                    service_controller.load_config = (lambda: self.ss_config)
+                    service_controller.refresh_descriptions()
