@@ -469,7 +469,7 @@ class TestClient(unittest.TestCase):
     def test_client_delete(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1')
-            with mock.patch('xrdsst.api.clients_api.ClientsApi.unregister_client',
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.delete_client',
                             return_value=None):
                 client_controller = ClientController()
                 client_controller.app = app
@@ -488,7 +488,7 @@ class TestClient(unittest.TestCase):
     def test_client_delete_fail_client_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client=None)
-            with mock.patch('xrdsst.api.clients_api.ClientsApi.unregister_client',
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.delete_client',
                             return_value=None):
                 client_controller = ClientController()
                 client_controller.app = app
@@ -497,7 +497,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    "Client is required for unregister clients") > 0
+                    'Client is required for delete clients') > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
@@ -506,7 +506,7 @@ class TestClient(unittest.TestCase):
     def test_client_delete_fail_security_server_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss=None, client='DEV:GOV:9876:SUB1')
-            with mock.patch('xrdsst.api.clients_api.ClientsApi.unregister_client',
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.delete_client',
                             return_value=None):
                 client_controller = ClientController()
                 client_controller.app = app
@@ -515,7 +515,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    'Security server name is required for unregister clients') > 0
+                    'Security server name is required for delete clients') > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
@@ -523,15 +523,15 @@ class TestClient(unittest.TestCase):
 
     def test_client_not_found(self):
         class AlreadyUnregisterResponse:
-            status = 409
-            data = '{"status":409,"error":{"code":"client_already_unregister"}}'
+            status = 404
+            data = '{"status":404,"error":{"code":"client_not_found"}}'
             reason = None
 
             def getheaders(self): return None
 
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1')
-            with mock.patch('xrdsst.api.clients_api.ClientsApi.unregister_client',
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.delete_client',
                                         side_effect=ApiException(http_resp=AlreadyUnregisterResponse())):
 
                 client_controller = ClientController()
@@ -541,7 +541,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    "Client: 'DEV:GOV:9876:SUB1' for security server: 'ssX', already unregister") > 0
+                    "Error deleting client: 'DEV:GOV:9876:SUB1' for security server: 'ssX', not found") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
