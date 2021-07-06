@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.9
+Version: 2.1.0
 Doc. ID: XRDSST-CONF
 
 ---
@@ -53,6 +53,7 @@ Doc. ID: XRDSST-CONF
 | 30.06.2021 | 2.0.7       | Update service management with deletion of service descriptions              | Bert Viikmäe       |
 | 02.07.2021 | 2.0.8       | Update service management with update of service descriptions                | Bert Viikmäe       |
 | 05.07.2021 | 2.0.9       | Update service management with refresh of service descriptions               | Bert Viikmäe       |
+| 05.07.2021 | 2.1.0       | Update service management with disabling of service descriptions             | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -115,8 +116,9 @@ Doc. ID: XRDSST-CONF
             * [4.2.6.6 Service list services](#4266-service-list-services)
             * [4.2.6.7 Service delete descriptions](#4267-service-delete-descriptions)  
             * [4.2.6.8 Service update descriptions](#4268-service-update-descriptions) 
-            * [4.2.6.9 Service refresh descriptions](#4269-service-refresh-descriptions)            
-            * [4.2.6.10 Service apply](#42610-service-apply)
+            * [4.2.6.9 Service refresh descriptions](#4269-service-refresh-descriptions)   
+            * [4.2.6.10 Service disable descriptions](#42610-service-disable-descriptions)            
+            * [4.2.6.11 Service apply](#42611-service-apply)
          * [4.2.7 Endpoint management](#427-endpoint-management)
             * [4.2.7.1 Endpoint add](#4271-endpoint-add)
             * [4.2.7.2 Endpoint add access rights](#4272-endpoint-add-access-rights)
@@ -970,7 +972,22 @@ xrdsst service refresh-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
-##### 4.2.6.10 Service apply
+##### 4.2.6.10 Service disable descriptions
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+There are no configuration parameters involved, command line arguments are used instead
+
+Disabling of service descriptions can be done with:
+```
+xrdsst service disable-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --notice <NOTICE>
+```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+* <NOTICE> disabling notice, e.g. "Not used"
+
+##### 4.2.6.11 Service apply
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
