@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.0.8
+Version: 2.0.9
 Doc. ID: XRDSST-CONF
 
 ---
@@ -52,6 +52,7 @@ Doc. ID: XRDSST-CONF
 | 28.06.2021 | 2.0.6       | Update renew certificates process                                            | Alberto Fernandez  |
 | 30.06.2021 | 2.0.7       | Update service management with deletion of service descriptions              | Bert Viikmäe       |
 | 02.07.2021 | 2.0.8       | Update service management with update of service descriptions                | Bert Viikmäe       |
+| 06.07.2021 | 2.0.9       | And client unregister command                                                | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -105,7 +106,8 @@ Doc. ID: XRDSST-CONF
             * [4.2.5.2 Client register](#4252-client-register)
             * [4.2.5.3 Client update](#4253-client-update)
             * [4.2.5.4 Client import TSL certificates](#4254-client-import-tsl-certificates)
-         * [4.2.6 Service management commands](#426-service-management-commands)
+            * [4.2.5.5 Client unregister](#4255-client-unregister)
+            * [4.2.6 Service management commands](#426-service-management-commands)
             * [4.2.6.1 Service add description](#4261-service-add-description)
             * [4.2.6.2 Service add access rights](#4262-service-add-access-rights)
             * [4.2.6.3 Enable service](#4263-enable-service)
@@ -839,6 +841,17 @@ TLS certificates can be imported and added to a client's whitelist with
 xrdsst client import-tls-certs
 ```
 
+##### 4.2.5.5 Client unregister
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
+There are no configuration parameters involved, command line arguments are used instead
+Subsystems and new members can be unregister with:
+```
+xrdsst client unregister --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <CLIENT_ID> id(s) of the client, e.g. DEV:GOV:1234:TEST,DEV:COM:12345:SUB:
 #### 4.2.6 Service management commands
 
 Services and service descriptions are managed with ``xrdsst service`` subcommands.
