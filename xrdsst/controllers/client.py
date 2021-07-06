@@ -4,7 +4,7 @@ from xrdsst.api import ClientsApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
-from xrdsst.core.util import convert_swagger_enum
+from xrdsst.core.util import convert_swagger_enum, parse_argument_list
 from xrdsst.models import ClientAdd, Client, ConnectionType, ClientStatus
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
@@ -77,6 +77,24 @@ class ClientController(BaseController):
 
         self.client_import_tls_cert(active_config)
 
+    @ex(help="Delete client(s)",
+        arguments=[
+            (['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+            (['--client'], {'help': 'Client(s) Id', 'dest': 'client'})
+        ]
+        )
+    def delete(self):
+        active_config = self.load_config()
+
+        if self.app.pargs.client is None:
+            self.log_info('Client is required for delete clients')
+            return
+        if self.app.pargs.ss is None:
+            self.log_info('Security server name is required for delete clients')
+            return
+
+        self.delete_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.client))
+
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -133,6 +151,20 @@ class ClientController(BaseController):
                     if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES in client_conf:
                         self.remote_import_tls_certificate(ss_api_config, client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_TLS_CERTIFICATES],
                                                            client_conf)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def delete_client(self, config, security_server_name, clientsId):
+        ss_api_conf_tuple = list(zip(config["security_server"],
+                                     map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        security_server = list(filter(lambda ss_server: ss_server["name"] == security_server_name, config["security_server"]))
+        if len(security_server) == 0:
+            BaseController.log_info("Security server with name: %s not found in config file" % security_server_name)
+        else:
+            ss_api_config = self.create_api_config(security_server[0], config)
+            BaseController.log_debug('Starting client deletion for security server: ' + security_server[0]['name'])
+            self.remote_delete_client(ss_api_config, security_server_name, clientsId)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -207,6 +239,18 @@ class ClientController(BaseController):
                     self.remote_add_client_tls_certificate(tls_cert, clients_api, client)
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
+
+    def remote_delete_client(self, ss_api_config, security_server_name, clientsId):
+        clients_api = ClientsApi(ApiClient(ss_api_config))
+        for clientId in clientsId:
+            try:
+                result = clients_api.delete_client(clientId)
+                BaseController.log_info("Delete client: '%s' for security server: '%s'" % (clientId, security_server_name))
+            except ApiException as err:
+                if err.status == 409:
+                    BaseController.log_info("Client: '%s' for security server: '%s', already deleted" % (clientId, security_server_name))
+                else:
+                    BaseController.log_api_error("ClientsApi->delete_client", err)
 
     @staticmethod
     def remote_add_client_tls_certificate(tls_cert, clients_api, client):
