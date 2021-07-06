@@ -664,6 +664,13 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.delete_descriptions()
 
+                    out, err = self.capsys.readouterr()
+                    assert out.count("deleted successfully") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
     def test_service_delete_descriptions_fail_client_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client=None, description='DEV:GOV:9876:SUB1:Petstore')
@@ -675,6 +682,13 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.delete_descriptions()
 
+                    out, err = self.capsys.readouterr()
+                    assert out.count("deleted successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
     def test_service_delete_descriptions_fail_description_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description=None)
@@ -685,6 +699,13 @@ class TestService(unittest.TestCase):
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.delete_descriptions()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("deleted successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
 
     def test_service_update_descriptions(self):
         with XRDSSTTest() as app:
@@ -717,6 +738,13 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.update_descriptions()
 
+                    out, err = self.capsys.readouterr()
+                    assert out.count("updated successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
     def test_service_update_descriptions_fail_description_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description=None, code='NewPetstore', url=None)
@@ -729,6 +757,13 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.update_descriptions()
 
+                    out, err = self.capsys.readouterr()
+                    assert out.count("updated successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
     def test_service_update_descriptions_fail_url_and_code_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1', code=None, url=None)
@@ -740,6 +775,13 @@ class TestService(unittest.TestCase):
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.update_descriptions()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("updated successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
 
     def test_service_refresh_descriptions(self):
         with XRDSSTTest() as app:
@@ -772,6 +814,13 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.refresh_descriptions()
 
+                    out, err = self.capsys.readouterr()
+                    assert out.count("refreshed successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
     def test_service_refresh_descriptions_fail_description_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description=None)
@@ -783,6 +832,13 @@ class TestService(unittest.TestCase):
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.refresh_descriptions()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("refreshed successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
 
     def test_service_disable_descriptions(self):
         with XRDSSTTest() as app:
@@ -815,6 +871,13 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.disable_descriptions()
 
+                    out, err = self.capsys.readouterr()
+                    assert out.count("disabled successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
     def test_service_disable_descriptions_fail_description_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description=None, notice='disabled')
@@ -827,6 +890,13 @@ class TestService(unittest.TestCase):
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.disable_descriptions()
 
+                    out, err = self.capsys.readouterr()
+                    assert out.count("disabled successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
     def test_service_disable_descriptions_fail_notice_missing(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1', description='DEV:GOV:9876:SUB1', notice=None)
@@ -838,3 +908,10 @@ class TestService(unittest.TestCase):
                     service_controller.app = app
                     service_controller.load_config = (lambda: self.ss_config)
                     service_controller.disable_descriptions()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("disabled successfully") == 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)

@@ -144,7 +144,7 @@ class ServiceController(BaseController):
         active_config = self.load_config()
 
         if self.app.pargs.client is None:
-            self.log_info('Client parameter is required for listing client service descriptions')
+            BaseController.log_info('Client parameter is required for listing client service descriptions')
             return
 
         self.list_service_descriptions(active_config, self.app.pargs.client)
@@ -154,12 +154,13 @@ class ServiceController(BaseController):
     def list_services(self):
         active_config = self.load_config()
 
+        missing_parameters = []
         if self.app.pargs.client is None:
-            self.log_info('Client parameter is required for listing client service descriptions')
-            return
-
+            missing_parameters.append('client')
         if self.app.pargs.description is None:
-            self.log_info('Description parameter is required for listing service description services')
+            missing_parameters.append('description')
+        if len(missing_parameters) > 0:
+            BaseController.log_info('The following parameters missing for listing service description services: %s' % missing_parameters)
             return
 
         self.list_service_description_services(active_config, self.app.pargs.client, self.app.pargs.description)
@@ -170,16 +171,15 @@ class ServiceController(BaseController):
     def delete_descriptions(self):
         active_config = self.load_config()
 
+        missing_parameters = []
         if self.app.pargs.ss is None:
-            self.log_info('Security-server parameter is required for deleting service descriptions')
-            return
-
+            missing_parameters.append('ss')
         if self.app.pargs.client is None:
-            self.log_info('Client parameter is required for deleting service descriptions')
-            return
-
+            missing_parameters.append('client')
         if self.app.pargs.description is None:
-            self.log_info('Description parameter is required for deleting service descriptions')
+            missing_parameters.append('description')
+        if len(missing_parameters) > 0:
+            BaseController.log_info('The following parameters missing for deleting service descriptions: %s' % missing_parameters)
             return
 
         self.delete_service_descriptions(active_config, self.app.pargs.ss, self.app.pargs.client, self.app.pargs.description)
@@ -192,20 +192,17 @@ class ServiceController(BaseController):
     def update_descriptions(self):
         active_config = self.load_config()
 
+        missing_parameters = []
         if self.app.pargs.ss is None:
-            self.log_info('Security-server parameter is required for updating service descriptions')
-            return
-
+            missing_parameters.append('ss')
         if self.app.pargs.client is None:
-            self.log_info('Client parameter is required for updating service descriptions')
-            return
-
+            missing_parameters.append('client')
         if self.app.pargs.description is None:
-            self.log_info('Description parameter is required for updating service descriptions')
-            return
-
+            missing_parameters.append('description')
         if self.app.pargs.code is None and self.app.pargs.url is None:
-            self.log_info('Either code or url is required for updating service descriptions')
+            missing_parameters.append('code' if self.app.pargs.code is None else 'url')
+        if len(missing_parameters) > 0:
+            BaseController.log_info('The following parameters missing for updating service descriptions: %s' % missing_parameters)
             return
 
         self.update_service_descriptions(active_config,
@@ -216,49 +213,45 @@ class ServiceController(BaseController):
                                          self.app.pargs.url)
 
     @ex(help="Refresh service descriptions", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
-                                                       (['--client'], {'help': 'Client id', 'dest': 'client'}),
-                                                       (['--description'], {'help': 'Service description id', 'dest': 'description'})])
+                                                        (['--client'], {'help': 'Client id', 'dest': 'client'}),
+                                                        (['--description'], {'help': 'Service description id', 'dest': 'description'})])
     def refresh_descriptions(self):
         active_config = self.load_config()
 
+        missing_parameters = []
         if self.app.pargs.ss is None:
-            self.log_info('Security-server parameter is required for updating service descriptions')
-            return
-
+            missing_parameters.append('ss')
         if self.app.pargs.client is None:
-            self.log_info('Client parameter is required for updating service descriptions')
-            return
-
+            missing_parameters.append('client')
         if self.app.pargs.description is None:
-            self.log_info('Description parameter is required for updating service descriptions')
+            missing_parameters.append('description')
+        if len(missing_parameters) > 0:
+            BaseController.log_info('The following parameters missing for refreshing service descriptions: %s' % missing_parameters)
             return
 
         self.refresh_service_descriptions(active_config,
-                                         self.app.pargs.ss,
-                                         self.app.pargs.client,
-                                         self.app.pargs.description)
+                                          self.app.pargs.ss,
+                                          self.app.pargs.client,
+                                          self.app.pargs.description)
 
     @ex(help="Disable service descriptions", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
-                                                       (['--client'], {'help': 'Client id', 'dest': 'client'}),
-                                                       (['--description'], {'help': 'Service description id', 'dest': 'description'}),
-                                                       (['--notice'], {'help': 'Disable notice', 'dest': 'notice'})])
+                                                        (['--client'], {'help': 'Client id', 'dest': 'client'}),
+                                                        (['--description'], {'help': 'Service description id', 'dest': 'description'}),
+                                                        (['--notice'], {'help': 'Disable notice', 'dest': 'notice'})])
     def disable_descriptions(self):
         active_config = self.load_config()
 
+        missing_parameters = []
         if self.app.pargs.ss is None:
-            self.log_info('Security-server parameter is required for disabling service descriptions')
-            return
-
+            missing_parameters.append('ss')
         if self.app.pargs.client is None:
-            self.log_info('Client parameter is required for disabling service descriptions')
-            return
-
+            missing_parameters.append('client')
         if self.app.pargs.description is None:
-            self.log_info('Description parameter is required for disabling service descriptions')
-            return
-
+            missing_parameters.append('description')
         if self.app.pargs.notice is None:
-            self.log_info('Notice parameter is required for disabling service descriptions')
+            missing_parameters.append('notice')
+        if len(missing_parameters) > 0:
+            BaseController.log_info('The following parameters missing for disabling service descriptions: %s' % missing_parameters)
             return
 
         self.disable_service_descriptions(active_config,
