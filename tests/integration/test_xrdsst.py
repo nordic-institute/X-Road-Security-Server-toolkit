@@ -766,6 +766,39 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["rest_service_code"] = rest_service_code[0]
             ssn = ssn + 1
 
+    def step_refresh_service_description(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            service_controller = ServiceController()
+            service_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
+                        assert description[0]["client_id"] == client_id
+                        assert description[0]["type"] == 'OPENAPI3'
+                        assert description[0]["disabled"] is False
+                        assert len(description[0]["services"]) == 1
+                        assert description[0]["services"][0]["service_code"] == 'Petstore'
+
+                        service_controller.remote_refresh_service_descriptions(configuration,
+                                                                              client_id,
+                                                                              description[0]["id"])
+
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
+                        assert description[0]["client_id"] == client_id
+                        assert description[0]["type"] == 'OPENAPI3'
+                        assert description[0]["disabled"] is False
+                        assert len(description[0]["services"]) == 1
+                        assert description[0]["services"][0]["service_code"] == 'Petstore'
+                ssn = ssn + 1
+
     def step_delete_service_description(self):
         with XRDSSTTest() as app:
             base = BaseController()
@@ -908,23 +941,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
 
-    def step_client_unregister(self):
-        with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
-            ssn = 0
-            configuration = client_controller.create_api_config(self.config["security_server"][0], self.config)
-            for client in self.config["security_server"][0]["clients"]:
-                if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client:
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) > 0
-                    assert found_client[0]["status"] == ClientStatus.REGISTERED
-                    client_controller.remote_unregister_client(configuration, self.config["security_server"][0]["name"], [found_client[0]["id"]])
-                    found_client = get_client(self.config, client, ssn)
-                    assert len(found_client) > 0
-                    assert found_client[0]["status"] == ClientStatus.DELETION_IN_PROGRESS
-
-
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
@@ -990,6 +1006,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_update_service_parameters()
         self.step_list_service_descriptions()
         self.step_list_service_description_services()
+        self.step_refresh_service_description()
         self.step_update_service_description()
         self.step_delete_service_description()
         self.step_cert_download_internal_tls()
