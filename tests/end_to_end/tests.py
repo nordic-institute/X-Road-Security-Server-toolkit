@@ -896,7 +896,7 @@ class EndToEndTest(unittest.TestCase):
 
                         service_controller.remote_update_service_descriptions(configuration,
                                                                               client_id,
-                                                                              description[0]["id"],
+                                                                              description[1]["id"],
                                                                               'NewPetstore',
                                                                               None)
 
