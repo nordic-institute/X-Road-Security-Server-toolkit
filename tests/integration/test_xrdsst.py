@@ -14,7 +14,7 @@ from xrdsst.controllers.member import MemberController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import ServerStatus
 from xrdsst.controllers.timestamp import TimestampController
-from xrdsst.controllers.token import TokenController, KeyTypes
+from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
@@ -85,10 +85,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             assert status.is_anchor_imported is False
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_upload_anchor_fail_file_bogus_content(self):
         base = BaseController()
@@ -107,10 +105,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             assert status.is_anchor_imported is False
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_initalize_server_owner_member_class_missing(self):
         base = BaseController()
@@ -134,11 +130,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             status = init.check_init_status(configuration)
             assert status.is_server_code_initialized is False
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["owner_member_class"] = member_class[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_initalize_server_owner_member_code_missing(self):
         base = BaseController()
@@ -162,11 +156,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             status = init.check_init_status(configuration)
             assert status.is_server_code_initialized is False
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["owner_member_code"] = member_code[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_initalize_server_server_code_missing(self):
         base = BaseController()
@@ -190,11 +182,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             status = init.check_init_status(configuration)
             assert status.is_server_code_initialized is False
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["security_server_code"] = server_code[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_initalize_server_token_pin_missing(self):
         base = BaseController()
@@ -218,11 +208,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             status = init.check_init_status(configuration)
             assert status.is_server_code_initialized is False
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["software_token_pin"] = token_pin[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_init(self):
         base = BaseController()
@@ -318,10 +306,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert str(response[0].keys[1].label) == sign_key_label
 
     def step_cert_import_fail_certificates_missing(self):
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["certificates"] = ''
-            ssn = ssn + 1
 
         with XRDSSTTest() as app:
             cert_controller = CertController()
@@ -387,15 +373,11 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     assert response is None
                 ssn = ssn + 1
 
-        ssn = 0
         idx = 0
-        for security_server in self.config["security_server"]:
-            cln = 0
-            for client in security_server["clients"]:
+        for ssn in range(0, len(self.config["security_server"])):
+            for cln in range(0, len(self.config["security_server"][ssn]["clients"])):
                 self.config["security_server"][ssn]["clients"][cln]["member_code"] = member_code[idx]
-                cln = cln + 1
                 idx = idx + 1
-            ssn = ssn + 1
 
     def step_subsystem_add_client_fail_member_class_missing(self):
         member_class = []
@@ -420,15 +402,11 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     assert response is None
                 ssn = ssn + 1
 
-        ssn = 0
         idx = 0
-        for security_server in self.config["security_server"]:
-            cln = 0
-            for client in security_server["clients"]:
-                self.config["security_server"][ssn]["clients"][cln]["member_class"] = member_class[idx]
-                cln = cln + 1
+        for ssn in range(0, len(self.config["security_server"])):
+            for cln in range(0, len(self.config["security_server"][ssn]["clients"])):
+                self.config["security_server"][ssn]["clients"][cln]["member_code"] = member_class[idx]
                 idx = idx + 1
-            ssn = ssn + 1
 
     def step_subsystem_register_fail_client_not_saved(self):
         with XRDSSTTest() as app:
@@ -455,7 +433,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     for service_description in client["service_descriptions"]:
                         found_client = get_client(self.config, client, ssn)
                         assert len(found_client) == 0
-                        response = service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                        response = service_controller.remote_add_service_description(configuration, client, service_description)
                         assert response is None
             ssn = ssn + 1
 
@@ -520,11 +498,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     cln = cln + 1
                 ssn = ssn + 1
 
-            ssn = 0
-            for security_server in self.config["security_server"]:
+            for ssn in range(0, len(self.config["security_server"])):
                 self.config["security_server"][ssn]["clients"][0]["connection_type"] = connection_type[ssn]
                 self.config["security_server"][ssn]["clients"][1]["connection_type"] = connection_type[ssn]
-                ssn = ssn + 1
 
     def step_add_service_description_fail_url_missing(self):
         description_url = []
@@ -541,23 +517,21 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                        service_controller.remote_add_service_description(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
                     assert description is None
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[ssn]
-            ssn = ssn + 1
 
     def step_add_service_description_fail_type_missing(self):
-        type = []
+        types = []
         ssn = 0
         for security_server in self.config["security_server"]:
-            type.append(security_server["clients"][0]["service_descriptions"][0]["type"])
+            types.append(security_server["clients"][0]["service_descriptions"][0]["type"])
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = ''
             ssn = ssn + 1
 
@@ -568,17 +542,15 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                        service_controller.remote_add_service_description(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
                     assert description is None
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = type[ssn]
-            ssn = ssn + 1
+        for ssn in range(0, len(self.config["security_server"])):
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = types[ssn]
 
     def step_enable_service_description_fail_service_description_not_added(self):
         service_controller = ServiceController()
@@ -592,7 +564,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     description = get_service_description(self.config, client_id, ssn)
                     assert description is None
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+                        service_controller.remote_enable_service_description(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
@@ -607,7 +579,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                        service_controller.remote_add_service_description(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
@@ -626,7 +598,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     description = get_service_description(self.config, client_id, ssn)
                     assert description["disabled"] is True
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+                        service_controller.remote_enable_service_description(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
@@ -641,7 +613,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
+                        service_controller.remote_add_access_rights(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
@@ -668,7 +640,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
+                        service_controller.remote_update_service_parameters(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
@@ -759,10 +731,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert len(description[0]["services"]) == 1
                         assert description[0]["services"][0]["service_code"] == 'NewPetstore'
                 ssn = ssn + 1
-        ssn = 0
-        for security_server in self.config["security_server"]:
+
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["rest_service_code"] = rest_service_code[0]
-            ssn = ssn + 1
 
     def step_refresh_service_description(self):
         with XRDSSTTest() as app:
@@ -784,8 +755,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert description[0]["services"][0]["service_code"] == 'Petstore'
 
                         service_controller.remote_refresh_service_descriptions(configuration,
-                                                                              client_id,
-                                                                              description[0]["id"])
+                                                                               client_id,
+                                                                               description[0]["id"])
 
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1
@@ -876,10 +847,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     assert len(description["services"][0]["endpoints"]) == 4
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = service_type[ssn]
-            ssn = ssn + 1
 
     def step_add_service_endpoints(self):
         endpoint_controller = EndpointController()
@@ -999,11 +968,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_cert_register()
 
         # Wait for global configuration status updates
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config, ssn), self.retry_wait, self.max_retries)
             self.query_status()
-            ssn = ssn + 1
 
         self.query_status()
         self.step_cert_activate()

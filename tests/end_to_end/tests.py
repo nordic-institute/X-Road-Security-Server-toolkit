@@ -18,15 +18,15 @@ from xrdsst.controllers.member import MemberController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.status import StatusController
 from xrdsst.controllers.timestamp import TimestampController
-from xrdsst.controllers.token import TokenController, KeyTypes
+from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.user import UserController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
-from xrdsst.models.key_usage_type import KeyUsageType
 from tests.end_to_end.renew_certificate import RenewCertificate
+
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -156,10 +156,8 @@ class EndToEndTest(unittest.TestCase):
             assert status.is_anchor_imported is False
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_upload_anchor_fail_file_bogus_content(self):
         base = BaseController()
@@ -178,10 +176,8 @@ class EndToEndTest(unittest.TestCase):
             assert status.is_anchor_imported is False
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_initalize_server_owner_member_class_missing(self):
         base = BaseController()
@@ -205,11 +201,9 @@ class EndToEndTest(unittest.TestCase):
             status = init.check_init_status(configuration)
             assert status.is_server_code_initialized is False
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["owner_member_class"] = member_class[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_initalize_server_owner_member_code_missing(self):
         base = BaseController()
@@ -233,11 +227,9 @@ class EndToEndTest(unittest.TestCase):
             status = init.check_init_status(configuration)
             assert status.is_server_code_initialized is False
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["owner_member_code"] = member_code[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_initalize_server_server_code_missing(self):
         base = BaseController()
@@ -261,11 +253,9 @@ class EndToEndTest(unittest.TestCase):
             status = init.check_init_status(configuration)
             assert status.is_server_code_initialized is False
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["security_server_code"] = server_code[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_initalize_server_token_pin_missing(self):
         base = BaseController()
@@ -289,11 +279,9 @@ class EndToEndTest(unittest.TestCase):
             status = init.check_init_status(configuration)
             assert status.is_server_code_initialized is False
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["software_token_pin"] = token_pin[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
-            ssn = ssn + 1
 
     def step_init(self):
         base = BaseController()
@@ -438,10 +426,8 @@ class EndToEndTest(unittest.TestCase):
         os.environ[api_key_env_name] = api_key
 
     def step_cert_import_fail_certificates_missing(self):
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["certificates"] = ''
-            ssn = ssn + 1
 
         with XRDSSTTest() as app:
             cert_controller = CertController()
@@ -507,15 +493,11 @@ class EndToEndTest(unittest.TestCase):
                     assert response is None
                 ssn = ssn + 1
 
-        ssn = 0
         idx = 0
-        for security_server in self.config["security_server"]:
-            cln = 0
-            for client in security_server["clients"]:
+        for ssn in range(0, len(self.config["security_server"])):
+            for cln in range(0, len(self.config["security_server"][ssn]["clients"])):
                 self.config["security_server"][ssn]["clients"][cln]["member_code"] = member_code[idx]
-                cln = cln + 1
                 idx = idx + 1
-            ssn = ssn + 1
 
     def step_subsystem_add_client_fail_member_class_missing(self):
         member_class = []
@@ -540,15 +522,11 @@ class EndToEndTest(unittest.TestCase):
                     assert response is None
                 ssn = ssn + 1
 
-        ssn = 0
         idx = 0
-        for security_server in self.config["security_server"]:
-            cln = 0
-            for client in security_server["clients"]:
-                self.config["security_server"][ssn]["clients"][cln]["member_class"] = member_class[idx]
-                cln = cln + 1
+        for ssn in range(0, len(self.config["security_server"])):
+            for cln in range(0, len(self.config["security_server"][ssn]["clients"])):
+                self.config["security_server"][ssn]["clients"][cln]["member_code"] = member_class[idx]
                 idx = idx + 1
-            ssn = ssn + 1
 
     def step_subsystem_register_fail_client_not_saved(self):
         with XRDSSTTest() as app:
@@ -575,7 +553,7 @@ class EndToEndTest(unittest.TestCase):
                     for service_description in client["service_descriptions"]:
                         found_client = get_client(self.config, client, ssn)
                         assert len(found_client) == 0
-                        response = service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                        response = service_controller.remote_add_service_description(configuration, client, service_description)
                         assert response is None
             ssn = ssn + 1
 
@@ -640,11 +618,9 @@ class EndToEndTest(unittest.TestCase):
                     cln = cln + 1
                 ssn = ssn + 1
 
-            ssn = 0
-            for security_server in self.config["security_server"]:
+            for ssn in range(0, len(self.config["security_server"])):
                 self.config["security_server"][ssn]["clients"][0]["connection_type"] = connection_type[ssn]
                 self.config["security_server"][ssn]["clients"][1]["connection_type"] = connection_type[ssn]
-                ssn = ssn + 1
 
     def step_add_service_description_fail_url_missing(self):
         description_url = []
@@ -663,25 +639,23 @@ class EndToEndTest(unittest.TestCase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                        service_controller.remote_add_service_description(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
                     assert description is None
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["url"] = description_url[0]
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["url"] = description_url[1]
-            ssn = ssn + 1
 
     def step_add_service_description_fail_type_missing(self):
-        type = []
+        types = []
         ssn = 0
         for security_server in self.config["security_server"]:
-            type.append(security_server["clients"][0]["service_descriptions"][0]["type"])
-            type.append(security_server["clients"][0]["service_descriptions"][1]["type"])
+            types.append(security_server["clients"][0]["service_descriptions"][0]["type"])
+            types.append(security_server["clients"][0]["service_descriptions"][1]["type"])
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = ''
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["type"] = ''
             ssn = ssn + 1
@@ -693,18 +667,16 @@ class EndToEndTest(unittest.TestCase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                        service_controller.remote_add_service_description(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
                     assert description is None
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = type[0]
-            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["type"] = type[1]
-            ssn = ssn + 1
+        for ssn in range(0, len(self.config["security_server"])):
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = types[0]
+            self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["type"] = types[1]
 
     def step_enable_service_description_fail_service_description_not_added(self):
         service_controller = ServiceController()
@@ -718,7 +690,7 @@ class EndToEndTest(unittest.TestCase):
                     description = get_service_description(self.config, client_id, ssn)
                     assert description is None
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+                        service_controller.remote_enable_service_description(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
@@ -733,7 +705,7 @@ class EndToEndTest(unittest.TestCase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_add_service_description(configuration, security_server, client, service_description)
+                        service_controller.remote_add_service_description(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
@@ -753,7 +725,7 @@ class EndToEndTest(unittest.TestCase):
                     for description in descriptions:
                         assert description["disabled"] is True
                         for service_description in client["service_descriptions"]:
-                            service_controller.remote_enable_service_description(configuration, security_server, client, service_description)
+                            service_controller.remote_enable_service_description(configuration, client, service_description)
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_description(self.config, client_id, ssn)
@@ -768,7 +740,7 @@ class EndToEndTest(unittest.TestCase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_add_access_rights(configuration, security_server, client, service_description)
+                        service_controller.remote_add_access_rights(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
@@ -797,7 +769,7 @@ class EndToEndTest(unittest.TestCase):
             for client in security_server["clients"]:
                 if "service_descriptions" in client:
                     for service_description in client["service_descriptions"]:
-                        service_controller.remote_update_service_parameters(configuration, security_server, client, service_description)
+                        service_controller.remote_update_service_parameters(configuration, client, service_description)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     descriptions = get_service_descriptions(self.config, client_id, ssn)
@@ -863,7 +835,7 @@ class EndToEndTest(unittest.TestCase):
                         assert len(list_of_services) == 1
                         assert list_of_services[0]["security_server"] == security_server["name"]
                         assert list_of_services[0]["client_id"] == client_id
-                        assert list_of_services[0]["service_id"] == client_id+':Petstore'
+                        assert list_of_services[0]["service_id"] == client_id + ':Petstore'
                         assert list_of_services[0]["service_code"] == 'Petstore'
                         assert list_of_services[0]["timeout"] == 120
                         assert list_of_services[0]["url"] == 'http://petstore.xxx'
@@ -907,10 +879,9 @@ class EndToEndTest(unittest.TestCase):
                         assert len(description[1]["services"]) == 1
                         assert description[1]["services"][0]["service_code"] == 'NewPetstore'
                 ssn = ssn + 1
-        ssn = 0
-        for security_server in self.config["security_server"]:
+
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["rest_service_code"] = rest_service_code[0]
-            ssn = ssn + 1
 
     def step_refresh_service_description(self):
         with XRDSSTTest() as app:
@@ -932,8 +903,8 @@ class EndToEndTest(unittest.TestCase):
                         assert description[1]["services"][0]["service_code"] == 'Petstore'
 
                         service_controller.remote_refresh_service_descriptions(configuration,
-                                                                              client_id,
-                                                                              description[0]["id"])
+                                                                               client_id,
+                                                                               description[0]["id"])
 
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 2
@@ -996,7 +967,6 @@ class EndToEndTest(unittest.TestCase):
                         assert response[1]["type"] == 'OPENAPI3'
                         assert response[1]["services"] == 1
 
-
                         service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
 
                         description = get_service_descriptions(self.config, client_id, ssn)
@@ -1043,10 +1013,8 @@ class EndToEndTest(unittest.TestCase):
         user = UserController()
         user_created = user.create_user(self.config)
         assert len(user_created) == 2
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             assert user_created[ssn] is True
-            ssn = ssn + 1
         os.environ[admin_credentials_env_var] = old_admin_user
 
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
@@ -1076,11 +1044,9 @@ class EndToEndTest(unittest.TestCase):
                     assert len(description[1]["services"][0]["endpoints"]) == 4
             ssn = ssn + 1
 
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][0]["type"] = service_type[0]
             self.config["security_server"][ssn]["clients"][0]["service_descriptions"][1]["type"] = service_type[1]
-            ssn = ssn + 1
 
     def step_add_service_endpoints(self):
         endpoint_controller = EndpointController()
@@ -1180,60 +1146,6 @@ class EndToEndTest(unittest.TestCase):
             assert len(certificates) == 6
             assert len(cert_controller.app._last_rendered[0]) == 7
 
-    def step_disable_certificates(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            cert_controller.load_config = (lambda: self.config)
-
-            certificates = cert_controller.list()
-
-            for security_server in self.config["security_server"]:
-                security_server["certificate_management"] = [cert["hash"] for cert in certificates if cert["ss"] == security_server["name"]]
-
-            cert_controller.load_config = (lambda: self.config)
-            cert_controller.disable()
-            certificates_disabled = cert_controller.list()
-            for cert_disabled in certificates_disabled:
-                assert cert_disabled["ocsp_status"] == "DISABLED"
-
-    def step_unregister_certificates(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            cert_controller.load_config = (lambda: self.config)
-
-            certificates = cert_controller.list()
-
-            for security_server in self.config["security_server"]:
-                security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
-
-            cert_controller.load_config = (lambda: self.config)
-            cert_controller.unregister()
-            certificates_unregister = cert_controller.list()
-            for cert_unregister in certificates_unregister:
-                if cert_unregister["type"] == KeyUsageType.AUTHENTICATION:
-                    assert cert_unregister["status"] == "DELETION_IN_PROGRESS"
-
-    def step_delete_certificates(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            cert_controller.load_config = (lambda: self.config)
-
-            certificates = cert_controller.list()
-
-            for security_server in self.config["security_server"]:
-                security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
-
-            cert_controller.load_config = (lambda: self.config)
-            cert_controller.delete()
-            certificates = cert_controller.list()
-            for cert in certificates:
-                assert cert["type"] != KeyUsageType.AUTHENTICATION
-
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -1262,7 +1174,7 @@ class EndToEndTest(unittest.TestCase):
         ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
         for security_server in self.config["security_server"]:
-            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn*3):(ssn * 3 + 3)], security_server)
+            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
             self.apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
@@ -1271,11 +1183,9 @@ class EndToEndTest(unittest.TestCase):
         self.step_cert_register()
 
         # Wait for global configuration status updates
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config, ssn), 1, 300)
             self.query_status()
-            ssn = ssn + 1
 
         self.step_cert_activate()
         self.list_certificates()
