@@ -54,6 +54,7 @@ Doc. ID: XRDSST-CONF
 | 02.07.2021 | 2.0.8       | Update service management with update of service descriptions                | Bert Viikmäe       |
 | 05.07.2021 | 2.0.9       | Update service management with refresh of service descriptions               | Bert Viikmäe       |
 | 05.07.2021 | 2.1.0       | Update service management with disabling of service descriptions             | Bert Viikmäe       |
+| 06.07.2021 | 2.1.1       | And client unregister command                                                | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -61,82 +62,84 @@ Doc. ID: XRDSST-CONF
 <!-- vim-markdown-toc GFM -->
 
 * [License](#license)
-   * [1. Introduction](#1-introduction)
-      * [1.1 Target Audience](#11-target-audience)
-      * [1.2 References](#12-references)
-   * [2. Installation](#2-installation)
-   * [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
-   * [2.2 Installation](#22-installation)
-   * [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
-      * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
-         * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
-            * [3.1.1.1 Using API keys](#3111-using-api-keys)
-            * [3.1.1.2 Using SSH](#3112-using-ssh)
-      * [3.2 Format of configuration file](#32-format-of-configuration-file)
-         * [3.2.1 Access Configuration](#321-access-configuration)
-         * [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-         * [3.2.3 Client Configuration](#323-client-configuration)
-         * [3.2.3 Service Configuration](#323-service-configuration)
-      * [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
-   * [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
-      * [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
-      * [4.2 X-Road Security Server  Toolkit commands](#42-x-road-security-server--toolkit-commands)
-         * [4.2.1 Creating admin user command](#421-creating-admin-user-command)
-         * [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
-         * [4.2.3 Token commands](#423-token-commands)
-            * [4.2.3.1 Token login command](#4231-token-login-command)
-            * [4.2.3.2 Token list](#4232-token-list)
-            * [4.2.3.3 Token init-keys](#4233-token-init-keys)
-            * [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys)
-         * [4.2.4 Timestamp commands](#424-timestamp-commands)
-            * [4.2.4.1 Timestamp init](#4241-timestamp-init)
-            * [4.2.4.2 Timestamp list approved](#4242-timestamp-list-approved)
-            * [4.2.4.3 Timestamp list configured](#4243-timestamp-list-configured)
-         * [4.2.5 Certificate management commands](#425-certificate-management-commands)
-            * [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs)
-            * [4.2.5.2 Certificate import](#4252-certificate-import)
-            * [4.2.5.3 Certificate registration](#4253-certificate-registration)
-            * [4.2.5.4 Certificate activation](#4254-certificate-activation)
-            * [4.2.5.5 Download internal TSL certificates](#4255-download-internal-tsl-certificates)
-            * [4.2.5.6 List certificates](#4256-list-certificates)
-            * [4.2.5.7 Certificate disable](#4257-certificate-disable)
-            * [4.2.5.8 Certificate unregister](#4258-certificate-unregister)
-            * [4.2.5.9 Certificate delete](#4259-certificate-delete)
-         * [4.2.5 Client management commands](#425-client-management-commands)
-            * [4.2.5.1 Client add](#4251-client-add)
-            * [4.2.5.2 Client register](#4252-client-register)
-            * [4.2.5.3 Client update](#4253-client-update)
-            * [4.2.5.4 Client import TSL certificates](#4254-client-import-tsl-certificates)
-         * [4.2.6 Service management commands](#426-service-management-commands)
-            * [4.2.6.1 Service add description](#4261-service-add-description)
-            * [4.2.6.2 Service add access rights](#4262-service-add-access-rights)
-            * [4.2.6.3 Enable service](#4263-enable-service)
-            * [4.2.6.4 Service update parameters](#4264-service-update-parameters)
-            * [4.2.6.5 Service list descriptions](#4265-service-list-descriptions)
-            * [4.2.6.6 Service list services](#4266-service-list-services)
-            * [4.2.6.7 Service delete descriptions](#4267-service-delete-descriptions)  
-            * [4.2.6.8 Service update descriptions](#4268-service-update-descriptions) 
-            * [4.2.6.9 Service refresh descriptions](#4269-service-refresh-descriptions)   
-            * [4.2.6.10 Service disable descriptions](#42610-service-disable-descriptions)            
-            * [4.2.6.11 Service apply](#42611-service-apply)
-         * [4.2.7 Endpoint management](#427-endpoint-management)
-            * [4.2.7.1 Endpoint add](#4271-endpoint-add)
-            * [4.2.7.2 Endpoint add access rights](#4272-endpoint-add-access-rights)
-         * [4.2.8 Member management](#428-member-management)
-            * [4.2.8.1 Member find](#4281-member-find)
-            * [4.2.8.2 Member list member classes](#4282-member-list-member-classes)
-   * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
-      * [5.1 Configuration flow](#51-configuration-flow)
-      * [5.2 First-run failures](#52-first-run-failures)
-      * [5.3 Configuration file errors](#53-configuration-file-errors)
-         * [5.3.1 Malformed YAML](#531-malformed-yaml)
-         * [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
-      * [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
-      * [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
-   * [6 Load balancer setup](#6-load-balancer-setup)
-   * [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
-   * [8 Multitenancy](#8-multitenancy)
-   * [9 Renew expiring certificates](#9-renew-expiring-certificates)
+* [1. Introduction](#1-introduction)
+  * [1.1 Target Audience](#11-target-audience)
+  * [1.2 References](#12-references)
+* [2. Installation](#2-installation)
+* [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
+* [2.2 Installation](#22-installation)
+* [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
+  * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
+     * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
+        * [3.1.1.1 Using API keys](#3111-using-api-keys)
+        * [3.1.1.2 Using SSH](#3112-using-ssh)
+  * [3.2 Format of configuration file](#32-format-of-configuration-file)
+     * [3.2.1 Access Configuration](#321-access-configuration)
+     * [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
+     * [3.2.3 Client Configuration](#323-client-configuration)
+     * [3.2.3 Service Configuration](#323-service-configuration)
+  * [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
+* [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
+  * [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
+  * [4.2 X-Road Security Server  Toolkit commands](#42-x-road-security-server--toolkit-commands)
+     * [4.2.1 Creating admin user command](#421-creating-admin-user-command)
+     * [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
+     * [4.2.3 Token commands](#423-token-commands)
+        * [4.2.3.1 Token login command](#4231-token-login-command)
+        * [4.2.3.2 Token list](#4232-token-list)
+        * [4.2.3.3 Token init-keys](#4233-token-init-keys)
+        * [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys)
+     * [4.2.4 Timestamp commands](#424-timestamp-commands)
+        * [4.2.4.1 Timestamp init](#4241-timestamp-init)
+        * [4.2.4.2 Timestamp list approved](#4242-timestamp-list-approved)
+        * [4.2.4.3 Timestamp list configured](#4243-timestamp-list-configured)
+     * [4.2.5 Certificate management commands](#425-certificate-management-commands)
+        * [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs)
+        * [4.2.5.2 Certificate import](#4252-certificate-import)
+        * [4.2.5.3 Certificate registration](#4253-certificate-registration)
+        * [4.2.5.4 Certificate activation](#4254-certificate-activation)
+        * [4.2.5.5 Download internal TSL certificates](#4255-download-internal-tsl-certificates)
+        * [4.2.5.6 List certificates](#4256-list-certificates)
+        * [4.2.5.7 Certificate disable](#4257-certificate-disable)
+        * [4.2.5.8 Certificate unregister](#4258-certificate-unregister)
+        * [4.2.5.9 Certificate delete](#4259-certificate-delete)
+     * [4.2.6 Client management commands](#426-client-management-commands)
+        * [4.2.6.1 Client add](#4261-client-add)
+        * [4.2.6.2 Client register](#4262-client-register)
+        * [4.2.6.3 Client update](#4263-client-update)
+        * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
+        * [4.2.6.5 Client unregister](#4265-client-unregister)
+     * [4.2.7 Service management commands](#427-service-management-commands)
+        * [4.2.7.1 Service add description](#4271-service-add-description)
+        * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
+        * [4.2.7.3 Enable service](#4273-enable-service)
+        * [4.2.7.4 Service update parameters](#4274-service-update-parameters)
+        * [4.2.7.5 Service list descriptions](#4275-service-list-descriptions)
+        * [4.2.7.6 Service list services](#4276-service-list-services)
+        * [4.2.7.7 Service delete descriptions](#4277-service-delete-descriptions)
+        * [4.2.7.8 Service update descriptions](#4278-service-update-descriptions)
+        * [4.2.7.9 Service refresh descriptions](#4279-service-refresh-descriptions)
+        * [4.2.7.10 Service disable descriptions](#42710-service-disable-descriptions)
+        * [4.2.7.11 Service apply](#42711-service-apply)
+     * [4.2.8 Endpoint management](#428-endpoint-management)
+        * [4.2.8.1 Endpoint add](#4281-endpoint-add)
+        * [4.2.8.2 Endpoint add access rights](#4282-endpoint-add-access-rights)
+     * [4.2.9 Member management](#429-member-management)
+        * [4.2.9.1 Member find](#4291-member-find)
+        * [4.2.9.2 Member list member classes](#4292-member-list-member-classes)
+* [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
+  * [5.1 Configuration flow](#51-configuration-flow)
+  * [5.2 First-run failures](#52-first-run-failures)
+  * [5.3 Configuration file errors](#53-configuration-file-errors)
+     * [5.3.1 Malformed YAML](#531-malformed-yaml)
+     * [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
+  * [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
+  * [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
+* [6 Load balancer setup](#6-load-balancer-setup)
+* [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
+* [8 Multitenancy](#8-multitenancy)
+* [9 Renew expiring certificates](#9-renew-expiring-certificates)
+
 
 
 
@@ -804,12 +807,12 @@ Delete the certificates can be done with:
 xrdsst cert delete --hash <CERTIFICATE_HASH>
 ```
 
-#### 4.2.5 Client management commands
+#### 4.2.6 Client management commands
 
 Client are managed with ``xrdsst client`` subcommands.
 Configuration parameters involved are the `certificates` list described in [3.2.3 Clients Configuration](#323-client-configuration)
 
-##### 4.2.5.1 Client add
+##### 4.2.6.1 Client add
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 
@@ -818,7 +821,7 @@ New subsystem or members can be added with:
 xrdsst client add
 ```
 
-##### 4.2.5.2 Client register
+##### 4.2.6.2 Client register
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 
@@ -827,7 +830,7 @@ Subsystems and new members registration in central server can proceed with:
 xrdsst client register
 ```
 
-##### 4.2.5.3 Client update
+##### 4.2.6.3 Client update
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 
@@ -836,19 +839,30 @@ Subsystem parameters can be updated with:
 xrdsst client update
 ```
 
-##### 4.2.5.4 Client import TSL certificates
+##### 4.2.6.4 Client import TSL certificates
 
 TLS certificates can be imported and added to a client's whitelist with
 ```
 xrdsst client import-tls-certs
 ```
 
-#### 4.2.6 Service management commands
+##### 4.2.6.5 Client unregister
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
+There are no configuration parameters involved, command line arguments are used instead
+Subsystems and new members can be unregister with:
+```
+xrdsst client unregister --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <CLIENT_ID> id(s) of the client, e.g. DEV:GOV:1234:TEST,DEV:COM:12345:SUB:
+#### 4.2.7 Service management commands
 
 Services and service descriptions are managed with ``xrdsst service`` subcommands.
 Configuration parameters involved are the described in [3.2.3 Services Configuration](#323-services-configuration)
 
-##### 4.2.6.1 Service add description
+##### 4.2.7.1 Service add description
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -864,7 +878,7 @@ The default values of the service properties will be of 60 for the `timeout` and
 
 We must include the services when we want to modify any of their properties (for all or for single one).
 
-##### 4.2.6.2 Service add access rights
+##### 4.2.7.2 Service add access rights
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -876,7 +890,7 @@ This command will add for all the services the access rights defined in the prop
 except in the case that the `access` property of the `services` section is filled, in that case, this list will overwrite 
 the access rights for the individual service. 
 
-##### 4.2.6.3 Enable service
+##### 4.2.7.3 Enable service
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -885,7 +899,7 @@ Enabling the service description can be done with:
 xrdsst service enable-description
 ```
 
-##### 4.2.6.4 Service update parameters
+##### 4.2.7.4 Service update parameters
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -896,7 +910,7 @@ xrdsst service update-parameters
 This command will update the parameters of the single services added to the configuration file, or it will update the parameters
 for all the services in the description if the boolean parameters are set to True.
 
-##### 4.2.6.5 Service list descriptions
+##### 4.2.7.5 Service list descriptions
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -908,7 +922,7 @@ xrdsst service list-descriptions --client <CLIENT_ID>
 ```
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST, multiple values can also be given, separated by comma, e.g. DEV:GOV:1234:TEST,DEV:GOV:1234:MANAGEMENT
 
-##### 4.2.6.6 Service list services
+##### 4.2.7.6 Service list services
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -921,7 +935,7 @@ xrdsst service list-services --client <CLIENT_ID> --description <SERVICE_DESCRIP
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
-##### 4.2.6.7 Service delete descriptions
+##### 4.2.7.7 Service delete descriptions
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -935,7 +949,7 @@ xrdsst service delete-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
-##### 4.2.6.8 Service update descriptions
+##### 4.2.7.8 Service update descriptions
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -958,7 +972,7 @@ Parameters that can be updated for service description of type REST/OPENAPI3:
 * <REST_SERVICE_CODE>
 * <SERVICE_DESCRIPTION_URL>
 
-##### 4.2.6.9 Service refresh descriptions
+##### 4.2.7.9 Service refresh descriptions
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -972,7 +986,7 @@ xrdsst service refresh-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
-##### 4.2.6.10 Service disable descriptions
+##### 4.2.7.10 Service disable descriptions
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -987,7 +1001,7 @@ xrdsst service disable-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 * <NOTICE> disabling notice, e.g. "Not used"
 
-##### 4.2.6.11 Service apply
+##### 4.2.7.11 Service apply
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -998,7 +1012,7 @@ xrdsst service apply
 ```
 This command will execute the commands: ``xrdsst service add-description``, ``xrdsst service enable-description``, ``xrdsst service add-access``, ``xrdsst service update-parameters``.
 
-#### 4.2.7 Endpoint management
+#### 4.2.8 Endpoint management
 
 Endpoints are managed with ``xrdsst endpoint`` subcommands.
 
@@ -1006,7 +1020,7 @@ Configuration parameters involved are the ``endpoint`` section described in [3.2
 
 Endpoints are only available for service types REST and OPENAPI3.
 
-##### 4.2.7.1 Endpoint add
+##### 4.2.8.1 Endpoint add
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -1017,7 +1031,7 @@ xrdsst endpoint add
 Endpoints in service type OPENAPI3 are autogenerated, so, the endpoints defined in the configuration 
 will be created together with the autogenerated ones.
 
-##### 4.2.7.2 Endpoint add access rights
+##### 4.2.8.2 Endpoint add access rights
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
@@ -1026,13 +1040,13 @@ Access rights for a single endpoint can be add with:
 xrdsst endpoint add-access
 ```
 
-#### 4.2.8 Member management
+#### 4.2.9 Member management
 
 Members are managed with ``xrdsst member`` subcommands.
 
 There are no configuration parameters involved, command line arguments are used instead
 
-##### 4.2.8.1 Member find
+##### 4.2.9.1 Member find
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
@@ -1044,7 +1058,7 @@ xrdsst member find --class <MEMBER_CLASS> --code <MEMBER_CODE>
 * <MEMBER_CLASS> member class for the member to be searched, e.g. GOV
 * <MEMBER_CODE> member code for the member to be searched, e.g. 1234
 
-##### 4.2.8.2 Member list member classes
+##### 4.2.9.2 Member list member classes
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
