@@ -18,7 +18,20 @@ class LocalGroupController(BaseController):
 
 
     @ex(help="create", arguments=[])
-    def add(self):
+    def create(self):
+        active_config = self.load_config()
+        full_op_path = self.op_path()
+
+        active_config, invalid_conf_servers = self.validate_op_config(active_config)
+        self.log_skipped_op_conf_invalid(invalid_conf_servers)
+
+        if not self.is_autoconfig():
+            active_config, unconfigured_servers = self.regroup_server_ops(active_config, full_op_path)
+            self.log_skipped_op_deps_unmet(full_op_path, unconfigured_servers)
+        self.add_service_endpoints(active_config)
+
+    @ex(help="create", arguments=[])
+    def add_members(self):
         active_config = self.load_config()
         full_op_path = self.op_path()
 
