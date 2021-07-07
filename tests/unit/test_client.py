@@ -579,7 +579,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    "The following parameters missing for unregister clients: ['client']") > 0
+                    "The following parameters missing for deleting clients: ['client']") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
@@ -597,7 +597,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    "The following parameters missing for unregister clients: ['ss']") > 0
+                    "The following parameters missing for deleting clients: ['ss']") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)

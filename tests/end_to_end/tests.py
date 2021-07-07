@@ -43,7 +43,8 @@ class EndToEndTest(unittest.TestCase):
                     self.config_file = sys.argv[idx]
             base = BaseController()
             base.app = app
-            self.config = base.load_config(baseconfig=self.config_file)
+            # self.config = base.load_config(baseconfig=self.config_file)
+            self.config = base.load_config(baseconfig='/home/alberto/Proyects/X-Road-Security-Server-toolkit/tests/resources/test.yaml')
             ssn = 0
             for security_server in self.config["security_server"]:
                 if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
@@ -1249,7 +1250,7 @@ class EndToEndTest(unittest.TestCase):
             for cert in certificates:
                 assert cert["type"] != KeyUsageType.AUTHENTICATION
 
-    def step_client_unregister(self):
+    def step_client_delete(self):
         with XRDSSTTest() as app:
             client_controller = ClientController()
             client_controller.app = app
@@ -1342,6 +1343,9 @@ class EndToEndTest(unittest.TestCase):
 
         RenewCertificate(self).test_run_configuration()
 
-        self.step_client_unregister()
+
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
+
+        self.step_client_unregister()
+        self.step_client_delete()

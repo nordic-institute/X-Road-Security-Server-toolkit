@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.0
+Version: 2.1.2
 Doc. ID: XRDSST-CONF
 
 ---
@@ -55,6 +55,7 @@ Doc. ID: XRDSST-CONF
 | 05.07.2021 | 2.0.9       | Update service management with refresh of service descriptions               | Bert Viikmäe       |
 | 05.07.2021 | 2.1.0       | Update service management with disabling of service descriptions             | Bert Viikmäe       |
 | 06.07.2021 | 2.1.1       | And client unregister command                                                | Alberto Fernandez  |
+| 06.07.2021 | 2.1.2       | And client delete command                                                    | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -109,6 +110,7 @@ Doc. ID: XRDSST-CONF
         * [4.2.6.3 Client update](#4263-client-update)
         * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
         * [4.2.6.5 Client unregister](#4265-client-unregister)
+        * [4.2.6.6 Client delete](#4267-client-delete)
      * [4.2.7 Service management commands](#427-service-management-commands)
         * [4.2.7.1 Service add description](#4271-service-add-description)
         * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
@@ -856,7 +858,22 @@ xrdsst client unregister --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
 
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <CLIENT_ID> id(s) of the client, e.g. DEV:GOV:1234:TEST,DEV:COM:12345:SUB:
+* <CLIENT_ID> id(s) of the client, e.g. DEV:GOV:1234:TEST,DEV:COM:12345:SUB
+
+##### 4.2.6.6 Client delete
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
+There are no configuration parameters involved, command line arguments are used instead
+Subsystems and new members can be delete with:
+```
+xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <CLIENT_ID> id(s) of the client, e.g. DEV:GOV:1234:TEST,DEV:COM:12345:SUB
+
+The members or subsystem must be unregistered from the security server for been able to delete it.
+
 #### 4.2.7 Service management commands
 
 Services and service descriptions are managed with ``xrdsst service`` subcommands.
