@@ -497,7 +497,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    'Client is required for delete clients') > 0
+                    "The following parameters missing for unregister clients: ['client']") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
@@ -515,7 +515,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    'Security server name is required for delete clients') > 0
+                    "The following parameters missing for unregister clients: ['ss']") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
