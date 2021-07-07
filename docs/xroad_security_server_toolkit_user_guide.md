@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.0
+Version: 2.1.2
 Doc. ID: XRDSST-CONF
 
 ---
@@ -55,6 +55,7 @@ Doc. ID: XRDSST-CONF
 | 05.07.2021 | 2.0.9       | Update service management with refresh of service descriptions               | Bert Viikmäe       |
 | 05.07.2021 | 2.1.0       | Update service management with disabling of service descriptions             | Bert Viikmäe       |
 | 06.07.2021 | 2.1.1       | And client unregister command                                                | Alberto Fernandez  |
+| 06.07.2021 | 2.1.2       | Update service management with listing of access rights for services         | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -120,7 +121,8 @@ Doc. ID: XRDSST-CONF
         * [4.2.7.8 Service update descriptions](#4278-service-update-descriptions)
         * [4.2.7.9 Service refresh descriptions](#4279-service-refresh-descriptions)
         * [4.2.7.10 Service disable descriptions](#42710-service-disable-descriptions)
-        * [4.2.7.11 Service apply](#42711-service-apply)
+        * [4.2.7.11 Service list access rights for services](#42711-service-list-access-rights-for-services)
+        * [4.2.7.12 Service apply](#42712-service-apply)
      * [4.2.8 Endpoint management](#428-endpoint-management)
         * [4.2.8.1 Endpoint add](#4281-endpoint-add)
         * [4.2.8.2 Endpoint add access rights](#4282-endpoint-add-access-rights)
@@ -1001,7 +1003,20 @@ xrdsst service disable-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 * <NOTICE> disabling notice, e.g. "Not used"
 
-##### 4.2.7.11 Service apply
+##### 4.2.7.11 Service list access rights for services
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+There are no configuration parameters involved, command line arguments are used instead
+
+Listing access rights for services for client's service descriptions can be done with:
+```
+xrdsst service list-access --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
+```
+* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+
+##### 4.2.7.12 Service apply
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
