@@ -13,7 +13,7 @@ from xrdsst.models import Client, ConnectionType, ClientStatus
 from xrdsst.main import XRDSSTTest
 from xrdsst.resources.texts import server_error_map, ascii_art
 from xrdsst.rest.rest import ApiException
-
+from argparse import Namespace
 
 class ClientTestData:
     add_response = Client(
@@ -465,3 +465,85 @@ class TestClient(unittest.TestCase):
                     with self.capsys.disabled():
                         sys.stdout.write(out)
                         sys.stderr.write(err)
+
+
+    def test_client_unregister(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.unregister_client',
+                            return_value=None):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.unregister()
+
+                out, err = self.capsys.readouterr()
+                assert out.count(
+                    "Unregister client: 'DEV:GOV:9876:SUB1' for security server: 'ssX'") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+
+    def test_client_unregister_fail_client_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client=None)
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.unregister_client',
+                            return_value=None):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.unregister()
+
+                out, err = self.capsys.readouterr()
+                assert out.count(
+                    "The following parameters missing for unregister clients: ['client']") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_client_unregister_fail_security_server_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss=None, client='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.unregister_client',
+                            return_value=None):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.unregister()
+
+                out, err = self.capsys.readouterr()
+                assert out.count(
+                    "The following parameters missing for unregister clients: ['ss']") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_client_already_unregister(self):
+        class AlreadyUnregisterResponse:
+            status = 409
+            data = '{"status":409,"error":{"code":"client_already_unregister"}}'
+            reason = None
+
+            def getheaders(self): return None
+
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.unregister_client',
+                                        side_effect=ApiException(http_resp=AlreadyUnregisterResponse())):
+
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.unregister()
+
+                out, err = self.capsys.readouterr()
+                assert out.count(
+                    "Client: 'DEV:GOV:9876:SUB1' for security server: 'ssX', already unregistered") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
