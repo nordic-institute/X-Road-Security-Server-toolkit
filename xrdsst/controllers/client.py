@@ -86,11 +86,14 @@ class ClientController(BaseController):
     def unregister(self):
         active_config = self.load_config()
 
-        if self.app.pargs.client is None:
-            self.log_info('Client is required for unregister clients')
-            return
+        missing_parameters = []
         if self.app.pargs.ss is None:
-            self.log_info('Security server name is required for unregister clients')
+            missing_parameters.append('ss')
+        if self.app.pargs.client is None:
+            missing_parameters.append('client')
+        if len(missing_parameters) > 0:
+            BaseController.log_info(
+                'The following parameters missing for deleting service descriptions: %s' % missing_parameters)
             return
 
         self.unregister_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.client))
@@ -241,15 +244,16 @@ class ClientController(BaseController):
         except ApiException as find_err:
             BaseController.log_api_error("ClientsApi->find_client", find_err)
 
-    def remote_unregister_client(self, ss_api_config, security_server, clientsId):
+    @staticmethod
+    def remote_unregister_client(ss_api_config, security_server, client_ids):
         clients_api = ClientsApi(ApiClient(ss_api_config))
-        for clientId in clientsId:
+        for client_id in client_ids:
             try:
-                result = clients_api.unregister_client(clientId)
-                BaseController.log_info("Unregister client: '%s' for security server: '%s'" % (clientId, security_server))
+                clients_api.unregister_client(client_id)
+                BaseController.log_info("Unregister client: '%s' for security server: '%s'" % (client_id, security_server))
             except ApiException as err:
                 if err.status == 409:
-                    BaseController.log_info("Client: '%s' for security server: '%s', already unregister" % (clientId, security_server))
+                    BaseController.log_info("Client: '%s' for security server: '%s', already unregistered" % (client_id, security_server))
                 else:
                     BaseController.log_api_error("ClientsApi->unregister_client", err)
 
