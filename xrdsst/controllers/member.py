@@ -59,11 +59,13 @@ class MemberController(BaseController):
     def find(self):
         active_config = self.load_config()
 
+        missing_parameters = []
         if self.app.pargs.mclass is None:
-            self.log_info('Member class parameter is required for searching member names')
-            return
+            missing_parameters.append('class')
         if self.app.pargs.mcode is None:
-            self.log_info('Member code parameter is required for searching member names')
+            missing_parameters.append('code')
+        if len(missing_parameters) > 0:
+            BaseController.log_info('The following parameters missing for finding member names: %s' % missing_parameters)
             return
 
         self.find_name(active_config, self.app.pargs.mclass, self.app.pargs.mcode)
