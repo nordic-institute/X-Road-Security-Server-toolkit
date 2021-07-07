@@ -18,7 +18,7 @@ from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import ClientStatus
+from xrdsst.models import ClientStatus, ServiceClientType
 from xrdsst.core.conf_keys import ConfKeysSecServerClients, ConfKeysSecurityServer
 from tests.integration.renew_certificate_test import RenewCertificate
 
@@ -822,6 +822,32 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert len(response) == 0
                 ssn = ssn + 1
 
+    def step_list_service_access_rights(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            service_controller = ServiceController()
+            service_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_description(self.config, client_id, ssn)
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, description["id"])
+                        assert len(response) == 1
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
+                        assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
+                        assert response[0]["service_client_id"] == 'DEV:security-server-owners'
+                        assert response[0]["local_group"] is None
+                        assert response[0]["name"] == 'Security server owners'
+                        assert response[0]["rights_given"] is not None
+                        assert response[0]["type"] == ServiceClientType.GLOBALGROUP
+
+                ssn = ssn + 1
+
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
         service_type = []
         ssn = 0
@@ -998,6 +1024,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_disable_service_description()
         self.step_update_service_description()
         self.step_delete_service_description()
+        self.step_list_service_access_rights()
         self.step_cert_download_internal_tls()
 
         RenewCertificate(self).test_run_configuration()

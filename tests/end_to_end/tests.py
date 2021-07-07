@@ -24,7 +24,7 @@ from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClien
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import ClientStatus
+from xrdsst.models import ClientStatus, ServiceClientType
 from tests.end_to_end.renew_certificate import RenewCertificate
 
 
@@ -978,6 +978,32 @@ class EndToEndTest(unittest.TestCase):
                         assert response[0]["services"] == 1
                 ssn = ssn + 1
 
+    def step_list_service_access_rights(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            service_controller = ServiceController()
+            service_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, description["id"])
+                        assert len(response) == 1
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
+                        assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
+                        assert response[0]["service_client_id"] == 'DEV:security-server-owners'
+                        assert response[0]["local_group"] is None
+                        assert response[0]["name"] == 'Security server owners'
+                        assert response[0]["rights_given"] is not None
+                        assert response[0]["type"] == ServiceClientType.GLOBALGROUP
+
+                ssn = ssn + 1
+
     def step_create_admin_user_fail_admin_credentials_missing(self):
         admin_credentials_env_var = self.config["security_server"][0]["admin_credentials"]
         admin_credentials = os.getenv(admin_credentials_env_var, "")
@@ -1161,6 +1187,60 @@ class EndToEndTest(unittest.TestCase):
             assert len(certificates) == 6
             assert len(cert_controller.app._last_rendered[0]) == 7
 
+    def step_disable_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+
+            for security_server in self.config["security_server"]:
+                security_server["certificate_management"] = [cert["hash"] for cert in certificates if cert["ss"] == security_server["name"]]
+
+            cert_controller.load_config = (lambda: self.config)
+            cert_controller.disable()
+            certificates_disabled = cert_controller.list()
+            for cert_disabled in certificates_disabled:
+                assert cert_disabled["ocsp_status"] == "DISABLED"
+
+    def step_unregister_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+
+            for security_server in self.config["security_server"]:
+                security_server["certificate_management"] = [cert["hash"] for cert in certificates
+                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+
+            cert_controller.load_config = (lambda: self.config)
+            cert_controller.unregister()
+            certificates_unregister = cert_controller.list()
+            for cert_unregister in certificates_unregister:
+                if cert_unregister["type"] == KeyUsageType.AUTHENTICATION:
+                    assert cert_unregister["status"] == "DELETION_IN_PROGRESS"
+
+    def step_delete_certificates(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.config)
+
+            certificates = cert_controller.list()
+
+            for security_server in self.config["security_server"]:
+                security_server["certificate_management"] = [cert["hash"] for cert in certificates
+                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+
+            cert_controller.load_config = (lambda: self.config)
+            cert_controller.delete()
+            certificates = cert_controller.list()
+            for cert in certificates:
+                assert cert["type"] != KeyUsageType.AUTHENTICATION
+
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -1233,6 +1313,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_disable_service_description()
         self.step_update_service_description()
         self.step_delete_service_description()
+        self.step_list_service_access_rights()
         self.step_cert_download_internal_tls()
 
         RenewCertificate(self).test_run_configuration()
