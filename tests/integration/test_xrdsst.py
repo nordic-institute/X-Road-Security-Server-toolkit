@@ -297,8 +297,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         token_controller.remote_token_add_sign_keys_with_csrs(configuration,
                                                                               security_server,
                                                                               False,
-                                                                              client,
-                                                                              auth_key_label)
+                                                                              client)
                 response = token_controller.remote_get_tokens(configuration)
                 assert len(response) > 0
                 assert len(response[0].keys) == 3
