@@ -498,7 +498,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    "Client is required for unregister clients") > 0
+                    "The following parameters missing for unregister clients: ['client']") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
@@ -516,7 +516,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    'Security server name is required for unregister clients') > 0
+                    "The following parameters missing for unregister clients: ['ss']") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
@@ -542,7 +542,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    "Client: 'DEV:GOV:9876:SUB1' for security server: 'ssX', already unregister") > 0
+                    "Client: 'DEV:GOV:9876:SUB1' for security server: 'ssX', already unregistered") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)

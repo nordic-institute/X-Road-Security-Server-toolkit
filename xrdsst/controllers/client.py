@@ -93,7 +93,7 @@ class ClientController(BaseController):
             missing_parameters.append('client')
         if len(missing_parameters) > 0:
             BaseController.log_info(
-                'The following parameters missing for deleting service descriptions: %s' % missing_parameters)
+                'The following parameters missing for unregister clients: %s' % missing_parameters)
             return
 
         self.unregister_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.client))
