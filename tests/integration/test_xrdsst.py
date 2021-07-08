@@ -1045,11 +1045,11 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_update_service_parameters()
         self.step_list_service_descriptions()
         self.step_list_service_description_services()
+        self.step_list_service_access_rights()
         self.step_refresh_service_description()
         self.step_disable_service_description()
         self.step_update_service_description()
         self.step_delete_service_description()
-        self.step_list_service_access_rights()
         self.step_cert_download_internal_tls()
 
         RenewCertificate(self).test_run_configuration()
