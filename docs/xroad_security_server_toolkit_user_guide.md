@@ -110,7 +110,7 @@ Doc. ID: XRDSST-CONF
         * [4.2.6.3 Client update](#4263-client-update)
         * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
         * [4.2.6.5 Client unregister](#4265-client-unregister)
-        * [4.2.6.6 Client delete](#4267-client-delete)
+        * [4.2.6.6 Client delete](#4266-client-delete)
      * [4.2.7 Service management commands](#427-service-management-commands)
         * [4.2.7.1 Service add description](#4271-service-add-description)
         * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
@@ -864,7 +864,7 @@ xrdsst client unregister --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 There are no configuration parameters involved, command line arguments are used instead
-Subsystems and new members can be delete with:
+Subsystems and new members can be deleted with:
 ```
 xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
@@ -872,7 +872,7 @@ xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <CLIENT_ID> id(s) of the client, e.g. DEV:GOV:1234:TEST,DEV:COM:12345:SUB
 
-The members or subsystem must be unregistered from the security server for been able to delete it.
+The members or subsystem must be unregistered from the security server in order to delete it.
 
 #### 4.2.7 Service management commands
 

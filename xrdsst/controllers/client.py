@@ -283,7 +283,7 @@ class ClientController(BaseController):
         for clientId in clientsId:
             try:
                 result = clients_api.delete_client(clientId)
-                BaseController.log_info("Delete client: '%s' for security server: '%s'" % (clientId, security_server_name))
+                BaseController.log_info("Deleted client: '%s' for security server: '%s'" % (clientId, security_server_name))
             except ApiException as err:
                 if err.status == 404:
                     BaseController.log_info("Error deleting client: '%s' for security server: '%s', not found" % (clientId, security_server_name))
