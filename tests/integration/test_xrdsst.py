@@ -372,11 +372,15 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     assert response is None
                 ssn = ssn + 1
 
+        ssn = 0
         idx = 0
-        for ssn in range(0, len(self.config["security_server"])):
-            for cln in range(0, len(self.config["security_server"][ssn]["clients"])):
+        for security_server in self.config["security_server"]:
+            cln = 0
+            for client in security_server["clients"]:
                 self.config["security_server"][ssn]["clients"][cln]["member_code"] = member_code[idx]
+                cln = cln + 1
                 idx = idx + 1
+            ssn = ssn + 1
 
     def step_subsystem_add_client_fail_member_class_missing(self):
         member_class = []
@@ -401,11 +405,15 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     assert response is None
                 ssn = ssn + 1
 
+        ssn = 0
         idx = 0
-        for ssn in range(0, len(self.config["security_server"])):
-            for cln in range(0, len(self.config["security_server"][ssn]["clients"])):
-                self.config["security_server"][ssn]["clients"][cln]["member_code"] = member_class[idx]
+        for security_server in self.config["security_server"]:
+            cln = 0
+            for client in security_server["clients"]:
+                self.config["security_server"][ssn]["clients"][cln]["member_class"] = member_class[idx]
+                cln = cln + 1
                 idx = idx + 1
+            ssn = ssn + 1
 
     def step_subsystem_register_fail_client_not_saved(self):
         with XRDSSTTest() as app:
