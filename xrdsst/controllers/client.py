@@ -306,6 +306,12 @@ class ClientController(BaseController):
         return found_clients[0]
 
     @staticmethod
+    def find_all_clients(clients_api):
+        try:
+            return clients_api.find_clients()
+        except ApiException as find_err:
+            BaseController.log_api_error('ClientsApi->find_clients', find_err)
+    @staticmethod
     def partial_client_id(client_conf):
         client_id = str(client_conf['member_class']) + ":" + str(client_conf['member_code'])
         if 'subsystem_code' in client_conf and client_conf['subsystem_code'] is not None:
