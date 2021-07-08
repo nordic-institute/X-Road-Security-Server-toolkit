@@ -560,7 +560,7 @@ class TestClient(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count(
-                    "Delete client: 'DEV:GOV:9876:SUB1' for security server: 'ssX'") > 0
+                    "Deleted client: 'DEV:GOV:9876:SUB1' for security server: 'ssX'") > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
