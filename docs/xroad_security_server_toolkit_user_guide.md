@@ -54,8 +54,8 @@ Doc. ID: XRDSST-CONF
 | 02.07.2021 | 2.0.8       | Update service management with update of service descriptions                | Bert Viikmäe       |
 | 05.07.2021 | 2.0.9       | Update service management with refresh of service descriptions               | Bert Viikmäe       |
 | 05.07.2021 | 2.1.0       | Update service management with disabling of service descriptions             | Bert Viikmäe       |
-| 06.07.2021 | 2.1.1       | And client unregister command                                                | Alberto Fernandez  |
-| 06.07.2021 | 2.1.2       | And client delete command                                                    | Alberto Fernandez  |
+| 06.07.2021 | 2.1.1       | Add client unregister command                                                | Alberto Fernandez  |
+| 06.07.2021 | 2.1.2       | Add client delete command                                                    | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 

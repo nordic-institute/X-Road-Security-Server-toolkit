@@ -278,11 +278,12 @@ class ClientController(BaseController):
         except ApiException as find_err:
             BaseController.log_api_error("ClientsApi->find_client", find_err)
 
-    def remote_delete_client(self, ss_api_config, security_server_name, clientsId):
+    @staticmethod
+    def remote_delete_client(ss_api_config, security_server_name, clientsId):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         for clientId in clientsId:
             try:
-                result = clients_api.delete_client(clientId)
+                clients_api.delete_client(clientId)
                 BaseController.log_info("Deleted client: '%s' for security server: '%s'" % (clientId, security_server_name))
             except ApiException as err:
                 if err.status == 404:
