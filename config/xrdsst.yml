@@ -66,15 +66,6 @@ security_server:
               ssl_auth: False
               url: https://10.54.135.88:4002/managementservice/manage/
       local_groups:
-        - code: TestGroup
-          description: Description test group
-          members:
-            - DEV:COM:12345:SUBCOMPANY
-            - DEV:ORG:111:TEST
-        - code: OtherGroup
-          description: Other Description test group
-          members:
-            - DEV:ORG:111:TEST
     - member_class: COM
       member_code: 12345
       member_name: COMPANY
