@@ -1052,6 +1052,5 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         RenewCertificate(self).test_run_configuration()
 
-        self.step_client_unregister()
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
