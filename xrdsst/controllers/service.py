@@ -736,13 +736,15 @@ class ServiceController(BaseController):
 
     def remote_list_access_for_services(self, ss_api_config, security_server, client, description):
         clients_api = ClientsApi(ApiClient(ss_api_config))
+        access_list = []
         try:
             description_ids = parse_argument_list(description)
             service_descriptions = clients_api.get_client_service_descriptions(id=client)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:
                     for service in service_description.services:
-                        self.remote_list_service_access(ss_api_config, security_server, service, client, service_description.id)
+                        access_list.extend(self.remote_list_service_access(ss_api_config, security_server, service, client, service_description.id))
+            return access_list
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
@@ -796,7 +798,6 @@ class ServiceController(BaseController):
             access_list = []
             render_data = []
             for client_id in client_ids:
-                print('Client ' + client_id + ', service ' + service.id)
                 service_client_candidates = clients_api.find_service_client_candidates(client_id)
                 for service_client_candidate in service_client_candidates:
                     access_list.append({'security_server': security_server["name"],
