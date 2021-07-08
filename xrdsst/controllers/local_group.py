@@ -117,16 +117,17 @@ class LocalGroupController(BaseController):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         local_group_api = LocalGroupsApi(ApiClient(ss_api_config))
         client_controller = ClientController()
+        client = ClientController().find_client(clients_api, client_conf)
 
         try:
-            client = ClientController().find_client(clients_api, client_conf)
             local_groups = self.get_client_local_groups(clients_api, client.id, local_group_conf["code"])
             if len(local_groups) > 0:
                 all_clients = client_controller.find_all_clients(clients_api)
                 for local_group_member in local_group_conf[ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS]:
                     try:
                         member_client = list(filter(lambda c: c.id == local_group_member, all_clients))
-                        if member_client
+                        if len(member_client) > 0:
+                            local_group_api.add_local_group_member(local_groups[0].id)
 
                     except ApiException as err:
                         BaseController.log_api_error('ClientsApi->get_client_local_groups', err)
