@@ -192,7 +192,7 @@ class ClientController(BaseController):
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
 
-    def delete_client(self, config, security_server_name, clientsId):
+    def delete_client(self, config, security_server_name, client_ids):
         ss_api_conf_tuple = list(zip(config["security_server"],
                                      map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -202,7 +202,7 @@ class ClientController(BaseController):
         else:
             ss_api_config = self.create_api_config(security_server[0], config)
             BaseController.log_debug('Starting client deletion for security server: ' + security_server[0]['name'])
-            self.remote_delete_client(ss_api_config, security_server_name, clientsId)
+            self.remote_delete_client(ss_api_config, security_server_name, client_ids)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -279,15 +279,15 @@ class ClientController(BaseController):
             BaseController.log_api_error("ClientsApi->find_client", find_err)
 
     @staticmethod
-    def remote_delete_client(ss_api_config, security_server_name, clientsId):
+    def remote_delete_client(ss_api_config, security_server_name, client_ids):
         clients_api = ClientsApi(ApiClient(ss_api_config))
-        for clientId in clientsId:
+        for client_id in client_ids:
             try:
-                clients_api.delete_client(clientId)
-                BaseController.log_info("Deleted client: '%s' for security server: '%s'" % (clientId, security_server_name))
+                clients_api.delete_client(client_id)
+                BaseController.log_info("Deleted client: '%s' for security server: '%s'" % (client_id, security_server_name))
             except ApiException as err:
                 if err.status == 404:
-                    BaseController.log_info("Error deleting client: '%s' for security server: '%s', not found" % (clientId, security_server_name))
+                    BaseController.log_info("Error deleting client: '%s' for security server: '%s', not found" % (client_id, security_server_name))
                 else:
                     BaseController.log_api_error("ClientsApi->delete_client", err)
 
