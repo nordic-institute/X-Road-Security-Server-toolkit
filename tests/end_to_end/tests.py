@@ -179,7 +179,7 @@ class EndToEndTest(unittest.TestCase):
         for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
 
-    def step_initalize_server_owner_member_class_missing(self):
+    def step_initialize_server_owner_member_class_missing(self):
         base = BaseController()
         init = InitServerController()
         member_class = []
@@ -205,7 +205,7 @@ class EndToEndTest(unittest.TestCase):
             self.config["security_server"][ssn]["owner_member_class"] = member_class[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
 
-    def step_initalize_server_owner_member_code_missing(self):
+    def step_initialize_server_owner_member_code_missing(self):
         base = BaseController()
         init = InitServerController()
         member_code = []
@@ -231,7 +231,7 @@ class EndToEndTest(unittest.TestCase):
             self.config["security_server"][ssn]["owner_member_code"] = member_code[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
 
-    def step_initalize_server_server_code_missing(self):
+    def step_initialize_server_server_code_missing(self):
         base = BaseController()
         init = InitServerController()
         server_code = []
@@ -257,7 +257,7 @@ class EndToEndTest(unittest.TestCase):
             self.config["security_server"][ssn]["security_server_code"] = server_code[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
 
-    def step_initalize_server_token_pin_missing(self):
+    def step_initialize_server_token_pin_missing(self):
         base = BaseController()
         init = InitServerController()
         token_pin = []
@@ -1083,7 +1083,7 @@ class EndToEndTest(unittest.TestCase):
                     for service_description in client["service_descriptions"]:
                         if "endpoints" in service_description:
                             for endpoint in service_description["endpoints"]:
-                                endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+                                endpoint_controller.remote_add_service_endpoints(configuration, client, service_description, endpoint)
 
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
@@ -1103,7 +1103,7 @@ class EndToEndTest(unittest.TestCase):
             for client in security_server["clients"]:
                 if "service_description" in client:
                     for service_description in client["service_descriptions"]:
-                        endpoint_controller.remote_add_endpoints_access(configuration, service_description, client, service_description)
+                        endpoint_controller.remote_add_endpoints_access(configuration, client, service_description)
 
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
@@ -1247,10 +1247,10 @@ class EndToEndTest(unittest.TestCase):
         self.step_verify_initial_transient_api_keys()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
-        self.step_initalize_server_owner_member_class_missing()
-        self.step_initalize_server_owner_member_code_missing()
-        self.step_initalize_server_server_code_missing()
-        self.step_initalize_server_token_pin_missing()
+        self.step_initialize_server_owner_member_class_missing()
+        self.step_initialize_server_owner_member_code_missing()
+        self.step_initialize_server_server_code_missing()
+        self.step_initialize_server_token_pin_missing()
 
         self.step_init()
         self.step_timestamp_init()

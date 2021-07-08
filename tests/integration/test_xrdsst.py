@@ -108,7 +108,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         for ssn in range(0, len(self.config["security_server"])):
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
 
-    def step_initalize_server_owner_member_class_missing(self):
+    def step_initialize_server_owner_member_class_missing(self):
         base = BaseController()
         init = InitServerController()
         member_class = []
@@ -134,7 +134,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             self.config["security_server"][ssn]["owner_member_class"] = member_class[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
 
-    def step_initalize_server_owner_member_code_missing(self):
+    def step_initialize_server_owner_member_code_missing(self):
         base = BaseController()
         init = InitServerController()
         member_code = []
@@ -160,7 +160,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             self.config["security_server"][ssn]["owner_member_code"] = member_code[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
 
-    def step_initalize_server_server_code_missing(self):
+    def step_initialize_server_server_code_missing(self):
         base = BaseController()
         init = InitServerController()
         server_code = []
@@ -186,7 +186,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             self.config["security_server"][ssn]["security_server_code"] = server_code[ssn]
             self.config["security_server"][ssn]["configuration_anchor"] = configuration_anchor[ssn]
 
-    def step_initalize_server_token_pin_missing(self):
+    def step_initialize_server_token_pin_missing(self):
         base = BaseController()
         init = InitServerController()
         token_pin = []
@@ -865,7 +865,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     for service_description in client["service_descriptions"]:
                         if "endpoints" in service_description:
                             for endpoint in service_description["endpoints"]:
-                                endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+                                endpoint_controller.remote_add_service_endpoints(configuration, client, service_description, endpoint)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_description(self.config, client_id, ssn)
@@ -885,7 +885,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     for service_description in client["service_descriptions"]:
                         if "endpoints" in service_description:
                             for endpoint in service_description["endpoints"]:
-                                endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+                                endpoint_controller.remote_add_service_endpoints(configuration, client, service_description, endpoint)
 
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
@@ -903,7 +903,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for client in security_server["clients"]:
                 if "service_description" in client:
                     for service_description in client["service_descriptions"]:
-                        endpoint_controller.remote_add_endpoints_access(configuration, service_description, client, service_description)
+                        endpoint_controller.remote_add_endpoints_access(configuration, client, service_description)
 
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
@@ -957,6 +957,22 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
 
+    def step_client_unregister(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            ssn = 0
+            configuration = client_controller.create_api_config(self.config["security_server"][0], self.config)
+            for client in self.config["security_server"][0]["clients"]:
+                if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client:
+                    found_client = get_client(self.config, client, ssn)
+                    assert len(found_client) > 0
+                    assert found_client[0]["status"] == ClientStatus.REGISTERED
+                    client_controller.remote_unregister_client(configuration, self.config["security_server"][0]["name"], [found_client[0]["id"]])
+                    found_client = get_client(self.config, client, ssn)
+                    assert len(found_client) > 0
+                    assert found_client[0]["status"] == ClientStatus.DELETION_IN_PROGRESS
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
@@ -964,10 +980,10 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.query_status()
         self.step_upload_anchor_fail_file_missing()
         self.step_upload_anchor_fail_file_bogus_content()
-        self.step_initalize_server_owner_member_class_missing()
-        self.step_initalize_server_owner_member_code_missing()
-        self.step_initalize_server_server_code_missing()
-        self.step_initalize_server_token_pin_missing()
+        self.step_initialize_server_owner_member_class_missing()
+        self.step_initialize_server_owner_member_code_missing()
+        self.step_initialize_server_server_code_missing()
+        self.step_initialize_server_token_pin_missing()
 
         self.query_status()
         self.step_init()
@@ -1029,5 +1045,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         RenewCertificate(self).test_run_configuration()
 
+        self.step_client_unregister()
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
