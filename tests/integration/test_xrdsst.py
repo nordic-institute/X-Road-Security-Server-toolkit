@@ -850,7 +850,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
                         assert response[0]["service_client_id"] == 'DEV:GOV:1234:BUS'
                         assert response[0]["local_group"] is None
-                        assert response[0]["name"] == 'NIIS'
+                        assert response[0]["name"] == 'ACME'
                         assert response[0]["rights_given"] is not None
                         assert response[0]["type"] == ServiceClientType.SUBSYSTEM
 
