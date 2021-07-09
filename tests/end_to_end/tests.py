@@ -921,6 +921,33 @@ class EndToEndTest(unittest.TestCase):
                         assert description[1]["services"][0]["service_code"] == 'Petstore'
                 ssn = ssn + 1
 
+    def step_delete_service_access_rights(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            service_controller = ServiceController()
+            service_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
+                        service_clients = get_service_clients(self.config, 'DEV:ORG:111:BUS:Petstore', ssn)
+                        assert len(service_clients) == 1
+                        assert service_clients[0]["id"] == 'DEV:security-server-owners'
+                        service_controller.remote_delete_access(configuration,
+                                                                security_server,
+                                                                'DEV:ORG:111:BUS:Petstore',
+                                                                client_id,
+                                                                description[0]["id"],
+                                                                service_clients[0]["id"])
+                        service_clients = get_service_clients(self.config, 'DEV:ORG:111:BUS:Petstore', ssn)
+                        assert service_clients is None
+                ssn = ssn + 1
+
     def step_disable_service_description(self):
         with XRDSSTTest() as app:
             base = BaseController()
@@ -1319,6 +1346,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_list_service_description_services()
         self.step_list_service_access_rights()
         self.step_refresh_service_description()
+        self.step_delete_service_access_rights()
         self.step_disable_service_description()
         self.step_update_service_description()
         self.step_delete_service_description()

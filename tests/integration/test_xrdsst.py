@@ -789,7 +789,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert len(description) == 1
                         service_clients = get_service_clients(self.config, 'DEV:ORG:111:BUS:Petstore', ssn)
                         assert len(service_clients) == 1
-                        assert service_clients[0]["id"] == 'DEV:ORG:111:BUS'
+                        assert service_clients[0]["id"] == 'DEV:security-server-owners'
                         service_controller.remote_delete_access(configuration,
                                                                 security_server,
                                                                 'DEV:ORG:111:BUS:Petstore',
@@ -875,7 +875,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["security_server"] == security_server["name"]
                         assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
                         assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
-                        assert response[0]["service_client_id"] == 'DEV:GOV:1234:BUS'
+                        assert response[0]["service_client_id"] == 'DEV:security-server-owners'
                         assert response[0]["local_group"] is None
                         assert response[0]["name"] == 'ACME'
                         assert response[0]["type"] == ServiceClientType.SUBSYSTEM
