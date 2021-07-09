@@ -24,7 +24,7 @@ from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClien
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key, get_ssh_user
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import ClientStatus, ServiceClientType
+from xrdsst.models import ClientStatus, ServiceClientType, KeyUsageType
 from tests.end_to_end.renew_certificate import RenewCertificate
 
 
@@ -1035,7 +1035,7 @@ class EndToEndTest(unittest.TestCase):
                         assert response[0]["service_client_id"] == 'DEV:security-server-owners'
                         assert response[0]["local_group"] is None
                         assert response[0]["name"] == 'Security server owners'
-                        assert response[0]["type"] == ServiceClientType.SUBSYSTEM
+                        assert response[0]["type"] == ServiceClientType.GLOBALGROUP
 
                 ssn = ssn + 1
 
