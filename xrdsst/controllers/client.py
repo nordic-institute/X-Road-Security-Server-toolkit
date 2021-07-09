@@ -98,6 +98,26 @@ class ClientController(BaseController):
 
         self.unregister_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.client))
 
+    @ex(help="Delete client(s)",
+        arguments=[
+            (['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+            (['--client'], {'help': 'Client(s) Id', 'dest': 'client'})
+        ])
+    def delete(self):
+        active_config = self.load_config()
+
+        missing_parameters = []
+        if self.app.pargs.ss is None:
+            missing_parameters.append('ss')
+        if self.app.pargs.client is None:
+            missing_parameters.append('client')
+        if len(missing_parameters) > 0:
+            BaseController.log_info(
+                'The following parameters missing for deleting clients: %s' % missing_parameters)
+            return
+
+        self.delete_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.client))
+
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -172,6 +192,20 @@ class ClientController(BaseController):
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
 
+    def delete_client(self, config, security_server_name, client_ids):
+        ss_api_conf_tuple = list(zip(config["security_server"],
+                                     map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        security_server = list(filter(lambda ss_server: ss_server["name"] == security_server_name, config["security_server"]))
+        if len(security_server) == 0:
+            BaseController.log_info("Security server with name: %s not found in config file" % security_server_name)
+        else:
+            ss_api_config = self.create_api_config(security_server[0], config)
+            BaseController.log_debug('Starting client deletion for security server: ' + security_server[0]['name'])
+            self.remote_delete_client(ss_api_config, security_server_name, client_ids)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
     def remote_add_client(self, ss_api_config, client_conf):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
         client = Client(member_class=client_conf['member_class'],
@@ -243,6 +277,19 @@ class ClientController(BaseController):
                     self.remote_add_client_tls_certificate(tls_cert, clients_api, client)
         except ApiException as find_err:
             BaseController.log_api_error("ClientsApi->find_client", find_err)
+
+    @staticmethod
+    def remote_delete_client(ss_api_config, security_server_name, client_ids):
+        clients_api = ClientsApi(ApiClient(ss_api_config))
+        for client_id in client_ids:
+            try:
+                clients_api.delete_client(client_id)
+                BaseController.log_info("Deleted client: '%s' for security server: '%s'" % (client_id, security_server_name))
+            except ApiException as err:
+                if err.status == 404:
+                    BaseController.log_info("Error deleting client: '%s' for security server: '%s', not found" % (client_id, security_server_name))
+                else:
+                    BaseController.log_api_error("ClientsApi->delete_client", err)
 
     @staticmethod
     def remote_unregister_client(ss_api_config, security_server, client_ids):
