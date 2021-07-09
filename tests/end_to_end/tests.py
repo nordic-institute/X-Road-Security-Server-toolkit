@@ -944,7 +944,7 @@ class EndToEndTest(unittest.TestCase):
                                                                         description[0]["id"],
                                                                         service_clients[0]["id"])
                         service_clients = get_service_clients(self.config, description[0]["services"][0]["id"], ssn)
-                        assert service_clients is None
+                        assert len(service_clients) == 0
                 ssn = ssn + 1
 
     def step_disable_service_description(self):
