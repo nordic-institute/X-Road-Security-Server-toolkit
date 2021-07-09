@@ -933,18 +933,17 @@ class EndToEndTest(unittest.TestCase):
                     if "service_descriptions" in client:
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
-                        service_clients = get_service_clients(self.config, description[0]["services"][0]["id"], ssn)
+                        description = get_service_description(self.config, client_id, ssn)
+                        service_clients = get_service_clients(self.config, description["services"][0]["id"], ssn)
                         assert len(service_clients) == 1
                         service_controller.remote_delete_service_access(configuration,
                                                                         security_server,
-                                                                        description[0]["services"][0]["id"],
+                                                                        description["services"][0]["id"],
                                                                         client_id,
-                                                                        description[0]["id"],
+                                                                        description["id"],
                                                                         service_clients[0]["id"])
-                        service_clients = get_service_clients(self.config, description[0]["services"][0]["id"], ssn)
-                        assert len(service_clients) == 0
+                        service_clients = get_service_clients(self.config, description["services"][0]["id"], ssn)
+                        assert len(service_clients) == 00
                 ssn = ssn + 1
 
     def step_disable_service_description(self):
