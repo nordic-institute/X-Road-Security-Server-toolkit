@@ -547,3 +547,84 @@ class TestClient(unittest.TestCase):
                 with self.capsys.disabled():
                     sys.stdout.write(out)
                     sys.stderr.write(err)
+
+    def test_client_delete(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.delete_client',
+                            return_value=None):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.delete()
+
+                out, err = self.capsys.readouterr()
+                assert out.count(
+                    "Deleted client: 'DEV:GOV:9876:SUB1' for security server: 'ssX'") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+
+    def test_client_delete_fail_client_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client=None)
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.delete_client',
+                            return_value=None):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.delete()
+
+                out, err = self.capsys.readouterr()
+                assert out.count(
+                    "The following parameters missing for deleting clients: ['client']") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_client_delete_fail_security_server_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss=None, client='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.delete_client',
+                            return_value=None):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.delete()
+
+                out, err = self.capsys.readouterr()
+                assert out.count(
+                    "The following parameters missing for deleting clients: ['ss']") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_client_not_found(self):
+        class AlreadyUnregisterResponse:
+            status = 404
+            data = '{"status":404,"error":{"code":"client_not_found"}}'
+            reason = None
+
+            def getheaders(self): return None
+
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.delete_client',
+                                        side_effect=ApiException(http_resp=AlreadyUnregisterResponse())):
+
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.delete()
+
+                out, err = self.capsys.readouterr()
+                assert out.count(
+                    "Error deleting client: 'DEV:GOV:9876:SUB1' for security server: 'ssX', not found") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
