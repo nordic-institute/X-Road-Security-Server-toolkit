@@ -306,9 +306,9 @@ class ClientController(BaseController):
         return found_clients[0]
 
     @staticmethod
-    def find_all_clients(clients_api):
+    def find_all_clients(clients_api, show_members=False, internal_search=False):
         try:
-            return clients_api.find_clients()
+            return clients_api.find_clients(show_members=show_members, internal_search=internal_search)
         except ApiException as find_err:
             BaseController.log_api_error('ClientsApi->find_clients', find_err)
     @staticmethod

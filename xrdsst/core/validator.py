@@ -572,15 +572,16 @@ def validate_config_client_local_groups_members(ss_config, operation, errors):
         if clients_config[client_ix].get(ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS):
             local_groups_config = copy.deepcopy(clients_config[client_ix][ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS])
             for local_group_ix in range(0, len(local_groups_config)):
-                local_groups_config[local_group_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
-                        clients_config[client_ix][ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
-                        ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS + '[' + str(local_group_ix + 1) + ']'
-                )
-            require_fill(
-                ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE,
-                local_groups_config[local_group_ix], operation, errors)
+                if ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS in local_groups_config[local_group_ix]:
+                    local_groups_config[local_group_ix][ConfKeysSecurityServer.CONF_KEY_NAME] = (
+                            clients_config[client_ix][ConfKeysSecurityServer.CONF_KEY_NAME] + "." +
+                            ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS + '[' + str(local_group_ix + 1) + ']'
+                    )
+                    require_fill(
+                        ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE,
+                        local_groups_config[local_group_ix], operation, errors)
 
-            require_fill_length(ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS,
-                local_groups_config[local_group_ix], operation, errors)
+                    require_fill_length(ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS,
+                        local_groups_config[local_group_ix], operation, errors)
 
     return len(errors) <= err_cnt
