@@ -1,9 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [2.3.1-beta.0] - 2021-07-06
-- add ``xrdsst service`` and sub-command ``list-access``
-- add ``xrdsst client`` and sub-command ``unregister``
+## [2.4.0-beta.0] - 2021-07-09
+- add ``xrdsst service`` and sub-commands ``list-access`` and ``delete-access``
+- add ``xrdsst client`` and sub-commands ``unregister`` and ``delete``
 
 ## [2.3.0-beta.0] - 2021-07-05
 - add ``xrdsst service`` and sub-commands ``update-descriptions``, ``refresh-descriptions`` and ``disable-descriptions``
