@@ -790,12 +790,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         service_clients = get_service_clients(self.config, 'DEV:ORG:111:BUS:Petstore', ssn)
                         assert len(service_clients) == 1
                         assert service_clients[0]["id"] == 'DEV:security-server-owners'
-                        service_controller.remote_delete_access(configuration,
-                                                                security_server,
-                                                                'DEV:ORG:111:BUS:Petstore',
-                                                                client_id,
-                                                                description[0]["id"],
-                                                                service_clients[0]["id"])
+                        service_controller.remote_delete_service_access(configuration,
+                                                                        security_server,
+                                                                        'DEV:ORG:111:BUS:Petstore',
+                                                                        client_id,
+                                                                        description[0]["id"],
+                                                                        service_clients[0]["id"])
                         service_clients = get_service_clients(self.config, 'DEV:ORG:111:BUS:Petstore', ssn)
                         assert service_clients is None
                 ssn = ssn + 1
