@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.2
+Version: 2.1.3
 Doc. ID: XRDSST-CONF
 
 ---
@@ -56,6 +56,8 @@ Doc. ID: XRDSST-CONF
 | 05.07.2021 | 2.1.0       | Update service management with disabling of service descriptions             | Bert Viikmäe       |
 | 06.07.2021 | 2.1.1       | Add client unregister command                                                | Alberto Fernandez  |
 | 06.07.2021 | 2.1.2       | Add client delete command                                                    | Alberto Fernandez  |
+| 06.07.2021 | 2.1.3       | Add local groups management                                                  | Alberto Fernandez  |
+
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -129,6 +131,12 @@ Doc. ID: XRDSST-CONF
      * [4.2.9 Member management](#429-member-management)
         * [4.2.9.1 Member find](#4291-member-find)
         * [4.2.9.2 Member list member classes](#4292-member-list-member-classes)
+     * [4.2.10 Local groups management](#4210-local-groups-management)
+        * [4.2.10.1 Local groups add](#42101-local-groups-add)
+        * [4.2.10.2 Local groups add members](#42102-local-groups-add-members)
+        * [4.2.10.3 Local groups list](#42103-local-groups-list)
+        * [4.2.10.4 Local groups delete](#42104-local-groups-delete)
+        * [4.2.10.5 Local groups member delete](#42105-local-groups-member-delete)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -141,6 +149,7 @@ Doc. ID: XRDSST-CONF
 * [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
+
 
 
 
@@ -362,6 +371,11 @@ security_server:
       connection_type: <CONNECTION_TYPE>
       tls_certificates:
   		- /path/to/tls_cert
+      local_groups:
+        - code: <LOCAL_GROUP_CODE>
+          description: <LOCAL_GROUP_DESCRIPTION>
+          members:
+            - <SERVICE_CLIENT_ID>
       service_descriptions:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
@@ -465,6 +479,11 @@ clients:
 	  connection_type: <CONNECTION_TYPE>
 	  tls_certificates:
         - <TLS_CERT_PATH>
+      local_groups:
+        - code: <LOCAL_GROUP_CODE>
+          description: <LOCAL_GROUP_DESCRIPTION>
+          members:
+            - <MEMBER_ID>
 ```
 
 * <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV.
@@ -476,6 +495,11 @@ It must have the same value as <OWNER_DISTINGUISHED_NAME_ORGANIZATION>  if is a 
 * <SUBSYSTEM_CODE> (Optional, not required for members) X-Road member/client subsystem code.
 * <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
 * <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g. "/etc/xroad/cert.pem"
+
+<strong>Local groups (Optional):</strong>
+* <LOCAL_GROUP_CODE> code for single local group. Must be unique for each security server client.
+* <LOCAL_GROUP_DESCRIPTION> description for single local group.
+* <MEMBER_ID> (Optional) list of subsystems ids, composed by <INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>
 
 #### 3.2.3 Service Configuration
 
@@ -1086,6 +1110,83 @@ xrdsst member list-classes --instance <XROAD-INSTANCE>
 **When ``instance`` command-line parameter is not provided, current instance is assumed**
 
 * <XROAD-INSTANCE> X-Road instance for the member classes to be searched, e.g. DEV
+
+#### 4.2.10 Local groups management
+
+Client local groups are managed with ``xrdsst local-group`` subcommands.
+
+##### 4.2.10.1 Local groups add
+
+Configuration parameters involved are the ``local-groups`` section described in [3.2.3 Client Configuration](#323-client-configuration)
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+Adding local groups to a client can be done with:
+```
+xrdsst local-group add
+```
+
+##### 4.2.10.2 Local groups add members
+
+Configuration parameters involved are the ``local-groups members`` section described in [3.2.3 Client Configuration](#323-client-configuration)
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+Adding members to a local group can be done with:
+```
+xrdsst local-group add-member
+```
+
+##### 4.2.10.3 Local groups list
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+List client local groups can be done with:
+```
+xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
+```
+* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <CLIENT_ID> subsystem client id, e.g. DEV:COM:12345:COMPANY
+
+╒══════╤════════════╤════════════════════════╤═════════════════════════════════════════════════════════╕
+│   ID │ CODE       │ DESCRIPTION            │ MEMBERS                                                 │
+╞══════╪════════════╪════════════════════════╪═════════════════════════════════════════════════════════╡
+│  185 │ OtherGroup │ description 1          │ []                                                      │
+├──────┼────────────┼────────────────────────┼─────────────────────────────────────────────────────────┤
+│  125 │ TestGroup  │ Description test group │ ['DEV:GOV:9999:SUBGOV', 'DEV:ORG:0000:SUBORGANIZATION'] │
+╘══════╧════════════╧════════════════════════╧═════════════════════════════════════════════════════════╛
+
+
+The table above shows the following information about the certificates:
+
+* ID: Local group id.
+* CODE: Local group code.
+* DESCRIPTION: Local group description.
+* MEMBERS: List of members ids
+
+##### 4.2.10.4 Local groups delete
+
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
+
+Delete client local groups can be done with:
+```
+xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID>
+```
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <LOCAL_GROUP_ID> List (or individual) of local groups ids (can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), e.g. 125,127
+
+##### 4.2.10.5 Local groups member delete
+
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
+
+Delete client local group members can be done with:
+```
+xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
+```
+* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <LOCAL_GROUP_ID> Local group id (can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), e.g. 125
+* <MEMBERS_ID> List (or individual) of local groups members ids (local group members can be check with the 
+  command [4.2.10.3 Local groups list](#42103-local-groups-list)), e.g. DEV:COM:12345:COMPANY, DEV:ORG:123:NIIS
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
