@@ -922,7 +922,7 @@ class TestService(unittest.TestCase):
             with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[ServiceTestData.add_description_response]):
-                    with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
+                    with mock.patch('xrdsst.api.services_api.ServicesApi.get_service_service_clients',
                                     return_value=[ServiceClient(
                                         id='DEV:security-server-owners',
                                         name='Security server owners',
@@ -949,7 +949,7 @@ class TestService(unittest.TestCase):
             with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=False):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[ServiceTestData.add_description_response]):
-                    with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
+                    with mock.patch('xrdsst.api.services_api.ServicesApi.get_service_service_clients',
                                     return_value=[ServiceClient(
                                         id='DEV:security-server-owners',
                                         name='Security server owners',
@@ -976,7 +976,7 @@ class TestService(unittest.TestCase):
             with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[ServiceTestData.add_description_response]):
-                    with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
+                    with mock.patch('xrdsst.api.services_api.ServicesApi.get_service_service_clients',
                                     return_value=[ServiceClient(
                                         id='DEV:security-server-owners',
                                         name='Security server owners',
@@ -996,7 +996,7 @@ class TestService(unittest.TestCase):
             with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[ServiceTestData.add_description_response]):
-                    with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
+                    with mock.patch('xrdsst.api.services_api.ServicesApi.get_service_service_clients',
                                     return_value=[ServiceClient(
                                         id='DEV:security-server-owners',
                                         name='Security server owners',
@@ -1009,3 +1009,33 @@ class TestService(unittest.TestCase):
                         service_controller.list_access()
 
                         assert service_controller.app._last_rendered is None
+
+    def test_service_delete_access(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX',
+                                         client='DEV:GOV:9876:SUB1',
+                                         description='DEV:GOV:9876:SUB1',
+                                         service='DEV:GOV:9876:SUB1:Petstore',
+                                         sclient='DEV:security-server-owners')
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
+                                return_value=[ServiceTestData.add_description_response]):
+                    with mock.patch('xrdsst.api.services_api.ServicesApi.get_service_service_clients',
+                                    return_value=[ServiceClient(
+                                        id='DEV:security-server-owners',
+                                        name='Security server owners',
+                                        local_group_code=None,
+                                        service_client_type=ServiceClientType.GLOBALGROUP,
+                                        rights_given_at=datetime.now().isoformat())]):
+                        with mock.patch('xrdsst.api.services_api.ServicesApi.delete_service_service_clients', return_value=None):
+                            service_controller = ServiceController()
+                            service_controller.app = app
+                            service_controller.load_config = (lambda: self.ss_config)
+                            service_controller.delete_access()
+
+                            out, err = self.capsys.readouterr()
+                            assert out.count("deleted successfully") > 0
+
+                            with self.capsys.disabled():
+                                sys.stdout.write(out)
+                                sys.stderr.write(err)
