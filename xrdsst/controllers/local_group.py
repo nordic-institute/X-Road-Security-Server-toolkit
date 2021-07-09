@@ -210,20 +210,23 @@ class LocalGroupController(BaseController):
     @staticmethod
     def remote_add_local_group(ss_api_config, security_server_conf, client_conf, local_group_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
-
+        client_controller = ClientController()
         try:
-            client = ClientController().find_client(clients_api, client_conf)
-            try:
-                local_group = LocalGroupAdd(code=local_group_conf["code"], description=local_group_conf["description"])
-                clients_api.add_client_local_group(client.id, body=local_group)
-                BaseController.log_info("Added local group: '%s' for client '%s' security server: '%s'"
-                                        % (local_group_conf["code"], client.id, security_server_conf["name"]))
-            except ApiException as add_err:
-                if add_err.status == 409:
-                    BaseController.log_info("Local group: '%s' for client '%s' security server: '%s', already added"
+            client = client_controller.find_client(clients_api, client_conf)
+            if client:
+                try:
+                    local_group = LocalGroupAdd(code=local_group_conf["code"], description=local_group_conf["description"])
+                    clients_api.add_client_local_group(client.id, body=local_group)
+                    BaseController.log_info("Added local group: '%s' for client '%s' security server: '%s'"
                                             % (local_group_conf["code"], client.id, security_server_conf["name"]))
-                else:
-                    BaseController.log_api_error('ClientsApi->add_client_local_group', add_err)
+                except ApiException as add_err:
+                    if add_err.status == 409:
+                        BaseController.log_info("Local group: '%s' for client '%s' security server: '%s', already added"
+                                                % (local_group_conf["code"], client.id, security_server_conf["name"]))
+                    else:
+                        BaseController.log_api_error('ClientsApi->add_client_local_group', add_err)
+            else:
+                BaseController.log_info("Client: '%s', security server: '%s', client not found" % (client_controller.get_client_conf_id(client_conf), security_server_conf["name"]))
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
 
