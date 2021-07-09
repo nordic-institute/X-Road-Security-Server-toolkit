@@ -1276,6 +1276,21 @@ class EndToEndTest(unittest.TestCase):
             for cert in certificates:
                 assert cert["type"] != KeyUsageType.AUTHENTICATION
 
+    def step_client_delete(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            ssn = 0
+            configuration = client_controller.create_api_config(self.config["security_server"][0], self.config)
+            for client in self.config["security_server"][0]["clients"]:
+                if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client:
+                    found_client = get_client(self.config, client, ssn)
+                    assert len(found_client) > 0
+                    assert found_client[0]["status"] == ClientStatus.DELETION_IN_PROGRESS
+                    client_controller.remote_delete_client(configuration, self.config["security_server"][0]["name"], [found_client[0]["id"]])
+                    found_client = get_client(self.config, client, ssn)
+                    assert len(found_client) == 0
+
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -1355,5 +1370,8 @@ class EndToEndTest(unittest.TestCase):
         RenewCertificate(self).test_run_configuration()
 
         self.step_client_unregister()
+        self.step_client_delete()
+        
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
+
