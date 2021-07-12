@@ -1173,7 +1173,8 @@ Delete client local groups can be done with:
 xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID>
 ```
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
-* <LOCAL_GROUP_ID> List (or individual) of local groups ids (can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), e.g. 125,127
+* <LOCAL_GROUP_ID> Local group id (can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), 
+  multiple values can also be given, separated by comma, e.g. 125,127
 
 ##### 4.2.10.5 Local groups member delete
 
@@ -1183,10 +1184,17 @@ Delete client local group members can be done with:
 ```
 xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
 ```
+id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+
 * <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
-* <LOCAL_GROUP_ID> Local group id (can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), e.g. 125
-* <MEMBERS_ID> List (or individual) of local groups members ids (local group members can be check with the 
-  command [4.2.10.3 Local groups list](#42103-local-groups-list)), e.g. DEV:COM:12345:COMPANY, DEV:ORG:123:NIIS
+* <LOCAL_GROUP_ID> Local group id (it can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), 
+  multiple values can also be given, separated by comma, e.g. 123,456
+* <MEMBERS_ID> Member (service client) id (local group members can be check with the 
+  command [4.2.10.3 Local groups list](#42103-local-groups-list)), multiple values can also be given, separated by comma,
+  e.g. DEV:COM:12345:COMPANY, DEV:ORG:123:NIIS
+  
+If multiple local groups are set as parameters, the command will go through all the local groups searching for the members
+that matches with the ones send as parameters and it will delete them.
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
