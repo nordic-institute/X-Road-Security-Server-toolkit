@@ -667,7 +667,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     if "service_descriptions" in client:
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, [client_id])
                         assert len(response) == 1
                         assert response[0]["security_server"] == security_server["name"]
                         assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
@@ -690,7 +690,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_description(self.config, client_id, ssn)
-                        response = service_controller.remote_list_services(configuration, security_server, client_id, description["id"])
+                        response = service_controller.remote_list_services(configuration, security_server, client_id, [description["id"]])
                         assert len(response) == 1
                         assert response[0]["security_server"] == security_server["name"]
                         assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
@@ -727,7 +727,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
                         service_controller.remote_update_service_descriptions(configuration,
                                                                               client_id,
-                                                                              description[0]["id"],
+                                                                              [description[0]["id"]],
                                                                               'NewPetstore',
                                                                               None)
 
@@ -763,7 +763,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
                         service_controller.remote_refresh_service_descriptions(configuration,
                                                                                client_id,
-                                                                               description[0]["id"])
+                                                                               [description[0]["id"]])
 
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1
@@ -786,7 +786,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, description[0]["id"])
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
                         assert len(response) == 1
                         service_controller.remote_delete_service_access(configuration,
                                                                         security_server,
@@ -794,7 +794,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                                                                         client_id,
                                                                         description[0]["id"],
                                                                         response[0]["service_client_id"])
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, description[0]["id"])
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
                         assert len(response) == 0
                 ssn = ssn + 1
 
@@ -816,7 +816,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
                         service_controller.remote_disable_service_descriptions(configuration,
                                                                                client_id,
-                                                                               description[0]["id"],
+                                                                               [description[0]["id"]],
                                                                                'disable notice')
 
                         description = get_service_descriptions(self.config, client_id, ssn)
@@ -839,7 +839,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, [client_id])
 
                         assert len(response) == 1
                         assert response[0]["security_server"] == security_server["name"]
@@ -847,11 +847,11 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["type"] == 'OPENAPI3'
                         assert response[0]["services"] == 1
 
-                        service_controller.remote_delete_service_descriptions(configuration, client_id, description[0]["id"])
+                        service_controller.remote_delete_service_descriptions(configuration, client_id, [description[0]["id"]])
 
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert description is None
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, client_id)
+                        response = service_controller.remote_list_service_descriptions(configuration, security_server, [client_id])
                         assert len(response) == 0
                 ssn = ssn + 1
 
@@ -869,7 +869,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
                         assert len(description) == 1
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, description[0]["id"])
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
                         assert response[0]["security_server"] == security_server["name"]
                         assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
                         assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
