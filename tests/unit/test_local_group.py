@@ -349,22 +349,40 @@ class TestService(unittest.TestCase):
 
     def test_local_group_delete(self):
         with XRDSSTTest() as app:
-            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_local_groups',
-                            return_value=[ClientTestData.client_local_group_response]):
-                with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients',
-                                return_value=[ClientTestData.client_local_group_response_not_found]):
-                    with mock.patch('xrdsst.api.local_groups_api.LocalGroupsApi.add_local_group_member',
-                                    return_value={}):
-                        local_group_controller = LocalGroupController()
-                        local_group_controller.app = app
-                        local_group_controller.load_config = (lambda: self.ss_config)
-                        local_group_controller.get_server_status = (
-                            lambda x, y: StatusTestData.server_status_essentials_complete)
-                        local_group_controller.add_members()
+            app._parsed_args = Namespace(ss='ssX', local_group='185')
+            with mock.patch('xrdsst.api.local_groups_api.LocalGroupsApi.delete_local_group',
+                            return_value={}):
+                local_group_controller = LocalGroupController()
+                local_group_controller.app = app
+                local_group_controller.load_config = (lambda: self.ss_config)
+                local_group_controller.get_server_status = (
+                    lambda x, y: StatusTestData.server_status_essentials_complete)
+                local_group_controller.delete()
 
-                        out, err = self.capsys.readouterr()
-                        assert out.count(", member not found") > 0
+                out, err = self.capsys.readouterr()
+                assert out.count("Deleted local group ") > 0
 
-                        with self.capsys.disabled():
-                            sys.stdout.write(out)
-                            sys.stderr.write(err)
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_local_group_delete_member(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', local_group='185', member='DEV:ORG:111:TEST')
+            with mock.patch('xrdsst.api.local_groups_api.LocalGroupsApi.get_local_group',
+                            return_value=ClientTestData.client_local_group_response):
+                with mock.patch('xrdsst.api.local_groups_api.LocalGroupsApi.delete_local_group_member',
+                                return_value={}):
+                    local_group_controller = LocalGroupController()
+                    local_group_controller.app = app
+                    local_group_controller.load_config = (lambda: self.ss_config)
+                    local_group_controller.get_server_status = (
+                        lambda x, y: StatusTestData.server_status_essentials_complete)
+                    local_group_controller.delete_member()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Deleted local group member(s)") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)

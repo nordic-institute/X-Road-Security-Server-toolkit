@@ -27,6 +27,7 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from xrdsst.models.key_usage_type import KeyUsageType
 from tests.end_to_end.renew_certificate import RenewCertificate
+from xrdsst.controllers.local_group import LocalGroupController, LocalGroupListMapper
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -1264,6 +1265,8 @@ class EndToEndTest(unittest.TestCase):
                     found_client = get_client(self.config, client, ssn)
                     assert len(found_client) == 0
 
+
+
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -1344,7 +1347,7 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_client_unregister()
         self.step_client_delete()
-        
+
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
 

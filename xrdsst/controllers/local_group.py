@@ -314,6 +314,6 @@ class LocalGroupController(BaseController):
                 id_members_for_delete = [m.id for m in members_for_delete]
                 try:
                     local_group_api.delete_local_group_member(local_group_id, body=Members(id_members_for_delete))
-                    BaseController.log_info("Deleted local group members: '%s' for local group: '%s'" % (id_members_for_delete, local_group_id))
+                    BaseController.log_info("Deleted local group member(s): '%s' for local group: '%s'" % (id_members_for_delete, local_group_id))
                 except ApiException as find_err:
                     BaseController.log_api_error("LocalGroupsApi=>delete_local_group", find_err)

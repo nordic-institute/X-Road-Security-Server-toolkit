@@ -30,6 +30,11 @@ security_server:
       subsystem_code: TEST
       connection_type: HTTP
       tls_certificates:
+      local_groups:
+        - code: TestGroup
+          description: Description test group
+          members:
+            - DEV:COM:222:TEST
       service_descriptions:
         - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
           rest_service_code: Petstore
@@ -94,6 +99,11 @@ security_server:
       subsystem_code: TEST
       connection_type: HTTP
       tls_certificates:
+      local_groups:
+        - code: TestGroup
+          description: Description test group
+          members:
+            - DEV:COM:222:TEST
       service_descriptions:
         - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
           rest_service_code: Petstore
