@@ -786,8 +786,14 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
                         response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
-                        assert len(response) == 1
+                        assert response[0]["security_server"] == security_server["name"]
+                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
+                        assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
+                        assert response[0]["service_client_id"] == 'DEV:security-server-owners'
+                        assert response[0]["name"] == 'Security server owners'
+                        assert response[0]["type"] == ServiceClientType.GLOBALGROUP
                         service_controller.remote_delete_service_access(configuration,
                                                                         security_server,
                                                                         response[0]["service_id"],
