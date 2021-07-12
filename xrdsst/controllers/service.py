@@ -70,7 +70,7 @@ class ServiceListMapper:
 class ServiceAccessListMapper:
     @staticmethod
     def headers():
-        return ['SS', 'CLIENT', 'DESCRIPTION', 'SERVICE', 'SERVICE_CLIENT', 'LOCAL_GROUP', 'NAME', 'RIGHTS_GIVEN', 'TYPE']
+        return ['SS', 'CLIENT', 'DESCRIPTION', 'SERVICE', 'SERVICE_CLIENT', 'NAME', 'RIGHTS_GIVEN', 'TYPE']
 
     @staticmethod
     def as_list(service):
@@ -79,7 +79,6 @@ class ServiceAccessListMapper:
                 service.get('description_id'),
                 service.get('service_id'),
                 service.get('service_client_id'),
-                service.get('local_group'),
                 service.get('name'),
                 service.get('rights_given'),
                 service.get('type')]
@@ -92,7 +91,6 @@ class ServiceAccessListMapper:
             'description_id': service.get('description_id'),
             'service_id': service.get('service_id'),
             'service_client_id': service.get('service_client_id'),
-            'local_group': service.get('local_group'),
             'name': service.get('name'),
             'rights_given': service.get('rights_given'),
             'type': service.get('type')
@@ -180,7 +178,9 @@ class ServiceController(BaseController):
             BaseController.log_info('Client parameter is required for listing client service descriptions')
             return
 
-        self.list_service_descriptions(active_config, self.app.pargs.client)
+        client_ids = parse_argument_list(self.app.pargs.client)
+
+        self.list_service_descriptions(active_config, client_ids)
 
     @ex(help="List services", arguments=[(['--client'], {'help': 'Client id', 'dest': 'client'}),
                                          (['--description'], {'help': 'Service description id', 'dest': 'description'})])
@@ -196,7 +196,9 @@ class ServiceController(BaseController):
             BaseController.log_info('The following parameters missing for listing service description services: %s' % missing_parameters)
             return
 
-        self.list_service_description_services(active_config, self.app.pargs.client, self.app.pargs.description)
+        description_ids = parse_argument_list(self.app.pargs.description)
+
+        self.list_service_description_services(active_config, self.app.pargs.client, description_ids)
 
     @ex(help="Delete service descriptions", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
                                                        (['--client'], {'help': 'Client id', 'dest': 'client'}),
@@ -215,7 +217,9 @@ class ServiceController(BaseController):
             BaseController.log_info('The following parameters missing for deleting service descriptions: %s' % missing_parameters)
             return
 
-        self.delete_service_descriptions(active_config, self.app.pargs.ss, self.app.pargs.client, self.app.pargs.description)
+        description_ids = parse_argument_list(self.app.pargs.description)
+
+        self.delete_service_descriptions(active_config, self.app.pargs.ss, self.app.pargs.client, description_ids)
 
     @ex(help="Update service descriptions", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
                                                        (['--client'], {'help': 'Client id', 'dest': 'client'}),
@@ -238,10 +242,12 @@ class ServiceController(BaseController):
             BaseController.log_info('The following parameters missing for updating service descriptions: %s' % missing_parameters)
             return
 
+        description_ids = parse_argument_list(self.app.pargs.description)
+
         self.update_service_descriptions(active_config,
                                          self.app.pargs.ss,
                                          self.app.pargs.client,
-                                         self.app.pargs.description,
+                                         description_ids,
                                          self.app.pargs.code,
                                          self.app.pargs.url)
 
@@ -262,10 +268,12 @@ class ServiceController(BaseController):
             BaseController.log_info('The following parameters missing for refreshing service descriptions: %s' % missing_parameters)
             return
 
+        description_ids = parse_argument_list(self.app.pargs.description)
+
         self.refresh_service_descriptions(active_config,
                                           self.app.pargs.ss,
                                           self.app.pargs.client,
-                                          self.app.pargs.description)
+                                          description_ids)
 
     @ex(help="Disable service descriptions", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
                                                         (['--client'], {'help': 'Client id', 'dest': 'client'}),
@@ -287,10 +295,12 @@ class ServiceController(BaseController):
             BaseController.log_info('The following parameters missing for disabling service descriptions: %s' % missing_parameters)
             return
 
+        description_ids = parse_argument_list(self.app.pargs.description)
+
         self.disable_service_descriptions(active_config,
                                           self.app.pargs.ss,
                                           self.app.pargs.client,
-                                          self.app.pargs.description,
+                                          description_ids,
                                           self.app.pargs.notice)
 
     @ex(help="List service access", arguments=[(['--client'], {'help': 'Client id', 'dest': 'client'}),
@@ -307,7 +317,9 @@ class ServiceController(BaseController):
             BaseController.log_info('The following parameters missing for listing access rights for services: %s' % missing_parameters)
             return
 
-        self.list_access_rights(active_config, self.app.pargs.client, self.app.pargs.description)
+        description_ids = parse_argument_list(self.app.pargs.description)
+
+        self.list_access_rights(active_config, self.app.pargs.client, description_ids)
 
     @ex(help="Delete service access", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
                                                  (['--client'], {'help': 'Client id', 'dest': 'client'}),
@@ -332,12 +344,14 @@ class ServiceController(BaseController):
             BaseController.log_info('The following parameters missing for deleting access rights for services: %s' % missing_parameters)
             return
 
+        service_client_ids = parse_argument_list(self.app.pargs.sclient)
+
         self.delete_access_rights(active_config,
                                   self.app.pargs.ss,
                                   self.app.pargs.client,
                                   self.app.pargs.description,
                                   self.app.pargs.service,
-                                  self.app.pargs.sclient)
+                                  service_client_ids)
 
     def add_service_description(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -543,85 +557,85 @@ class ServiceController(BaseController):
                             (ClientController().get_client_conf_id(client),
                              service_description["url"]))
 
-    def list_service_descriptions(self, config, client):
+    def list_service_descriptions(self, config, client_ids):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
-            self.remote_list_service_descriptions(ss_api_config, security_server, client)
+            self.remote_list_service_descriptions(ss_api_config, security_server, client_ids)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def list_service_description_services(self, config, client, description):
+    def list_service_description_services(self, config, client_id, description_ids):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
-            self.remote_list_services(ss_api_config, security_server, client, description)
+            self.remote_list_services(ss_api_config, security_server, client_id, description_ids)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def delete_service_descriptions(self, config, ss_name_list, client, description):
+    def delete_service_descriptions(self, config, ss_name, client_id, description_ids):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        ss_names = parse_argument_list(ss_name_list)
         for security_server in config["security_server"]:
-            if security_server["name"] in ss_names:
+            if security_server["name"] == ss_name:
                 ss_api_config = self.create_api_config(security_server, config)
-                self.remote_delete_service_descriptions(ss_api_config, client, description)
+                self.remote_delete_service_descriptions(ss_api_config, client_id, description_ids)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def update_service_descriptions(self, config, ss_name_list, client, description, code, url):
+    def update_service_descriptions(self, config, ss_name, client_id, description_ids, code, url):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        ss_names = parse_argument_list(ss_name_list)
         for security_server in config["security_server"]:
-            if security_server["name"] in ss_names:
+            if security_server["name"] == ss_name:
                 ss_api_config = self.create_api_config(security_server, config)
-                self.remote_update_service_descriptions(ss_api_config, client, description, code, url)
+                self.remote_update_service_descriptions(ss_api_config, client_id, description_ids, code, url)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def refresh_service_descriptions(self, config, ss_name_list, client, description):
+    def refresh_service_descriptions(self, config, ss_name, client_id, description_ids):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        ss_names = parse_argument_list(ss_name_list)
         for security_server in config["security_server"]:
-            if security_server["name"] in ss_names:
+            if security_server["name"] == ss_name:
                 ss_api_config = self.create_api_config(security_server, config)
-                self.remote_refresh_service_descriptions(ss_api_config, client, description)
+                self.remote_refresh_service_descriptions(ss_api_config, client_id, description_ids)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def disable_service_descriptions(self, config, ss_name_list, client, description, notice):
+    def disable_service_descriptions(self, config, ss_name, client_id, description_ids, notice):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        ss_names = parse_argument_list(ss_name_list)
         for security_server in config["security_server"]:
-            if security_server["name"] in ss_names:
+            if security_server["name"] == ss_name:
                 ss_api_config = self.create_api_config(security_server, config)
-                self.remote_disable_service_descriptions(ss_api_config, client, description, notice)
+                self.remote_disable_service_descriptions(ss_api_config, client_id, description_ids, notice)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def list_access_rights(self, config, client, description):
+    def list_access_rights(self, config, client_id, description_ids):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
-            self.remote_list_access_for_services(ss_api_config, security_server, client, description)
+            self.remote_list_access_for_services(ss_api_config, security_server, client_id, description_ids)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def delete_access_rights(self, config, ss_name_list, client, description, service, service_client):
+    def delete_access_rights(self, config, ss_name, client_id, description_id, service_id, service_client_ids):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
-        ss_names = parse_argument_list(ss_name_list)
         for security_server in config["security_server"]:
-            if security_server["name"] in ss_names:
+            if security_server["name"] == ss_name:
                 ss_api_config = self.create_api_config(security_server, config)
-                self.remote_delete_access_for_services(ss_api_config, security_server, client, description, service, service_client)
+                self.remote_delete_access_for_services(ss_api_config,
+                                                       security_server,
+                                                       client_id,
+                                                       description_id,
+                                                       service_id,
+                                                       service_client_ids)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -667,12 +681,11 @@ class ServiceController(BaseController):
         except ApiException as err:
             BaseController.log_api_error('ServicesApi->update_service', err)
 
-    def remote_list_service_descriptions(self, ss_api_config, security_server, client):
+    def remote_list_service_descriptions(self, ss_api_config, security_server, client_ids):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             service_descriptions_list = []
             render_data = []
-            client_ids = parse_argument_list(client)
             for client_id in client_ids:
                 service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
                 for service_description in service_descriptions:
@@ -693,18 +706,17 @@ class ServiceController(BaseController):
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
-    def remote_list_services(self, ss_api_config, security_server, client, description):
+    def remote_list_services(self, ss_api_config, security_server, client_id, description_ids):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             services_list = []
             render_data = []
-            description_ids = parse_argument_list(description)
-            service_descriptions = clients_api.get_client_service_descriptions(id=client)
+            service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:
                     for service in service_description.services:
                         services_list.append({'security_server': security_server["name"],
-                                              'client_id': client,
+                                              'client_id': client_id,
                                               'description_id': service_description.id,
                                               'service_id': service.id,
                                               'service_code': service.service_code,
@@ -721,17 +733,16 @@ class ServiceController(BaseController):
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
     @staticmethod
-    def remote_delete_service_descriptions(ss_api_config, client, description):
+    def remote_delete_service_descriptions(ss_api_config, client_id, description_ids):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
-            description_ids = parse_argument_list(description)
-            service_descriptions = clients_api.get_client_service_descriptions(id=client)
+            service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:
                     try:
                         service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_api_config))
                         service_descriptions_api.delete_service_description(id=service_description.id)
-                        BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client +
+                        BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client_id +
                                                 "'" + ServiceController.WITH_ID + "'" + service_description.id + "' deleted successfully.")
                     except ApiException as err:
                         BaseController.log_api_error('ServiceDescriptionsApi->delete_service_description', err)
@@ -739,72 +750,71 @@ class ServiceController(BaseController):
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
-    def remote_update_service_descriptions(self, ss_api_config, client, description, new_code, new_url):
+    def remote_update_service_descriptions(self, ss_api_config, client_id, description_ids, new_code, new_url):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
-            description_ids = parse_argument_list(description)
-            service_descriptions = clients_api.get_client_service_descriptions(id=client)
+            service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:
-                    response = self.remote_update_service_description(ss_api_config, service_description, new_url, new_code, client)
+                    response = self.remote_update_service_description(ss_api_config, service_description, new_url, new_code, client_id)
                     return response
 
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
-    def remote_refresh_service_descriptions(self, ss_api_config, client, description):
+    def remote_refresh_service_descriptions(self, ss_api_config, client_id, description_ids):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
-            description_ids = parse_argument_list(description)
-            service_descriptions = clients_api.get_client_service_descriptions(id=client)
+            service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:
-                    response = self.remote_refresh_service_description(ss_api_config, service_description, client)
+                    response = self.remote_refresh_service_description(ss_api_config, service_description, client_id)
                     return response
 
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
-    def remote_disable_service_descriptions(self, ss_api_config, client, description, notice):
+    def remote_disable_service_descriptions(self, ss_api_config, client_id, description_ids, notice):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
-            description_ids = parse_argument_list(description)
-            service_descriptions = clients_api.get_client_service_descriptions(id=client)
+            service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:
-                    self.remote_disable_service_description(ss_api_config, service_description, client, notice)
+                    self.remote_disable_service_description(ss_api_config, service_description, client_id, notice)
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
-    def remote_list_access_for_services(self, ss_api_config, security_server, client, description):
+    def remote_list_access_for_services(self, ss_api_config, security_server, client_id, description_ids):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         access_list = []
         try:
-            description_ids = parse_argument_list(description)
-            service_descriptions = clients_api.get_client_service_descriptions(id=client)
+            service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
             for service_description in service_descriptions:
                 if service_description.id in description_ids:
                     for service in service_description.services:
-                        access_list.extend(self.remote_list_service_access(ss_api_config, security_server, service, client, service_description.id))
+                        access_list.extend(self.remote_list_service_access(ss_api_config, security_server, service, client_id, service_description.id))
             return access_list
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
-    def remote_delete_access_for_services(self, ss_api_config, security_server, client, description, service, service_client):
+    def remote_delete_access_for_services(self,
+                                          ss_api_config,
+                                          security_server,
+                                          client_id,
+                                          description_id,
+                                          service_id,
+                                          service_client_ids):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
-            description_ids = parse_argument_list(description)
-            service_ids = parse_argument_list(service)
-            service_descriptions = clients_api.get_client_service_descriptions(id=client)
+            service_descriptions = clients_api.get_client_service_descriptions(id=client_id)
             for service_description in service_descriptions:
-                if service_description.id in description_ids:
-                    for service_id in service_ids:
-                        self.remote_delete_service_access(ss_api_config,
-                                                          security_server,
-                                                          service_id,
-                                                          client,
-                                                          service_description.id,
-                                                          service_client)
+                if service_description.id == description_id:
+                    self.remote_delete_service_access(ss_api_config,
+                                                      security_server,
+                                                      service_id,
+                                                      client_id,
+                                                      description_id,
+                                                      service_client_ids)
         except ApiException as err:
             BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTIONS, err)
 
@@ -830,31 +840,31 @@ class ServiceController(BaseController):
             BaseController.log_api_error('ServiceDescriptionsApi->update_service_description', err)
 
     @staticmethod
-    def remote_refresh_service_description(ss_api_config, service_description, client):
+    def remote_refresh_service_description(ss_api_config, service_description, client_id):
         try:
             service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_api_config))
             response = service_descriptions_api.refresh_service_description(service_description.id)
-            BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client +
+            BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client_id +
                                     "'" + ServiceController.WITH_ID + "'" + service_description.id + "' refreshed successfully.")
             return response
         except ApiException as err:
             BaseController.log_api_error('ServiceDescriptionsApi->refresh_service_description', err)
 
     @staticmethod
-    def remote_disable_service_description(ss_api_config, service_description, client, notice):
+    def remote_disable_service_description(ss_api_config, service_description, client_id, notice):
         try:
             service_descriptions_api = ServiceDescriptionsApi(ApiClient(ss_api_config))
             service_description_disabled_notice = ServiceDescriptionDisabledNotice(disabled_notice=notice)
             service_descriptions_api.disable_service_description(service_description.id, body=service_description_disabled_notice)
-            BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client +
+            BaseController.log_info(ServiceController.SERVICE_DESCRIPTION_FOR + "'" + client_id +
                                     "'" + ServiceController.WITH_ID + "'" + service_description.id + "' disabled successfully.")
         except ApiException as err:
             BaseController.log_api_error('ServiceDescriptionsApi->disable_service_description', err)
 
-    def remote_list_service_access(self, ss_api_config, security_server, service, client, description_id):
+    def remote_list_service_access(self, ss_api_config, security_server, service, client_id, description_id):
         services_api = ServicesApi(ApiClient(ss_api_config))
         try:
-            client_ids = parse_argument_list(client)
+            client_ids = parse_argument_list(client_id)
             access_list = []
             render_data = []
             for client_id in client_ids:
@@ -865,9 +875,8 @@ class ServiceController(BaseController):
                                         'description_id': description_id,
                                         'service_id': service.id,
                                         'service_client_id': service_client.id,
-                                        'local_group': service_client.local_group_code,
                                         'name': service_client.name,
-                                        'rights_given': service_client.rights_given_at,
+                                        'rights_given': service_client.rights_given_at.strftime("%Y/%m/%d"),
                                         'type': service_client.service_client_type})
             if self.is_output_tabulated():
                 render_data = [ServiceAccessListMapper.headers()]
@@ -880,27 +889,31 @@ class ServiceController(BaseController):
             BaseController.log_api_error('ServicesApi->get_service_service_clients', err)
 
     @staticmethod
-    def remote_delete_service_access(ss_api_config, security_server, service_id, client, description_id, service_client_ids):
-        client_ids = parse_argument_list(client)
-        service_client_ids = parse_argument_list(service_client_ids)
-        for client_id in client_ids:
-            for service_client_id in service_client_ids:
-                try:
-                    services_api = ServicesApi(ApiClient(ss_api_config))
-                    service_clients = services_api.get_service_service_clients(id=service_id)
-                    for service_client in service_clients:
-                        if service_client_id == service_client.id:
-                            sc = ServiceClient(id=service_client.id,
-                                               name=service_client.name,
-                                               local_group_code=service_client.local_group_code,
-                                               service_client_type=service_client.service_client_type,
-                                               rights_given_at=service_client.rights_given_at)
-                            services_api.delete_service_service_clients(id=service_id, body=ServiceClients(items=[sc]))
-                            BaseController.log_info("Service client '" + service_client_id + "' for security server '" +
-                                                    security_server["name"] + "'" + " client '" + client_id + "' service description '" +
-                                                    description_id + "'" + " service '" + service_id + "' deleted successfully")
-                except ApiException as err:
-                    BaseController.log_api_error('ServicesApi->delete_service_service_clients', err)
+    def remote_delete_service_access(ss_api_config,
+                                     security_server,
+                                     service_id,
+                                     client_id,
+                                     description_id,
+                                     service_client_ids):
+        for service_client_id in service_client_ids:
+            try:
+                services_api = ServicesApi(ApiClient(ss_api_config))
+                service_clients = services_api.get_service_service_clients(id=service_id)
+                if service_clients is None or len(service_clients) == 0:
+                    BaseController.log_info("Service client '" + service_client_id + "' not found")
+                for service_client in service_clients:
+                    if service_client_id == service_client.id:
+                        sc = ServiceClient(id=service_client.id,
+                                           name=service_client.name,
+                                           local_group_code=service_client.local_group_code,
+                                           service_client_type=service_client.service_client_type,
+                                           rights_given_at=service_client.rights_given_at)
+                        services_api.delete_service_service_clients(id=service_id, body=ServiceClients(items=[sc]))
+                        BaseController.log_info("Service client '" + service_client_id + "' for security server '" +
+                                                security_server["name"] + "'" + " client '" + client_id + "' service description '" +
+                                                description_id + "'" + " service '" + service_id + "' deleted successfully")
+            except ApiException as err:
+                BaseController.log_api_error('ServicesApi->delete_service_service_clients', err)
 
     @staticmethod
     def get_client_service_description(clients_api, client, service_description_conf):

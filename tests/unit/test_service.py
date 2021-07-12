@@ -928,7 +928,7 @@ class TestService(unittest.TestCase):
                                         name='Security server owners',
                                         local_group_code=None,
                                         service_client_type=ServiceClientType.GLOBALGROUP,
-                                        rights_given_at=datetime.now().isoformat())]):
+                                        rights_given_at=datetime.now())]):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
@@ -938,10 +938,9 @@ class TestService(unittest.TestCase):
                         assert service_controller.app._last_rendered[0][1][2] == 'DEV:GOV:9876:SUB1'
                         assert service_controller.app._last_rendered[0][1][3] == 'DEV:GOV:9876:SUB1:Petstore'
                         assert service_controller.app._last_rendered[0][1][4] == 'DEV:security-server-owners'
-                        assert service_controller.app._last_rendered[0][1][5] is None
-                        assert service_controller.app._last_rendered[0][1][6] == 'Security server owners'
-                        assert service_controller.app._last_rendered[0][1][7] is not None
-                        assert service_controller.app._last_rendered[0][1][8] == ServiceClientType.GLOBALGROUP
+                        assert service_controller.app._last_rendered[0][1][5] == 'Security server owners'
+                        assert service_controller.app._last_rendered[0][1][6] is not None
+                        assert service_controller.app._last_rendered[0][1][7] == ServiceClientType.GLOBALGROUP
 
     def test_service_list_access_render_as_object(self):
         with XRDSSTTest() as app:
@@ -955,7 +954,7 @@ class TestService(unittest.TestCase):
                                         name='Security server owners',
                                         local_group_code=None,
                                         service_client_type=ServiceClientType.GLOBALGROUP,
-                                        rights_given_at=datetime.now().isoformat())]):
+                                        rights_given_at=datetime.now())]):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
@@ -965,7 +964,6 @@ class TestService(unittest.TestCase):
                     assert service_controller.app._last_rendered[0][0]["description_id"] == 'DEV:GOV:9876:SUB1'
                     assert service_controller.app._last_rendered[0][0]["service_id"] == 'DEV:GOV:9876:SUB1:Petstore'
                     assert service_controller.app._last_rendered[0][0]["service_client_id"] == 'DEV:security-server-owners'
-                    assert service_controller.app._last_rendered[0][0]["local_group"] is None
                     assert service_controller.app._last_rendered[0][0]["name"] == 'Security server owners'
                     assert service_controller.app._last_rendered[0][0]["rights_given"] is not None
                     assert service_controller.app._last_rendered[0][0]["type"] == ServiceClientType.GLOBALGROUP
@@ -982,7 +980,7 @@ class TestService(unittest.TestCase):
                                         name='Security server owners',
                                         local_group_code=None,
                                         service_client_type=ServiceClientType.GLOBALGROUP,
-                                        rights_given_at=datetime.now().isoformat())]):
+                                        rights_given_at=datetime.now())]):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
@@ -1002,7 +1000,7 @@ class TestService(unittest.TestCase):
                                         name='Security server owners',
                                         local_group_code=None,
                                         service_client_type=ServiceClientType.GLOBALGROUP,
-                                        rights_given_at=datetime.now().isoformat())]):
+                                        rights_given_at=datetime.now())]):
                         service_controller = ServiceController()
                         service_controller.app = app
                         service_controller.load_config = (lambda: self.ss_config)
@@ -1026,7 +1024,7 @@ class TestService(unittest.TestCase):
                                         name='Security server owners',
                                         local_group_code=None,
                                         service_client_type=ServiceClientType.GLOBALGROUP,
-                                        rights_given_at=datetime.now().isoformat())]):
+                                        rights_given_at=datetime.now())]):
                         with mock.patch('xrdsst.api.services_api.ServicesApi.delete_service_service_clients', return_value=None):
                             service_controller = ServiceController()
                             service_controller.app = app
