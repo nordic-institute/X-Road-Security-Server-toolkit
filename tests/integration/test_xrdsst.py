@@ -874,7 +874,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                         assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
                         assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
                         assert response[0]["service_client_id"] == 'DEV:security-server-owners'
-                        assert response[0]["local_group"] is None
                         assert response[0]["name"] == 'Security server owners'
                         assert response[0]["type"] == ServiceClientType.GLOBALGROUP
 
