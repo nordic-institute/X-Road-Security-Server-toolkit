@@ -32,7 +32,7 @@ class LocalGroupTest:
                             assert len(found_client) > 0
                             client_local_groups = local_group_controller.remote_list_local_groups(configuration, found_client[0]["id"])
                             assert len(client_local_groups) == 1
-                        ssn = ssn + 1
+                ssn = ssn + 1
 
     def list_local_groups(self):
         with XRDSSTTest() as app:
@@ -50,7 +50,7 @@ class LocalGroupTest:
                             assert header in local_group_controller.app._last_rendered[0][0]
 
                         assert len(local_group_controller.app._last_rendered[0]) == 2
-                        ssn = ssn + 1
+                ssn = ssn + 1
 
     def step_add_local_group_member(self):
         with XRDSSTTest() as app:
@@ -70,7 +70,7 @@ class LocalGroupTest:
 
                             assert len(client_local_groups) == 1
                             assert len(client_local_groups[0].members) == 1
-                        ssn = ssn + 1
+                ssn = ssn + 1
 
     def step_delete_local_group_member(self):
         with XRDSSTTest() as app:
@@ -95,7 +95,7 @@ class LocalGroupTest:
                             client_local_groups_after = local_group_controller.remote_list_local_groups(configuration,
                                                                                                   found_client[0]["id"])
                             assert len(client_local_groups_after[0].members) == 0
-                        ssn = ssn + 1
+                ssn = ssn + 1
 
     def step_delete_local_group(self):
         with XRDSSTTest() as app:
@@ -119,11 +119,11 @@ class LocalGroupTest:
                             client_local_groups_after = local_group_controller.remote_list_local_groups(configuration,
                                                                                                   found_client[0]["id"])
                             assert len(client_local_groups_after) == 0
-                        ssn = ssn + 1
+                ssn = ssn + 1
 
     def test_run_configuration(self):
         self.step_add_local_group()
-        self.list_local_groups()
+        # self.list_local_groups()
         # self.step_add_local_group_member()
         # self.step_delete_local_group_member()
         # self.step_delete_local_group()
