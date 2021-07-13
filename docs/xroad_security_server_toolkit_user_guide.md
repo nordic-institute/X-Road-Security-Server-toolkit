@@ -219,14 +219,14 @@ $ pip3 install --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazo
 $ pip3 install --upgrade --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
 ```
 
-Package signing public key for can be retrieved from SKS keyserver pool (pool.sks-keyservers.net), key fingerprint is ``BEC35825BBAB4288933F0354116AC90A8F670D74``, publisher ``Jenkins (X-Road Development Signing Key) <jenkins@niis.org>``.
+Package signing public key for can be retrieved from Ubuntu keyserver pool (keyserver.ubuntu.com), key fingerprint is ``0xfb0d532c10f6ec5b``, publisher ``NIIS Repository Automatic Signing Key <info@niis.org>``.
 
 Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.sig
 Signature ``xrdsst-2.0.0.sig`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.sig
 
 Downloaded packages with detached signatures can be verified after adding signing public key to local keyring:
 ```
-$ gpg --keyserver pool.sks-keyservers.net --search-keys  BEC35825BBAB4288933F0354116AC90A8F670D74
+$ gpg --keyserver keyserver.ubuntu.com --search-keys  0xfb0d532c10f6ec5b
 $ gpg --verify xrdsst-1.0.0.sig xrdsst-1.0.0.tar.gz
 $ gpg --verify xrdsst-2.0.0.sig xrdsst-2.0.0.tar.gz
 ```
