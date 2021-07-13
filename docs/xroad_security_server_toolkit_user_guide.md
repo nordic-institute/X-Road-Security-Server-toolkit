@@ -57,7 +57,7 @@ Doc. ID: XRDSST-CONF
 | 06.07.2021 | 2.1.1       | Add client unregister command                                                | Alberto Fernandez  |
 | 06.07.2021 | 2.1.2       | Add client delete command                                                    | Alberto Fernandez  |
 | 09.07.2021 | 2.1.3       | Add listing and deletion of access rights for services                       | Bert Viikmäe       |
-| 06.07.2021 | 2.1.4       | Add local groups management                                                  | Alberto Fernandez  |
+| 13.07.2021 | 2.1.4       | Add local groups management                                                  | Alberto Fernandez  |
 
 
 ## Table of Contents <!-- omit in toc -->
@@ -378,7 +378,7 @@ security_server:
         - code: <LOCAL_GROUP_CODE>
           description: <LOCAL_GROUP_DESCRIPTION>
           members:
-            - <SERVICE_CLIENT_ID>
+            - <MEMBER_ID>
       service_descriptions:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
@@ -1171,7 +1171,7 @@ xrdsst local-group add-member
 
 ##### 4.2.10.3 Local groups list
 
-* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+* Access rights: XROAD_SERVER_OBSERVER or XROAD_SERVICE_ADMINISTRATOR
 
 List client local groups can be done with:
 ```
@@ -1189,7 +1189,7 @@ xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ╘══════╧════════════╧════════════════════════╧═════════════════════════════════════════════════════════╛
 
 
-The table above shows the following information about the certificates:
+The table above shows the following information about the local groups:
 
 * ID: Local group id.
 * CODE: Local group code.
@@ -1216,9 +1216,8 @@ Delete client local group members can be done with:
 ```
 xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
 ```
-id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
-* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <LOCAL_GROUP_ID> Local group id (it can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), 
   multiple values can also be given, separated by comma, e.g. 123,456
 * <MEMBERS_ID> Member (service client) id (local group members can be check with the 

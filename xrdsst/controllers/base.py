@@ -263,6 +263,9 @@ class BaseController(Controller):
         # Use API key configured for security server, if valid.
         ss_api_key_env_variable = security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY)
         ss_api_key = os.getenv(ss_api_key_env_variable, "")
+
+        ss_api_key ='aea74d06-e937-4d87-89bf-454a446b41a9'
+
         has_valid_ss_api_key = BaseController._RE_API_KEY.fullmatch(ss_api_key)
         if has_valid_ss_api_key:
             self.log_debug("Using existing API key for security server: '" + security_server['name'] + "'")

@@ -9,6 +9,7 @@ from xrdsst.core.conf_keys import ConfKeysSecServerClientLocalGroups, ConfKeysSe
 from xrdsst.models import LocalGroupAdd, Members
 from xrdsst.core.util import parse_argument_list
 
+
 class LocalGroupListMapper:
     @staticmethod
     def headers():
@@ -37,13 +38,13 @@ class LocalGroupListMapper:
             'members': members_ids
         }
 
+
 class LocalGroupController(BaseController):
     class Meta:
         label = 'local_group'
         stacked_on = 'base'
         stacked_type = 'nested'
         description = texts['local_group.controller.description']
-
 
     @ex(help="add", arguments=[])
     def add(self):
@@ -73,7 +74,7 @@ class LocalGroupController(BaseController):
         self.add_local_group_members(active_config)
 
     @ex(help="List local groups", arguments=[(['--ss'], {'help': 'Security Server name', 'dest': 'ss'}),
-                                         (['--client'], {'help': 'Client id', 'dest': 'client'})])
+                                             (['--client'], {'help': 'Client id', 'dest': 'client'})])
     def list(self):
         active_config = self.load_config()
 
@@ -83,13 +84,15 @@ class LocalGroupController(BaseController):
         if self.app.pargs.client is None:
             missing_parameters.append('client')
         if len(missing_parameters) > 0:
-            BaseController.log_info('The following parameters missing for listing local groups: %s' % missing_parameters)
+            BaseController.log_info(
+                'The following parameters missing for listing local groups: %s' % missing_parameters)
             return
 
         self.list_local_groups(active_config, self.app.pargs.ss, self.app.pargs.client)
 
     @ex(help="Delete local group(s)", arguments=[(['--ss'], {'help': 'Security Server name', 'dest': 'ss'}),
-                                             (['--local-group'], {'help': 'Local group id(s)', 'dest': 'local_group'})])
+                                                 (['--local-group'],
+                                                  {'help': 'Local group id(s)', 'dest': 'local_group'})])
     def delete(self):
         active_config = self.load_config()
 
@@ -106,8 +109,10 @@ class LocalGroupController(BaseController):
         self.delete_local_group(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.local_group))
 
     @ex(help="Delete local group member(s)", arguments=[(['--ss'], {'help': 'Security Server name', 'dest': 'ss'}),
-                                         (['--local-group'], {'help': 'Local group id(s)', 'dest': 'local_group'}),
-                                         (['--member'], {'help': 'Local group member(s) id', 'dest': 'member'})])
+                                                        (['--local-group'],
+                                                         {'help': 'Local group id(s)', 'dest': 'local_group'}),
+                                                        (['--member'],
+                                                         {'help': 'Local group member(s) id', 'dest': 'member'})])
     def delete_member(self):
         active_config = self.load_config()
 
@@ -119,10 +124,13 @@ class LocalGroupController(BaseController):
         if self.app.pargs.member is None:
             missing_parameters.append('member')
         if len(missing_parameters) > 0:
-            BaseController.log_info('The following parameters missing for deleting local groups members: %s' % missing_parameters)
+            BaseController.log_info(
+                'The following parameters missing for deleting local groups members: %s' % missing_parameters)
             return
 
-        self.delete_local_group_member(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.local_group), parse_argument_list(self.app.pargs.member))
+        self.delete_local_group_member(active_config, self.app.pargs.ss,
+                                       parse_argument_list(self.app.pargs.local_group),
+                                       parse_argument_list(self.app.pargs.member))
 
     def add_local_group(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"],
@@ -144,7 +152,9 @@ class LocalGroupController(BaseController):
                                 self.remote_add_local_group(ss_api_config, security_server, client, local_group)
                     else:
                         BaseController.log_info("Skipping local group creation for client: '%s', security server: '%s'"
-                                                % (ClientController().get_client_conf_id(client), security_server["name"]))
+                                                % (
+                                                    ClientController().get_client_conf_id(client),
+                                                    security_server["name"]))
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def add_local_group_members(self, config):
@@ -164,17 +174,22 @@ class LocalGroupController(BaseController):
                                 % (ClientController().get_client_conf_id(client), security_server["name"]))
                         else:
                             for local_group in client[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
-                                if local_group.get(ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS):
-                                    self.remote_add_local_group_member(ss_api_config, security_server, client, local_group)
+                                if local_group.get(
+                                        ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS):
+                                    self.remote_add_local_group_member(ss_api_config, security_server, client,
+                                                                       local_group)
                                 else:
                                     BaseController.log_info(
-                                        "Skipping adding members for local group: '%s', client: '%s', security server: '%s'"
-                                        % (local_group[ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE],
+                                        "Skipping adding members for local group: '%s', "
+                                        "client: '%s', security server: '%s'"
+                                        % (local_group[
+                                               ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE],
                                            ClientController().get_client_conf_id(client), security_server["name"]))
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def list_local_groups(self, config, ss_name, client_id):
-        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+        ss_api_conf_tuple = list(zip(config["security_server"],
+                                     map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
             if security_server["name"] == ss_name:
@@ -189,8 +204,8 @@ class LocalGroupController(BaseController):
 
         security_servers = list(filter(lambda ss: ss["name"] == ss_name, config["security_server"]))
         if len(security_servers) > 0:
-                ss_api_config = self.create_api_config(security_servers[0], config)
-                self.remote_delete_local_group(ss_api_config, local_group_ids)
+            ss_api_config = self.create_api_config(security_servers[0], config)
+            self.remote_delete_local_group(ss_api_config, local_group_ids)
         else:
             BaseController.log_info("Security server: '%s' not found" % ss_name)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
@@ -215,7 +230,8 @@ class LocalGroupController(BaseController):
             client = client_controller.find_client(clients_api, client_conf)
             if client:
                 try:
-                    local_group = LocalGroupAdd(code=local_group_conf["code"], description=local_group_conf["description"])
+                    local_group = LocalGroupAdd(code=local_group_conf["code"],
+                                                description=local_group_conf["description"])
                     clients_api.add_client_local_group(client.id, body=local_group)
                     BaseController.log_info("Added local group: '%s' for client '%s' security server: '%s'"
                                             % (local_group_conf["code"], client.id, security_server_conf["name"]))
@@ -226,10 +242,11 @@ class LocalGroupController(BaseController):
                     else:
                         BaseController.log_api_error('ClientsApi->add_client_local_group', add_err)
             else:
-                BaseController.log_info("Client: '%s', security server: '%s', client not found" % (client_controller.get_client_conf_id(client_conf), security_server_conf["name"]))
+                BaseController.log_info("Client: '%s', security server: '%s', client not found" %
+                                        (client_controller.get_client_conf_id(client_conf),
+                                         security_server_conf["name"]))
         except ApiException as find_err:
             BaseController.log_api_error(ClientController.CLIENTS_API_FIND_CLIENTS, find_err)
-
 
     def remote_add_local_group_member(self, ss_api_config, security_server_conf, client_conf, local_group_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -242,31 +259,39 @@ class LocalGroupController(BaseController):
             if len(local_groups) > 0:
                 all_clients = client_controller.find_all_clients(clients_api, show_members=False, internal_search=False)
                 local_groups_members_add = []
-                for local_group_member in local_group_conf[ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS]:
-                        member_client = list(filter(lambda c: c.id == local_group_member, all_clients))
-                        if len(member_client) > 0:
-                            local_groups_members_add.append(member_client[0].id)
-                        else:
-                            BaseController.log_info(
-                                "Error adding member: '%s', local group: '%s', client '%s',security server: '%s', member not found"
-                                % (local_group_member, local_group_conf["code"], client.id, security_server_conf["name"]))
+                for local_group_member in \
+                        local_group_conf[ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS]:
+                    member_client = list(filter(lambda c: c.id == local_group_member, all_clients))
+                    if len(member_client) > 0:
+                        local_groups_members_add.append(member_client[0].id)
+                    else:
+                        BaseController.log_info(
+                            "Error adding member: '%s', local group: '%s', client '%s',security server: '%s',"
+                            " member not found"
+                            % (local_group_member, local_group_conf["code"], client.id, security_server_conf["name"]))
                 try:
                     if len(local_groups_members_add) > 0:
-                        local_group_api.add_local_group_member(local_groups[0].id, body=Members(local_groups_members_add))
+                        local_group_api.add_local_group_member(local_groups[0].id,
+                                                               body=Members(local_groups_members_add))
                         BaseController.log_info(
                             "Added member(s): '%s', local group: '%s', client '%s',security server: '%s'"
-                            % (local_groups_members_add, local_group_conf["code"], client.id, security_server_conf["name"]))
+                            % (local_groups_members_add, local_group_conf["code"], client.id,
+                               security_server_conf["name"]))
 
                 except ApiException as err:
                     if err.status == 409:
-                        BaseController.log_info("Members '%s', Local group: '%s', client '%s' security server: '%s', already added"
-                                                % (local_groups_members_add, local_group_conf["code"], client.id, security_server_conf["name"]))
+                        BaseController.log_info(
+                            "Members '%s', Local group: '%s', client '%s' security server: '%s', already added"
+                            % (local_groups_members_add, local_group_conf["code"], client.id,
+                               security_server_conf["name"]))
                     else:
                         BaseController.log_api_error('ClientsApi->add_local_group_member', err)
 
             else:
-                BaseController.log_info("Error adding members to local group: '%s', client '%s', security server: '%s', local group not found"
-                                        % (local_group_conf["code"], client.id, security_server_conf["name"]))
+                BaseController.log_info(
+                    "Error adding members to local group: '%s', client '%s', security server: '%s',"
+                    " local group not found"
+                    % (local_group_conf["code"], client.id, security_server_conf["name"]))
 
         except ApiException as find_err:
             BaseController.log_api_error(client_controller.CLIENTS_API_FIND_CLIENTS, find_err)
@@ -314,6 +339,7 @@ class LocalGroupController(BaseController):
                 id_members_for_delete = [m.id for m in members_for_delete]
                 try:
                     local_group_api.delete_local_group_member(local_group_id, body=Members(id_members_for_delete))
-                    BaseController.log_info("Deleted local group member(s): '%s' for local group: '%s'" % (id_members_for_delete, local_group_id))
+                    BaseController.log_info("Deleted local group member(s): '%s' for local group: '%s'" % (
+                        id_members_for_delete, local_group_id))
                 except ApiException as find_err:
                     BaseController.log_api_error("LocalGroupsApi=>delete_local_group", find_err)
