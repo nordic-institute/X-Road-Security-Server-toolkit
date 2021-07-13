@@ -1,16 +1,13 @@
-import json
 import os
-import subprocess
-import sys
-import unittest
-
 import urllib3
+
 
 from tests.util.test_util import get_client
 
-from xrdsst.core.conf_keys import ConfKeysSecServerClients
 from xrdsst.main import XRDSSTTest
+from xrdsst.core.conf_keys import ConfKeysSecServerClients
 from xrdsst.controllers.local_group import LocalGroupController, LocalGroupListMapper
+
 
 class LocalGroupTest:
 
