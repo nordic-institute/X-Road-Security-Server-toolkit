@@ -132,3 +132,4 @@ class MemberController(BaseController):
             return member_classes
         except ApiException as err:
             BaseController.log_api_error('MemberClassesApi->get_member_classes', err)
+

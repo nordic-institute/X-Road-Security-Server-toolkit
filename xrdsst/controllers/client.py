@@ -118,6 +118,26 @@ class ClientController(BaseController):
 
         self.delete_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.client))
 
+
+    @ex(help="Make owner",
+        arguments=[
+            (['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+            (['--member'], {'help': 'Member Id', 'dest': 'member'})
+        ])
+    def make_owner(self):
+        active_config = self.load_config()
+        missing_parameters = []
+        if self.app.pargs.ss is None:
+            missing_parameters.append('ss')
+        if self.app.pargs.member is None:
+            missing_parameters.append('member')
+        if len(missing_parameters) > 0:
+            BaseController.log_info(
+                'The following parameters missing for deleting clients: %s' % missing_parameters)
+            return
+
+        self.make_member_owner(active_config, self.app.pargs.ss, self.app.pargs.member)
+
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -203,6 +223,20 @@ class ClientController(BaseController):
             ss_api_config = self.create_api_config(security_server[0], config)
             BaseController.log_debug('Starting client deletion for security server: ' + security_server[0]['name'])
             self.remote_delete_client(ss_api_config, security_server_name, client_ids)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+
+    def make_member_owner(self, config, ss_name, member_id):
+        ss_api_conf_tuple = list(zip(config["security_server"],
+                                     map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        security_servers = list(filter(lambda ss: ss["name"] == ss_name, config["security_server"]))
+        if len(security_servers) == 0:
+            BaseController.log_info("Security server: '%s' not found" % ss_name)
+        else:
+            ss_api_config = self.create_api_config(security_servers[0], config)
+            self.remote_make_member_owner(ss_api_config, ss_name, member_id)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -325,6 +359,28 @@ class ClientController(BaseController):
                     "TLS certificate '%s' for client %s already exists" % (tls_cert, client.id))
             else:
                 BaseController.log_api_error('ClientsApi->import_tls_certificate', err)
+
+    @staticmethod
+    def remote_make_member_owner(ss_api_config, ss_name, member_id):
+        clients_api = ClientsApi(ApiClient(ss_api_config))
+        try:
+            client = clients_api.get_client(member_id)
+            if not client:
+                BaseController.log_info("Client: %s for security server: '%s', not found" % (member_id, ss_name))
+            else:
+                if client.subsystem_code:
+                    BaseController.log_info("Can not make owner to subsystem: %s for security server: '%s'" % (member_id, ss_name))
+                else:
+                    try:
+                        clients_api.change_owner(member_id)
+                        BaseController.log_info("Change owner: '%s' for security server: '%s'" % (member_id, ss_name))
+                    except ApiException as err:
+                        if err.status == 409:
+                            BaseController.log_info("Member: '%s' for security server: '%s', already owner" % (member_id, ss_name))
+                        else:
+                            BaseController.log_api_error("ClientsApi->change_owner", err)
+        except ApiException as err:
+            BaseController.log_api_error("ClientsApi->remote_make_member_owner", err)
 
     def find_client(self, clients_api, client_conf):
         if 'subsystem_code' in client_conf:
