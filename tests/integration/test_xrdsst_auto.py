@@ -104,11 +104,9 @@ class TestXrdsstAuto(IntegrationTestBase, IntegrationOpBase):
         self.config = copy.deepcopy(conf)
 
         # Wait for global configuration status updates
-        ssn = 0
-        for security_server in self.config["security_server"]:
+        for ssn in range(0, len(self.config["security_server"])):
             waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.config, ssn), self.retry_wait, self.max_retries)
             self.query_status()
-            ssn = ssn + 1
 
         # Now that registered auth cert is globally accepted, should proceed with everything else to successful end.
         self.step_autoconf()

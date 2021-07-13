@@ -51,7 +51,6 @@ class EndpointController(BaseController):
             if "endpoints" in service_description_dic["service_description"]:
                 for endpoint_conf in service_description_dic["service_description"]["endpoints"]:
                     self.remote_add_service_endpoints(service_description_dic["ss_api_config"],
-                                                      service_description_dic["security_server"],
                                                       service_description_dic["client"],
                                                       service_description_dic["service_description"],
                                                       endpoint_conf)
@@ -66,8 +65,9 @@ class EndpointController(BaseController):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
         for service_description_dic in self.get_services_description(config):
             if "endpoints" in service_description_dic["service_description"]:
-                self.remote_add_endpoints_access(service_description_dic["ss_api_config"], service_description_dic["security_server"],
-                                                 service_description_dic["client"], service_description_dic["service_description"])
+                self.remote_add_endpoints_access(service_description_dic["ss_api_config"],
+                                                 service_description_dic["client"],
+                                                 service_description_dic["service_description"])
             else:
                 if service_description_dic["service_description"]["type"] != ServiceType().WSDL:
                     BaseController.log_info("Skipping add access to endpoint for client %s, service %s, no endpoints defined" %
@@ -78,7 +78,6 @@ class EndpointController(BaseController):
 
     def remote_add_service_endpoints(self,
                                      ss_api_config,
-                                     security_server_conf,
                                      client_conf,
                                      service_description_conf,
                                      endpoint_conf):
@@ -119,7 +118,7 @@ class EndpointController(BaseController):
             else:
                 BaseController.log_api_error('ServicesApi->add_endpoint', err)
 
-    def remote_add_endpoints_access(self, ss_api_config, security_server_conf, client_conf, service_description_conf):
+    def remote_add_endpoints_access(self, ss_api_config, client_conf, service_description_conf):
         try:
             client_controller = ClientController()
             clients_api = ClientsApi(ApiClient(ss_api_config))

@@ -1,36 +1,31 @@
-admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+admin_credentials: TOOLKIT_ADMIN_CREDENTIALS
 ssh_access:
-  user: XRDSST_SSH_USER
-  private_key: XRDSST_SSH_KEY
+  user: TOOLKIT_SSH_USER
+  private_key: TOOLKIT_SSH_PRIVATE_KEY
 security_server:
-- api_key: <API_KEY_ENV_VAR_NAME>
+- api_key: TOOLKIT_SS3_API_KEY
   api_key_url: https://localhost:4000/api/v1/api-keys
-  admin_credentials: XRDSST_CREDENTIALS
   certificates:
-    - /home/alberto/Downloads/ss1-default-sign-key-sign-CSR-990E1959606B8E81165FBDFC6B8A906060E5ACF3-j45xqdw_.pem
-    - /home/alberto/Downloads/ss1-default-sign-key_COM_12345-sign-CSR-FC2B9F200D29E3EB177675F4E20A2980B01DFA8B-fxs8bq09.pem
-    - /home/alberto/Downloads/ss1-default-auth-key-auth-CSR-C6FE856330D1DBD08A31EB01B96D8CBB13915136-6ojlw44t.pem
-  configuration_anchor: /home/alberto/Downloads/configuration_anchor_DEV_internal_UTC_2021-07-05_09_13_32.xml
-  name: ss1
-  owner_dn_country: FI
-  owner_dn_org: NIIS
-  owner_member_class: ORG
-  owner_member_code: 111
-  security_server_code: ss1
+    - /home/bertvi/x/ss3-default-sign-key-sign-CSR-119CA86EBCA44A938177A5D79DD98031AB5024F9-3_9rwe6q.pem
+    - /home/bertvi/x/ss3-default-sign-key_COM_222-sign-CSR-2BE518043E950DF05E945AEDA49A3AE298D37DAB-gwg4pox1.pem
+    - /home/bertvi/x/ss3-default-auth-key-auth-CSR-889C121EF5BAEB5ACDCD51AA8896AD8BA485F78E-sw3iq9x5.pem
+  configuration_anchor: /etc/xroad/configuration-anchor3.xml
+  name: ss3
+  owner_dn_country: EE
+  owner_dn_org: ACME
+  owner_member_class: GOV
+  owner_member_code: 1234
+  security_server_code: ss3
   software_token_id: 0
   software_token_pin: 1234
-  fqdn: client_only
-  url: https://ss1:4000/api/v1
-  ssh_user: XRDSST_SSH_USER
-  ssh_private_key: XRDSST_SSH_KEY
-  tls_certificates:
+  fqdn: ss3
+  url: https://ss3:4000/api/v1
   clients:
-    - member_class: ORG
-      member_code: 111
+    - member_class: GOV
+      member_code: 1234
       member_name: NIIS
       subsystem_code: TEST
       connection_type: HTTP
-      tls_certificates:
       service_descriptions:
         - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
           rest_service_code: Petstore
@@ -52,29 +47,41 @@ security_server:
               method: POST
               access:
                 - DEV:security-server-owners
-        - url: http://10.54.135.88/managementservices.wsdl
-          rest_service_code: None
+        - url: http://10.249.34.187/managementservices.wsdl
           type: WSDL
           access:
-              - DEV:security-server-owners
-          url_all: True
-          timeout_all: True
-          ssl_auth_all: True
+            - DEV:security-server-owners
+          url_all: False
+          timeout_all: False
+          ssl_auth_all: False
           services:
-            - service_code: clientReg
-              timeout: 60
+            - service_code: ClientReg
+              access:
+                - DEV:security-server-owners
+              timeout: 120
               ssl_auth: False
-              url: https://10.54.135.88:4002/managementservice/manage/
-      local_groups:
-        - code: TestGroup
-          description: Description test group
-          members:
-            - DEV:COM:12345:SUBCOMPANY
-            - DEV:ORG:111:TEST
-            - Miembrecito
-        - code: OtherGroup
-          description: Other Description test group
+              url: http://petstore.xxx
+    - member_class: GOV
+      member_code: 1234
+      member_name: NIIS
+      subsystem_code: MANAGEMENT
+      connection_type: HTTP
+      service_descriptions:
+        - url: http://10.249.34.187/managementservices.wsdl
+          type: WSDL
+          access:
+            - DEV:security-server-owners
+          url_all: False
+          timeout_all: False
+          ssl_auth_all: False
+          services:
+            - service_code: ClientReg
+              access:
+                - DEV:security-server-owners
+              timeout: 120
+              ssl_auth: False
+              url: http://petstore.xxx
     - member_class: COM
-      member_code: 12345
-      member_name: COMPANY
+      member_code: 222
+      member_name: FRUIT
       connection_type: HTTP
