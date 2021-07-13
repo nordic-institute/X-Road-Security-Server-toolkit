@@ -72,6 +72,11 @@ class IntegrationTestBase(unittest.TestCase):
                       'member_name': 'NIIS',
                       'connection_type': 'HTTP',
                       'tls_certificates': [os.path.join(ROOT_DIR, self.tls_certificate)],
+                      'local_groups:': [{
+                           'code': 'TestGroup',
+                           'description': 'Description test group',
+                           'members': ['DEV:COM: 222:TEST']
+                       }],
                       'service_descriptions': [{
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
                           'rest_service_code': 'Petstore',
@@ -128,6 +133,11 @@ class IntegrationTestBase(unittest.TestCase):
                       'member_name': 'NIIS',
                       'connection_type': 'HTTP',
                       'tls_certificates': [os.path.join(ROOT_DIR, self.tls_certificate)],
+                      'local_groups:': [{
+                          'code': 'TestGroup',
+                          'description': 'Description test group',
+                          'members': ['DEV:COM: 222:TEST']
+                      }],
                       'service_descriptions': [{
                           'url': 'https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml',
                           'rest_service_code': 'Petstore',
