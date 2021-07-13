@@ -7,6 +7,7 @@ from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 from typing import Callable
 from xrdsst.controllers.auto import AutoController
+from xrdsst.controllers.backup import BackupController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -232,7 +233,7 @@ class XRDSST(App):
         # register handlers
         handlers = [BaseController, StatusController, ClientController, CertController, TimestampController,
                     TokenController, InitServerController, AutoController, ServiceController, UserController,
-                    EndpointController, MemberController]
+                    EndpointController, MemberController, BackupController]
 
     api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
 
