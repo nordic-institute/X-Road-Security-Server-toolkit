@@ -1,57 +1,87 @@
-admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
+admin_credentials: TOOLKIT_ADMIN_CREDENTIALS
 ssh_access:
-  user: <SSH_USER_OS_ENV_VAR_NAME>
-  private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  user: TOOLKIT_SSH_USER
+  private_key: TOOLKIT_SSH_PRIVATE_KEY
 security_server:
-- api_key: <API_KEY_ENV_VAR_NAME>
+- api_key: TOOLKIT_SS3_API_KEY
   api_key_url: https://localhost:4000/api/v1/api-keys
-  admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
-  configuration_anchor: /path/to/configuration-anchor.xml
   certificates:
-    - /path/to/signcert
-    - /path/to/authcert
-  name: <SECURITY_SERVER_NAME>
-  owner_dn_country: <OWNER_DISTINGUISHED_NAME_COUNTRY>
-  owner_dn_org: <OWNER_DISTINGUISHED_NAME_ORGANIZATION>
-  owner_member_class: <MEMBER_CLASS>
-  owner_member_code: <MEMBER_CODE>
-  security_server_code: <SERVER_CODE>
-  software_token_id: <SOFT_TOKEN_ID>
-  software_token_pin: <SOFT_TOKEN_PIN>
-  fqdn: <SECURITY_SERVER_EXTERNAL_FQDN>
-  url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
-  ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
-  ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
-  tls_certificates:
-    - /path/to/tls_cert
-  certificate_management:
-    - <CERTIFICATE_HASH>
+    - /home/bertvi/x/ss3-default-sign-key-sign-CSR-119CA86EBCA44A938177A5D79DD98031AB5024F9-3_9rwe6q.pem
+    - /home/bertvi/x/ss3-default-sign-key_COM_222-sign-CSR-2BE518043E950DF05E945AEDA49A3AE298D37DAB-gwg4pox1.pem
+    - /home/bertvi/x/ss3-default-auth-key-auth-CSR-889C121EF5BAEB5ACDCD51AA8896AD8BA485F78E-sw3iq9x5.pem
+  configuration_anchor: /etc/xroad/configuration-anchor3.xml
+  name: ss3
+  owner_dn_country: EE
+  owner_dn_org: ACME
+  owner_member_class: GOV
+  owner_member_code: 1234
+  security_server_code: ss3
+  software_token_id: 0
+  software_token_pin: 1234
+  fqdn: ss3
+  url: https://ss3:4000/api/v1
   clients:
-    - member_class: <MEMBER_CLASS>
-      member_code: <MEMBER_CODE>
-      member_name: <MEMBER_NAME>
-      subsystem_code: <SUBSYSTEM_CODE>
-      connection_type: <CONNECTION_TYPE>
-      tls_certificates:
-        - /path/to/tls_cert
+    - member_class: GOV
+      member_code: 1234
+      member_name: NIIS
+      subsystem_code: TEST
+      connection_type: HTTP
       service_descriptions:
-        - url: <SERVICE_DESCRIPTION_URL>
-          rest_service_code: <REST_SERVICE_CODE>
-          type: <SERVICE_TYPE>
+        - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
+          rest_service_code: Petstore
+          type: OPENAPI3
           access:
-            - <SERVICE_CLIENT_ID>
-          url_all: <SERVICE_URL_FOR_ALL>
-          timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
-          ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
+            - DEV:security-server-owners
+          url_all: False
+          timeout_all: False
+          ssl_auth_all: False
           services:
-            - service_code: <SERVICE_CODE>
+            - service_code: Petstore
               access:
-                - <SERVICE_CLIENT_ID>
-              timeout: <SERVICE_TIMEOUT>
-              ssl_auth: <SERVICE_USE_SSL_AUTH>
-              url: <SERVICE_URL>
+                - DEV:security-server-owners
+              timeout: 120
+              ssl_auth: False
+              url: http://petstore.xxx
           endpoints:
-            - path: <ENDPOINT_PATH>
-              method: <ENDPOINT_METHOD>
+            - path: /testPath
+              method: POST
               access:
-                - <SERVICE_CLIENT_ID>
+                - DEV:security-server-owners
+        - url: http://10.249.34.187/managementservices.wsdl
+          type: WSDL
+          access:
+            - DEV:security-server-owners
+          url_all: False
+          timeout_all: False
+          ssl_auth_all: False
+          services:
+            - service_code: ClientReg
+              access:
+                - DEV:security-server-owners
+              timeout: 120
+              ssl_auth: False
+              url: http://petstore.xxx
+    - member_class: GOV
+      member_code: 1234
+      member_name: NIIS
+      subsystem_code: MANAGEMENT
+      connection_type: HTTP
+      service_descriptions:
+        - url: http://10.249.34.187/managementservices.wsdl
+          type: WSDL
+          access:
+            - DEV:security-server-owners
+          url_all: False
+          timeout_all: False
+          ssl_auth_all: False
+          services:
+            - service_code: ClientReg
+              access:
+                - DEV:security-server-owners
+              timeout: 120
+              ssl_auth: False
+              url: http://petstore.xxx
+    - member_class: COM
+      member_code: 222
+      member_name: FRUIT
+      connection_type: HTTP

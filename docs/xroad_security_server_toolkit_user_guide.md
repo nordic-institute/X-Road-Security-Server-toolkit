@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.2
+Version: 2.1.3
 Doc. ID: XRDSST-CONF
 
 ---
@@ -56,6 +56,7 @@ Doc. ID: XRDSST-CONF
 | 05.07.2021 | 2.1.0       | Update service management with disabling of service descriptions             | Bert Viikmäe       |
 | 06.07.2021 | 2.1.1       | Add client unregister command                                                | Alberto Fernandez  |
 | 06.07.2021 | 2.1.2       | Add client delete command                                                    | Alberto Fernandez  |
+| 09.07.2021 | 2.1.3       | Add listing and deletion of access rights for services                       | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -122,7 +123,9 @@ Doc. ID: XRDSST-CONF
         * [4.2.7.8 Service update descriptions](#4278-service-update-descriptions)
         * [4.2.7.9 Service refresh descriptions](#4279-service-refresh-descriptions)
         * [4.2.7.10 Service disable descriptions](#42710-service-disable-descriptions)
-        * [4.2.7.11 Service apply](#42711-service-apply)
+        * [4.2.7.11 Service list access rights for services](#42711-service-list-access-rights-for-services)
+        * [4.2.7.12 Service delete access rights for services](#42712-service-delete-access-rights-for-services)
+        * [4.2.7.13 Service apply](#42713-service-apply)
      * [4.2.8 Endpoint management](#428-endpoint-management)
         * [4.2.8.1 Endpoint add](#4281-endpoint-add)
         * [4.2.8.2 Endpoint add access rights](#4282-endpoint-add-access-rights)
@@ -578,7 +581,7 @@ $ xrdsst status
 ### 4.1 The single command fully automatic configuration of security servers listed in configuration file
 
 The whole security server configuration in a fully automatic mode (all configuration from configuration file) can be run with ``xrdsst apply``
-For performing the configuration step by step instead, please start from [4.3 Initializing the security server](#43-initializing-the-security-server)
+For performing the configuration step by step instead, please start from [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
 
 
 ### 4.2 X-Road Security Server  Toolkit commands
@@ -929,7 +932,7 @@ for all the services in the description if the boolean parameters are set to Tru
 
 ##### 4.2.7.5 Service list descriptions
 
-* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 There are no configuration parameters involved, command line arguments are used instead
 
@@ -941,7 +944,7 @@ xrdsst service list-descriptions --client <CLIENT_ID>
 
 ##### 4.2.7.6 Service list services
 
-* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 There are no configuration parameters involved, command line arguments are used instead
 
@@ -1018,11 +1021,40 @@ xrdsst service disable-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 * <NOTICE> disabling notice, e.g. "Not used"
 
-##### 4.2.7.11 Service apply
+##### 4.2.7.11 Service list access rights for services
+
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
+
+There are no configuration parameters involved, command line arguments are used instead
+
+Listing access rights for services for client's service descriptions can be done with:
+```
+xrdsst service list-access --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
+```
+* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+
+##### 4.2.7.12 Service delete access rights for services
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
-It is possible to run sequentially all the service commands described before in [4.2.6 Service management commands](#426-service-management-commands)
+There are no configuration parameters involved, command line arguments are used instead
+
+Deleting access rights for services for client's service descriptions can be done with:
+```
+xrdsst service delete-access --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --service <SERVICE_ID> --sclient <SERVICE_CLIENT_ID>
+```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123
+* <SERVICE_ID> id of the service, e.g. DEV:GOV:1234:TEST:Petstore
+* <SERVICE_CLIENT_ID> id of the service description, e.g. DEV:security-server-owners, multiple values can also be given, separated by comma, e.g. DEV:GOV:1234:TEST,DEV:security-server-owners
+
+##### 4.2.7.13 Service apply
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+It is possible to run sequentially all the service commands described before in [4.2.6 Service management commands](#427-service-management-commands)
 with:
 ```
 xrdsst service apply
@@ -1033,7 +1065,7 @@ This command will execute the commands: ``xrdsst service add-description``, ``xr
 
 Endpoints are managed with ``xrdsst endpoint`` subcommands.
 
-Configuration parameters involved are the ``endpoint`` section described in [3.2.3 Services Configuration](#323-services-configuration)
+Configuration parameters involved are the ``endpoint`` section described in [3.2.3 Service Configuration](#323-service-configuration)
 
 Endpoints are only available for service types REST and OPENAPI3.
 
