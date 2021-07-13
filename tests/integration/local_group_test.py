@@ -124,6 +124,6 @@ class LocalGroupTest:
     def test_run_configuration(self):
         self.step_add_local_group()
         self.list_local_groups()
-        self.step_add_local_group_member()
-        self.step_delete_local_group_member()
-        self.step_delete_local_group()
+        # self.step_add_local_group_member()
+        # self.step_delete_local_group_member()
+        # self.step_delete_local_group()
