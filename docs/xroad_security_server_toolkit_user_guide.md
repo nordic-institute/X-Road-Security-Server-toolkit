@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.3
+Version: 2.1.4
 Doc. ID: XRDSST-CONF
 
 ---
@@ -56,8 +56,8 @@ Doc. ID: XRDSST-CONF
 | 05.07.2021 | 2.1.0       | Update service management with disabling of service descriptions             | Bert Viikmäe       |
 | 06.07.2021 | 2.1.1       | Add client unregister command                                                | Alberto Fernandez  |
 | 06.07.2021 | 2.1.2       | Add client delete command                                                    | Alberto Fernandez  |
-| 06.07.2021 | 2.1.3       | Add local groups management                                                  | Alberto Fernandez  |
 | 09.07.2021 | 2.1.3       | Add listing and deletion of access rights for services                       | Bert Viikmäe       |
+| 06.07.2021 | 2.1.4       | Add local groups management                                                  | Alberto Fernandez  |
 
 
 ## Table of Contents <!-- omit in toc -->

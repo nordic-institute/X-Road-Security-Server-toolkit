@@ -26,6 +26,11 @@ security_server:
       member_name: NIIS
       subsystem_code: TEST
       connection_type: HTTP
+      local_groups:
+        - code: <LOCAL_GROUP_CODE>
+          description: <LOCAL_GROUP_DESCRIPTION>
+          members:
+            - <MEMBER_ID>
       service_descriptions:
         - url: https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
           rest_service_code: Petstore
