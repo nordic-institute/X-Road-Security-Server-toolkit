@@ -1093,7 +1093,7 @@ class EndToEndTest(unittest.TestCase):
                     for service_description in client["service_descriptions"]:
                         if "endpoints" in service_description:
                             for endpoint in service_description["endpoints"]:
-                                endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+                                endpoint_controller.remote_add_service_endpoints(configuration, client, service_description, endpoint)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_descriptions(self.config, client_id, ssn)
