@@ -1024,7 +1024,7 @@ class EndToEndTest(unittest.TestCase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
+                        assert len(description) == 2
                         response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
                         assert len(response) == 1
                         assert response[0]["security_server"] == security_server["name"]
