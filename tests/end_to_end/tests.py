@@ -1028,8 +1028,8 @@ class EndToEndTest(unittest.TestCase):
                         response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
                         assert len(response) == 4
                         assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
-                        assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
+                        assert response[0]["client_id"] == 'DEV:ORG:111:TEST'
+                        assert response[0]["service_id"] == 'DEV:ORG:111:TEST:Petstore'
                         assert response[0]["service_client_id"] == 'DEV:security-server-owners'
                         assert response[0]["name"] == 'Security server owners'
                         assert response[0]["type"] == ServiceClientType.GLOBALGROUP
