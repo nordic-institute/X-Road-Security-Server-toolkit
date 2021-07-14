@@ -1047,7 +1047,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 response = backup_controller.remote_list_backups(configuration, security_server)
                 assert len(response) == 1
                 file_name = response[0]["file_name"]
-                response = backup_controller.remote_download_backup(configuration, security_server, [file_name])
+                response = backup_controller.remote_download_backup(configuration, security_server["name"], [file_name])
                 assert len(response) == 1
                 assert response[0] == file_name
 
