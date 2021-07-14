@@ -139,23 +139,29 @@ class LocalGroupController(BaseController):
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting adding local groups to client: ' + security_server['name'])
-            if ConfKeysSecurityServer.CONF_KEY_CLIENTS in security_server:
-                for client in security_server[ConfKeysSecurityServer.CONF_KEY_CLIENTS]:
-                    if ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS in client:
-                        if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE not in client:
-                            BaseController.log_info(
-                                "Skipping local group creation for client: '%s', security server: '%s',"
-                                "local groups can not be added to members"
-                                % (ClientController().get_client_conf_id(client), security_server["name"]))
-                        else:
-                            for local_group in client[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
-                                self.remote_add_local_group(ss_api_config, security_server, client, local_group)
-                    else:
-                        BaseController.log_info("Skipping local group creation for client: '%s', security server: '%s'"
-                                                % (
-                                                    ClientController().get_client_conf_id(client),
-                                                    security_server["name"]))
+
+            for local_group_dic in self.get_local_groups(security_server, 'creation'):
+                self.remote_add_local_group(ss_api_config, security_server,
+                                            local_group_dic["client"], local_group_dic["local_group"])
         BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    @staticmethod
+    def get_local_groups(security_server, action):
+        if ConfKeysSecurityServer.CONF_KEY_CLIENTS in security_server:
+            for client in security_server[ConfKeysSecurityServer.CONF_KEY_CLIENTS]:
+                if ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS in client:
+                    if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE not in client:
+                        BaseController.log_info(
+                            "Skipping local group %s for client: '%s', security server: '%s',"
+                            "local groups can not be added to members"
+                            % (action, ClientController().get_client_conf_id(client), security_server["name"]))
+                    else:
+                        for local_group in client[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
+                            yield {'local_group': local_group, 'client': client}
+                else:
+                    BaseController.log_info(
+                        "Skipping local group %s for client: '%s', security server: '%s'"
+                        % (action, ClientController().get_client_conf_id(client), security_server["name"]))
 
     def add_local_group_members(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"],
@@ -164,27 +170,20 @@ class LocalGroupController(BaseController):
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting adding local groups to client: ' + security_server['name'])
-            if ConfKeysSecurityServer.CONF_KEY_CLIENTS in security_server:
-                for client in security_server[ConfKeysSecurityServer.CONF_KEY_CLIENTS]:
-                    if ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS in client:
-                        if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE not in client:
-                            BaseController.log_info(
-                                "Skipping local group add member for client: '%s', security server: '%s',"
-                                "local groups can not be added to members"
-                                % (ClientController().get_client_conf_id(client), security_server["name"]))
-                        else:
-                            for local_group in client[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
-                                if local_group.get(
-                                        ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS):
-                                    self.remote_add_local_group_member(ss_api_config, security_server, client,
-                                                                       local_group)
-                                else:
-                                    BaseController.log_info(
-                                        "Skipping adding members for local group: '%s', "
-                                        "client: '%s', security server: '%s'"
-                                        % (local_group[
-                                               ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE],
-                                           ClientController().get_client_conf_id(client), security_server["name"]))
+
+            for local_group_dic in self.get_local_groups(security_server, 'add member'):
+                if local_group_dic["local_group"].get(
+                        ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS):
+                    self.remote_add_local_group_member(ss_api_config, security_server, local_group_dic["client"],
+                                                       local_group_dic["local_group"])
+                else:
+                    BaseController.log_info(
+                        "Skipping adding members for local group: '%s', "
+                        "client: '%s', security server: '%s'"
+                        % (local_group_dic["local_group"]
+                           [ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE],
+                           ClientController().get_client_conf_id(local_group_dic["client"]), security_server["name"]))
+
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def list_local_groups(self, config, ss_name, client_id):
@@ -251,14 +250,40 @@ class LocalGroupController(BaseController):
     def remote_add_local_group_member(self, ss_api_config, security_server_conf, client_conf, local_group_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         local_group_api = LocalGroupsApi(ApiClient(ss_api_config))
+        client = ClientController().find_client(clients_api, client_conf)
+        local_groups_members_add_dic = self.get_local_groups_members_for_add(ss_api_config, security_server_conf,
+                                                                             client_conf, local_group_conf)
+
+        if local_groups_members_add_dic:
+            if len(local_groups_members_add_dic["members_for_add"]) > 0:
+                try:
+                    local_group_api.add_local_group_member(local_groups_members_add_dic["local_group"].id,
+                                                           body=Members(
+                                                               local_groups_members_add_dic["members_for_add"]))
+                    BaseController.log_info(
+                        "Added member(s): '%s', local group: '%s', client '%s',security server: '%s'"
+                        % (local_groups_members_add_dic["members_for_add"], local_group_conf["code"], client.id,
+                           security_server_conf["name"]))
+
+                except ApiException as err:
+                    if err.status == 409:
+                        BaseController.log_info(
+                            "Members '%s', Local group: '%s', client '%s' security server: '%s', already added"
+                            % (local_groups_members_add_dic["members_for_add"], local_group_conf["code"], client.id,
+                               security_server_conf["name"]))
+                    else:
+                        BaseController.log_api_error('ClientsApi->add_local_group_member', err)
+
+    def get_local_groups_members_for_add(self, ss_api_config, security_server_conf, client_conf, local_group_conf):
+        clients_api = ClientsApi(ApiClient(ss_api_config))
         client_controller = ClientController()
         client = ClientController().find_client(clients_api, client_conf)
-
+        local_groups_members_add = []
         try:
             local_groups = self.get_client_local_groups(clients_api, client.id, local_group_conf["code"])
             if len(local_groups) > 0:
                 all_clients = client_controller.find_all_clients(clients_api, show_members=False, internal_search=False)
-                local_groups_members_add = []
+
                 for local_group_member in \
                         local_group_conf[ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS]:
                     member_client = list(filter(lambda c: c.id == local_group_member, all_clients))
@@ -269,30 +294,15 @@ class LocalGroupController(BaseController):
                             "Error adding member: '%s', local group: '%s', client '%s',security server: '%s',"
                             " member not found"
                             % (local_group_member, local_group_conf["code"], client.id, security_server_conf["name"]))
-                try:
-                    if len(local_groups_members_add) > 0:
-                        local_group_api.add_local_group_member(local_groups[0].id,
-                                                               body=Members(local_groups_members_add))
-                        BaseController.log_info(
-                            "Added member(s): '%s', local group: '%s', client '%s',security server: '%s'"
-                            % (local_groups_members_add, local_group_conf["code"], client.id,
-                               security_server_conf["name"]))
 
-                except ApiException as err:
-                    if err.status == 409:
-                        BaseController.log_info(
-                            "Members '%s', Local group: '%s', client '%s' security server: '%s', already added"
-                            % (local_groups_members_add, local_group_conf["code"], client.id,
-                               security_server_conf["name"]))
-                    else:
-                        BaseController.log_api_error('ClientsApi->add_local_group_member', err)
+                return {'local_group': local_groups[0], 'members_for_add': local_groups_members_add}
 
             else:
                 BaseController.log_info(
                     "Error adding members to local group: '%s', client '%s', security server: '%s',"
                     " local group not found"
                     % (local_group_conf["code"], client.id, security_server_conf["name"]))
-
+                return None
         except ApiException as find_err:
             BaseController.log_api_error(client_controller.CLIENTS_API_FIND_CLIENTS, find_err)
 
