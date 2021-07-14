@@ -1049,7 +1049,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 file_name = response[0]["file_name"]
                 response = backup_controller.remote_download_backup(configuration, security_server["name"], [file_name])
                 assert len(response) == 1
-                assert response[0] == file_name
+                assert response[0] == '/tmp/' + file_name
 
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
