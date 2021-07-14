@@ -1,5 +1,4 @@
 # Changelog
-
 All notable changes to this project will be documented in this file.
 
 ## [2.4.1-beta.0] - 2021-07-14
