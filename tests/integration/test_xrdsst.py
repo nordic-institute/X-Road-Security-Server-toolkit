@@ -1022,8 +1022,8 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert len(backups) == 0
                 response = backup_controller.remote_add_backup(configuration, security_server["name"])
                 assert response is not None
-                assert "conf_backup" in response["filename"]
-                assert response["created_at"] is not None
+                assert "conf_backup" in response.filename
+                assert response.created_at is not None
 
     def step_list_backups(self):
         with XRDSSTTest() as app:
