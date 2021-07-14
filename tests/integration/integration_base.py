@@ -72,7 +72,7 @@ class IntegrationTestBase(unittest.TestCase):
                       'member_name': 'NIIS',
                       'connection_type': 'HTTP',
                       'tls_certificates': [os.path.join(ROOT_DIR, self.tls_certificate)],
-                      'local_groups:': [{
+                      'local_groups': [{
                            'code': 'TestGroup',
                            'description': 'Description test group',
                            'members': ['DEV:COM:222:AUTO']
@@ -133,7 +133,7 @@ class IntegrationTestBase(unittest.TestCase):
                       'member_name': 'NIIS',
                       'connection_type': 'HTTP',
                       'tls_certificates': [os.path.join(ROOT_DIR, self.tls_certificate)],
-                      'local_groups:': [{
+                      'local_groups': [{
                           'code': 'TestGroup',
                           'description': 'Description test group',
                           'members': ['DEV:COM:222:AUTO']
