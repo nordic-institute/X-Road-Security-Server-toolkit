@@ -1312,8 +1312,8 @@ class EndToEndTest(unittest.TestCase):
                 configuration = base.create_api_config(security_server, self.config)
                 response = backup_controller.remote_list_backups(configuration, security_server)
                 assert len(response) == 1
-                assert "conf_backup" in response[0]["filename"]
-                assert response[0]["created_at"] is not None
+                assert "conf_backup" in response[0]["file_name"]
+                assert response[0]["created"] is not None
 
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
