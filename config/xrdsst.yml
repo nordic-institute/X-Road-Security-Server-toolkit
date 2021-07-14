@@ -23,9 +23,7 @@ security_server:
   ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
-    - /path/to/tls_cert
-  certificate_management:
-    - <CERTIFICATE_HASH>
+  	- /path/to/tls_cert
   clients:
     - member_class: <MEMBER_CLASS>
       member_code: <MEMBER_CODE>
@@ -33,7 +31,12 @@ security_server:
       subsystem_code: <SUBSYSTEM_CODE>
       connection_type: <CONNECTION_TYPE>
       tls_certificates:
-        - /path/to/tls_cert
+  		- /path/to/tls_cert
+      local_groups:
+        - code: <LOCAL_GROUP_CODE>
+          description: <LOCAL_GROUP_DESCRIPTION>
+          members:
+            - <MEMBER_ID>
       service_descriptions:
         - url: <SERVICE_DESCRIPTION_URL>
           rest_service_code: <REST_SERVICE_CODE>
@@ -51,7 +54,7 @@ security_server:
               ssl_auth: <SERVICE_USE_SSL_AUTH>
               url: <SERVICE_URL>
           endpoints:
-            - path: <ENDPOINT_PATH>
-              method: <ENDPOINT_METHOD>
-              access:
-                - <SERVICE_CLIENT_ID>
+			- path: <ENDPOINT_PATH>
+			  method: <ENDPOINT_METHOD>
+			  access:
+			    - <SERVICE_CLIENT_ID>
