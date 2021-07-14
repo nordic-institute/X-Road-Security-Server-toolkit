@@ -14,27 +14,16 @@ class LocalGroupTest:
 
     def step_add_local_group(self):
         with XRDSSTTest() as app:
-
-            print("Entra en add local group")
             local_group_controller = LocalGroupController()
             local_group_controller.app = app
             ssn = 0
 
             for security_server_conf in self.test.config["security_server"]:
-
-                print("Entra en el security server")
-
                 configuration = local_group_controller.create_api_config(security_server_conf, self.test.config)
                 for client_conf in security_server_conf["clients"]:
                     if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client_conf:
-
-                        print("Entra en el cliente")
-
                         for local_group_conf in client_conf[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
                             found_client = get_client(self.test.config, client_conf, ssn)
-
-                            print("Entra en el cliente")
-
                             local_group_controller.remote_add_local_group(configuration, security_server_conf,
                                                                           client_conf, local_group_conf)
 
@@ -132,7 +121,7 @@ class LocalGroupTest:
 
     def test_run_configuration(self):
         self.step_add_local_group()
-        # self.list_local_groups()
-        # self.step_add_local_group_member()
-        # self.step_delete_local_group_member()
-        # self.step_delete_local_group()
+        self.list_local_groups()
+        self.step_add_local_group_member()
+        self.step_delete_local_group_member()
+        self.step_delete_local_group()
