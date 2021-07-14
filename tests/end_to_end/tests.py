@@ -27,6 +27,7 @@ from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key,
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus, ServiceClientType, KeyUsageType
 from tests.end_to_end.renew_certificate import RenewCertificate
+from tests.end_to_end.local_group_test import LocalGroupTest
 
 
 class EndToEndTest(unittest.TestCase):
@@ -1247,7 +1248,7 @@ class EndToEndTest(unittest.TestCase):
 
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.unregister()
@@ -1266,7 +1267,7 @@ class EndToEndTest(unittest.TestCase):
 
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.delete()
@@ -1395,10 +1396,10 @@ class EndToEndTest(unittest.TestCase):
         self.step_list_backups()
 
         RenewCertificate(self).test_run_configuration()
+        LocalGroupTest(self).test_run_configuration()
 
         self.step_client_unregister()
         self.step_client_delete()
-        
+
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-

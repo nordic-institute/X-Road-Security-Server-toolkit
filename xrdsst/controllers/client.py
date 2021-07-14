@@ -177,7 +177,7 @@ class ClientController(BaseController):
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def unregister_client(self, config, security_server_name, clientsId):
+    def unregister_client(self, config, security_server_name, clients_id):
         ss_api_conf_tuple = list(zip(config["security_server"],
                                      map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -187,7 +187,7 @@ class ClientController(BaseController):
         else:
             ss_api_config = self.create_api_config(security_server[0], config)
             BaseController.log_debug('Starting client unregistration for security server: ' + security_server[0]['name'])
-            self.remote_unregister_client(ss_api_config, security_server_name, clientsId)
+            self.remote_unregister_client(ss_api_config, security_server_name, clients_id)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -351,6 +351,13 @@ class ClientController(BaseController):
             )
             return None
         return found_clients[0]
+
+    @staticmethod
+    def find_all_clients(clients_api, show_members=False, internal_search=False):
+        try:
+            return clients_api.find_clients(show_members=show_members, internal_search=internal_search)
+        except ApiException as find_err:
+            BaseController.log_api_error('ClientsApi->find_clients', find_err)
 
     @staticmethod
     def partial_client_id(client_conf):
