@@ -139,29 +139,24 @@ class LocalGroupController(BaseController):
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting adding local groups to client: ' + security_server['name'])
-
-            for local_group_dic in self.get_local_groups(security_server, 'creation'):
-                self.remote_add_local_group(ss_api_config, security_server,
-                                            local_group_dic["client"], local_group_dic["local_group"])
+            if ConfKeysSecurityServer.CONF_KEY_CLIENTS in security_server:
+                for local_group_dic in self.get_local_groups(security_server, 'creation'):
+                    self.remote_add_local_group(ss_api_config, security_server,
+                                                local_group_dic["client"], local_group_dic["local_group"])
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     @staticmethod
     def get_local_groups(security_server, action):
-        if ConfKeysSecurityServer.CONF_KEY_CLIENTS in security_server:
-            for client in security_server[ConfKeysSecurityServer.CONF_KEY_CLIENTS]:
-                if ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS in client:
-                    if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE not in client:
-                        BaseController.log_info(
-                            "Skipping local group %s for client: '%s', security server: '%s',"
-                            "local groups can not be added to members"
-                            % (action, ClientController().get_client_conf_id(client), security_server["name"]))
-                    else:
-                        for local_group in client[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
-                            yield {'local_group': local_group, 'client': client}
-                else:
+        for client in security_server[ConfKeysSecurityServer.CONF_KEY_CLIENTS]:
+            if ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS in client:
+                if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE not in client:
                     BaseController.log_info(
-                        "Skipping local group %s for client: '%s', security server: '%s'"
+                        "Skipping local group %s for client: '%s', security server: '%s',"
+                        "local groups can not be added to members"
                         % (action, ClientController().get_client_conf_id(client), security_server["name"]))
+                else:
+                    for local_group in client[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
+                        yield {'local_group': local_group, 'client': client}
 
     def add_local_group_members(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"],
@@ -170,19 +165,19 @@ class LocalGroupController(BaseController):
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
             BaseController.log_debug('Starting adding local groups to client: ' + security_server['name'])
-
-            for local_group_dic in self.get_local_groups(security_server, 'add member'):
-                if local_group_dic["local_group"].get(
-                        ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS):
-                    self.remote_add_local_group_member(ss_api_config, security_server, local_group_dic["client"],
-                                                       local_group_dic["local_group"])
-                else:
-                    BaseController.log_info(
-                        "Skipping adding members for local group: '%s', "
-                        "client: '%s', security server: '%s'"
-                        % (local_group_dic["local_group"]
-                           [ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE],
-                           ClientController().get_client_conf_id(local_group_dic["client"]), security_server["name"]))
+            if ConfKeysSecurityServer.CONF_KEY_CLIENTS in security_server:
+                for local_group_dic in self.get_local_groups(security_server, 'add member'):
+                    if local_group_dic["local_group"].get(
+                            ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS):
+                        self.remote_add_local_group_member(ss_api_config, security_server, local_group_dic["client"],
+                                                           local_group_dic["local_group"])
+                    else:
+                        BaseController.log_info(
+                            "Skipping adding members for local group: '%s', "
+                            "client: '%s', security server: '%s'"
+                            % (local_group_dic["local_group"]
+                               [ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE],
+                               ClientController().get_client_conf_id(local_group_dic["client"]), security_server["name"]))
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
