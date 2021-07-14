@@ -1033,7 +1033,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for security_server in self.config["security_server"]:
                 configuration = base.create_api_config(security_server, self.config)
                 response = backup_controller.remote_list_backups(configuration, security_server)
-                assert len(response) == 0
+                assert len(response) == 1
                 assert "conf_backup" in response[0]["filename"]
                 assert response[0]["created_at"] is not None
 
