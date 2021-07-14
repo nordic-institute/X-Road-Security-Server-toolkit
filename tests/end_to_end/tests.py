@@ -936,15 +936,15 @@ class EndToEndTest(unittest.TestCase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[1]["id"]])
                         assert len(response) == 1
                         service_controller.remote_delete_service_access(configuration,
                                                                         security_server,
                                                                         response[0]["service_id"],
                                                                         client_id,
-                                                                        description[0]["id"],
+                                                                        description[1]["id"],
                                                                         [response[0]["service_client_id"]])
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[1]["id"]])
                         assert len(response) == 0
                 ssn = ssn + 1
 
@@ -1026,12 +1026,12 @@ class EndToEndTest(unittest.TestCase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
+                        assert len(description) == 2
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[1]["id"]])
                         assert len(response) == 1
                         assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
-                        assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
+                        assert response[0]["client_id"] == 'DEV:ORG:111:TEST'
+                        assert response[0]["service_id"] == 'DEV:ORG:111:TEST:Petstore'
                         assert response[0]["service_client_id"] == 'DEV:security-server-owners'
                         assert response[0]["name"] == 'Security server owners'
                         assert response[0]["type"] == ServiceClientType.GLOBALGROUP
@@ -1095,7 +1095,7 @@ class EndToEndTest(unittest.TestCase):
                     for service_description in client["service_descriptions"]:
                         if "endpoints" in service_description:
                             for endpoint in service_description["endpoints"]:
-                                endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+                                endpoint_controller.remote_add_service_endpoints(configuration, client, service_description, endpoint)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_descriptions(self.config, client_id, ssn)

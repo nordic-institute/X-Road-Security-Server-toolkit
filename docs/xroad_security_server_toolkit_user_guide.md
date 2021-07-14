@@ -230,8 +230,10 @@ $ pip3 install --upgrade --extra-index-url http://xroad-toolkit.s3-website-eu-we
 
 Package signing public key for can be retrieved from Ubuntu keyserver pool (keyserver.ubuntu.com), key fingerprint is ``0xfb0d532c10f6ec5b``, publisher ``NIIS Repository Automatic Signing Key <info@niis.org>``.
 
-Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.sig
-Signature ``xrdsst-2.0.0.sig`` of signed package can be downloaded from: http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.sig
+Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.sig
+Package ``xrdsst-1.0.0.tar.gz`` can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.tar.gz
+Signature ``xrdsst-2.0.0.sig`` of signed package can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.sig
+Package ``xrdsst-2.0.0.tar.gz`` can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.tar.gz
 
 Downloaded packages with detached signatures can be verified after adding signing public key to local keyring:
 ```
