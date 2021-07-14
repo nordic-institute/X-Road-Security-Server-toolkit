@@ -18,13 +18,14 @@ from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.user import UserController
 from xrdsst.controllers.endpoint import EndpointController
+from xrdsst.controllers.local_group import LocalGroupController
 from xrdsst.core.util import revoke_api_key
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
     validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, validate_config_cert_activate, \
     validate_config_client_add_or_register, validate_config_service_desc, validate_config_service_access, \
     validate_config_service_desc_service, validate_config_service_desc_service_endpoints, \
     validate_config_service_desc_service_endpoints_access, validate_config_tls_cert_import, \
-    validate_config_certificate_operations
+    validate_config_client_local_groups, validate_config_client_local_groups_members
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
 
@@ -56,6 +57,8 @@ OP_UPDATE_SERVICE = "UPDATE\nSERVICE"
 OP_ADD_ENDPOINTS = "ADD\nENDPOINT"
 OP_ADD_ENDPOINT_ACCESS = "ADD ENDPOINTS\nACCESS"
 OP_IMPORT_TLS_CERT = "IMPORT\n TLS CERTIFICATES"
+OP_ADD_LOCAL_GROUP = "ADD LOCAL\nGROUP"
+OP_ADD_LOCAL_GROUP_MEMBER = "ADD LOCAL\nGROUP MEMBER"
 # Operations supported and known at the dependency graph level
 class OPS:
     INIT = OP_INIT
@@ -75,6 +78,8 @@ class OPS:
     ADD_ENDPOINTS = OP_ADD_ENDPOINTS
     ADD_ENDPOINT_ACCESS = OP_ADD_ENDPOINT_ACCESS
     IMPORT_TLS_CERT = OP_IMPORT_TLS_CERT
+    ADD_LOCAL_GROUP = OP_ADD_LOCAL_GROUP
+    ADD_LOCAL_GROUP_MEMBER = OP_ADD_LOCAL_GROUP_MEMBER
 
 VALIDATORS = {
     OPS.INIT: validate_config_init,
@@ -93,7 +98,9 @@ VALIDATORS = {
     OPS.UPDATE_SERVICE: validate_config_service_desc_service,
     OPS.ADD_ENDPOINTS: validate_config_service_desc_service_endpoints,
     OPS.ADD_ENDPOINT_ACCESS: validate_config_service_desc_service_endpoints_access,
-    OPS.IMPORT_TLS_CERT: validate_config_tls_cert_import
+    OPS.IMPORT_TLS_CERT: validate_config_tls_cert_import,
+    OPS.ADD_LOCAL_GROUP: validate_config_client_local_groups,
+    OPS.ADD_LOCAL_GROUP_MEMBER: validate_config_client_local_groups_members
 }
 
 # Initialize operational dependency graph for the security server operations
@@ -173,6 +180,8 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_ENDPOINTS, EndpointController, EndpointController.add, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
     add_op_node(g, OPS.IMPORT_TLS_CERT, ClientController, ClientController.import_tls_certs, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.ADD_LOCAL_GROUP, LocalGroupController, LocalGroupController.add, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.ADD_LOCAL_GROUP_MEMBER, LocalGroupController, LocalGroupController.add_members, is_done=(lambda ssn: True))
 
     g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
     g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
@@ -191,7 +200,8 @@ def opdep_init(app):
     g.add_edge(OPS.ADD_ENDPOINT_ACCESS, OPS.REGISTER_CLIENT)
     g.add_edge(OPS.REGISTER_CLIENT, OPS.UPDATE_CLIENT)
     g.add_edge(OPS.ADD_CLIENT, OPS.IMPORT_TLS_CERT)
-
+    g.add_edge(OPS.ADD_CLIENT, OPS.ADD_LOCAL_GROUP)
+    g.add_edge(OPS.ADD_LOCAL_GROUP, OPS.ADD_LOCAL_GROUP_MEMBER)
 
     topologically_sorted = list(networkx.topological_sort(g))
     app.OP_GRAPH = g
@@ -232,7 +242,7 @@ class XRDSST(App):
         # register handlers
         handlers = [BaseController, StatusController, ClientController, CertController, TimestampController,
                     TokenController, InitServerController, AutoController, ServiceController, UserController,
-                    EndpointController, MemberController]
+                    EndpointController, MemberController, LocalGroupController]
 
     api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
 

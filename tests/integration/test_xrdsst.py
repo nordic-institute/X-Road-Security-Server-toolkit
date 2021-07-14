@@ -21,6 +21,7 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus, ServiceClientType
 from xrdsst.core.conf_keys import ConfKeysSecServerClients, ConfKeysSecurityServer
 from tests.integration.renew_certificate_test import RenewCertificate
+from tests.integration.local_group_test import LocalGroupTest
 
 
 def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
@@ -1081,7 +1082,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_delete_service_description()
         self.step_cert_download_internal_tls()
 
+        LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()
-
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

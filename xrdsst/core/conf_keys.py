@@ -104,6 +104,7 @@ class ConfKeysSecServerClients:
     CONF_KEY_SS_CLIENT_SERVICE_DESCS = 'service_descriptions'
     CONF_KEY_SS_CLIENT_MEMBER_NAME = 'member_name'
     CONF_KEY_SS_CLIENT_TLS_CERTIFICATES = 'tls_certificates'
+    CONF_KEY_LOCAL_GROUPS = 'local_groups'
 
     @staticmethod
     def descendant_conf_keys():
@@ -149,6 +150,14 @@ class ConfKeysSecServerClientServiceDescEndpoints:
     CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_METHOD = 'method'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_PATH = 'path'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_ACCESS = 'access'
+    @staticmethod
+    def descendant_conf_keys():
+        return []
+
+class ConfKeysSecServerClientLocalGroups:
+    CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE = 'code'
+    CONF_KEY_SS_CLIENT_LOCAL_GROUP_DESCRIPTION = 'description'
+    CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS = 'members'
     @staticmethod
     def descendant_conf_keys():
         return []

@@ -26,6 +26,8 @@ from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key,
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus, ServiceClientType, KeyUsageType
 from tests.end_to_end.renew_certificate import RenewCertificate
+from tests.end_to_end.local_group_test import LocalGroupTest
+from xrdsst.controllers.local_group import LocalGroupController, LocalGroupListMapper
 
 
 class EndToEndTest(unittest.TestCase):
@@ -1288,6 +1290,8 @@ class EndToEndTest(unittest.TestCase):
                     found_client = get_client(self.config, client, ssn)
                     assert len(found_client) == 0
 
+
+
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -1365,10 +1369,11 @@ class EndToEndTest(unittest.TestCase):
         self.step_cert_download_internal_tls()
 
         RenewCertificate(self).test_run_configuration()
+        LocalGroupTest(self).test_run_configuration()
 
         self.step_client_unregister()
         self.step_client_delete()
-        
+
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
 
