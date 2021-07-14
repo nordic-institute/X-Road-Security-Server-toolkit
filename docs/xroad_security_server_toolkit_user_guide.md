@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.4
+Version: 2.1.5
 Doc. ID: XRDSST-CONF
 
 ---
@@ -58,7 +58,7 @@ Doc. ID: XRDSST-CONF
 | 06.07.2021 | 2.1.2       | Add client delete command                                                    | Alberto Fernandez  |
 | 09.07.2021 | 2.1.3       | Add listing and deletion of access rights for services                       | Bert Viikmäe       |
 | 13.07.2021 | 2.1.4       | Add local groups management                                                  | Alberto Fernandez  |
-
+| 14.07.2021 | 2.1.5       | Add listing and creation of backups                                          | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -140,6 +140,9 @@ Doc. ID: XRDSST-CONF
         * [4.2.10.3 Local groups list](#42103-local-groups-list)
         * [4.2.10.4 Local groups delete](#42104-local-groups-delete)
         * [4.2.10.5 Local groups member delete](#42105-local-groups-member-delete)
+     * [4.2.11 Backup management](#4211-backup-management)
+        * [4.2.11.1 Backup list](#42111-backup-list)
+        * [4.2.11.2 Backup add](#42112-backup-add)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -1228,6 +1231,34 @@ xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP
   
 If multiple local groups are set as parameters, the command will go through all the local groups searching for the members
 that matches with the ones send as parameters and it will delete them.
+
+#### 4.2.11 Backup management
+
+Backups are managed with ``xrdsst backup`` subcommands.
+
+There are no configuration parameters involved, command line arguments are used instead
+
+##### 4.2.11.1 Backup list
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+Listing backups can be done with:
+```
+xrdsst backup list --ss <SECURITY_SERVER_NAME>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+
+##### 4.2.11.2 Backup add
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+Adding backups can be done with:
+```
+xrdsst backup add --ss <SECURITY_SERVER_NAME>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney

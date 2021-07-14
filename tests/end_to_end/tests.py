@@ -9,6 +9,7 @@ import urllib3
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
     assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
     get_endpoint_service_clients, getClientTlsCertificates, get_service_descriptions
+from xrdsst.controllers.backup import BackupController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -27,7 +28,6 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus, ServiceClientType, KeyUsageType
 from tests.end_to_end.renew_certificate import RenewCertificate
 from tests.end_to_end.local_group_test import LocalGroupTest
-from xrdsst.controllers.local_group import LocalGroupController, LocalGroupListMapper
 
 
 class EndToEndTest(unittest.TestCase):
@@ -1248,7 +1248,7 @@ class EndToEndTest(unittest.TestCase):
 
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.unregister()
@@ -1267,7 +1267,7 @@ class EndToEndTest(unittest.TestCase):
 
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.delete()
@@ -1290,7 +1290,31 @@ class EndToEndTest(unittest.TestCase):
                     found_client = get_client(self.config, client, ssn)
                     assert len(found_client) == 0
 
+    def step_add_backup(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                backups = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(backups) == 0
+                response = backup_controller.remote_add_backup(configuration, security_server["name"])
+                assert response is not None
+                assert "conf_backup" in response.filename
+                assert response.created_at is not None
 
+    def step_list_backups(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                assert "conf_backup" in response[0]["file_name"]
+                assert response[0]["created"] is not None
 
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
@@ -1368,6 +1392,9 @@ class EndToEndTest(unittest.TestCase):
         self.step_delete_service_description()
         self.step_cert_download_internal_tls()
 
+        self.step_add_backup()
+        self.step_list_backups()
+
         RenewCertificate(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
 
@@ -1376,4 +1403,3 @@ class EndToEndTest(unittest.TestCase):
 
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-

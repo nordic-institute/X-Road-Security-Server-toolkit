@@ -18,6 +18,7 @@ texts = {
     'user.controller.description': 'Creates admin user on the security server.',
     'endpoint.controller.description': 'Commands for perform service endpoints operations.',
     'member.controller.description': 'Commands for performing member operations.',
+    'backup.controller.description': 'Commands for performing backup operations.',
     'local_group.controller.description': 'Commands for performing client local groups operations',
     # Messages
     'message.file.not.found': "File '{}' not found.",

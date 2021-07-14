@@ -7,6 +7,7 @@ from cement import App, TestApp, init_defaults
 from cement.core.exc import CaughtSignal
 from typing import Callable
 from xrdsst.controllers.auto import AutoController
+from xrdsst.controllers.backup import BackupController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -28,9 +29,6 @@ from xrdsst.core.validator import validate_config_init, validate_config_timestam
     validate_config_client_local_groups, validate_config_client_local_groups_members
 from xrdsst.models import TokenInitStatus, TokenStatus, PossibleAction
 from xrdsst.resources.texts import texts
-
-
-
 
 META = init_defaults('output.json', 'output.tabulate')
 META['output.json']['overridable'] = True
@@ -59,6 +57,8 @@ OP_ADD_ENDPOINT_ACCESS = "ADD ENDPOINTS\nACCESS"
 OP_IMPORT_TLS_CERT = "IMPORT\n TLS CERTIFICATES"
 OP_ADD_LOCAL_GROUP = "ADD LOCAL\nGROUP"
 OP_ADD_LOCAL_GROUP_MEMBER = "ADD LOCAL\nGROUP MEMBER"
+
+
 # Operations supported and known at the dependency graph level
 class OPS:
     INIT = OP_INIT
@@ -81,6 +81,7 @@ class OPS:
     ADD_LOCAL_GROUP = OP_ADD_LOCAL_GROUP
     ADD_LOCAL_GROUP_MEMBER = OP_ADD_LOCAL_GROUP_MEMBER
 
+
 VALIDATORS = {
     OPS.INIT: validate_config_init,
     OPS.TIMESTAMP_ENABLE: validate_config_timestamp_init,
@@ -102,6 +103,7 @@ VALIDATORS = {
     OPS.ADD_LOCAL_GROUP: validate_config_client_local_groups,
     OPS.ADD_LOCAL_GROUP_MEMBER: validate_config_client_local_groups_members
 }
+
 
 # Initialize operational dependency graph for the security server operations
 def opdep_init(app):
@@ -242,7 +244,7 @@ class XRDSST(App):
         # register handlers
         handlers = [BaseController, StatusController, ClientController, CertController, TimestampController,
                     TokenController, InitServerController, AutoController, ServiceController, UserController,
-                    EndpointController, MemberController, LocalGroupController]
+                    EndpointController, MemberController, BackupController, LocalGroupController]
 
     api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
 
@@ -258,6 +260,7 @@ class XRDSSTTest(TestApp, XRDSST):
         handlers = XRDSST.Meta.handlers
 
     api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
+
 
 def main_excepthook(type_, value, traceback_):
     if type_ == urllib3.exceptions.MaxRetryError:  # Retried traceback lengths otherwise multiple screens.

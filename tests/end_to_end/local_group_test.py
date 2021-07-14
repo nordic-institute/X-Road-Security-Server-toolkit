@@ -1,16 +1,8 @@
-import json
-import os
-import subprocess
-import sys
-import unittest
-
-import urllib3
-
 from tests.util.test_util import get_client
-
 from xrdsst.core.conf_keys import ConfKeysSecServerClients
 from xrdsst.main import XRDSSTTest
 from xrdsst.controllers.local_group import LocalGroupController, LocalGroupListMapper
+
 
 class LocalGroupTest:
 
@@ -66,7 +58,7 @@ class LocalGroupTest:
                     if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client_conf:
                         for local_group_conf in client_conf[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
                             local_group_controller.remote_add_local_group_member(configuration, security_server_conf,
-                                                                          client_conf, local_group_conf)
+                                                                                 client_conf, local_group_conf)
 
                             found_client = get_client(self.test.config, client_conf, ssn)
                             client_local_groups = local_group_controller.remote_list_local_groups(configuration, found_client[0]["id"])
@@ -85,7 +77,6 @@ class LocalGroupTest:
                 for client_conf in security_server_conf["clients"]:
                     if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client_conf:
                         for local_group_conf in client_conf[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
-
                             found_client = get_client(self.test.config, client_conf, ssn)
                             client_local_groups = local_group_controller.remote_list_local_groups(configuration,
                                                                                                   found_client[0]["id"])
@@ -96,7 +87,7 @@ class LocalGroupTest:
                             local_group_controller.remote_delete_local_group_member(configuration, local_group_ids, local_groups_members_id)
 
                             client_local_groups_after = local_group_controller.remote_list_local_groups(configuration,
-                                                                                                  found_client[0]["id"])
+                                                                                                        found_client[0]["id"])
                             assert len(client_local_groups_after[0].members) == 0
                         ssn = ssn + 1
 
@@ -110,7 +101,6 @@ class LocalGroupTest:
                 for client_conf in security_server_conf["clients"]:
                     if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client_conf:
                         for local_group_conf in client_conf[ConfKeysSecServerClients.CONF_KEY_LOCAL_GROUPS]:
-
                             found_client = get_client(self.test.config, client_conf, ssn)
                             client_local_groups = local_group_controller.remote_list_local_groups(configuration,
                                                                                                   found_client[0]["id"])
@@ -120,7 +110,7 @@ class LocalGroupTest:
                             local_group_controller.remote_delete_local_group(configuration, local_group_ids)
 
                             client_local_groups_after = local_group_controller.remote_list_local_groups(configuration,
-                                                                                                  found_client[0]["id"])
+                                                                                                        found_client[0]["id"])
                             assert len(client_local_groups_after) == 0
                         ssn = ssn + 1
 
