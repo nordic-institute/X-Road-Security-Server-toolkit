@@ -1299,9 +1299,9 @@ class EndToEndTest(unittest.TestCase):
                 backups = backup_controller.remote_list_backups(configuration, security_server)
                 assert len(backups) == 0
                 response = backup_controller.remote_add_backup(configuration, security_server["name"])
-                assert len(response) == 1
-                assert "conf_backup" in response[0]["filename"]
-                assert response[0]["created_at"] is not None
+                assert response is not None
+                assert "conf_backup" in response["filename"]
+                assert response["created_at"] is not None
 
     def step_list_backups(self):
         with XRDSSTTest() as app:
