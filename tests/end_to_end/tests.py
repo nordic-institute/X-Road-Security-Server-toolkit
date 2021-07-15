@@ -1330,6 +1330,50 @@ class EndToEndTest(unittest.TestCase):
                 assert len(response) == 1
                 assert response[0] == '/tmp/' + file_name
 
+    def step_restore_backup(self):
+        with XRDSSTTest() as app:
+            service_controller = ServiceController()
+            service_controller.app = app
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+
+                # List available backups
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                file_name = response[0]["file_name"]
+
+                # Disable a service description
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
+                        assert description[0]["disabled"] is False
+                        service_controller.remote_disable_service_descriptions(configuration, client_id, [description[0]["id"]], 'disable notice')
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
+                        assert description[0]["client_id"] == client_id
+                        assert description[0]["disabled"] is True
+
+                # restore from a backup
+                response = backup_controller.remote_restore_backup(configuration, security_server["name"], [file_name])
+                assert len(response) == 1
+
+                # check if service description is in previous state
+                for client in security_server["clients"]:
+                    if "service_descriptions" in client:
+                        found_client = get_client(self.config, client, ssn)
+                        client_id = found_client[0]['id']
+                        description = get_service_descriptions(self.config, client_id, ssn)
+                        assert len(description) == 1
+                        assert description[0]["disabled"] is False
+                ssn = ssn + 1
+
     def step_delete_backups(self):
         with XRDSSTTest() as app:
             base = BaseController()
@@ -1423,6 +1467,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_backup()
         self.step_list_backups()
         self.step_download_backups()
+        self.step_restore_backup()
         self.step_delete_backups()
 
         RenewCertificate(self).test_run_configuration()
