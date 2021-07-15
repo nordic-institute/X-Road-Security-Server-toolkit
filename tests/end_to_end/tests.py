@@ -1316,6 +1316,20 @@ class EndToEndTest(unittest.TestCase):
                 assert "conf_backup" in response[0]["file_name"]
                 assert response[0]["created"] is not None
 
+    def step_download_backups(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                file_name = response[0]["file_name"]
+                response = backup_controller.remote_download_backup(configuration, security_server["name"], [file_name])
+                assert len(response) == 1
+                assert response[0] == '/tmp/' + file_name
+
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -1394,6 +1408,7 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_add_backup()
         self.step_list_backups()
+        self.step_download_backups()
 
         RenewCertificate(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
