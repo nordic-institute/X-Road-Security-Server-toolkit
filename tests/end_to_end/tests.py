@@ -1428,7 +1428,6 @@ class EndToEndTest(unittest.TestCase):
         self.step_update_service_description()
         self.step_delete_service_description()
         self.step_cert_download_internal_tls()
-        self.step_make_owner()
 
         self.step_add_backup()
         self.step_list_backups()
@@ -1437,6 +1436,7 @@ class EndToEndTest(unittest.TestCase):
 
         RenewCertificate(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
+        self.step_make_owner()
 
         self.step_client_unregister()
         self.step_client_delete()

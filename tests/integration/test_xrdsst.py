@@ -1145,7 +1145,6 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_update_service_description()
         self.step_delete_service_description()
         self.step_cert_download_internal_tls()
-        self.step_make_owner()
 
         self.step_add_backup()
         self.step_list_backups()
@@ -1154,6 +1153,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()
+        self.step_make_owner()
 
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
