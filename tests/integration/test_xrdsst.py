@@ -6,6 +6,7 @@ from tests.integration.integration_ops import IntegrationOpBase
 from tests.util.test_util import get_client, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
     get_endpoint_service_clients, getClientTlsCertificates, get_service_descriptions
 from tests.util.test_util import get_service_description, assert_server_statuses_transitioned
+from xrdsst.controllers.backup import BackupController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -21,6 +22,7 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus, ServiceClientType
 from xrdsst.core.conf_keys import ConfKeysSecServerClients, ConfKeysSecurityServer
 from tests.integration.renew_certificate_test import RenewCertificate
+from tests.integration.local_group_test import LocalGroupTest
 
 
 def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
@@ -1019,6 +1021,60 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
             for security_server in self.config["security_server"]:
                 client_controller.remote_make_member_owner(configuration, security_server["name"], member)
 
+    def step_add_backup(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                backups = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(backups) == 0
+                response = backup_controller.remote_add_backup(configuration, security_server["name"])
+                assert response is not None
+                assert "conf_backup" in response.filename
+                assert response.created_at is not None
+
+    def step_list_backups(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                assert "conf_backup" in response[0]["file_name"]
+                assert response[0]["created"] is not None
+
+    def step_download_backups(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                file_name = response[0]["file_name"]
+                response = backup_controller.remote_download_backup(configuration, security_server["name"], [file_name])
+                assert len(response) == 1
+                assert response[0] == '/tmp/' + file_name
+
+    def step_delete_backups(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                file_name = response[0]["file_name"]
+                backup_controller.remote_delete_backup(configuration, security_server["name"], [file_name])
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 0
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
@@ -1091,6 +1147,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_cert_download_internal_tls()
         self.step_make_owner()
 
+        self.step_add_backup()
+        self.step_list_backups()
+        self.step_download_backups()
+        self.step_delete_backups()
+
+        LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()
 
         configured_servers_at_end = self.query_status()

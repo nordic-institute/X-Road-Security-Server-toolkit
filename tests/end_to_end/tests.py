@@ -9,6 +9,7 @@ import urllib3
 from tests.util.test_util import find_test_ca_sign_url, perform_test_ca_sign, get_client, get_service_description, \
     assert_server_statuses_transitioned, auth_cert_registration_global_configuration_update_received, waitfor, get_service_clients, \
     get_endpoint_service_clients, getClientTlsCertificates, get_service_descriptions
+from xrdsst.controllers.backup import BackupController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
@@ -26,6 +27,7 @@ from xrdsst.core.util import revoke_api_key, get_admin_credentials, get_ssh_key,
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus, ServiceClientType, KeyUsageType
 from tests.end_to_end.renew_certificate import RenewCertificate
+from tests.end_to_end.local_group_test import LocalGroupTest
 
 
 class EndToEndTest(unittest.TestCase):
@@ -934,15 +936,15 @@ class EndToEndTest(unittest.TestCase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[1]["id"]])
                         assert len(response) == 1
                         service_controller.remote_delete_service_access(configuration,
                                                                         security_server,
                                                                         response[0]["service_id"],
                                                                         client_id,
-                                                                        description[0]["id"],
+                                                                        description[1]["id"],
                                                                         [response[0]["service_client_id"]])
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[1]["id"]])
                         assert len(response) == 0
                 ssn = ssn + 1
 
@@ -1024,12 +1026,12 @@ class EndToEndTest(unittest.TestCase):
                         found_client = get_client(self.config, client, ssn)
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[0]["id"]])
+                        assert len(description) == 2
+                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[1]["id"]])
                         assert len(response) == 1
                         assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == 'DEV:ORG:111:BUS'
-                        assert response[0]["service_id"] == 'DEV:ORG:111:BUS:Petstore'
+                        assert response[0]["client_id"] == 'DEV:ORG:111:TEST'
+                        assert response[0]["service_id"] == 'DEV:ORG:111:TEST:Petstore'
                         assert response[0]["service_client_id"] == 'DEV:security-server-owners'
                         assert response[0]["name"] == 'Security server owners'
                         assert response[0]["type"] == ServiceClientType.GLOBALGROUP
@@ -1093,7 +1095,7 @@ class EndToEndTest(unittest.TestCase):
                     for service_description in client["service_descriptions"]:
                         if "endpoints" in service_description:
                             for endpoint in service_description["endpoints"]:
-                                endpoint_controller.remote_add_service_endpoints(configuration, security_server, client, service_description, endpoint)
+                                endpoint_controller.remote_add_service_endpoints(configuration, client, service_description, endpoint)
                     found_client = get_client(self.config, client, ssn)
                     client_id = found_client[0]['id']
                     description = get_service_descriptions(self.config, client_id, ssn)
@@ -1246,7 +1248,7 @@ class EndToEndTest(unittest.TestCase):
 
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.unregister()
@@ -1263,7 +1265,7 @@ class EndToEndTest(unittest.TestCase):
             certificates = cert_controller.list()
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
-                                                                  if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
+                                                             if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
 
             cert_controller.load_config = (lambda: self.config)
             cert_controller.delete()
@@ -1296,6 +1298,60 @@ class EndToEndTest(unittest.TestCase):
                 client_controller.remote_make_member_owner(configuration, security_server["name"], member)
 
 
+
+    def step_add_backup(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                backups = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(backups) == 0
+                response = backup_controller.remote_add_backup(configuration, security_server["name"])
+                assert response is not None
+                assert "conf_backup" in response.filename
+                assert response.created_at is not None
+
+    def step_list_backups(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                assert "conf_backup" in response[0]["file_name"]
+                assert response[0]["created"] is not None
+
+    def step_download_backups(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                file_name = response[0]["file_name"]
+                response = backup_controller.remote_download_backup(configuration, security_server["name"], [file_name])
+                assert len(response) == 1
+                assert response[0] == '/tmp/' + file_name
+
+    def step_delete_backups(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                file_name = response[0]["file_name"]
+                backup_controller.remote_delete_backup(configuration, security_server["name"], [file_name])
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 0
 
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
@@ -1374,11 +1430,16 @@ class EndToEndTest(unittest.TestCase):
         self.step_cert_download_internal_tls()
         self.step_make_owner()
 
+        self.step_add_backup()
+        self.step_list_backups()
+        self.step_download_backups()
+        self.step_delete_backups()
+
         RenewCertificate(self).test_run_configuration()
+        LocalGroupTest(self).test_run_configuration()
 
         self.step_client_unregister()
         self.step_client_delete()
-        
+
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-

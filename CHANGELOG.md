@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.4.2-beta.0] - 2021-07-15
+- add ``xrdsst backup`` and sub-command ``delete``
+
+## [2.4.1-beta.0] - 2021-07-14
+- add ``xrdsst backup`` and sub-commands ``list``, ``add`` and ``download``
+- add ``xrdsst local-group`` and sub-commands ``add``, ``add-member``, ``list`` and ``delete``
+
 ## [2.4.0-beta.0] - 2021-07-09
 - add ``xrdsst service`` and sub-commands ``list-access`` and ``delete-access``
 - add ``xrdsst client`` and sub-commands ``unregister`` and ``delete``
