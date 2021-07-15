@@ -8,6 +8,7 @@ from xrdsst.core.util import convert_swagger_enum, parse_argument_list
 from xrdsst.models import ClientAdd, Client, ConnectionType, ClientStatus
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
+from xrdsst.controllers.token import TokenController
 
 
 class ClientController(BaseController):
@@ -117,7 +118,6 @@ class ClientController(BaseController):
             return
 
         self.delete_client(active_config, self.app.pargs.ss, parse_argument_list(self.app.pargs.client))
-
 
     @ex(help="Make owner",
         arguments=[
@@ -236,8 +236,9 @@ class ClientController(BaseController):
             BaseController.log_info("Security server: '%s' not found" % ss_name)
         else:
             ss_api_config = self.create_api_config(security_servers[0], config)
-            self.remote_make_member_owner(ss_api_config, ss_name, member_id)
-
+            client = self.remote_make_member_owner(ss_api_config, ss_name, member_id)
+            if client:
+                self.create_auth_key_for_new_owner(ss_api_config, security_servers[0], client)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
     def remote_add_client(self, ss_api_config, client_conf):
@@ -361,24 +362,32 @@ class ClientController(BaseController):
                 BaseController.log_api_error('ClientsApi->import_tls_certificate', err)
 
     @staticmethod
+    def create_auth_key_for_new_owner(ss_api_config, security_server_conf, client):
+        token_controller = TokenController()
+
+        token_controller.remote_token_add_auth_key_with_csrs(ss_api_config, security_server_conf, client.member_class,
+                                                             client.member_code, client.member_name)
+
+    @staticmethod
     def remote_make_member_owner(ss_api_config, ss_name, member_id):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         try:
             client = clients_api.get_client(member_id)
-            if not client:
-                BaseController.log_info("Client: %s for security server: '%s', not found" % (member_id, ss_name))
+            if client.subsystem_code:
+                BaseController.log_info("It's not possible to make owner to subsystems: %s for security server: '%s'"
+                                        % (member_id, ss_name))
             else:
-                if client.subsystem_code:
-                    BaseController.log_info("Can not make owner to subsystem: %s for security server: '%s'" % (member_id, ss_name))
-                else:
-                    try:
-                        clients_api.change_owner(member_id)
-                        BaseController.log_info("Change owner: '%s' for security server: '%s'" % (member_id, ss_name))
-                    except ApiException as err:
-                        if err.status == 409:
-                            BaseController.log_info("Member: '%s' for security server: '%s', already owner" % (member_id, ss_name))
-                        else:
-                            BaseController.log_api_error("ClientsApi->change_owner", err)
+                try:
+                    # clients_api.change_owner(member_id)
+                    BaseController.log_info("Change owner request submitted: "
+                                            "'%s' for security server: '%s'" % (member_id, ss_name))
+                    return client
+                except ApiException as err:
+                    if err.body.count('member_already_owner'):
+                        BaseController.log_info("Member: '%s' for security server: '%s', already owner"
+                                                % (member_id, ss_name))
+                    else:
+                        BaseController.log_api_error("ClientsApi->change_owner", err)
         except ApiException as err:
             BaseController.log_api_error("ClientsApi->remote_make_member_owner", err)
 

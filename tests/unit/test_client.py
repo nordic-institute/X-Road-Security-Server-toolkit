@@ -30,7 +30,7 @@ class ClientTestData:
     )
 
     update_response = Client(
-        id='DEV:GOV:9876:SUB1',
+        id='DEV:GOV:9876',
         connection_type=ConnectionType.HTTPS,
         has_valid_local_sign_cert=True,
         instance_id='DEV',
@@ -40,6 +40,18 @@ class ClientTestData:
         member_name='MAME',
         owner=False,
         status=ClientStatus.REGISTERED
+    )
+
+    make_owner_response = Client(
+        id='DEV:GOV:9876:SUB1',
+        connection_type=ConnectionType.HTTP,
+        has_valid_local_sign_cert=True,
+        instance_id='DEV',
+        member_class='GOV',
+        member_code='9876',
+        member_name='TEST',
+        owner=False,
+        status=ClientStatus.SAVED
     )
 
 
@@ -628,3 +640,72 @@ class TestClient(unittest.TestCase):
                 with self.capsys.disabled():
                     sys.stdout.write(out)
                     sys.stderr.write(err)
+
+    def test_client_make_owner(self):
+        ss = 'ssX'
+        member = 'DEV:GOV:9876'
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss=ss, member=member)
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client', return_value=ClientTestData.make_owner_response):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.change_owner', return_value=None):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert_non_existing())
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    client_controller.make_owner()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Change owner request submitted: '%s' for security server: '%s'" % (member, ss)) > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_client_make_owner_owner_is_subsystem(self):
+        ss = 'ssX'
+        member = 'DEV:GOV:9876:SUB1'
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss=ss, member=member)
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client', return_value=ClientTestData.add_response):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.change_owner', return_value=None):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert_non_existing())
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    client_controller.make_owner()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("It's not possible to make owner to subsystems: %s for security server: '%s'"
+                                     % (member, ss)) > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_client_make_owner_already_owner(self):
+        class AlreadyOwnerResponse:
+            status = 400
+            data = '{"status":400,"error":{"code":"member_already_owner"}}'
+            reason = None
+
+            def getheaders(self): return None
+
+        ss = 'ssX'
+        member = 'DEV:GOV:9876'
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss=ss, member=member)
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client', return_value=ClientTestData.make_owner_response):
+                with mock.patch('xrdsst.api.clients_api.ClientsApi.change_owner',
+                                        side_effect=ApiException(http_resp=AlreadyOwnerResponse())):
+                    client_controller = ClientController()
+                    client_controller.app = app
+                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert_non_existing())
+                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    client_controller.make_owner()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Member: '%s' for security server: '%s', already owner" % (member, ss)) > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)

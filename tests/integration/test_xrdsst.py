@@ -1010,6 +1010,15 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     assert len(found_client) > 0
                     assert found_client[0]["status"] == ClientStatus.DELETION_IN_PROGRESS
 
+    def step_make_owner(self):
+        member = 'DEV:COM:222'
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            configuration = client_controller.create_api_config(self.config["security_server"][0], self.config)
+            for security_server in self.config["security_server"]:
+                client_controller.remote_make_member_owner(configuration, security_server["name"], member)
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
@@ -1080,6 +1089,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_update_service_description()
         self.step_delete_service_description()
         self.step_cert_download_internal_tls()
+        self.step_make_owner()
 
         RenewCertificate(self).test_run_configuration()
 

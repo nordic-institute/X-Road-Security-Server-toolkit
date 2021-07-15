@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.3
+Version: 2.1.6
 Doc. ID: XRDSST-CONF
 
 ---
@@ -57,6 +57,7 @@ Doc. ID: XRDSST-CONF
 | 06.07.2021 | 2.1.1       | Add client unregister command                                                | Alberto Fernandez  |
 | 06.07.2021 | 2.1.2       | Add client delete command                                                    | Alberto Fernandez  |
 | 09.07.2021 | 2.1.3       | Add listing and deletion of access rights for services                       | Bert Viikmäe       |
+| 14.07.2021 | 2.1.6       | Add make owner command                                                       | Alberto Fernandez      |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -65,85 +66,87 @@ Doc. ID: XRDSST-CONF
 
 * [License](#license)
 * [1. Introduction](#1-introduction)
-  * [1.1 Target Audience](#11-target-audience)
-  * [1.2 References](#12-references)
-* [2. Installation](#2-installation)
-* [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
-* [2.2 Installation](#22-installation)
-* [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
-  * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
-     * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
-        * [3.1.1.1 Using API keys](#3111-using-api-keys)
-        * [3.1.1.2 Using SSH](#3112-using-ssh)
-  * [3.2 Format of configuration file](#32-format-of-configuration-file)
-     * [3.2.1 Access Configuration](#321-access-configuration)
-     * [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-     * [3.2.3 Client Configuration](#323-client-configuration)
-     * [3.2.3 Service Configuration](#323-service-configuration)
-  * [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
-* [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
-  * [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
-  * [4.2 X-Road Security Server  Toolkit commands](#42-x-road-security-server--toolkit-commands)
-     * [4.2.1 Creating admin user command](#421-creating-admin-user-command)
-     * [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
-     * [4.2.3 Token commands](#423-token-commands)
-        * [4.2.3.1 Token login command](#4231-token-login-command)
-        * [4.2.3.2 Token list](#4232-token-list)
-        * [4.2.3.3 Token init-keys](#4233-token-init-keys)
-        * [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys)
-     * [4.2.4 Timestamp commands](#424-timestamp-commands)
-        * [4.2.4.1 Timestamp init](#4241-timestamp-init)
-        * [4.2.4.2 Timestamp list approved](#4242-timestamp-list-approved)
-        * [4.2.4.3 Timestamp list configured](#4243-timestamp-list-configured)
-     * [4.2.5 Certificate management commands](#425-certificate-management-commands)
-        * [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs)
-        * [4.2.5.2 Certificate import](#4252-certificate-import)
-        * [4.2.5.3 Certificate registration](#4253-certificate-registration)
-        * [4.2.5.4 Certificate activation](#4254-certificate-activation)
-        * [4.2.5.5 Download internal TSL certificates](#4255-download-internal-tsl-certificates)
-        * [4.2.5.6 List certificates](#4256-list-certificates)
-        * [4.2.5.7 Certificate disable](#4257-certificate-disable)
-        * [4.2.5.8 Certificate unregister](#4258-certificate-unregister)
-        * [4.2.5.9 Certificate delete](#4259-certificate-delete)
-     * [4.2.6 Client management commands](#426-client-management-commands)
-        * [4.2.6.1 Client add](#4261-client-add)
-        * [4.2.6.2 Client register](#4262-client-register)
-        * [4.2.6.3 Client update](#4263-client-update)
-        * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
-        * [4.2.6.5 Client unregister](#4265-client-unregister)
-        * [4.2.6.6 Client delete](#4266-client-delete)
-     * [4.2.7 Service management commands](#427-service-management-commands)
-        * [4.2.7.1 Service add description](#4271-service-add-description)
-        * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
-        * [4.2.7.3 Enable service](#4273-enable-service)
-        * [4.2.7.4 Service update parameters](#4274-service-update-parameters)
-        * [4.2.7.5 Service list descriptions](#4275-service-list-descriptions)
-        * [4.2.7.6 Service list services](#4276-service-list-services)
-        * [4.2.7.7 Service delete descriptions](#4277-service-delete-descriptions)
-        * [4.2.7.8 Service update descriptions](#4278-service-update-descriptions)
-        * [4.2.7.9 Service refresh descriptions](#4279-service-refresh-descriptions)
-        * [4.2.7.10 Service disable descriptions](#42710-service-disable-descriptions)
-        * [4.2.7.11 Service list access rights for services](#42711-service-list-access-rights-for-services)
-        * [4.2.7.12 Service delete access rights for services](#42712-service-delete-access-rights-for-services)
-        * [4.2.7.13 Service apply](#42713-service-apply)
-     * [4.2.8 Endpoint management](#428-endpoint-management)
-        * [4.2.8.1 Endpoint add](#4281-endpoint-add)
-        * [4.2.8.2 Endpoint add access rights](#4282-endpoint-add-access-rights)
-     * [4.2.9 Member management](#429-member-management)
-        * [4.2.9.1 Member find](#4291-member-find)
-        * [4.2.9.2 Member list member classes](#4292-member-list-member-classes)
-* [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
-  * [5.1 Configuration flow](#51-configuration-flow)
-  * [5.2 First-run failures](#52-first-run-failures)
-  * [5.3 Configuration file errors](#53-configuration-file-errors)
-     * [5.3.1 Malformed YAML](#531-malformed-yaml)
-     * [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
-  * [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
-  * [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
-* [6 Load balancer setup](#6-load-balancer-setup)
-* [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
-* [8 Multitenancy](#8-multitenancy)
-* [9 Renew expiring certificates](#9-renew-expiring-certificates)
+      * [1.1 Target Audience](#11-target-audience)
+      * [1.2 References](#12-references)
+   * [2. Installation](#2-installation)
+   * [2.1 Prerequisites to Installation](#21-prerequisites-to-installation)
+   * [2.2 Installation](#22-installation)
+   * [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
+      * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
+         * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
+            * [3.1.1.1 Using API keys](#3111-using-api-keys)
+            * [3.1.1.2 Using SSH](#3112-using-ssh)
+      * [3.2 Format of configuration file](#32-format-of-configuration-file)
+         * [3.2.1 Access Configuration](#321-access-configuration)
+         * [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
+         * [3.2.3 Client Configuration](#323-client-configuration)
+         * [3.2.3 Service Configuration](#323-service-configuration)
+      * [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
+   * [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
+      * [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
+      * [4.2 X-Road Security Server  Toolkit commands](#42-x-road-security-server--toolkit-commands)
+         * [4.2.1 Creating admin user command](#421-creating-admin-user-command)
+         * [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
+         * [4.2.3 Token commands](#423-token-commands)
+            * [4.2.3.1 Token login command](#4231-token-login-command)
+            * [4.2.3.2 Token list](#4232-token-list)
+            * [4.2.3.3 Token init-keys](#4233-token-init-keys)
+            * [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys)
+         * [4.2.4 Timestamp commands](#424-timestamp-commands)
+            * [4.2.4.1 Timestamp init](#4241-timestamp-init)
+            * [4.2.4.2 Timestamp list approved](#4242-timestamp-list-approved)
+            * [4.2.4.3 Timestamp list configured](#4243-timestamp-list-configured)
+         * [4.2.5 Certificate management commands](#425-certificate-management-commands)
+            * [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs)
+            * [4.2.5.2 Certificate import](#4252-certificate-import)
+            * [4.2.5.3 Certificate registration](#4253-certificate-registration)
+            * [4.2.5.4 Certificate activation](#4254-certificate-activation)
+            * [4.2.5.5 Download internal TSL certificates](#4255-download-internal-tsl-certificates)
+            * [4.2.5.6 List certificates](#4256-list-certificates)
+            * [4.2.5.7 Certificate disable](#4257-certificate-disable)
+            * [4.2.5.8 Certificate unregister](#4258-certificate-unregister)
+            * [4.2.5.9 Certificate delete](#4259-certificate-delete)
+         * [4.2.6 Client management commands](#426-client-management-commands)
+            * [4.2.6.1 Client add](#4261-client-add)
+            * [4.2.6.2 Client register](#4262-client-register)
+            * [4.2.6.3 Client update](#4263-client-update)
+            * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
+            * [4.2.6.5 Client unregister](#4265-client-unregister)
+            * [4.2.6.6 Client delete](#4266-client-delete)
+            * [4.2.6.6 Client change owner](#4266-client-change-owner)
+         * [4.2.7 Service management commands](#427-service-management-commands)
+            * [4.2.7.1 Service add description](#4271-service-add-description)
+            * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
+            * [4.2.7.3 Enable service](#4273-enable-service)
+            * [4.2.7.4 Service update parameters](#4274-service-update-parameters)
+            * [4.2.7.5 Service list descriptions](#4275-service-list-descriptions)
+            * [4.2.7.6 Service list services](#4276-service-list-services)
+            * [4.2.7.7 Service delete descriptions](#4277-service-delete-descriptions)
+            * [4.2.7.8 Service update descriptions](#4278-service-update-descriptions)
+            * [4.2.7.9 Service refresh descriptions](#4279-service-refresh-descriptions)
+            * [4.2.7.10 Service disable descriptions](#42710-service-disable-descriptions)
+            * [4.2.7.11 Service list access rights for services](#42711-service-list-access-rights-for-services)
+            * [4.2.7.12 Service delete access rights for services](#42712-service-delete-access-rights-for-services)
+            * [4.2.7.13 Service apply](#42713-service-apply)
+         * [4.2.8 Endpoint management](#428-endpoint-management)
+            * [4.2.8.1 Endpoint add](#4281-endpoint-add)
+            * [4.2.8.2 Endpoint add access rights](#4282-endpoint-add-access-rights)
+         * [4.2.9 Member management](#429-member-management)
+            * [4.2.9.1 Member find](#4291-member-find)
+            * [4.2.9.2 Member list member classes](#4292-member-list-member-classes)
+   * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
+      * [5.1 Configuration flow](#51-configuration-flow)
+      * [5.2 First-run failures](#52-first-run-failures)
+      * [5.3 Configuration file errors](#53-configuration-file-errors)
+         * [5.3.1 Malformed YAML](#531-malformed-yaml)
+         * [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
+      * [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
+      * [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
+   * [6 Load balancer setup](#6-load-balancer-setup)
+   * [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
+   * [8 Multitenancy](#8-multitenancy)
+   * [9 Renew expiring certificates](#9-renew-expiring-certificates)
+   * [10 Change security server owner](#10-change-security-server-owner)
 
 
 
@@ -877,6 +880,24 @@ xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 
 The members or subsystem must be unregistered from the security server in order to delete it.
 
+##### 4.2.6.6 Client change owner
+
+* Access rights: XROAD_REGISTRATION_OFFICER
+There are no configuration parameters involved, command line arguments are used instead
+It is possible to make owner to members with:
+```
+xrdsst client delete --ss <SECURITY_SERVER_NAME> --member <MEMBER_ID>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <MEMBER_ID> id of the member, e.g. DEV:GOV:1234
+
+This command will submit a change owner request to the  X-Road governing authority according to the organizational
+procedures of the X-Road instance. 
+Once the owner change request is approved by the X-Road governing authority, the member will automatically become 
+the Owner Member.
+This command will create a new auth key and CSRS for the auth certificate of the new owner
+
 #### 4.2.7 Service management commands
 
 Services and service descriptions are managed with ``xrdsst service`` subcommands.
@@ -1511,3 +1532,13 @@ To renew the certificates we must:
 8. Unregister the old  certificates by running the [Certificate unregister](#4258-certificate-unregister) command.
 9. Delete the old AUTH certificate by running the [Certificate delete](#4259-certificate-delete) command.
 
+## 10 Change security server owner
+
+To change the security server owner, two registered Owner members must be available. 
+1. Add a new member to the security server and register it. For doing that, follow the guide [8 Multitenancy](#8-multitenancy).
+2. Run the command [4.2.6.6 Client change owner](#4266-client-change-owner). This command submit a request for owner
+change  X-Road governing authority also it will create the AUTH key and CSRS for the AUTH certificate of the new member.
+3. Download the certificate created in the previous step using the command [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs).
+4. Sign the AUTH certificate and import it using the command [4.2.5.2 Certificate import](#4252-certificate-import).
+5. Activate  the AUTH certificate using the command [4.2.5.2 Certificate import](#4252-certificate-import).
+5. Register the AUTH certificate with the command [4.2.5.4 Certificate activation](#4254-certificate-activation).

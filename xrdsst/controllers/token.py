@@ -7,7 +7,8 @@ from xrdsst.api.certificate_authorities_api import CertificateAuthoritiesApi
 from xrdsst.core.api_util import remote_get_token
 from xrdsst.controllers.base import BaseController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
-from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label
+from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label,\
+    default_member_auth_key_label
 from xrdsst.models import CsrGenerate, KeyUsageType, CsrFormat, KeyLabelWithCsrGenerate
 from xrdsst.rest.rest import ApiException
 from xrdsst.api_client.api_client import ApiClient
@@ -349,6 +350,54 @@ class TokenController(BaseController):
             raise exc
 
         log_creations(responses)
+
+    @staticmethod
+    def remote_token_add_auth_key_with_csrs(ss_api_config, security_server, member_class, member_code, member_name):
+        ssi = remote_get_security_server_instance(ss_api_config)
+        token = remote_get_token(ss_api_config, security_server)
+        auth_ca = remote_get_auth_certificate_authority(ss_api_config)
+
+        token_id = security_server[ConfKeysSecurityServer.CONF_KEY_SOFT_TOKEN_ID]
+        ss_code = security_server[ConfKeysSecurityServer.CONF_KEY_SERVER_CODE]
+        dn_country = security_server[ConfKeysSecurityServer.CONF_KEY_DN_C]
+
+        fqdn = security_server[ConfKeysSecurityServer.CONF_KEY_FQDN]
+        auth_key_label = default_member_auth_key_label(security_server, member_code, member_class, member_name)
+        try:
+            token_key_labels = list(map(lambda key: key.label, token.keys))
+            has_auth_key = auth_key_label in token_key_labels
+
+            auth_cert_subject = {
+                'C': dn_country,
+                'O': member_name,
+                'CN': fqdn,
+                'serialNumber': '/'.join([ssi.instance_id, member_class, str(member_code)])
+            }
+
+            token_api = TokensApi(ApiClient(ss_api_config))
+            auth_key_req_param = KeyLabelWithCsrGenerate(
+                key_label=auth_key_label,
+                csr_generate_request=CsrGenerate(
+                    key_usage_type=KeyUsageType.AUTHENTICATION,
+                    ca_name=auth_ca.name,
+                    csr_format=CsrFormat.DER,  # Test CA setup at least only works with DER
+                    member_id=':'.join([ssi.instance_id, member_class, member_code]),
+                    subject_field_values=auth_cert_subject
+                )
+            )
+
+            if not has_auth_key:
+                try:
+                    BaseController.log_info(TokenLabels.generate_key(token_id, auth_key_label, 'AUTH'))
+                    response = token_api.add_key_and_csr(token_id, body=auth_key_req_param)
+                    BaseController.log_info(
+                        "Created " + str(response.key.usage) + " CSR '" + response.csr_id +
+                        "' for key '" + response.key.id + "' as '" + response.key.label + "'"
+                    )
+                except ApiException as err:
+                    BaseController.log_api_error(TokenLabels.error(), err)
+        except Exception as exc:
+            raise exc
 
 
 def remote_get_security_server_instance(ss_api_config):
