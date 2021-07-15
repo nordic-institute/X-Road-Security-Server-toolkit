@@ -34,6 +34,8 @@ class BackupController(BaseController):
         stacked_type = 'nested'
         description = texts['backup.controller.description']
 
+    FOR_SECURITY_SERVER = 'for security server'
+
     @ex(help="List backups", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'})])
     def list(self):
         active_config = self.load_config()
@@ -162,7 +164,7 @@ class BackupController(BaseController):
         try:
             response = backups_api.add_backup()
             if response is not None:
-                BaseController.log_info("Created backup '" + response.filename + "' for security server '" + ss_name + "'")
+                BaseController.log_info("Created backup '" + response.filename + "' " + BackupController.FOR_SECURITY_SERVER + "' " + ss_name + "'")
             return response
         except ApiException as err:
             BaseController.log_api_error('BackupsApi->get_backups', err)
@@ -178,7 +180,7 @@ class BackupController(BaseController):
                     with open(os.path.join('/tmp/', file_name), "wb") as file:
                         file.write(response.data)
                         response_list.append(file.name)
-                        BaseController.log_info("Downloaded backup '" + file_name + "' for security server '" + ss_name
+                        BaseController.log_info("Downloaded backup '" + file_name + "' " + BackupController.FOR_SECURITY_SERVER + "' " + ss_name
                                                 + "' to '" + os.path.join('/tmp/', file_name) + "'")
                 else:
                     BaseController.log_info("Failed to download backup '" + file_name + "'")
@@ -192,6 +194,6 @@ class BackupController(BaseController):
         try:
             for file_name in file_names:
                 backups_api.delete_backup(filename=file_name)
-                BaseController.log_info("Deleted backup '" + file_name + "' for security server '" + ss_name + "'")
+                BaseController.log_info("Deleted backup '" + file_name + "' " + BackupController.FOR_SECURITY_SERVER + "' " + ss_name + "'")
         except ApiException as err:
             BaseController.log_api_error('BackupsApi->delete_backup', err)
