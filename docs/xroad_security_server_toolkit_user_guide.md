@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.5
+Version: 2.1.6
 Doc. ID: XRDSST-CONF
 
 ---
@@ -59,6 +59,7 @@ Doc. ID: XRDSST-CONF
 | 09.07.2021 | 2.1.3       | Add listing and deletion of access rights for services                       | Bert Viikmäe       |
 | 13.07.2021 | 2.1.4       | Add local groups management                                                  | Alberto Fernandez  |
 | 14.07.2021 | 2.1.5       | Add listing, creation and download of backups                                | Bert Viikmäe       |
+| 15.07.2021 | 2.1.6       | Add deletion of backups                                                      | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -144,6 +145,7 @@ Doc. ID: XRDSST-CONF
         * [4.2.11.1 Backup list](#42111-backup-list)
         * [4.2.11.2 Backup add](#42112-backup-add)
         * [4.2.11.3 Backup download](#42113-backup-download)
+        * [4.2.11.4 Backup delete](#42114-backup-delete)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -1273,7 +1275,20 @@ xrdsst backup download --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <BACKUP_FILENAME> file name of the backup to be downloaded, e.g. conf_backup_20210713-161054.tar, 
   multiple files can also be downloaded, e.g. conf_backup_20210713-161054.tar,conf_backup_20210713-154857.tar
- 
+
+##### 4.2.11.4 Backup delete
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+Deletion of backups can be done with:
+```
+xrdsst backup delete --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <BACKUP_FILENAME> file name of the backup to be deleted, e.g. conf_backup_20210713-161054.tar, 
+  multiple files can also be deleted, e.g. conf_backup_20210713-161054.tar,conf_backup_20210713-154857.tar
+   
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
 

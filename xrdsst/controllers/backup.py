@@ -1,7 +1,5 @@
 import os
-import sys
 
-import cement
 from cement import ex
 from xrdsst.api import BackupsApi
 from xrdsst.api_client.api_client import ApiClient
@@ -80,6 +78,24 @@ class BackupController(BaseController):
 
         self.download_backup(active_config, self.app.pargs.ss, file_names)
 
+    @ex(help="Delete backups", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+                                          (['--file'], {'help': 'Backup file name', 'dest': 'file'})])
+    def delete(self):
+        active_config = self.load_config()
+
+        missing_parameters = []
+        if self.app.pargs.ss is None:
+            missing_parameters.append('ss')
+        if self.app.pargs.file is None:
+            missing_parameters.append('file')
+        if len(missing_parameters) > 0:
+            BaseController.log_info('The following parameters missing for deleting backups: %s' % missing_parameters)
+            return
+
+        file_names = parse_argument_list(self.app.pargs.file)
+
+        self.delete_backup(active_config, self.app.pargs.ss, file_names)
+
     def list_server_backups(self, config, ss_name):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -107,6 +123,16 @@ class BackupController(BaseController):
             if security_server["name"] == ss_name:
                 ss_api_config = self.create_api_config(security_server, config)
                 self.remote_download_backup(ss_api_config, ss_name, file_names)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def delete_backup(self, config, ss_name, file_names):
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server in config["security_server"]:
+            if security_server["name"] == ss_name:
+                ss_api_config = self.create_api_config(security_server, config)
+                self.remote_delete_backup(ss_api_config, ss_name, file_names)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -147,15 +173,25 @@ class BackupController(BaseController):
         try:
             response_list = []
             for file_name in file_names:
-                    response = backups_api.download_backup(filename=file_name, _preload_content=False)
-                    if response is not None:
-                        with open(os.path.join('/tmp/', file_name), "wb") as file:
-                            file.write(response.data)
-                            response_list.append(file.name)
-                            BaseController.log_info("Downloaded backup '" + file_name + "' for security server '" + ss_name
-                                                    + "' to '" + os.path.join('/tmp/', file_name) + "'")
-                    else:
-                        BaseController.log_info("Failed to download backup '" + file_name + "'")
+                response = backups_api.download_backup(filename=file_name, _preload_content=False)
+                if response is not None:
+                    with open(os.path.join('/tmp/', file_name), "wb") as file:
+                        file.write(response.data)
+                        response_list.append(file.name)
+                        BaseController.log_info("Downloaded backup '" + file_name + "' for security server '" + ss_name
+                                                + "' to '" + os.path.join('/tmp/', file_name) + "'")
+                else:
+                    BaseController.log_info("Failed to download backup '" + file_name + "'")
             return response_list
         except ApiException as err:
             BaseController.log_api_error('BackupsApi->download_backup', err)
+
+    @staticmethod
+    def remote_delete_backup(ss_api_config, ss_name, file_names):
+        backups_api = BackupsApi(ApiClient(ss_api_config))
+        try:
+            for file_name in file_names:
+                backups_api.delete_backup(filename=file_name)
+                BaseController.log_info("Deleted backup '" + file_name + "' for security server '" + ss_name + "'")
+        except ApiException as err:
+            BaseController.log_api_error('BackupsApi->delete_backup', err)
