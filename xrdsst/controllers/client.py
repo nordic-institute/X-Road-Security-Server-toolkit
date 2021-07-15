@@ -378,7 +378,7 @@ class ClientController(BaseController):
                                         % (member_id, ss_name))
             else:
                 try:
-                    # clients_api.change_owner(member_id)
+                    clients_api.change_owner(member_id)
                     BaseController.log_info("Change owner request submitted: "
                                             "'%s' for security server: '%s'" % (member_id, ss_name))
                     return client

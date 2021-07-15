@@ -648,18 +648,19 @@ class TestClient(unittest.TestCase):
             app._parsed_args = Namespace(ss=ss, member=member)
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client', return_value=ClientTestData.make_owner_response):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.change_owner', return_value=None):
-                    client_controller = ClientController()
-                    client_controller.app = app
-                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert_non_existing())
-                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                    client_controller.make_owner()
+                    with mock.patch('xrdsst.controllers.token.TokenController.create_auth_key_for_new_owner', return_value=None):
+                        client_controller = ClientController()
+                        client_controller.app = app
+                        client_controller.load_config = (lambda: self.ss_config_with_tls_cert_non_existing())
+                        client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                        client_controller.make_owner()
 
-                    out, err = self.capsys.readouterr()
-                    assert out.count("Change owner request submitted: '%s' for security server: '%s'" % (member, ss)) > 0
+                        out, err = self.capsys.readouterr()
+                        assert out.count("Change owner request submitted: '%s' for security server: '%s'" % (member, ss)) > 0
 
-                    with self.capsys.disabled():
-                        sys.stdout.write(out)
-                        sys.stderr.write(err)
+                        with self.capsys.disabled():
+                            sys.stdout.write(out)
+                            sys.stderr.write(err)
 
     def test_client_make_owner_owner_is_subsystem(self):
         ss = 'ssX'
@@ -668,19 +669,21 @@ class TestClient(unittest.TestCase):
             app._parsed_args = Namespace(ss=ss, member=member)
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client', return_value=ClientTestData.add_response):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.change_owner', return_value=None):
-                    client_controller = ClientController()
-                    client_controller.app = app
-                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert_non_existing())
-                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                    client_controller.make_owner()
+                    with mock.patch('xrdsst.controllers.token.TokenController.create_auth_key_for_new_owner',
+                                    return_value=None):
+                        client_controller = ClientController()
+                        client_controller.app = app
+                        client_controller.load_config = (lambda: self.ss_config_with_tls_cert_non_existing())
+                        client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                        client_controller.make_owner()
 
-                    out, err = self.capsys.readouterr()
-                    assert out.count("It's not possible to make owner to subsystems: %s for security server: '%s'"
-                                     % (member, ss)) > 0
+                        out, err = self.capsys.readouterr()
+                        assert out.count("It's not possible to make owner to subsystems: %s for security server: '%s'"
+                                         % (member, ss)) > 0
 
-                    with self.capsys.disabled():
-                        sys.stdout.write(out)
-                        sys.stderr.write(err)
+                        with self.capsys.disabled():
+                            sys.stdout.write(out)
+                            sys.stderr.write(err)
 
     def test_client_make_owner_already_owner(self):
         class AlreadyOwnerResponse:
