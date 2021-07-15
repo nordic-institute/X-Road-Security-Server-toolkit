@@ -1052,6 +1052,20 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert len(response) == 1
                 assert response[0] == '/tmp/' + file_name
 
+    def step_delete_backups(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                file_name = response[0]["file_name"]
+                backup_controller.remote_delete_backup(configuration, security_server["name"], [file_name])
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 0
+
     def test_run_configuration(self):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         unconfigured_servers_at_start = self.query_status()
@@ -1126,6 +1140,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.step_add_backup()
         self.step_list_backups()
         self.step_download_backups()
+        self.step_delete_backups()
 
         LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()

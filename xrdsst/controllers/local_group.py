@@ -249,25 +249,20 @@ class LocalGroupController(BaseController):
         local_groups_members_add_dic = self.get_local_groups_members_for_add(ss_api_config, security_server_conf,
                                                                              client_conf, local_group_conf)
 
-        if local_groups_members_add_dic:
-            if len(local_groups_members_add_dic["members_for_add"]) > 0:
-                try:
-                    local_group_api.add_local_group_member(local_groups_members_add_dic["local_group"].id,
-                                                           body=Members(
-                                                               local_groups_members_add_dic["members_for_add"]))
-                    BaseController.log_info(
-                        "Added member(s): '%s', local group: '%s', client '%s',security server: '%s'"
-                        % (local_groups_members_add_dic["members_for_add"], local_group_conf["code"], client.id,
-                           security_server_conf["name"]))
-
-                except ApiException as err:
-                    if err.status == 409:
-                        BaseController.log_info(
-                            "Members '%s', Local group: '%s', client '%s' security server: '%s', already added"
-                            % (local_groups_members_add_dic["members_for_add"], local_group_conf["code"], client.id,
-                               security_server_conf["name"]))
-                    else:
-                        BaseController.log_api_error('ClientsApi->add_local_group_member', err)
+        if local_groups_members_add_dic and len(local_groups_members_add_dic["members_for_add"]) > 0:
+            try:
+                local_group_api.add_local_group_member(local_groups_members_add_dic["local_group"].id,
+                                                       body=Members(local_groups_members_add_dic["members_for_add"]))
+                BaseController.log_info("Added member(s): '%s', local group: '%s', client '%s',security server: '%s'"
+                                        % (local_groups_members_add_dic["members_for_add"], local_group_conf["code"], client.id, security_server_conf["name"]))
+            except ApiException as err:
+                if err.status == 409:
+                    BaseController.log_info("Members '%s', Local group: '%s', client '%s' security server: '%s', already added"
+                                            % (
+                                                local_groups_members_add_dic["members_for_add"], local_group_conf["code"], client.id,
+                                                security_server_conf["name"]))
+                else:
+                    BaseController.log_api_error('ClientsApi->add_local_group_member', err)
 
     def get_local_groups_members_for_add(self, ss_api_config, security_server_conf, client_conf, local_group_conf):
         clients_api = ClientsApi(ApiClient(ss_api_config))
@@ -279,8 +274,7 @@ class LocalGroupController(BaseController):
             if len(local_groups) > 0:
                 all_clients = client_controller.find_all_clients(clients_api, show_members=False, internal_search=False)
 
-                for local_group_member in \
-                        local_group_conf[ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS]:
+                for local_group_member in local_group_conf[ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS]:
                     member_client = list(filter(lambda c: c.id == local_group_member, all_clients))
                     if len(member_client) > 0:
                         local_groups_members_add.append(member_client[0].id)
@@ -308,7 +302,7 @@ class LocalGroupController(BaseController):
             if local_group_code:
                 return list(filter(lambda lg: lg.code == local_group_code, local_groups))
             return local_groups
-        except ApiException as err:
+        except ApiException:
             BaseController.log_info("Local groups not found for client '%s'" % client_id)
 
     def remote_list_local_groups(self, ss_api_config, client_id):
