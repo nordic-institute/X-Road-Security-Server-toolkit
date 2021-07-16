@@ -1330,6 +1330,19 @@ class EndToEndTest(unittest.TestCase):
                 assert len(response) == 1
                 assert response[0] == '/tmp/' + file_name
 
+    def step_restore_backup(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            backup_controller = BackupController()
+            backup_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = backup_controller.remote_list_backups(configuration, security_server)
+                assert len(response) == 1
+                file_name = response[0]["file_name"]
+                response = backup_controller.remote_restore_backup(configuration, security_server["name"], file_name)
+                assert response is not None
+
     def step_delete_backups(self):
         with XRDSSTTest() as app:
             base = BaseController()
@@ -1423,6 +1436,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_backup()
         self.step_list_backups()
         self.step_download_backups()
+        self.step_restore_backup()
         self.step_delete_backups()
 
         RenewCertificate(self).test_run_configuration()
