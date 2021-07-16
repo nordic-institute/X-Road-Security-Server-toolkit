@@ -1332,36 +1332,16 @@ class EndToEndTest(unittest.TestCase):
 
     def step_restore_backup(self):
         with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
             base = BaseController()
             backup_controller = BackupController()
             backup_controller.app = app
-
-            ssn = 0
             for security_server in self.config["security_server"]:
                 configuration = base.create_api_config(security_server, self.config)
-
-                # List available backups
                 response = backup_controller.remote_list_backups(configuration, security_server)
                 assert len(response) == 1
                 file_name = response[0]["file_name"]
-
-                # Update a subsystem parameter
-                self.config["security_server"][ssn]["clients"][0]["connection_type"] = 'HTTPS'
-                client_controller.remote_update_client(configuration, security_server, security_server["clients"][0])
-                found_client = get_client(self.config, security_server["clients"][0], ssn)
-                assert found_client[0]["connection_type"] == 'HTTPS'
-
-                # restore from a backup
                 response = backup_controller.remote_restore_backup(configuration, security_server["name"], file_name)
                 assert response is not None
-
-                # check if subsystem parameter value has been restored
-                found_client = get_client(self.config, security_server["clients"][0], ssn)
-                assert found_client[0]["connection_type"] == 'HTTP'
-                ssn = ssn + 1
-                self.config["security_server"][ssn]["clients"][0]["connection_type"] = 'HTTP'
 
     def step_delete_backups(self):
         with XRDSSTTest() as app:
