@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.6
+Version: 2.1.8
 Doc. ID: XRDSST-CONF
 
 ---
@@ -60,6 +60,7 @@ Doc. ID: XRDSST-CONF
 | 13.07.2021 | 2.1.4       | Add local groups management                                                  | Alberto Fernandez  |
 | 14.07.2021 | 2.1.5       | Add listing, creation and download of backups                                | Bert Viikmäe       |
 | 15.07.2021 | 2.1.6       | Add deletion of backups                                                      | Bert Viikmäe       |
+| 19.07.2021 | 2.1.8       | Add diagnostics management                                                   | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -146,6 +147,10 @@ Doc. ID: XRDSST-CONF
         * [4.2.11.2 Backup add](#42112-backup-add)
         * [4.2.11.3 Backup download](#42113-backup-download)
         * [4.2.11.4 Backup delete](#42114-backup-delete)
+     * [4.2.12 Diagnostics management](#4212-diagnostics-management)
+        * [4.2.12.1 Global configuration diagnostics](#42121-global-configuration-diagnostics)
+        * [4.2.12.2 OCSP responders diagnostics](#42122-ocsp-responders-diagnostics)
+        * [4.2.12.3 Timestamping services diagnostics](#42123-timestamping-services-diagnostics)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -1288,7 +1293,29 @@ xrdsst backup delete --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <BACKUP_FILENAME> file name of the backup to be deleted, e.g. conf_backup_20210713-161054.tar, 
   multiple files can also be deleted, e.g. conf_backup_20210713-161054.tar,conf_backup_20210713-154857.tar
-   
+
+#### 4.2.12 Diagnostics management
+
+Diagnostic operations for security server can be performed with ``xrdsst diagnostics`` subcommands.
+
+##### 4.2.12.1 Global configuration diagnostics
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+Listing global-configuration diagnostics can be done with ```xrdsst diagnostics global-configuration```
+
+##### 4.2.12.2 OCSP responders diagnostics
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+Listing OCSP responders diagnostics can be done with ```xrdsst diagnostics ocsp-responders```
+
+##### 4.2.12.3 Timestamping services diagnostics
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+Listing timestamping services diagnostics can be done with ```xrdsst diagnostics timestamping-services```
+  
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
 

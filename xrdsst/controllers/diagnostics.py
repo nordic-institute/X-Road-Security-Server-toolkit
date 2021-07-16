@@ -59,6 +59,30 @@ class OCSPListMapper:
         }
 
 
+class TimestampingServicesListMapper:
+    @staticmethod
+    def headers():
+        return ['SECURITY_SERVER', 'URL', 'STATUS_CLASS', 'STATUS_CODE', 'PREV_UPDATE']
+
+    @staticmethod
+    def as_list(timestamping):
+        return [timestamping.get('security_server'),
+                timestamping.get('url'),
+                timestamping.get('status_class'),
+                timestamping.get('status_code'),
+                timestamping.get('prev_update_at')]
+
+    @staticmethod
+    def as_object(timestamping):
+        return {
+            'security_server': timestamping.get('security_server'),
+            'url': timestamping.get('url'),
+            'status_class': timestamping.get('status_class'),
+            'status_code': timestamping.get('status_code'),
+            'prev_update_at': timestamping.get('prev_update_at')
+        }
+
+
 class DiagnosticsController(BaseController):
     class Meta:
         label = 'diagnostics'
@@ -143,8 +167,8 @@ class DiagnosticsController(BaseController):
                                       'url': ocsp_responder.url,
                                       'status_class': ocsp_responder.status_class,
                                       'status_code': ocsp_responder.status_code,
-                                      'prev_update_at': ocsp_responder.prev_update_at,
-                                      'next_update_at': ocsp_responder.next_update_at
+                                      'prev_update_at': ocsp_responder.prev_update_at.strftime("%Y/%m/%d %H:%M:%S"),
+                                      'next_update_at': ocsp_responder.next_update_at.strftime("%Y/%m/%d %H:%M:%S")
                                       })
             render_data = []
             if self.is_output_tabulated():
@@ -162,25 +186,20 @@ class DiagnosticsController(BaseController):
         try:
             timestamping_list = []
             timestamping_services_diagnostics_list = diagnostics_api.get_timestamping_services_diagnostics()
-            print(str(timestamping_services_diagnostics_list))
-            # for timestamping_services_diagnostics in timestamping_services_diagnostics_list:
-            #
-            #     for ocsp_responder in ocsp_diagnostics.ocsp_responders:
-            #         timestamping_list.append({'security_server': security_server["name"],
-            #                           'name': ocsp_diagnostics.distinguished_name,
-            #                           'url': ocsp_responder.url,
-            #                           'status_class': ocsp_responder.status_class,
-            #                           'status_code': ocsp_responder.status_code,
-            #                           'prev_update_at': ocsp_responder.prev_update_at,
-            #                           'next_update_at': ocsp_responder.next_update_at
-            #                           })
-            # render_data = []
-            # if self.is_output_tabulated():
-            #     render_data = [OCSPListMapper.headers()]
-            #     render_data.extend(map(OCSPListMapper.as_list, timestamping_list))
-            # else:
-            #     render_data.extend(map(OCSPListMapper.as_object, timestamping_list))
-            # self.render(render_data)
+            for timestamping_services_diagnostics in timestamping_services_diagnostics_list:
+                timestamping_list.append({'security_server': security_server["name"],
+                                          'url': timestamping_services_diagnostics.url,
+                                          'status_class': timestamping_services_diagnostics.status_class,
+                                          'status_code': timestamping_services_diagnostics.status_code,
+                                          'prev_update_at': timestamping_services_diagnostics.prev_update_at.strftime("%Y/%m/%d %H:%M:%S")
+                                          })
+            render_data = []
+            if self.is_output_tabulated():
+                render_data = [TimestampingServicesListMapper.headers()]
+                render_data.extend(map(TimestampingServicesListMapper.as_list, timestamping_list))
+            else:
+                render_data.extend(map(TimestampingServicesListMapper.as_object, timestamping_list))
+            self.render(render_data)
             return timestamping_list
         except ApiException as err:
             BaseController.log_api_error('DiagnosticsApi->get_timestamping_services_diagnostics', err)
