@@ -1344,6 +1344,50 @@ class EndToEndTest(unittest.TestCase):
                 response = backup_controller.remote_list_backups(configuration, security_server)
                 assert len(response) == 0
 
+    def step_list_global_conf_diagnostics(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            diagnostics_controller = DiagnosticsController()
+            diagnostics_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = diagnostics_controller.remote_list_global_configuration(configuration, security_server)
+                assert len(response) == 1
+                assert response[0]["status_class"] is 'OK'
+                assert response[0]["status_code"] is 'SUCCESS'
+                assert response[0]["prev_update_at"] is not None
+                assert response[0]["next_update_at"] is not None
+
+    def step_list_ocsp_responders_diagnostics(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            diagnostics_controller = DiagnosticsController()
+            diagnostics_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = diagnostics_controller.remote_list_ocsp_responders(configuration, security_server)
+                assert len(response) == 1
+                assert response[0]["name"] is 'TEST'
+                assert response[0]["url"] is 'http://'
+                assert response[0]["status_class"] is 'OK'
+                assert response[0]["status_code"] is 'SUCCESS'
+                assert response[0]["prev_update_at"] is not None
+                assert response[0]["next_update_at"] is not None
+
+    def step_list_timestamping_services_diagnostics(self):
+        with XRDSSTTest() as app:
+            base = BaseController()
+            diagnostics_controller = DiagnosticsController()
+            diagnostics_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = base.create_api_config(security_server, self.config)
+                response = diagnostics_controller.remote_list_timestamping_services(configuration, security_server)
+                assert len(response) == 1
+                assert response[0]["url"] is 'http://'
+                assert response[0]["status_class"] is 'OK'
+                assert response[0]["status_code"] is 'SUCCESS'
+                assert response[0]["prev_update_at"] is not None
+
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -1424,6 +1468,10 @@ class EndToEndTest(unittest.TestCase):
         self.step_list_backups()
         self.step_download_backups()
         self.step_delete_backups()
+
+        self.step_list_global_conf_diagnostics()
+        self.step_list_ocsp_responders_diagnostics()
+        self.step_list_timestamping_services_diagnostics()
 
         RenewCertificate(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()

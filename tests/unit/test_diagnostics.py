@@ -111,7 +111,7 @@ class TestDiagnostics(unittest.TestCase):
                 assert diagnostics_controller.app._last_rendered[0][0]["status_class"] is 'OK'
                 assert diagnostics_controller.app._last_rendered[0][0]["status_code"] is 'SUCCESS'
                 assert diagnostics_controller.app._last_rendered[0][0]["prev_update_at"] is not None
-                assert diagnostics_controller.app._last_rendered[0][0]["prev_update_at"] is not None
+                assert diagnostics_controller.app._last_rendered[0][0]["next_update_at"] is not None
 
     def test_diagnostics_ocsp_responders_render_tabulated(self):
         with XRDSSTTest() as app:
@@ -155,7 +155,7 @@ class TestDiagnostics(unittest.TestCase):
                 assert diagnostics_controller.app._last_rendered[0][0]["status_class"] is 'OK'
                 assert diagnostics_controller.app._last_rendered[0][0]["status_code"] is 'SUCCESS'
                 assert diagnostics_controller.app._last_rendered[0][0]["prev_update_at"] is not None
-                assert diagnostics_controller.app._last_rendered[0][0]["prev_update_at"] is not None
+                assert diagnostics_controller.app._last_rendered[0][0]["next_update_at"] is not None
 
     def test_diagnostics_timestamping_services_render_tabulated(self):
         with XRDSSTTest() as app:
@@ -192,4 +192,3 @@ class TestDiagnostics(unittest.TestCase):
                 assert diagnostics_controller.app._last_rendered[0][0]["status_class"] is 'OK'
                 assert diagnostics_controller.app._last_rendered[0][0]["status_code"] is 'SUCCESS'
                 assert diagnostics_controller.app._last_rendered[0][0]["prev_update_at"] is not None
-
