@@ -1054,11 +1054,12 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
     def step_restore_backup(self):
         with XRDSSTTest() as app:
-            service_controller = ServiceController()
-            service_controller.app = app
+            client_controller = ClientController()
+            client_controller.app = app
             base = BaseController()
             backup_controller = BackupController()
             backup_controller.app = app
+
             ssn = 0
             for security_server in self.config["security_server"]:
                 configuration = base.create_api_config(security_server, self.config)
@@ -1068,33 +1069,21 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert len(response) == 1
                 file_name = response[0]["file_name"]
 
-                # Disable a service description
-                for client in security_server["clients"]:
-                    if "service_descriptions" in client:
-                        found_client = get_client(self.config, client, ssn)
-                        client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
-                        assert description[0]["disabled"] is False
-                        service_controller.remote_disable_service_descriptions(configuration, client_id, [description[0]["id"]],'disable notice')
-                        description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
-                        assert description[0]["client_id"] == client_id
-                        assert description[0]["disabled"] is True
+                # Update a subsystem parameter
+                self.config["security_server"][ssn]["clients"][0]["connection_type"] = 'HTTPS'
+                client_controller.remote_update_client(configuration, security_server, security_server["clients"][0])
+                found_client = get_client(self.config, security_server["clients"][0], ssn)
+                assert found_client[0]["connection_type"] == 'HTTPS'
 
                 # restore from a backup
                 response = backup_controller.remote_restore_backup(configuration, security_server["name"], [file_name])
                 assert len(response) == 1
 
-                # check if service description is in previous state
-                for client in security_server["clients"]:
-                    if "service_descriptions" in client:
-                        found_client = get_client(self.config, client, ssn)
-                        client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.config, client_id, ssn)
-                        assert len(description) == 1
-                        assert description[0]["disabled"] is False
+                # check if subsystem parameter value has been restored
+                found_client = get_client(self.config, security_server["clients"][0], ssn)
+                assert found_client[0]["connection_type"] == 'HTTP'
                 ssn = ssn + 1
+                self.config["security_server"][ssn]["clients"][0]["connection_type"] = 'HTTP'
 
     def step_delete_backups(self):
         with XRDSSTTest() as app:
