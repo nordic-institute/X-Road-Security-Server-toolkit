@@ -8,9 +8,7 @@ from xrdsst.core.definitions import ROOT_DIR
 
 
 def get_admin_credentials(security_server, config):
-    admin_credentials_env_variable = security_server["admin_credentials"] if security_server.get("admin_credentials",
-                                                                                                 "") else config[
-        "admin_credentials"]
+    admin_credentials_env_variable = security_server["admin_credentials"] if security_server.get("admin_credentials", "") else config["admin_credentials"]
     admin_credentials = os.getenv(admin_credentials_env_variable, "")
     return admin_credentials
 

@@ -1288,13 +1288,13 @@ class EndToEndTest(unittest.TestCase):
                     found_client = get_client(self.config, client, ssn)
                     assert len(found_client) == 0
 
-    def step_make_owner(self):
+    def step_client_make_owner(self):
         member = 'DEV:COM:222'
         with XRDSSTTest() as app:
             client_controller = ClientController()
             client_controller.app = app
-            configuration = client_controller.create_api_config(self.config["security_server"][0], self.config)
             for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
                 client_controller.remote_make_member_owner(configuration, security_server["name"], member)
 
 
@@ -1436,7 +1436,7 @@ class EndToEndTest(unittest.TestCase):
 
         RenewCertificate(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
-        self.step_make_owner()
+        self.step_client_make_owner()
 
         self.step_client_unregister()
         self.step_client_delete()

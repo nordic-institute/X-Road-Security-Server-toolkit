@@ -133,7 +133,7 @@ class ClientController(BaseController):
             missing_parameters.append('member')
         if len(missing_parameters) > 0:
             BaseController.log_info(
-                'The following parameters missing for deleting clients: %s' % missing_parameters)
+                'The following parameters missing for make member owner: %s' % missing_parameters)
             return
 
         self.make_member_owner(active_config, self.app.pargs.ss, self.app.pargs.member)
