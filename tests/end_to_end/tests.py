@@ -13,6 +13,7 @@ from xrdsst.controllers.backup import BackupController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
+from xrdsst.controllers.diagnostics import DiagnosticsController
 from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.member import MemberController
@@ -1366,8 +1367,8 @@ class EndToEndTest(unittest.TestCase):
                 configuration = base.create_api_config(security_server, self.config)
                 response = diagnostics_controller.remote_list_global_configuration(configuration, security_server)
                 assert len(response) == 1
-                assert response[0]["status_class"] is 'OK'
-                assert response[0]["status_code"] is 'SUCCESS'
+                assert response[0]["status_class"] == 'OK'
+                assert response[0]["status_code"] == 'SUCCESS'
                 assert response[0]["prev_update_at"] is not None
                 assert response[0]["next_update_at"] is not None
 
@@ -1380,10 +1381,10 @@ class EndToEndTest(unittest.TestCase):
                 configuration = base.create_api_config(security_server, self.config)
                 response = diagnostics_controller.remote_list_ocsp_responders(configuration, security_server)
                 assert len(response) == 1
-                assert response[0]["name"] is 'TEST'
-                assert response[0]["url"] is 'http://'
-                assert response[0]["status_class"] is 'OK'
-                assert response[0]["status_code"] is 'SUCCESS'
+                assert response[0]["name"] == 'TEST'
+                assert response[0]["url"] == 'http://'
+                assert response[0]["status_class"] == 'OK'
+                assert response[0]["status_code"] == 'SUCCESS'
                 assert response[0]["prev_update_at"] is not None
                 assert response[0]["next_update_at"] is not None
 
@@ -1396,9 +1397,9 @@ class EndToEndTest(unittest.TestCase):
                 configuration = base.create_api_config(security_server, self.config)
                 response = diagnostics_controller.remote_list_timestamping_services(configuration, security_server)
                 assert len(response) == 1
-                assert response[0]["url"] is 'http://'
-                assert response[0]["status_class"] is 'OK'
-                assert response[0]["status_code"] is 'SUCCESS'
+                assert response[0]["url"] == 'http://'
+                assert response[0]["status_class"] == 'OK'
+                assert response[0]["status_code"] == 'SUCCESS'
                 assert response[0]["prev_update_at"] is not None
 
     def test_run_configuration(self):
