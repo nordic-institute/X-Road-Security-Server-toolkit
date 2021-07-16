@@ -8,19 +8,23 @@ from xrdsst.core.definitions import ROOT_DIR
 
 
 def get_admin_credentials(security_server, config):
-    admin_credentials_env_variable = security_server["admin_credentials"] if security_server.get("admin_credentials", "") else config["admin_credentials"]
+    admin_credentials_env_variable = security_server["admin_credentials"] if security_server.get("admin_credentials",
+                                                                                                 "") else config[
+        "admin_credentials"]
     admin_credentials = os.getenv(admin_credentials_env_variable, "")
     return admin_credentials
 
 
 def get_ssh_key(security_server, config):
-    ssh_key_env_variable = security_server["ssh_private_key"] if security_server.get("ssh_private_key", "") else config["ssh_access"]["private_key"]
+    ssh_key_env_variable = security_server["ssh_private_key"] if security_server.get("ssh_private_key", "") else \
+    config["ssh_access"]["private_key"]
     ssh_key = os.getenv(ssh_key_env_variable, "")
     return ssh_key
 
 
 def get_ssh_user(security_server, config):
-    ssh_user_env_variable = security_server["ssh_user"] if security_server.get("ssh_user", "") else config["ssh_access"]["user"]
+    ssh_user_env_variable = security_server["ssh_user"] if security_server.get("ssh_user", "") else \
+    config["ssh_access"]["user"]
     ssh_user = os.getenv(ssh_user_env_variable, "")
     return ssh_user
 
@@ -132,7 +136,8 @@ def revoke_api_key(app):
                     ssh_key = get_ssh_key(security_server, config)
                     ssh_user = get_ssh_user(security_server, config)
                     url = security_server["api_key_url"]
-                    curl_cmd = "curl -X DELETE -u " + credentials + " --silent " + url + "/" + str(api_key_id[ssn][0]) + " -k"
+                    curl_cmd = "curl -X DELETE -u " + credentials + " --silent " + url + "/" + str(
+                        api_key_id[ssn][0]) + " -k"
                     cmd = "ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR -i \"" + \
                           ssh_key + "\" " + ssh_user + "@" + api_key_id[ssn][1] + " \"" + curl_cmd + "\""
                     exitcode, data = subprocess.getstatusoutput(cmd)
@@ -140,7 +145,8 @@ def revoke_api_key(app):
                     if exitcode == 0:
                         log_info("API key '" + api_key_token + "' for security server " + ssn + " revoked.")
                     else:
-                        logging.warning("Revocation of API key '" + api_key_token + "' for security server ' + ssn + ' failed")
+                        logging.warning(
+                            "Revocation of API key '" + api_key_token + "' for security server ' + ssn + ' failed")
 
 
 def log_info(message):
@@ -150,3 +156,10 @@ def log_info(message):
 
 def parse_argument_list(arg):
     return arg.split(',')
+
+
+def cut_big_string(element, top_characters):
+    if len(element) > top_characters:
+        return element[:(top_characters - 3)] + "..."
+    else:
+        return element
