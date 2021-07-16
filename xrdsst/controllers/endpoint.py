@@ -75,7 +75,8 @@ class EndpointController(BaseController):
         self.add_endpoint_access(active_config)
 
     @ex(help="List endpoints", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
-                                          (['--description'], {'help': 'Service description ids', 'dest': 'description'})])
+                                          (['--description'], {'help': 'Service description ids', 'dest': 'description'})
+                                          ])
     def list(self):
         active_config = self.load_config()
 
@@ -302,6 +303,7 @@ class EndpointController(BaseController):
         else:
             render_data.extend(map(EndpointListMapper.as_object, endpoints_list))
         self.render(render_data)
+        return endpoints_list
 
 
     @staticmethod
