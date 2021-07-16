@@ -98,6 +98,22 @@ class BackupController(BaseController):
 
         self.delete_backup(active_config, self.app.pargs.ss, file_names)
 
+    @ex(help="Restore from backup", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+                                               (['--file'], {'help': 'Backup file name', 'dest': 'file'})])
+    def restore(self):
+        active_config = self.load_config()
+
+        missing_parameters = []
+        if self.app.pargs.ss is None:
+            missing_parameters.append('ss')
+        if self.app.pargs.file is None:
+            missing_parameters.append('file')
+        if len(missing_parameters) > 0:
+            BaseController.log_info('The following parameters missing for restoring from backups: %s' % missing_parameters)
+            return
+
+        self.restore_backup(active_config, self.app.pargs.ss, self.app.pargs.file)
+
     def list_server_backups(self, config, ss_name):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
@@ -135,6 +151,16 @@ class BackupController(BaseController):
             if security_server["name"] == ss_name:
                 ss_api_config = self.create_api_config(security_server, config)
                 self.remote_delete_backup(ss_api_config, ss_name, file_names)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def restore_backup(self, config, ss_name, file_name):
+        ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        for security_server in config["security_server"]:
+            if security_server["name"] == ss_name:
+                ss_api_config = self.create_api_config(security_server, config)
+                self.remote_restore_backup(ss_api_config, ss_name, file_name)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -197,3 +223,14 @@ class BackupController(BaseController):
                 BaseController.log_info("Deleted backup '" + file_name + "' " + BackupController.FOR_SECURITY_SERVER + "' " + ss_name + "'")
         except ApiException as err:
             BaseController.log_api_error('BackupsApi->delete_backup', err)
+
+    @staticmethod
+    def remote_restore_backup(ss_api_config, ss_name, file_name):
+        backups_api = BackupsApi(ApiClient(ss_api_config))
+        try:
+            response = backups_api.restore_backup(filename=file_name)
+            if response is not None:
+                BaseController.log_info("Restored from backup '" + file_name + "' " + BackupController.FOR_SECURITY_SERVER + "' " + ss_name + "'")
+            return response
+        except ApiException as err:
+            BaseController.log_api_error('BackupsApi->restore_backup', err)
