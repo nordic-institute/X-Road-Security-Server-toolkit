@@ -1076,7 +1076,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 assert found_client[0]["connection_type"] == 'HTTPS'
 
                 # restore from a backup
-                response = backup_controller.remote_restore_backup(configuration, security_server["name"], [file_name])
+                response = backup_controller.remote_restore_backup(configuration, security_server["name"], file_name)
                 assert len(response) == 1
 
                 # check if subsystem parameter value has been restored
