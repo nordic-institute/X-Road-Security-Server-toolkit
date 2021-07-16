@@ -7,7 +7,7 @@ import pytest
 
 from xrdsst.controllers.backup import BackupController
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import Backup
+from xrdsst.models import Backup, TokensLoggedOut
 
 
 class TestBackup(unittest.TestCase):
@@ -272,6 +272,54 @@ class TestBackup(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count("Deleted backup") == 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_backup_restore(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', file='backup.tar')
+            with mock.patch('xrdsst.api.backups_api.BackupsApi.restore_backup', return_value=TokensLoggedOut(hsm_tokens_logged_out=True)):
+                backup_controller = BackupController()
+                backup_controller.app = app
+                backup_controller.load_config = (lambda: self.ss_config)
+                backup_controller.restore()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("Restored from backup") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_backup_restore_fail_ss_name_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss=None, file='backup.tar')
+            with mock.patch('xrdsst.api.backups_api.BackupsApi.restore_backup', return_value=TokensLoggedOut(hsm_tokens_logged_out=True)):
+                backup_controller = BackupController()
+                backup_controller.app = app
+                backup_controller.load_config = (lambda: self.ss_config)
+                backup_controller.restore()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("Restored from backup") == 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_backup_restore_fail_file_name_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', file=None)
+            with mock.patch('xrdsst.api.backups_api.BackupsApi.restore_backup', return_value=TokensLoggedOut(hsm_tokens_logged_out=True)):
+                backup_controller = BackupController()
+                backup_controller.app = app
+                backup_controller.load_config = (lambda: self.ss_config)
+                backup_controller.restore()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("Restored from backup") == 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)
