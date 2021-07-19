@@ -7,7 +7,8 @@ from xrdsst.api.certificate_authorities_api import CertificateAuthoritiesApi
 from xrdsst.core.api_util import remote_get_token
 from xrdsst.controllers.base import BaseController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
-from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label
+from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label,\
+    default_member_auth_key_label
 from xrdsst.models import CsrGenerate, KeyUsageType, CsrFormat, KeyLabelWithCsrGenerate
 from xrdsst.rest.rest import ApiException
 from xrdsst.api_client.api_client import ApiClient
@@ -17,6 +18,14 @@ from xrdsst.resources.texts import texts
 from enum import Enum
 from datetime import datetime
 
+class TokenLogs:
+    @staticmethod
+    def log_creations(results):
+        for result in results:
+            BaseController.log_info(
+                "Created " + str(result.key.usage) + " CSR '" + result.csr_id +
+                "' for key '" + result.key.id + "' as '" + result.key.label + "'"
+            )
 
 class TokenLabels(object):
     @staticmethod
@@ -198,12 +207,6 @@ class TokenController(BaseController):
     # requires token to be logged in
     @staticmethod
     def remote_token_add_all_keys_with_csrs(ss_api_config, security_server, member_class, member_code, member_name, auth_key_label=None, sign_key_label=None):
-        def log_creations(results):
-            for result in results:
-                BaseController.log_info(
-                    "Created " + str(result.key.usage) + " CSR '" + result.csr_id +
-                    "' for key '" + result.key.id + "' as '" + result.key.label + "'"
-                )
 
         responses = []
 
@@ -257,7 +260,7 @@ class TokenController(BaseController):
                     responses.append(response)
                 except ApiException as err:
                     BaseController.log_api_error(TokenLabels.error(), err)
-                    log_creations(responses)
+                    TokenLogs.log_creations(responses)
 
             sign_key_req_param = KeyLabelWithCsrGenerate(
                 key_label=sign_key_label,
@@ -276,22 +279,16 @@ class TokenController(BaseController):
                     responses.append(response)
                 except ApiException as err:
                     BaseController.log_api_error(TokenLabels.error(), err)
-                    log_creations(responses)
+                    TokenLogs.log_creations(responses)
         except Exception as exc:
-            log_creations(responses)
+            TokenLogs.log_creations(responses)
             raise exc
 
-        log_creations(responses)
+        TokenLogs.log_creations(responses)
 
     # requires token to be logged in
     @staticmethod
     def remote_token_add_sign_keys_with_csrs(ss_api_config, security_server, is_new_key, client):
-        def log_creations(results):
-            for result in results:
-                BaseController.log_info(
-                    "Created " + str(result.key.usage) + " CSR '" + result.csr_id +
-                    "' for key '" + result.key.id + "' as '" + result.key.label + "'"
-                )
 
         member_class = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS]
         member_code = client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CODE]
@@ -343,12 +340,58 @@ class TokenController(BaseController):
                     responses.append(response)
                 except ApiException as err:
                     BaseController.log_api_error(TokenLabels.error(), err)
-                    log_creations(responses)
+                    TokenLogs.log_creations(responses)
         except Exception as exc:
-            log_creations(responses)
+            TokenLogs.log_creations(responses)
             raise exc
 
-        log_creations(responses)
+        TokenLogs.log_creations(responses)
+
+    @staticmethod
+    def remote_token_add_auth_key_with_csrs(ss_api_config, security_server, member_class, member_code, member_name):
+        ssi = remote_get_security_server_instance(ss_api_config)
+        token = remote_get_token(ss_api_config, security_server)
+        auth_ca = remote_get_auth_certificate_authority(ss_api_config)
+
+        token_id = security_server[ConfKeysSecurityServer.CONF_KEY_SOFT_TOKEN_ID]
+        ss_code = security_server[ConfKeysSecurityServer.CONF_KEY_SERVER_CODE]
+        dn_country = security_server[ConfKeysSecurityServer.CONF_KEY_DN_C]
+        responses = []
+        fqdn = security_server[ConfKeysSecurityServer.CONF_KEY_FQDN]
+        auth_key_label = default_member_auth_key_label(security_server, member_code, member_class, member_name)
+        try:
+            token_key_labels = list(map(lambda key: key.label, token.keys))
+            has_auth_key = auth_key_label in token_key_labels
+
+            auth_cert_subject = {
+                'C': dn_country,
+                'O': member_name,
+                'CN': fqdn,
+                'serialNumber': '/'.join([ssi.instance_id, member_class, str(member_code)])
+            }
+
+            token_api = TokensApi(ApiClient(ss_api_config))
+            auth_key_req_param = KeyLabelWithCsrGenerate(
+                key_label=auth_key_label,
+                csr_generate_request=CsrGenerate(
+                    key_usage_type=KeyUsageType.AUTHENTICATION,
+                    ca_name=auth_ca.name,
+                    csr_format=CsrFormat.DER,  # Test CA setup at least only works with DER
+                    member_id=':'.join([ssi.instance_id, member_class, member_code]),
+                    subject_field_values=auth_cert_subject
+                )
+            )
+
+            if not has_auth_key:
+                try:
+                    BaseController.log_info(TokenLabels.generate_key(token_id, auth_key_label, 'AUTH'))
+                    response = token_api.add_key_and_csr(token_id, body=auth_key_req_param)
+                    responses.append(response)
+                    TokenLogs.log_creations(responses)
+                except ApiException as err:
+                    BaseController.log_api_error(TokenLabels.error(), err)
+        except Exception as exc:
+            raise exc
 
 
 def remote_get_security_server_instance(ss_api_config):

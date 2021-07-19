@@ -35,6 +35,10 @@ def default_sign_key_label(security_server):
     return security_server['name'] + '-default-sign-key'
 
 
+def default_member_auth_key_label(security_server, member_code, member_class, member_name):
+    return '%s-default-auth-key_%s_%s_%s' % (security_server['name'], member_code, member_class, member_name)
+
+
 def default_member_sign_key_label(security_server, client):
     return default_sign_key_label(security_server) + "_" \
            + client[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_MEMBER_CLASS] + "_" \

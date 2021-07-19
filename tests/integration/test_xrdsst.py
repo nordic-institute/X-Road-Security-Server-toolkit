@@ -1012,6 +1012,15 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                     assert len(found_client) > 0
                     assert found_client[0]["status"] == ClientStatus.DELETION_IN_PROGRESS
 
+    def client_step_make_owner(self):
+        member = 'DEV:COM:222'
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(self.config["security_server"][0], self.config)
+                client_controller.remote_make_member_owner(configuration, security_server["name"], member)
+
     def step_add_backup(self):
         with XRDSSTTest() as app:
             base = BaseController()
@@ -1158,6 +1167,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
 
         LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()
+        self.client_step_make_owner()
 
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
