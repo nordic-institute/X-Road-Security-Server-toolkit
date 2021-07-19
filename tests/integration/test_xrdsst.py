@@ -1103,7 +1103,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 configuration = base.create_api_config(security_server, self.config)
                 response = diagnostics_controller.remote_list_ocsp_responders(configuration, security_server)
                 assert len(response) == 2
-                assert response[0]["name"] == 'TEST'
+                assert response[0]["name"] == 'CN=X-Road CA G1, O=X-Road Test'
                 assert response[0]["url"] == 'http://'
                 assert response[0]["status_class"] == 'OK'
                 assert response[0]["status_code"] == 'SUCCESS'
