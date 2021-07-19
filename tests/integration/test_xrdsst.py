@@ -1104,7 +1104,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 response = diagnostics_controller.remote_list_ocsp_responders(configuration, security_server)
                 assert len(response) == 2
                 assert response[0]["name"] == 'CN=X-Road CA G1, O=X-Road Test'
-                assert response[0]["url"] == 'http://'
+                assert response[0]["url"] == 'http://dev-cs.i.x-road.rocks:8888/G1/'
                 assert response[0]["status_class"] == 'OK'
                 assert response[0]["status_code"] == 'SUCCESS'
                 assert response[0]["prev_update_at"] is not None
