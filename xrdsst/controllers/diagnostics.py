@@ -141,8 +141,10 @@ class DiagnosticsController(BaseController):
                 global_configuration_list.append({'security_server': security_server["name"],
                                                   'status_class': global_conf_diagnostics.status_class,
                                                   'status_code': global_conf_diagnostics.status_code,
-                                                  'prev_update_at': global_conf_diagnostics.prev_update_at.strftime("%Y/%m/%d %H:%M:%S"),
-                                                  'next_update_at': global_conf_diagnostics.next_update_at.strftime("%Y/%m/%d %H:%M:%S")
+                                                  'prev_update_at': global_conf_diagnostics.prev_update_at.strftime(
+                                                      "%Y/%m/%d %H:%M:%S") if global_conf_diagnostics.prev_update_at else None,
+                                                  'next_update_at': global_conf_diagnostics.next_update_at.strftime(
+                                                      "%Y/%m/%d %H:%M:%S") if global_conf_diagnostics.next_update_at else None
                                                   })
             render_data = []
             if self.is_output_tabulated():
@@ -167,8 +169,8 @@ class DiagnosticsController(BaseController):
                                       'url': ocsp_responder.url,
                                       'status_class': ocsp_responder.status_class,
                                       'status_code': ocsp_responder.status_code,
-                                      'prev_update_at': ocsp_responder.prev_update_at.strftime("%Y/%m/%d %H:%M:%S"),
-                                      'next_update_at': ocsp_responder.next_update_at.strftime("%Y/%m/%d %H:%M:%S")
+                                      'prev_update_at': ocsp_responder.prev_update_at.strftime("%Y/%m/%d %H:%M:%S") if ocsp_responder.prev_update_at else None,
+                                      'next_update_at': ocsp_responder.next_update_at.strftime("%Y/%m/%d %H:%M:%S") if ocsp_responder.next_update_at else None
                                       })
             render_data = []
             if self.is_output_tabulated():
@@ -191,7 +193,7 @@ class DiagnosticsController(BaseController):
                                           'url': timestamping_services_diagnostics.url,
                                           'status_class': timestamping_services_diagnostics.status_class,
                                           'status_code': timestamping_services_diagnostics.status_code,
-                                          'prev_update_at': timestamping_services_diagnostics.prev_update_at.strftime("%Y/%m/%d %H:%M:%S")
+                                          'prev_update_at': timestamping_services_diagnostics.prev_update_at.strftime("%Y/%m/%d %H:%M:%S") if timestamping_services_diagnostics.prev_update_at else None
                                           })
             render_data = []
             if self.is_output_tabulated():
