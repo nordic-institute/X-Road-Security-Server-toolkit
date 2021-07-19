@@ -1,5 +1,5 @@
-from tests.integration.integration_ops import IntegrationOpBase
-from tests.util.test_util import get_client, getClientTlsCertificates, auth_cert_registration_global_configuration_update_received, waitfor
+from tests.util.test_util import get_client, getClientTlsCertificates, auth_cert_registration_global_configuration_update_received, waitfor, \
+    find_test_ca_sign_url, perform_test_ca_sign
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.token import TokenController
@@ -8,7 +8,7 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 
 
-class CertificateTest(IntegrationOpBase):
+class CertificateTest:
 
     def __init__(self, end_to_end_tests):
         self.test = end_to_end_tests
@@ -92,12 +92,45 @@ class CertificateTest(IntegrationOpBase):
                 configuration = cert_controller.create_api_config(security_server, self.test.config)
                 cert_controller.remote_activate_certificate(configuration, security_server)
 
+    def step_cert_download_csrs(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.test.config)
+            result = cert_controller.download_csrs()
+
+            assert len(result) == 6
+
+            fs_loc_list = []
+            csrs = []
+            for csr in result:
+                fs_loc_list.append(csr.fs_loc)
+                csrs.append((str(csr.key_type).lower(), csr.fs_loc))
+            flag = len(set(fs_loc_list)) == len(fs_loc_list)
+
+            assert flag is True
+
+            return csrs
+
+    @staticmethod
+    def step_acquire_certs(downloaded_csrs, security_server):
+        tca_sign_url = find_test_ca_sign_url(security_server['configuration_anchor'])
+        cert_files = []
+        for down_csr in downloaded_csrs:
+            cert = perform_test_ca_sign(tca_sign_url, down_csr[1], down_csr[0])
+            cert_file = down_csr[1] + ".signed.pem"
+            cert_files.append(cert_file)
+            with open(cert_file, "w") as out_cert:
+                out_cert.write(cert)
+
+        return cert_files
+
     def step_configure_certs(self):
         ssn = 0
         downloaded_csrs = self.step_cert_download_csrs()
         for security_server in self.test.config["security_server"]:
             signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
-            self.apply_cert_config(signed_certs, ssn)
+            self.test.config['security_server'][ssn]['certificates'] = signed_certs
             ssn = ssn + 1
 
     def step_import_tls_certificate(self):
@@ -151,6 +184,15 @@ class CertificateTest(IntegrationOpBase):
                     found_client = get_client(self.test.config, client, ssn)
                     assert len(found_client) > 0
                     assert found_client[0]["status"] == ClientStatus.DELETION_IN_PROGRESS
+
+    def step_cert_download_internal_tls(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.test.config["security_server"]:
+                configuration = cert_controller.create_api_config(security_server, self.test.config)
+                result = cert_controller.remote_download_internal_tls(configuration, security_server)
+                assert len(result) == 1
 
     def test_run_configuration(self):
         self.step_token_init_keys()
