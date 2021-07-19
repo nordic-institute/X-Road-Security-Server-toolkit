@@ -1369,8 +1369,6 @@ class EndToEndTest(unittest.TestCase):
                 assert len(response) == 1
                 assert response[0]["status_class"] == 'OK'
                 assert response[0]["status_code"] == 'SUCCESS'
-                assert response[0]["prev_update_at"] is not None
-                assert response[0]["next_update_at"] is not None
 
     def step_list_ocsp_responders_diagnostics(self):
         with XRDSSTTest() as app:
@@ -1385,8 +1383,6 @@ class EndToEndTest(unittest.TestCase):
                 assert response[0]["url"] == 'http://dev-cs.i.x-road.rocks:8888/G1/'
                 assert response[0]["status_class"] is not None
                 assert response[0]["status_code"] is not None
-                assert response[0]["prev_update_at"] is not None
-                assert response[0]["next_update_at"] is not None
 
     def step_list_timestamping_services_diagnostics(self):
         with XRDSSTTest() as app:
@@ -1400,7 +1396,6 @@ class EndToEndTest(unittest.TestCase):
                 assert response[0]["url"] == 'http://'
                 assert response[0]["status_class"] is not None
                 assert response[0]["status_code"] is not None
-                assert response[0]["prev_update_at"] is not None
 
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
