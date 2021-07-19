@@ -99,6 +99,28 @@ class TokenTestData:
         )
     ]
 
+    security_servers_response_add_auth = [
+        SecurityServer(
+            id="DEV:GOV:7392:UNS-SSX",
+            instance_id="DEV",
+            member_class="GOV",
+            member_code="7392",
+            server_code="UNS-SSY",
+            server_address="ssY"
+        )
+    ]
+
+    security_servers_response_add_sign = [
+        SecurityServer(
+            id="DEV:GOV:7392:UNS-SSX",
+            instance_id="DEV",
+            member_class="GOV",
+            member_code="7392",
+            server_code="UNS-SSY",
+            server_address="ssY"
+        )
+    ]
+
     ca_list_response = [
         CertificateAuthority(
             name="Some CA",
@@ -334,3 +356,59 @@ class TestToken(unittest.TestCase):
         token_controller = TokenController()
         token_controller.load_config = (lambda: self.ss_config)
         self.assertRaises(urllib3.exceptions.MaxRetryError, lambda: token_controller.list())
+
+    def test_token_init_auth_key(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.certificate_authorities_api.CertificateAuthoritiesApi.get_approved_certificate_authorities') as mock_get_cas:
+                mock_get_cas.return_value.__enter__.return_value = TokenTestData.ca_list_response
+                with mock.patch(
+                        'xrdsst.api.security_servers_api.SecurityServersApi.get_security_servers',
+                        return_value=TokenTestData.security_servers_response_add_auth):
+                    with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
+                                    return_value=TokenTestData.token_login_response):
+                        with mock.patch('xrdsst.api.tokens_api.TokensApi.add_key_and_csr',
+                                        return_value=TokenTestData.add_auth_key_with_csr_response):
+
+                            token_controller = TokenController()
+                            token_controller.app = app
+                            token_controller.load_config = (lambda: self.ss_config)
+                            token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+
+                            configuration = token_controller.create_api_config(self.ss_config["security_server"][0], self.ss_config)
+                            token_controller.remote_token_add_auth_key_with_csrs(configuration, self.ss_config["security_server"][0], "GOV", "7392", "UNS-SSX")
+
+                            out, err = self.capsys.readouterr()
+                            assert out.count("Created AUTHENTICATION CSR") > 0
+
+                            with self.capsys.disabled():
+                                sys.stdout.write(out)
+                                sys.stderr.write(err)
+
+    def test_token_init_sign_key(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.api.certificate_authorities_api.CertificateAuthoritiesApi.get_approved_certificate_authorities') as mock_get_cas:
+                mock_get_cas.return_value.__enter__.return_value = TokenTestData.ca_list_response
+                with mock.patch(
+                        'xrdsst.api.security_servers_api.SecurityServersApi.get_security_servers',
+                        return_value=TokenTestData.security_servers_response_add_sign):
+                    with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
+                                    return_value=TokenTestData.token_login_response):
+                        with mock.patch('xrdsst.api.tokens_api.TokensApi.add_key_and_csr',
+                                        return_value=TokenTestData.add_sign_key_with_csr_response):
+
+                            token_controller = TokenController()
+                            token_controller.app = app
+                            token_controller.load_config = (lambda: self.ss_config)
+                            token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+
+                            configuration = token_controller.create_api_config(self.ss_config["security_server"][0], self.ss_config)
+                            client = { 'member_class': "GOV", 'member_code': "7392", "member_name": "UNS-SSX"}
+
+                            token_controller.remote_token_add_sign_keys_with_csrs(configuration, self.ss_config["security_server"][0], False, client)
+
+                            out, err = self.capsys.readouterr()
+                            assert out.count("Created SIGNING CSR") > 0
+
+                            with self.capsys.disabled():
+                                sys.stdout.write(out)
+                                sys.stderr.write(err)

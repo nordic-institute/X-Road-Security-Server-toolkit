@@ -1262,9 +1262,7 @@ class EndToEndTest(unittest.TestCase):
             cert_controller = CertController()
             cert_controller.app = app
             cert_controller.load_config = (lambda: self.config)
-
             certificates = cert_controller.list()
-
             for security_server in self.config["security_server"]:
                 security_server["certificate_management"] = [cert["hash"] for cert in certificates
                                                              if cert["ss"] == security_server["name"] and cert["type"] == KeyUsageType.AUTHENTICATION]
@@ -1289,6 +1287,17 @@ class EndToEndTest(unittest.TestCase):
                     client_controller.remote_delete_client(configuration, self.config["security_server"][0]["name"], [found_client[0]["id"]])
                     found_client = get_client(self.config, client, ssn)
                     assert len(found_client) == 0
+
+    def step_client_make_owner(self):
+        member = 'DEV:COM:222'
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            for security_server in self.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.config)
+                client_controller.remote_make_member_owner(configuration, security_server["name"], member)
+
+
 
     def step_add_backup(self):
         with XRDSSTTest() as app:
@@ -1469,6 +1478,7 @@ class EndToEndTest(unittest.TestCase):
 
         RenewCertificate(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
+        self.step_client_make_owner()
 
         self.step_client_unregister()
         self.step_client_delete()
