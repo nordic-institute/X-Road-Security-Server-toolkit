@@ -1,5 +1,6 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.8
+Version: 2.1.9
+Doc. ID: XRDSST-CONF
 
 ---
 
@@ -60,7 +61,9 @@ Version: 2.1.8
 | 14.07.2021 | 2.1.5       | Add listing, creation and download of backups                                | Bert Viikmäe       |
 | 15.07.2021 | 2.1.6       | Add deletion of backups                                                      | Bert Viikmäe       |
 | 16.07.2021 | 2.1.7       | Add restore from backups                                                     | Bert Viikmäe       |
-| 19.07.2021 | 2.1.8       | Add diagnostics management                                                   | Bert Viikmäe       |
+| 19.07.2021 | 2.1.8       | Add make owner command                                                       | Alberto Fernandez  |
+| 19.07.2021 | 2.1.9       | Add diagnostics management                                                   | Bert Viikmäe       |
+
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -116,6 +119,7 @@ Version: 2.1.8
         * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
         * [4.2.6.5 Client unregister](#4265-client-unregister)
         * [4.2.6.6 Client delete](#4266-client-delete)
+        * [4.2.6.6 Client change owner](#4266-client-change-owner)
      * [4.2.7 Service management commands](#427-service-management-commands)
         * [4.2.7.1 Service add description](#4271-service-add-description)
         * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
@@ -164,6 +168,8 @@ Version: 2.1.8
 * [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
+* [10 Change security server owner](#10-change-security-server-owner)
+
 
 
 
@@ -914,6 +920,24 @@ xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 * <CLIENT_ID> id(s) of the client, e.g. DEV:GOV:1234:TEST,DEV:COM:12345:SUB
 
 The members or subsystem must be unregistered from the security server in order to delete it.
+
+##### 4.2.6.6 Client change owner
+
+* Access rights: XROAD_REGISTRATION_OFFICER
+There are no configuration parameters involved, command line arguments are used instead
+It is possible to make owner to members with:
+```
+xrdsst client delete --ss <SECURITY_SERVER_NAME> --member <MEMBER_ID>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <MEMBER_ID> id of the member, e.g. DEV:GOV:1234
+
+This command will submit a change owner request to the  X-Road governing authority according to the organizational
+procedures of the X-Road instance. 
+Once the owner change request is approved by the X-Road governing authority, the member will automatically become 
+the Owner Member.
+This command will create a new auth key and CSRS for the auth certificate of the new owner
 
 #### 4.2.7 Service management commands
 
@@ -1721,3 +1745,13 @@ To renew the certificates we must:
 8. Unregister the old  certificates by running the [Certificate unregister](#4258-certificate-unregister) command.
 9. Delete the old AUTH certificate by running the [Certificate delete](#4259-certificate-delete) command.
 
+## 10 Change security server owner
+
+To change the security server owner, two registered Owner members must be available. 
+1. Add a new member to the security server and register it. For doing that, follow the guide [8 Multitenancy](#8-multitenancy).
+2. Run the command [4.2.6.6 Client change owner](#4266-client-change-owner). This command submit a request for owner
+change  X-Road governing authority also it will create the AUTH key and CSRS for the AUTH certificate of the new member.
+3. Download the certificate created in the previous step using the command [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs).
+4. Sign the AUTH certificate and import it using the command [4.2.5.2 Certificate import](#4252-certificate-import).
+5. Activate  the AUTH certificate using the command [4.2.5.2 Certificate import](#4252-certificate-import).
+5. Register the AUTH certificate with the command [4.2.5.4 Certificate activation](#4254-certificate-activation).
