@@ -1115,7 +1115,7 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
                 configuration = base.create_api_config(security_server, self.config)
                 response = diagnostics_controller.remote_list_timestamping_services(configuration, security_server)
                 assert len(response) == 1
-                assert response[0]["url"] == 'http://'
+                assert response[0]["url"] == 'http://dev-cs.i.x-road.rocks:8899'
                 assert response[0]["status_class"] is not None
                 assert response[0]["status_code"] is not None
 
