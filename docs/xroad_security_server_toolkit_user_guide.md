@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.1.9
+Version: 2.2.0
 Doc. ID: XRDSST-CONF
 
 ---
@@ -62,8 +62,8 @@ Doc. ID: XRDSST-CONF
 | 15.07.2021 | 2.1.6       | Add deletion of backups                                                      | Bert Viikmäe       |
 | 16.07.2021 | 2.1.7       | Add restore from backups                                                     | Bert Viikmäe       |
 | 19.07.2021 | 2.1.8       | Add make owner command                                                       | Alberto Fernandez  |
-| 19.07.2021 | 2.1.9       | Add diagnostics management                                                   | Bert Viikmäe       |
-
+| 19.07.2021 | 2.1.9       | Add list endpoints command                                                   | Alberto Fernandez  |
+| 19.07.2021 | 2.2.0       | Add diagnostics management                                                   | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -137,6 +137,7 @@ Doc. ID: XRDSST-CONF
      * [4.2.8 Endpoint management](#428-endpoint-management)
         * [4.2.8.1 Endpoint add](#4281-endpoint-add)
         * [4.2.8.2 Endpoint add access rights](#4282-endpoint-add-access-rights)
+        * [4.2.8.3 Endpoint list](#4283-endpoint-list)
      * [4.2.9 Member management](#429-member-management)
         * [4.2.9.1 Member find](#4291-member-find)
         * [4.2.9.2 Member list member classes](#4292-member-list-member-classes)
@@ -169,10 +170,6 @@ Doc. ID: XRDSST-CONF
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
 * [10 Change security server owner](#10-change-security-server-owner)
-
-
-
-
 
 
 <!-- vim-markdown-toc -->
@@ -1150,6 +1147,38 @@ Access rights for a single endpoint can be add with:
 ```
 xrdsst endpoint add-access
 ```
+
+##### 4.2.8.3 Endpoint list
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+
+List service endpoints can be done with:
+```
+xrdsst endpoint list --ss <SECURITY_SERVER_NAME>
+```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+
+╒═══════════════╤════════╤═══════════╤══════════════════╤══════════════════╤════════════════════════════════════════════════════╤══════════╕
+│   ENDPOINT ID │ PATH   │ METHOD    │ SERVICE CODE     │ CLIENT           │ SERVICE DESCRIPTION                                │ TYPE     │
+╞═══════════════╪════════╪═══════════╪══════════════════╪══════════════════╪════════════════════════════════════════════════════╪══════════╡
+│            25 │ *      │ **        │ authCertDeletion │ DEV:ORG:111:TEST │ http://10.54.135.88/managementservices.wsdl        │ WSDL     │
+├───────────────┼────────┼───────────┼──────────────────┼──────────────────┼────────────────────────────────────────────────────┼──────────┤
+│            28 │ GET    │ /getPath  │ Petstore         │ DEV:ORG:111:TEST │ https://raw.githubusercontent.com/OpenAPITools/... │ OPENAPI3 │
+├───────────────┼────────┼───────────┼──────────────────┼──────────────────┼────────────────────────────────────────────────────┼──────────┤ 
+│            17 │ GET    │ /pets/*   │ Petstore         │ DEV:ORG:111:TEST │ https://raw.githubusercontent.com/OpenAPITools/... │ OPENAPI3 │
+╘═══════════════╧════════╧═══════════╧══════════════════╧══════════════════╧════════════════════════════════════════════════════╧══════════╛
+
+The table above shows the following information about the endpoint:
+
+* ENDPOINT ID: Id of the endpoint.
+* PATH: Path of the endpoint.
+* METHOD: Method of the endpoint.
+* SERVICE CODE: Code of the service owner of the endpoint.
+* CLIENT : Client id of the subsystem owner of the endpoint.
+* SERVICE DESCRIPTION : Url of the service description owner of the endpoint.
+* TYPE : Type of the service description owner of the endpoint.
+
 
 #### 4.2.9 Member management
 
