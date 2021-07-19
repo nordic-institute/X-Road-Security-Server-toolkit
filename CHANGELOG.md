@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.4.3-beta.0] - 2021-07-15
+- add ``xrdsst backup`` and sub-command ``restore``
+
 ## [2.4.2-beta.0] - 2021-07-15
 - add ``xrdsst backup`` and sub-command ``delete``
 
