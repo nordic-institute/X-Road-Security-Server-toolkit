@@ -4,12 +4,14 @@ import unittest
 from unittest import mock
 import copy
 import pytest
+from argparse import Namespace
 
 from tests.util.test_util import StatusTestData
-from xrdsst.controllers.endpoint import EndpointController
+from xrdsst.controllers.endpoint import EndpointController, EndpointListMapper
 from xrdsst.models import Client, ConnectionType, ClientStatus, ServiceDescription, ServiceType, ServiceClient, ServiceClientType, Service, Endpoint
 from xrdsst.main import XRDSSTTest
 from xrdsst.rest.rest import ApiException
+from datetime import date
 
 class EndpointTestData:
     add_description_response = ServiceDescription(
@@ -27,7 +29,7 @@ class EndpointTestData:
                           ssl_auth=False,
                           subjects_count=0,
                           url='url',
-                          endpoints=[Endpoint(service_code='Petstore', path='/testPath', method='POST')])],
+                          endpoints=[Endpoint(id="1", service_code='Petstore', path='/testPath', method='POST')])],
         client_id='DEV:GOV:9876:SUB1'
     )
 
@@ -36,6 +38,7 @@ class EndpointTestData:
                                          local_group_code=None,
                                          service_client_type='GLOBALGROUP',
                                          rights_given_at=None)]
+
 
 
 class TestEndpoint(unittest.TestCase):
@@ -324,4 +327,23 @@ class TestEndpoint(unittest.TestCase):
                                 sys.stdout.write(out)
                                 sys.stderr.write(err)
 
+    def test_endpoint_list(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', description='1')
+            with mock.patch('xrdsst.api.service_descriptions_api.ServiceDescriptionsApi.get_service_description',
+                            return_value=EndpointTestData.add_description_response):
+                endpoint_controller = EndpointController()
+                endpoint_controller.app = app
+                endpoint_controller.load_config = (lambda: self.ss_config)
+                endpoint_controller.list()
 
+            for header in EndpointListMapper.headers():
+                assert header in endpoint_controller.app._last_rendered[0][0]
+
+            assert endpoint_controller.app._last_rendered[0][1][0] == '1'
+            assert endpoint_controller.app._last_rendered[0][1][1] == 'POST'
+            assert endpoint_controller.app._last_rendered[0][1][2] == '/testPath'
+            assert endpoint_controller.app._last_rendered[0][1][3] == 'Petstore'
+            assert endpoint_controller.app._last_rendered[0][1][4] == 'DEV:GOV:9876:SUB1'
+            assert endpoint_controller.app._last_rendered[0][1][5] == 'https://openapi3'
+            assert endpoint_controller.app._last_rendered[0][1][6] == ServiceType.OPENAPI3

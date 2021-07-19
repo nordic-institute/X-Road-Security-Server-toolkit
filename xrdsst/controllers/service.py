@@ -3,7 +3,7 @@ from xrdsst.api import ClientsApi, ServiceDescriptionsApi, ServicesApi
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
-from xrdsst.core.util import parse_argument_list
+from xrdsst.core.util import parse_argument_list, cut_big_string
 from xrdsst.models import ServiceDescriptionAdd, ServiceClients, ServiceUpdate, ServiceDescriptionUpdate, ServiceType, ServiceDescriptionDisabledNotice, \
     ServiceClient
 from xrdsst.rest.rest import ApiException
@@ -21,7 +21,7 @@ class ServiceDescriptionListMapper:
         return [description.get('security_server'),
                 description.get('client_id'),
                 description.get('description_id'),
-                description.get('url'),
+                cut_big_string(description.get('url'), 50),
                 description.get('type'),
                 description.get('disabled'),
                 description.get('services')]
@@ -32,7 +32,7 @@ class ServiceDescriptionListMapper:
             'security_server': description.get('security_server'),
             'client_id': description.get('client_id'),
             'description_id': description.get('description_id'),
-            'url': description.get('url'),
+            'url': cut_big_string(description.get('url'), 50),
             'type': description.get('type'),
             'disabled': description.get('disabled'),
             'services': description.get('services')

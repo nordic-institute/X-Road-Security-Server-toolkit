@@ -13,7 +13,7 @@ from xrdsst.controllers.backup import BackupController
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.client import ClientController
-from xrdsst.controllers.endpoint import EndpointController
+from xrdsst.controllers.endpoint import EndpointController, EndpointListMapper
 from xrdsst.controllers.init import InitServerController
 from xrdsst.controllers.member import MemberController
 from xrdsst.controllers.service import ServiceController
@@ -1366,6 +1366,33 @@ class EndToEndTest(unittest.TestCase):
                 response = backup_controller.remote_list_backups(configuration, security_server)
                 assert len(response) == 0
 
+    def step_endpoint_list(self):
+        with XRDSSTTest() as app:
+            endpoint_controller = EndpointController()
+            endpoint_controller.app = app
+            endpoint_controller.load_config = (lambda: self.config)
+            ssn = 0
+            for security_server in self.config["security_server"]:
+                configuration = endpoint_controller.create_api_config(security_server, self.config)
+                endpoints_count = 0
+                descriptions_ids = []
+                for client in security_server["clients"]:
+                    if client.get(ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE):
+                        found_client = get_client(self.config, client, ssn)
+                        descriptions = get_service_descriptions(self.config, found_client[0]["id"], ssn)
+                        for description in descriptions:
+                            descriptions_ids.append(description["id"])
+                            for service in description["services"]:
+                                endpoints_count = endpoints_count + len(service["endpoints"])
+                endpoints_list = endpoint_controller.remote_list_endpoints(configuration, security_server["name"], descriptions_ids)
+                for header in EndpointListMapper.headers():
+                    assert header in endpoint_controller.app._last_rendered[0][0]
+
+                assert len(endpoints_list) == endpoints_count
+                assert len(endpoint_controller.app._last_rendered[0]) == (endpoints_count + 1)
+
+                ssn = ssn + 1
+
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
@@ -1429,6 +1456,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
         self.step_add_service_endpoints()
         self.step_add_endpoints_access()
+        self.step_endpoint_list()
         self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
