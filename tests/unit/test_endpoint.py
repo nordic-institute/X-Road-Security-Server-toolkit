@@ -435,7 +435,64 @@ class TestEndpoint(unittest.TestCase):
                     endpoint_controller.update()
 
                     out, err = self.capsys.readouterr()
-                    assert out.count("could not update auto generated endpoints") > 0
+                    assert out.count("could not update generated endpoints") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_endpoint_delete(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX',
+                                         id='1')
+
+            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=Endpoint(
+                    id='DEV:GOV:9876:SUB1',
+                    service_code="Test",
+                    method="PUT",
+                    path="/testPath",
+                    generated=False
+            )):
+
+                with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.delete_endpoint',
+                                return_value={}):
+
+                    endpoint_controller = EndpointController()
+                    endpoint_controller.app = app
+                    endpoint_controller.load_config = (lambda: self.ss_config)
+                    endpoint_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    endpoint_controller.delete()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Deleted endpoint with id") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_endpoint_update_endpoint_not_found(self):
+        class NotFoundResponse:
+            status = 404
+            data = '{"status":404}'
+            reason = None
+
+            def getheaders(self): return None
+
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX',
+                                         id='1')
+
+            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', side_effect=ApiException(http_resp=NotFoundResponse())):
+                with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.delete_endpoint',
+                                return_value={}):
+                    endpoint_controller = EndpointController()
+                    endpoint_controller.app = app
+                    endpoint_controller.load_config = (lambda: self.ss_config)
+                    endpoint_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    endpoint_controller.delete()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Could not find an endpoint with id: '1' for security server: 'ssX'") > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)

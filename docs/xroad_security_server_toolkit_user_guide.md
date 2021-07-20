@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.0
+Version: 2.2.1
 Doc. ID: XRDSST-CONF
 
 ---
@@ -64,6 +64,7 @@ Doc. ID: XRDSST-CONF
 | 19.07.2021 | 2.1.8       | Add make owner command                                                       | Alberto Fernandez  |
 | 16.07.2021 | 2.1.9       | Add list endpoints command                                                   | Alberto Fernandez  |
 | 19.07.2021 | 2.2.0       | Add diagnostics management                                                   | Bert Viikmäe       |
+| 20.07.2021 | 2.2.1       | Add endpoint update and delete command                                       | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -138,6 +139,8 @@ Doc. ID: XRDSST-CONF
         * [4.2.8.1 Endpoint add](#4281-endpoint-add)
         * [4.2.8.2 Endpoint add access rights](#4282-endpoint-add-access-rights)
         * [4.2.8.3 Endpoint list](#4283-endpoint-list)
+        * [4.2.8.4 Endpoint update](#4284-endpoint-update)
+        * [4.2.8.5 Endpoint delete](#4285-endpoint-delete)
      * [4.2.9 Member management](#429-member-management)
         * [4.2.9.1 Member find](#4291-member-find)
         * [4.2.9.2 Member list member classes](#4292-member-list-member-classes)
@@ -171,6 +174,7 @@ Doc. ID: XRDSST-CONF
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
 * [10 Change security server owner](#10-change-security-server-owner)
+
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -1179,6 +1183,29 @@ The table above shows the following information about the endpoint:
 * SERVICE DESCRIPTION : Url of the service description owner of the endpoint.
 * TYPE : Type of the service description owner of the endpoint.
 
+##### 4.2.8.4 Endpoint update
+
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
+
+Single endpoint can be updated with with:
+```
+xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --method <ENDPOINT_METHOD> --path <ENDPOINT_PATH>
+```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <ENDPOINT_ID> id of the endpoint to be updated, e.g. 1
+* <ENDPOINT_METHOD> new endpoint method, possible methods are: ALL, GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE
+* <ENDPOINT_path> new endpoint path, e.g. /users 
+
+##### 4.2.8.5 Endpoint delete
+
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
+
+Single endpoint can be updated with with:
+```
+xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> 
+```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <ENDPOINT_ID> id of the endpoint to be delete, e.g. 1
 
 #### 4.2.9 Member management
 

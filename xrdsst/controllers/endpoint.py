@@ -199,7 +199,7 @@ class EndpointController(BaseController):
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-    def delete_endpoint(self, config, ss_name, endpoint_id, endpoint_method, endpoint_path):
+    def delete_endpoint(self, config, ss_name, endpoint_id):
         ss_api_conf_tuple = list(zip(config["security_server"],
                                      map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
         security_servers = list(filter(lambda ss: ss["name"] == ss_name, config["security_server"]))
@@ -309,8 +309,8 @@ class EndpointController(BaseController):
                     except ApiException as err:
                         BaseController.log_api_error('EndpointsApi->update_endpoint', err)
                 else:
-                    BaseController.log_info("Error updating endpoint with id: '%s', security server: '%s', could not update auto generated endpoints")
-        except ApiException as err:
+                    BaseController.log_info("Error updating endpoint with id: '%s', security server: '%s', could not update generated endpoints")
+        except ApiException:
             BaseController.log_info("Could not find an endpoint with id: '%s' for security server: '%s'" % (endpoint_id, ss_name))
 
     @staticmethod
@@ -327,8 +327,8 @@ class EndpointController(BaseController):
                     except ApiException as err:
                         BaseController.log_api_error('EndpointsApi->delete_endpoint', err)
                 else:
-                    BaseController.log_info("Error deleting endpoint with id: '%s', security server: '%s', could not delete auto generated endpoints")
-        except ApiException as err:
+                    BaseController.log_info("Error deleting endpoint with id: '%s', security server: '%s', could not delete generated endpoints")
+        except ApiException:
             BaseController.log_info("Could not find an endpoint with id: '%s' for security server: '%s'" % (endpoint_id, ss_name))
 
     def add_access_from_list(self, ss_api_config, service_description, service_clients_candidates, endpoint_conf,
