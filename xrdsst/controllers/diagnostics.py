@@ -90,42 +90,42 @@ class DiagnosticsController(BaseController):
         stacked_type = 'nested'
         description = texts['diagnostics.controller.description']
 
-    GLOBAL_CONFIGURATION = 'global-configuration'
-    OCSP_RESPONDERS = 'ocsp-responders'
-    TIMESTAMPING_SERVICES = 'timestamping-services'
+    GLOBAL_CONF = 'global-configuration'
+    OCSP_RESP = 'ocsp-responders'
+    TIMESTAMPING_SERV = 'timestamping-services'
 
     @ex(help="List global configuration diagnostics", arguments=[])
     def global_configuration(self):
         active_config = self.load_config()
-        self.list_diagnostics(active_config, operation=self.GLOBAL_CONFIGURATION)
+        self.list_diagnostics(active_config, operation=self.GLOBAL_CONF)
 
     @ex(help="List OCSP diagnostics", arguments=[])
     def ocsp_responders(self):
         active_config = self.load_config()
-        self.list_diagnostics(active_config, operation=self.OCSP_RESPONDERS)
+        self.list_diagnostics(active_config, operation=self.OCSP_RESP)
 
     @ex(help="List timestamping services diagnostics", arguments=[])
     def timestamping_services(self):
         active_config = self.load_config()
-        self.list_diagnostics(active_config, operation=self.TIMESTAMPING_SERVICES)
+        self.list_diagnostics(active_config, operation=self.TIMESTAMPING_SERV)
 
     @ex(help="List all diagnostics", arguments=[])
     def all(self):
         active_config = self.load_config()
-        self.list_diagnostics(active_config, operation=self.GLOBAL_CONFIGURATION)
-        self.list_diagnostics(active_config, operation=self.OCSP_RESPONDERS)
-        self.list_diagnostics(active_config, operation=self.TIMESTAMPING_SERVICES)
+        self.list_diagnostics(active_config, operation=self.GLOBAL_CONF)
+        self.list_diagnostics(active_config, operation=self.OCSP_RESP)
+        self.list_diagnostics(active_config, operation=self.TIMESTAMPING_SERV)
 
     def list_diagnostics(self, config, operation):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
 
         for security_server in config["security_server"]:
             ss_api_config = self.create_api_config(security_server, config)
-            if operation == self.GLOBAL_CONFIGURATION:
+            if operation == self.GLOBAL_CONF:
                 self.remote_list_global_configuration(ss_api_config, security_server)
-            elif operation == self.OCSP_RESPONDERS:
+            elif operation == self.OCSP_RESP:
                 self.remote_list_ocsp_responders(ss_api_config, security_server)
-            elif operation == self.TIMESTAMPING_SERVICES:
+            elif operation == self.TIMESTAMPING_SERV:
                 self.remote_list_timestamping_services(ss_api_config, security_server)
             else:
                 BaseController.log_info('Diagnostics operation is not provided')
