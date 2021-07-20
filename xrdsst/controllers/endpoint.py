@@ -4,7 +4,7 @@ from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.client import ClientController
-from xrdsst.models import Endpoint, ServiceType, ServiceClients
+from xrdsst.models import Endpoint, ServiceType, ServiceClients, EndpointUpdate
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 from xrdsst.core.util import parse_argument_list, cut_big_string
@@ -94,6 +94,31 @@ class EndpointController(BaseController):
 
         self.list_endpoints(active_config, self.app.pargs.ss, description_ids)
 
+    @ex(help="Update endpoints", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+                                            (['--id'], {'help': 'Endpoint id', 'dest': 'id'}),
+                                            (['--method'], {'help': 'Endpoint method', 'dest': 'method'}),
+                                            (['--path'], {'help': 'Endpoint path', 'dest': 'path'})
+                                        ])
+    def update(self):
+        active_config = self.load_config()
+
+        missing_parameters = []
+        if self.app.pargs.ss is None:
+            missing_parameters.append('ss')
+        if self.app.pargs.id is None:
+            missing_parameters.append('id')
+        if self.app.pargs.method is None:
+            missing_parameters.append('method')
+        if self.app.pargs.path is None:
+            missing_parameters.append('path')
+
+        if len(missing_parameters) > 0:
+            BaseController.log_info(
+                'The following parameters missing for updating endpoints: %s' % missing_parameters)
+            return
+
+        self.update_endpoint(active_config, self.app.pargs.ss, self.app.pargs.id, self.app.pargs.method, self.app.pargs.path)
+
     def add_service_endpoints(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"],
                                      map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -137,6 +162,18 @@ class EndpointController(BaseController):
         if len(security_servers) > 0:
             ss_api_config = self.create_api_config(security_servers[0], config)
             self.remote_list_endpoints(ss_api_config, ss_name, service_description_ids)
+        else:
+            BaseController.log_info("Security server: '%s' not found" % ss_name)
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def update_endpoint(self, config, ss_name, endpoint_id, endpoint_method, endpoint_path):
+        ss_api_conf_tuple = list(zip(config["security_server"],
+                                     map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+        security_servers = list(filter(lambda ss: ss["name"] == ss_name, config["security_server"]))
+        if len(security_servers) > 0:
+            ss_api_config = self.create_api_config(security_servers[0], config)
+            self.remote_update_endpoint(ss_api_config, ss_name, endpoint_id, endpoint_method, endpoint_path)
         else:
             BaseController.log_info("Security server: '%s' not found" % ss_name)
 
@@ -224,6 +261,24 @@ class EndpointController(BaseController):
                         (service_description_conf["rest_service_code"], endpoint_conf["method"], endpoint_conf["path"]))
             except ApiException as find_err:
                 BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
+
+    @staticmethod
+    def remote_update_endpoint(ss_api_config, ss_name, endpoint_id, endpoint_method, endpoint_path):
+        endpoints_api = EndpointsApi(ApiClient(ss_api_config))
+        try:
+            endpoint = endpoints_api.get_endpoint(endpoint_id)
+            if endpoint:
+                endpoint_update = EndpointUpdate(method=endpoint_method, path=endpoint_path)
+                try:
+                    endpoints_api.update_endpoint(endpoint_id, body=endpoint_update)
+                    BaseController.log_info("Updated endpoint id: '%s', method: '%s', path: '%s', security server: '%s'"
+                                            % (endpoint_id, endpoint_method, endpoint_path, ss_name))
+                except ApiException as err:
+                    BaseController.log_api_error('EndpointsApi->update_endpoint', err)
+
+        except ApiException:
+            BaseController.log_info("Could not find an endpoint with id: '%s' for security server: '%s'" % (endpoint_id, ss_name))
+
 
     def add_access_from_list(self, ss_api_config, service_description, service_clients_candidates, endpoint_conf,
                              access_list):
