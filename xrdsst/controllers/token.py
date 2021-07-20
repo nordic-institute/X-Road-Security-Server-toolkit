@@ -7,7 +7,7 @@ from xrdsst.api.certificate_authorities_api import CertificateAuthoritiesApi
 from xrdsst.core.api_util import remote_get_token
 from xrdsst.controllers.base import BaseController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
-from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label,\
+from xrdsst.core.util import default_auth_key_label, default_sign_key_label, default_member_sign_key_label, \
     default_member_auth_key_label
 from xrdsst.models import CsrGenerate, KeyUsageType, CsrFormat, KeyLabelWithCsrGenerate
 from xrdsst.rest.rest import ApiException
@@ -18,6 +18,7 @@ from xrdsst.resources.texts import texts
 from enum import Enum
 from datetime import datetime
 
+
 class TokenLogs:
     @staticmethod
     def log_creations(results):
@@ -26,6 +27,7 @@ class TokenLogs:
                 "Created " + str(result.key.usage) + " CSR '" + result.csr_id +
                 "' for key '" + result.key.id + "' as '" + result.key.label + "'"
             )
+
 
 class TokenLabels(object):
     @staticmethod
