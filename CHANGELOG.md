@@ -1,8 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [2.4.4-beta.0] - 2021-07-18
+## [2.4.4-beta.0] - 2021-07-20
 - add ``xrdsst diagnostics`` and sub-commands ``global-configuration``, ``ocsp-responders`` and ``timestamping-services``
+- add ``xrdsst client`` and sub-command ``make-owner``
+- add ``xrdsst endpoint`` and sub-command ``list``
 
 ## [2.4.3-beta.0] - 2021-07-15
 - add ``xrdsst backup`` and sub-command ``restore``

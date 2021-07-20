@@ -211,7 +211,6 @@ class ClientController(BaseController):
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
-
     def delete_client(self, config, security_server_name, client_ids):
         ss_api_conf_tuple = list(zip(config["security_server"],
                                      map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -225,7 +224,6 @@ class ClientController(BaseController):
             self.remote_delete_client(ss_api_config, security_server_name, client_ids)
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
-
 
     def make_member_owner(self, config, ss_name, member_id):
         ss_api_conf_tuple = list(zip(config["security_server"],

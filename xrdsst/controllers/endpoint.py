@@ -15,7 +15,6 @@ class EndpointListMapper:
     def headers():
         return ['ENDPOINT ID', 'PATH', 'METHOD', 'SERVICE CODE', 'CLIENT', 'SERVICE DESCRIPTION', 'TYPE']
 
-
     @staticmethod
     def as_list(endpoint):
         return [endpoint.get('endpoint_id'),
@@ -25,7 +24,6 @@ class EndpointListMapper:
                 endpoint.get('client'),
                 endpoint.get('service_description'),
                 endpoint.get('description_type')]
-
 
     @staticmethod
     def as_object(endpoint):
@@ -38,6 +36,7 @@ class EndpointListMapper:
             'service_description': endpoint.get('service_description'),
             'description_type': endpoint.get('description_type')
         }
+
 
 class EndpointController(BaseController):
     class Meta:
@@ -304,7 +303,6 @@ class EndpointController(BaseController):
             render_data.extend(map(EndpointListMapper.as_object, endpoints_list))
         self.render(render_data)
         return endpoints_list
-
 
     @staticmethod
     def parse_service_description_to_endpoint_table(service_description):

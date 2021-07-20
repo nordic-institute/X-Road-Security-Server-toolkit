@@ -62,7 +62,7 @@ Doc. ID: XRDSST-CONF
 | 15.07.2021 | 2.1.6       | Add deletion of backups                                                      | Bert Viikmäe       |
 | 16.07.2021 | 2.1.7       | Add restore from backups                                                     | Bert Viikmäe       |
 | 19.07.2021 | 2.1.8       | Add make owner command                                                       | Alberto Fernandez  |
-| 19.07.2021 | 2.1.9       | Add list endpoints command                                                   | Alberto Fernandez  |
+| 16.07.2021 | 2.1.9       | Add list endpoints command                                                   | Alberto Fernandez  |
 | 19.07.2021 | 2.2.0       | Add diagnostics management                                                   | Bert Viikmäe       |
 
 ## Table of Contents <!-- omit in toc -->
@@ -170,7 +170,6 @@ Doc. ID: XRDSST-CONF
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
 * [10 Change security server owner](#10-change-security-server-owner)
-
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
