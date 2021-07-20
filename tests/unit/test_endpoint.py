@@ -347,3 +347,96 @@ class TestEndpoint(unittest.TestCase):
             assert endpoint_controller.app._last_rendered[0][1][4] == 'DEV:GOV:9876:SUB1'
             assert endpoint_controller.app._last_rendered[0][1][5] == 'https://openapi3'
             assert endpoint_controller.app._last_rendered[0][1][6] == ServiceType.OPENAPI3
+
+
+    def test_endpoint_update(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX',
+                                         id='1',
+                                         method='POST',
+                                         path='/testPath')
+
+            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=Endpoint(
+                    id='DEV:GOV:9876:SUB1',
+                    service_code="Test",
+                    method="PUT",
+                    path="/testPath",
+                    generated=False
+            )):
+
+                with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.update_endpoint',
+                                return_value={}):
+
+                    endpoint_controller = EndpointController()
+                    endpoint_controller.app = app
+                    endpoint_controller.load_config = (lambda: self.ss_config)
+                    endpoint_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    endpoint_controller.update()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Updated endpoint ") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_endpoint_update_endpoint_not_found(self):
+        class NotFoundResponse:
+            status = 404
+            data = '{"status":404}'
+            reason = None
+
+            def getheaders(self): return None
+
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX',
+                                         id='1',
+                                         method='POST',
+                                         path='/testPath')
+
+            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', side_effect=ApiException(http_resp=NotFoundResponse())):
+                with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.update_endpoint',
+                                return_value={}):
+                    endpoint_controller = EndpointController()
+                    endpoint_controller.app = app
+                    endpoint_controller.load_config = (lambda: self.ss_config)
+                    endpoint_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    endpoint_controller.update()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Could not find an endpoint with id: '1' for security server: 'ssX'") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_endpoint_is_generated(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX',
+                                         id='1',
+                                         method='POST',
+                                         path='/testPath')
+
+            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=Endpoint(
+                    id='DEV:GOV:9876:SUB1',
+                    service_code="Test",
+                    method="PUT",
+                    path="/testPath",
+                    generated=True
+            )):
+
+                with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.update_endpoint',
+                                return_value={}):
+
+                    endpoint_controller = EndpointController()
+                    endpoint_controller.app = app
+                    endpoint_controller.load_config = (lambda: self.ss_config)
+                    endpoint_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    endpoint_controller.update()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("could not update auto generated endpoints") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
