@@ -192,3 +192,63 @@ class TestDiagnostics(unittest.TestCase):
                 assert diagnostics_controller.app._last_rendered[0][0]["status_class"] is 'OK'
                 assert diagnostics_controller.app._last_rendered[0][0]["status_code"] is 'SUCCESS'
                 assert diagnostics_controller.app._last_rendered[0][0]["prev_update_at"] is not None
+
+    def test_diagnostics_all_render_tabulated(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=True):
+                with mock.patch('xrdsst.api.diagnostics_api.DiagnosticsApi.get_global_conf_diagnostics',
+                                return_value=GlobalConfDiagnostics(status_class=AllOfGlobalConfDiagnosticsStatusClass.OK,
+                                                                   status_code=AllOfGlobalConfDiagnosticsStatusCode.SUCCESS,
+                                                                   prev_update_at=datetime.now(),
+                                                                   next_update_at=datetime.now())):
+                    with mock.patch('xrdsst.api.diagnostics_api.DiagnosticsApi.get_ocsp_responders_diagnostics',
+                                    return_value=[OcspResponderDiagnostics(distinguished_name='TEST',
+                                                                           ocsp_responders=[OcspResponder(url='http://127.0.0.1:8888',
+                                                                                                          status_class=AllOfOcspResponderStatusClass.OK,
+                                                                                                          status_code=AllOfOcspResponderStatusCode.SUCCESS,
+                                                                                                          prev_update_at=datetime.now(),
+                                                                                                          next_update_at=datetime.now())])]):
+                        with mock.patch('xrdsst.api.diagnostics_api.DiagnosticsApi.get_timestamping_services_diagnostics',
+                                        return_value=[TimestampingServiceDiagnostics(url='http://127.0.0.1:8888',
+                                                                                     status_class=AllOfTimestampingServiceDiagnosticsStatusClass.OK,
+                                                                                     status_code=AllOfTimestampingServiceDiagnosticsStatusCode.SUCCESS,
+                                                                                     prev_update_at=datetime.now())]):
+                            diagnostics_controller = DiagnosticsController()
+                            diagnostics_controller.app = app
+                            diagnostics_controller.load_config = (lambda: self.ss_config)
+                            diagnostics_controller.all()
+
+                            assert diagnostics_controller.app._last_rendered[0][1][1] is 'http://127.0.0.1:8888'
+                            assert diagnostics_controller.app._last_rendered[0][1][2] is 'OK'
+                            assert diagnostics_controller.app._last_rendered[0][1][3] is 'SUCCESS'
+                            assert diagnostics_controller.app._last_rendered[0][1][4] is not None
+
+    def test_diagnostics_all_render_as_object(self):
+        with XRDSSTTest() as app:
+            with mock.patch('xrdsst.controllers.base.BaseController.is_output_tabulated', return_value=False):
+                with mock.patch('xrdsst.api.diagnostics_api.DiagnosticsApi.get_global_conf_diagnostics',
+                                return_value=GlobalConfDiagnostics(status_class=AllOfGlobalConfDiagnosticsStatusClass.OK,
+                                                                   status_code=AllOfGlobalConfDiagnosticsStatusCode.SUCCESS,
+                                                                   prev_update_at=datetime.now(),
+                                                                   next_update_at=datetime.now())):
+                    with mock.patch('xrdsst.api.diagnostics_api.DiagnosticsApi.get_ocsp_responders_diagnostics',
+                                    return_value=[OcspResponderDiagnostics(distinguished_name='TEST',
+                                                                           ocsp_responders=[OcspResponder(url='http://127.0.0.1:8888',
+                                                                                                          status_class=AllOfOcspResponderStatusClass.OK,
+                                                                                                          status_code=AllOfOcspResponderStatusCode.SUCCESS,
+                                                                                                          prev_update_at=datetime.now(),
+                                                                                                          next_update_at=datetime.now())])]):
+                        with mock.patch('xrdsst.api.diagnostics_api.DiagnosticsApi.get_timestamping_services_diagnostics',
+                                        return_value=[TimestampingServiceDiagnostics(url='http://127.0.0.1:8888',
+                                                                                     status_class=AllOfTimestampingServiceDiagnosticsStatusClass.OK,
+                                                                                     status_code=AllOfTimestampingServiceDiagnosticsStatusCode.SUCCESS,
+                                                                                     prev_update_at=datetime.now())]):
+                            diagnostics_controller = DiagnosticsController()
+                            diagnostics_controller.app = app
+                            diagnostics_controller.load_config = (lambda: self.ss_config)
+                            diagnostics_controller.all()
+
+                            assert diagnostics_controller.app._last_rendered[0][0]["url"] is 'http://127.0.0.1:8888'
+                            assert diagnostics_controller.app._last_rendered[0][0]["status_class"] is 'OK'
+                            assert diagnostics_controller.app._last_rendered[0][0]["status_code"] is 'SUCCESS'
+                            assert diagnostics_controller.app._last_rendered[0][0]["prev_update_at"] is not None

@@ -157,6 +157,7 @@ Doc. ID: XRDSST-CONF
         * [4.2.12.1 Global configuration diagnostics](#42121-global-configuration-diagnostics)
         * [4.2.12.2 OCSP responders diagnostics](#42122-ocsp-responders-diagnostics)
         * [4.2.12.3 Timestamping services diagnostics](#42123-timestamping-services-diagnostics)
+        * [4.2.12.4 All diagnostics](#42124-all-diagnostics)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -1369,18 +1370,64 @@ Diagnostic operations for security server can be performed with ``xrdsst diagnos
 
 Listing global-configuration diagnostics can be done with ```xrdsst diagnostics global-configuration```
 
+╒═══════════════════╤════════════════╤═══════════════╤═════════════════════╤═════════════════════╕
+│ SECURITY_SERVER   │ STATUS_CLASS   │ STATUS_CODE   │ PREV_UPDATE         │ NEXT_UPDATE         │
+╞═══════════════════╪════════════════╪═══════════════╪═════════════════════╪═════════════════════╡
+│ ss3               │ OK             │ SUCCESS       │ 2021/07/20 11:34:48 │ 2021/07/20 11:35:48 │
+╘═══════════════════╧════════════════╧═══════════════╧═════════════════════╧═════════════════════╛
+
+* SECURITY_SERVER name of the security server
+* STATUS_CLASS global configuration status class
+* STATUS_CODE global configuration status code
+* PREV_UPDATE date and time of previous update of the global configuration
+* NEXT_UPDATE date and time for the next update of the global configuration
+
 ##### 4.2.12.2 OCSP responders diagnostics
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Listing OCSP responders diagnostics can be done with ```xrdsst diagnostics ocsp-responders```
 
+╒═══════════════════╤══════════════════════════════╤═══════════════════════════╤════════════════╤═══════════════╤═════════════════════╤═════════════════════╕
+│ SECURITY_SERVER   │ NAME                         │ URL                       │ STATUS_CLASS   │ STATUS_CODE   │ PREV_UPDATE         │ NEXT_UPDATE         │
+╞═══════════════════╪══════════════════════════════╪═══════════════════════════╪════════════════╪═══════════════╪═════════════════════╪═════════════════════╡
+│ ss3               │ CN=Test CA, O=X-Road Test CA │ http://10.249.34.187:8888 │ OK             │ SUCCESS       │ 2021/07/20 11:32:52 │ 2021/07/20 11:52:52 │
+╘═══════════════════╧══════════════════════════════╧═══════════════════════════╧════════════════╧═══════════════╧═════════════════════╧═════════════════════╛
+
+* SECURITY_SERVER name of the security server
+* NAME name of the certification authority
+* URL url of the certification authority
+* STATUS_CLASS OCSP status class
+* STATUS_CODE OCSP status code
+* PREV_UPDATE date and time of previous update of the OCSP
+* NEXT_UPDATE date and time for the next update of the OCSP
+
 ##### 4.2.12.3 Timestamping services diagnostics
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Listing timestamping services diagnostics can be done with ```xrdsst diagnostics timestamping-services```
-  
+
+╒═══════════════════╤═══════════════════════════╤════════════════╤════════════════════════════════════╤═════════════════════╕
+│ SECURITY_SERVER   │ URL                       │ STATUS_CLASS   │ STATUS_CODE                        │ PREV_UPDATE         │
+╞═══════════════════╪═══════════════════════════╪════════════════╪════════════════════════════════════╪═════════════════════╡
+│ ss3               │ http://10.249.34.187:8899 │ WAITING        │ ERROR_CODE_TIMESTAMP_UNINITIALIZED │ 2021/07/20 11:34:53 │
+╘═══════════════════╧═══════════════════════════╧════════════════╧════════════════════════════════════╧═════════════════════╛
+
+* SECURITY_SERVER name of the security server
+* URL url for the timestamping services
+* STATUS_CLASS timestamping services status class
+* STATUS_CODE timestamping services status code
+* PREV_UPDATE date and time of previous update of the timestamping services
+
+##### 4.2.12.4 All diagnostics
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR
+
+Listing all the diagnostics can be done with ```xrdsst diagnostics all```
+
+This command will list all the information from 4.2.12.1 - 4.2.12.3
+
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
 
