@@ -1,3 +1,4 @@
+from tests.end_to_end.certificate_test import CertificateTest
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
@@ -131,10 +132,10 @@ class RenewCertificate:
             self.test.apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
-        self.test.step_cert_import()
-        self.test.step_cert_register()
-        self.test.step_cert_activate()
+        CertificateTest(self.test).step_cert_import()
+        CertificateTest(self.test).step_cert_register()
+        CertificateTest(self.test).step_cert_activate()
 
-        #self.step_unregister_certificates(old_certificates)
+        self.step_unregister_certificates(old_certificates)
         self.step_disable_certificates(old_certificates)
-        #self.step_delete_certificates(old_certificates)
+        self.step_delete_certificates(old_certificates)
