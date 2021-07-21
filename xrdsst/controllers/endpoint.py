@@ -183,7 +183,7 @@ class EndpointController(BaseController):
             ss_api_config = self.create_api_config(security_servers[0], config)
             self.remote_list_endpoints(ss_api_config, ss_name, service_description_ids)
         else:
-            BaseController.log_info("Security server: '%s' not found" % ss_name)
+            BaseController.log_info(self.security_server_not_found_message(ss_name))
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -195,7 +195,7 @@ class EndpointController(BaseController):
             ss_api_config = self.create_api_config(security_servers[0], config)
             self.remote_update_endpoint(ss_api_config, ss_name, endpoint_id, endpoint_method, endpoint_path)
         else:
-            BaseController.log_info("Security server: '%s' not found" % ss_name)
+            BaseController.log_info(self.security_server_not_found_message(ss_name))
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -207,7 +207,7 @@ class EndpointController(BaseController):
             ss_api_config = self.create_api_config(security_servers[0], config)
             self.remote_delete_endpoint(ss_api_config, ss_name, endpoint_id)
         else:
-            BaseController.log_info("Security server: '%s' not found" % ss_name)
+            BaseController.log_info(self.security_server_not_found_message(ss_name))
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -397,7 +397,6 @@ class EndpointController(BaseController):
             try:
                 service_description = service_descriptions_api.get_service_description(service_description_id)
                 endpoints_list.extend(self.parse_service_description_to_endpoint_table(service_description))
-
             except ApiException:
                 BaseController.log_info(
                     "The service description with id: '%s', security server: '%s', could not be found" %
@@ -425,3 +424,7 @@ class EndpointController(BaseController):
                     'description_type': service_description.type,
                     'generated': endpoint.generated
                 }
+
+    @staticmethod
+    def security_server_not_found_message(ss_name):
+        return "Security server: '%s' not found" % ss_name
