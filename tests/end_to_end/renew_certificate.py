@@ -125,11 +125,11 @@ class RenewCertificate:
 
         self.step_token_create_new_keys()
 
-        downloaded_csrs = self.test.step_cert_download_csrs()
+        downloaded_csrs = CertificateTest(self.test).step_cert_download_csrs()
         ssn = 0
         for security_server in self.test.config["security_server"]:
-            signed_certs = self.test.step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
-            self.test.apply_cert_config(signed_certs, ssn)
+            signed_certs = CertificateTest(self.test).step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
+            CertificateTest(self.test).apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
         CertificateTest(self.test).step_cert_import()
