@@ -134,7 +134,7 @@ class EndpointController(BaseController):
 
         if len(missing_parameters) > 0:
             BaseController.log_info(
-                'The following parameters missing for updating endpoints: %s' % missing_parameters)
+                'The following parameters missing for deleting endpoints: %s' % missing_parameters)
             return
 
         self.delete_endpoint(active_config, self.app.pargs.ss, self.app.pargs.id)
