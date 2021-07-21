@@ -1154,7 +1154,7 @@ xrdsst endpoint add-access
 
 ##### 4.2.8.3 Endpoint list
 
-* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 List service endpoints can be done with:
 ```
