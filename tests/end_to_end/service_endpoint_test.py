@@ -566,6 +566,68 @@ class ServiceEndpointTest:
 
                 ssn = ssn + 1
 
+    def step_endpoint_update(self):
+        with XRDSSTTest() as app:
+            endpoint_controller = EndpointController()
+            endpoint_controller.app = app
+            endpoint_controller.load_config = (lambda: self.test.config)
+            ssn = 0
+            for security_server in self.test.config["security_server"]:
+                configuration = endpoint_controller.create_api_config(security_server, self.test.config)
+                descriptions_ids = []
+                for client in security_server["clients"]:
+                    if client.get(ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE):
+                        found_client = get_client(self.test.config, client, ssn)
+                        descriptions = get_service_descriptions(self.test.config, found_client[0]["id"], ssn)
+                        for description in descriptions:
+                            descriptions_ids.append(description["id"])
+
+                endpoints_list = endpoint_controller.remote_list_endpoints(configuration, security_server["name"], descriptions_ids)
+
+                endpoints_no_generated = list(filter(lambda e: e["generated"] is False, endpoints_list))
+                endpoint_update_id = endpoints_no_generated[0]["endpoint_id"]
+                method = "PUT"
+                path = "/updated_path"
+
+                endpoint_controller.remote_update_endpoint(configuration, security_server["name"], endpoint_update_id, method, path)
+
+                endpoints_list_after = endpoint_controller.remote_list_endpoints(configuration, security_server["name"], descriptions_ids)
+                endpoint_after = list(filter(lambda e: e["endpoint_id"] == endpoint_update_id, endpoints_list_after))
+
+                assert endpoint_after[0]["endpoint_method"] == method
+                assert endpoint_after[0]["endpoint_path"] == path
+
+                ssn = ssn + 1
+
+    def step_endpoint_delete(self):
+        with XRDSSTTest() as app:
+            endpoint_controller = EndpointController()
+            endpoint_controller.app = app
+            endpoint_controller.load_config = (lambda: self.test.config)
+            ssn = 0
+            for security_server in self.test.config["security_server"]:
+                configuration = endpoint_controller.create_api_config(security_server, self.test.config)
+                descriptions_ids = []
+                for client in security_server["clients"]:
+                    if client.get(ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE):
+                        found_client = get_client(self.test.config, client, ssn)
+                        descriptions = get_service_descriptions(self.test.config, found_client[0]["id"], ssn)
+                        for description in descriptions:
+                            descriptions_ids.append(description["id"])
+
+                endpoints_list = endpoint_controller.remote_list_endpoints(configuration, security_server["name"], descriptions_ids)
+
+                endpoints_no_generated = list(filter(lambda e: e["generated"] is False, endpoints_list))
+                endpoint_update_id = endpoints_no_generated[0]["endpoint_id"]
+                endpoint_controller.remote_delete_endpoint(configuration, security_server["name"], endpoint_update_id)
+
+                endpoints_list_after = endpoint_controller.remote_list_endpoints(configuration, security_server["name"], descriptions_ids)
+                endpoint_after = list(filter(lambda e: e["endpoint_id"] == endpoint_update_id, endpoints_list_after))
+
+                assert len(endpoint_after) == 0
+
+                ssn = ssn + 1
+
     def test_run_configuration(self):
         self.step_add_service_description_fail_url_missing()
         self.step_add_service_description_fail_type_missing()
@@ -577,6 +639,8 @@ class ServiceEndpointTest:
         self.step_add_service_endpoints()
         self.step_add_endpoints_access()
         self.step_endpoint_list()
+        self.step_endpoint_update()
+        self.step_endpoint_delete()
         self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()

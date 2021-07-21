@@ -4,7 +4,7 @@ from xrdsst.api_client.api_client import ApiClient
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.service import ServiceController
 from xrdsst.controllers.client import ClientController
-from xrdsst.models import Endpoint, ServiceType, ServiceClients
+from xrdsst.models import Endpoint, ServiceType, ServiceClients, EndpointUpdate
 from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 from xrdsst.core.util import parse_argument_list, cut_big_string
@@ -13,7 +13,7 @@ from xrdsst.core.util import parse_argument_list, cut_big_string
 class EndpointListMapper:
     @staticmethod
     def headers():
-        return ['ENDPOINT ID', 'PATH', 'METHOD', 'SERVICE CODE', 'CLIENT', 'SERVICE DESCRIPTION', 'TYPE']
+        return ['ENDPOINT ID', 'PATH', 'METHOD', 'SERVICE CODE', 'CLIENT', 'SERVICE DESCRIPTION', 'TYPE', 'GENERATED']
 
     @staticmethod
     def as_list(endpoint):
@@ -23,7 +23,8 @@ class EndpointListMapper:
                 endpoint.get('service_code'),
                 endpoint.get('client'),
                 endpoint.get('service_description'),
-                endpoint.get('description_type')]
+                endpoint.get('description_type'),
+                endpoint.get('generated')]
 
     @staticmethod
     def as_object(endpoint):
@@ -34,7 +35,8 @@ class EndpointListMapper:
             'service_code': endpoint.get('service_code'),
             'client': endpoint.get('client'),
             'service_description': endpoint.get('service_description'),
-            'description_type': endpoint.get('description_type')
+            'description_type': endpoint.get('description_type'),
+            'generated': endpoint.get('generated')
         }
 
 
@@ -93,6 +95,50 @@ class EndpointController(BaseController):
 
         self.list_endpoints(active_config, self.app.pargs.ss, description_ids)
 
+    @ex(help="Update endpoints", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+                                            (['--id'], {'help': 'Endpoint id', 'dest': 'id'}),
+                                            (['--method'], {'help': 'Endpoint method', 'dest': 'method'}),
+                                            (['--path'], {'help': 'Endpoint path', 'dest': 'path'})
+                                        ])
+    def update(self):
+        active_config = self.load_config()
+
+        missing_parameters = []
+        if self.app.pargs.ss is None:
+            missing_parameters.append('ss')
+        if self.app.pargs.id is None:
+            missing_parameters.append('id')
+        if self.app.pargs.method is None:
+            missing_parameters.append('method')
+        if self.app.pargs.path is None:
+            missing_parameters.append('path')
+
+        if len(missing_parameters) > 0:
+            BaseController.log_info(
+                'The following parameters missing for updating endpoints: %s' % missing_parameters)
+            return
+
+        self.update_endpoint(active_config, self.app.pargs.ss, self.app.pargs.id, self.app.pargs.method, self.app.pargs.path)
+
+    @ex(help="Delete endpoints", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
+                                            (['--id'], {'help': 'Endpoint id', 'dest': 'id'})
+                                        ])
+    def delete(self):
+        active_config = self.load_config()
+
+        missing_parameters = []
+        if self.app.pargs.ss is None:
+            missing_parameters.append('ss')
+        if self.app.pargs.id is None:
+            missing_parameters.append('id')
+
+        if len(missing_parameters) > 0:
+            BaseController.log_info(
+                'The following parameters missing for deleting endpoints: %s' % missing_parameters)
+            return
+
+        self.delete_endpoint(active_config, self.app.pargs.ss, self.app.pargs.id)
+
     def add_service_endpoints(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"],
                                      map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -137,7 +183,31 @@ class EndpointController(BaseController):
             ss_api_config = self.create_api_config(security_servers[0], config)
             self.remote_list_endpoints(ss_api_config, ss_name, service_description_ids)
         else:
-            BaseController.log_info("Security server: '%s' not found" % ss_name)
+            BaseController.log_info(self.security_server_not_found_message(ss_name))
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def update_endpoint(self, config, ss_name, endpoint_id, endpoint_method, endpoint_path):
+        ss_api_conf_tuple = list(zip(config["security_server"],
+                                     map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+        security_servers = list(filter(lambda ss: ss["name"] == ss_name, config["security_server"]))
+        if len(security_servers) > 0:
+            ss_api_config = self.create_api_config(security_servers[0], config)
+            self.remote_update_endpoint(ss_api_config, ss_name, endpoint_id, endpoint_method, endpoint_path)
+        else:
+            BaseController.log_info(self.security_server_not_found_message(ss_name))
+
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def delete_endpoint(self, config, ss_name, endpoint_id):
+        ss_api_conf_tuple = list(zip(config["security_server"],
+                                     map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+        security_servers = list(filter(lambda ss: ss["name"] == ss_name, config["security_server"]))
+        if len(security_servers) > 0:
+            ss_api_config = self.create_api_config(security_servers[0], config)
+            self.remote_delete_endpoint(ss_api_config, ss_name, endpoint_id)
+        else:
+            BaseController.log_info(self.security_server_not_found_message(ss_name))
 
         BaseController.log_keyless_servers(ss_api_conf_tuple)
 
@@ -224,6 +294,43 @@ class EndpointController(BaseController):
             except ApiException as find_err:
                 BaseController.log_api_error(ClientController.CLIENTS_API_GET_CLIENT_SERVICE_DESCRIPTION, find_err)
 
+    @staticmethod
+    def remote_update_endpoint(ss_api_config, ss_name, endpoint_id, endpoint_method, endpoint_path):
+        endpoints_api = EndpointsApi(ApiClient(ss_api_config))
+        try:
+            endpoint = endpoints_api.get_endpoint(endpoint_id)
+            if endpoint:
+                if not endpoint.generated:
+                    endpoint_update = EndpointUpdate(method=endpoint_method, path=endpoint_path)
+                    try:
+                        endpoints_api.update_endpoint(endpoint_id, body=endpoint_update)
+                        BaseController.log_info("Updated endpoint with id: '%s', method: '%s', path: '%s', security server: '%s'"
+                                                % (endpoint_id, endpoint_method, endpoint_path, ss_name))
+                    except ApiException as err:
+                        BaseController.log_api_error('EndpointsApi->update_endpoint', err)
+                else:
+                    BaseController.log_info("Error updating endpoint with id: '%s', security server: '%s', could not update generated endpoints")
+        except ApiException:
+            BaseController.log_info("Could not find an endpoint with id: '%s' for security server: '%s'" % (endpoint_id, ss_name))
+
+    @staticmethod
+    def remote_delete_endpoint(ss_api_config, ss_name, endpoint_id):
+        endpoints_api = EndpointsApi(ApiClient(ss_api_config))
+        try:
+            endpoint = endpoints_api.get_endpoint(endpoint_id)
+            if endpoint:
+                if not endpoint.generated:
+                    try:
+                        endpoints_api.delete_endpoint(endpoint_id)
+                        BaseController.log_info("Deleted endpoint with id: '%s', security server: '%s'"
+                                                % (endpoint_id, ss_name))
+                    except ApiException as err:
+                        BaseController.log_api_error('EndpointsApi->delete_endpoint', err)
+                else:
+                    BaseController.log_info("Error deleting endpoint with id: '%s', security server: '%s', could not delete generated endpoints")
+        except ApiException:
+            BaseController.log_info("Could not find an endpoint with id: '%s' for security server: '%s'" % (endpoint_id, ss_name))
+
     def add_access_from_list(self, ss_api_config, service_description, service_clients_candidates, endpoint_conf,
                              access_list):
         for access in access_list:
@@ -290,7 +397,6 @@ class EndpointController(BaseController):
             try:
                 service_description = service_descriptions_api.get_service_description(service_description_id)
                 endpoints_list.extend(self.parse_service_description_to_endpoint_table(service_description))
-
             except ApiException:
                 BaseController.log_info(
                     "The service description with id: '%s', security server: '%s', could not be found" %
@@ -315,5 +421,10 @@ class EndpointController(BaseController):
                     'service_code': endpoint.service_code,
                     'client': service_description.client_id,
                     'service_description': cut_big_string(service_description.url, 50),
-                    'description_type': service_description.type
+                    'description_type': service_description.type,
+                    'generated': endpoint.generated
                 }
+
+    @staticmethod
+    def security_server_not_found_message(ss_name):
+        return "Security server: '%s' not found" % ss_name

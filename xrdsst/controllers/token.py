@@ -356,6 +356,8 @@ class TokenController(BaseController):
         auth_ca = remote_get_auth_certificate_authority(ss_api_config)
 
         token_id = security_server[ConfKeysSecurityServer.CONF_KEY_SOFT_TOKEN_ID]
+
+        ss_code = security_server[ConfKeysSecurityServer.CONF_KEY_SERVER_CODE]
         dn_country = security_server[ConfKeysSecurityServer.CONF_KEY_DN_C]
         responses = []
         fqdn = security_server[ConfKeysSecurityServer.CONF_KEY_FQDN]
@@ -368,7 +370,7 @@ class TokenController(BaseController):
                 'C': dn_country,
                 'O': member_name,
                 'CN': fqdn,
-                'serialNumber': '/'.join([ssi.instance_id, member_class, str(member_code)])
+                'serialNumber': '/'.join([ssi.instance_id, ss_code, str(member_class)])
             }
 
             token_api = TokensApi(ApiClient(ss_api_config))
