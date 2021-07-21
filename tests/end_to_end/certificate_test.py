@@ -185,10 +185,10 @@ class CertificateTest:
         self.step_token_init_keys()
         self.step_cert_import_fail_certificates_missing()
         ssn = 0
-        downloaded_csrs = self.step_cert_download_csrs()
+        downloaded_csrs = CertificateTest(self.test).step_cert_download_csrs()
         for security_server in self.test.config["security_server"]:
-            signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
-            self.apply_cert_config(signed_certs, ssn)
+            signed_certs = CertificateTest(self.test).step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
+            CertificateTest(self.test).apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
         self.step_cert_register_fail_certificates_not_imported()
