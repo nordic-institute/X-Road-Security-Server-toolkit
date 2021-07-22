@@ -648,7 +648,7 @@ class ServiceEndpointTest:
         self.step_add_endpoints_access()
         endpoint_list_dic = self.step_endpoint_list()
         self.step_endpoint_list_access(endpoint_list_dic)
-        self.step_endpoint_delete_access(endpoint_list_dic)
+        # self.step_endpoint_delete_access(endpoint_list_dic)
         self.step_endpoint_update()
         self.step_endpoint_delete()
         self.step_subsystem_register()
