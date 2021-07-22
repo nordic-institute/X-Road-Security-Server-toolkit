@@ -65,6 +65,7 @@ Doc. ID: XRDSST-CONF
 | 16.07.2021 | 2.1.9       | Add list endpoints command                                                   | Alberto Fernandez  |
 | 19.07.2021 | 2.2.0       | Add diagnostics management                                                   | Bert Viikmäe       |
 | 20.07.2021 | 2.2.1       | Add endpoint update and delete command                                       | Alberto Fernandez  |
+| 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -141,6 +142,8 @@ Doc. ID: XRDSST-CONF
         * [4.2.8.3 Endpoint list](#4283-endpoint-list)
         * [4.2.8.4 Endpoint update](#4284-endpoint-update)
         * [4.2.8.5 Endpoint delete](#4285-endpoint-delete)
+        * [4.2.8.6 Endpoint list access](#4286-endpoint-list-access)
+        * [4.2.8.7 Endpoint delete access rights](#4287-endpoint-delete-access-rights)
      * [4.2.9 Member management](#429-member-management)
         * [4.2.9.1 Member find](#4291-member-find)
         * [4.2.9.2 Member list member classes](#4292-member-list-member-classes)
@@ -1206,6 +1209,48 @@ xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID>
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <ENDPOINT_ID> id of the endpoint to be delete, e.g. 1
+
+##### 4.2.8.6 Endpoint list access
+
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
+
+List service endpoint access can be done:
+```
+xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> 
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <ENDPOINT_ID> id of the endpoint, e.g. 123, multiple values can also be given, separated by comma, e.g. 1,2,3
+
+╒═══════════════╤════════════╤════════════════╤═══════════════════════════════════════════════════╕
+│   ENDPOINT ID │ ENDPOINT   │ SERVICE CODE   │ ACCESS RIGHTS                                     │
+╞═══════════════╪════════════╪════════════════╪═══════════════════════════════════════════════════╡
+│            15 │ GET /pets  │ Petstore       │ DEV:GOV:9999:SUBGOV, DEV:ORG:0000:SUBORGANIZATION │
+├───────────────┼────────────┼────────────────┼───────────────────────────────────────────────────┤
+│            26 │ * **       │ ownerChange    │ DEV:security-server-owners                        │
+╘═══════════════╧════════════╧════════════════╧═══════════════════════════════════════════════════╛
+
+The table above shows the following information about the endpoint access:
+
+* ENDPOINT ID: Id of the endpoint.
+* ENDPOINT: Method and path of the endpoint.
+* SERVICE CODE: Code of the service owner of the endpoint.
+* ACCESS RIGHTS : List of service clients ids with access rights to the endpoint
+
+##### 4.2.8.7 Endpoint delete access rights
+
+* Access rights: XROAD_SERVICE_ADMINISTRATOR
+
+Endpoints access rights can be deleted with:
+```
+xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <ENDPOINT_ID> id of the endpoint, e.g. 123, multiple values can also be given, separated by comma, e.g. 1,2,3
+* ACCESS RIGHTS : Service clients ids with access rights to the endpoint, multiple values can also be given, separated by comma, e.g. DEV:GOV:9999:SUBGOV,DEV:security-server-owners  
+
+This command will search through all the endpoints send as parameters and delete the access rights that matches with the ones sent as parameters
 
 #### 4.2.9 Member management
 
