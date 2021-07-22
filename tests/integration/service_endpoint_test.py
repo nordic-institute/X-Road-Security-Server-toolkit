@@ -626,12 +626,25 @@ class ServiceEndpointTest:
             for security_server in self.test.config["security_server"]:
                 configuration = endpoint_controller.create_api_config(security_server, self.test.config)
                 list_endpoints = list(filter(lambda e: e["ss_name"] == security_server["name"], list_endpoints_dic))[0]["list_endpoints"]
+
+                print("---------------------list endpoints------------------------------------------")
+                print(list_endpoints)
+
                 endpoints_for_delete = list(filter(lambda e: e["service_code"] == "Petstore", list_endpoints))
+
+                print("---------------------endpoints for delete------------------------------------------")
+                print(endpoints_for_delete)
                 id_endpoints_for_delete = [e["endpoint_id"] for e in endpoints_for_delete]
+
+                print("---------------------endpoints ids for delete------------------------------------------")
+                print(id_endpoints_for_delete)
 
                 endpoint_controller.remote_delete_endpoint_access(configuration, security_server["name"], id_endpoints_for_delete, access_rights)
 
                 endpoint_list_after = endpoint_controller.remote_list_endpoint_access(configuration, security_server["name"], id_endpoints_for_delete)
+
+                print("---------------------endpoints list after------------------------------------------")
+                print(endpoint_list_after)
 
                 for endpoint in endpoint_list_after:
                     assert access_rights[0] not in endpoint["access"]
@@ -648,7 +661,7 @@ class ServiceEndpointTest:
         self.step_add_endpoints_access()
         endpoint_list_dic = self.step_endpoint_list()
         self.step_endpoint_list_access(endpoint_list_dic)
-        # self.step_endpoint_delete_access(endpoint_list_dic)
+        self.step_endpoint_delete_access(endpoint_list_dic)
         self.step_endpoint_update()
         self.step_endpoint_delete()
         self.step_subsystem_register()
