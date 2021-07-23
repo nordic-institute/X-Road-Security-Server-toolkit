@@ -191,7 +191,7 @@ class CertificateTest:
             CertificateTest(self.test).apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
-        self.step_cert_register_fail_certificates_not_imported()
+        # self.step_cert_register_fail_certificates_not_imported()
         self.step_cert_import()
         self.step_cert_register()
 
