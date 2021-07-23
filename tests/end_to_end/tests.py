@@ -167,6 +167,8 @@ class EndToEndTest(unittest.TestCase):
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
 
+        print("----------------------- Start the testing  ----------------------------------------")
+
         self.step_verify_initial_transient_api_keys()
         InitializationTest(self).test_run_configuration()
         ClientTest(self).test_run_configuration()
