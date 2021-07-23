@@ -1,7 +1,7 @@
 from tests.util.test_util import get_endpoint_service_clients, get_client, get_service_description, get_service_descriptions, get_service_clients
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
-from xrdsst.controllers.endpoint import EndpointController, EndpointListMapper
+from xrdsst.controllers.endpoint import EndpointController, EndpointListMapper, EndpointAccessListMapper
 from xrdsst.controllers.service import ServiceController
 from xrdsst.core.conf_keys import ConfKeysSecServerClients
 from xrdsst.main import XRDSSTTest
@@ -540,6 +540,7 @@ class ServiceEndpointTest:
             ssn = ssn + 1
 
     def step_endpoint_list(self):
+        list_endpoints_dic = []
         with XRDSSTTest() as app:
             endpoint_controller = EndpointController()
             endpoint_controller.app = app
@@ -564,7 +565,13 @@ class ServiceEndpointTest:
                 assert len(endpoints_list) == endpoints_count
                 assert len(endpoint_controller.app._last_rendered[0]) == (endpoints_count + 1)
 
+                list_endpoints_dic.append({
+                    'ss_name': security_server["name"],
+                    'list_endpoints': endpoints_list
+                })
                 ssn = ssn + 1
+
+        return list_endpoints_dic
 
     def step_endpoint_update(self):
         with XRDSSTTest() as app:
@@ -628,6 +635,45 @@ class ServiceEndpointTest:
 
                 ssn = ssn + 1
 
+    def step_endpoint_list_access(self, list_endpoints_dic):
+        with XRDSSTTest() as app:
+            endpoint_controller = EndpointController()
+            endpoint_controller.app = app
+            endpoint_controller.load_config = (lambda: self.test.config)
+            for security_server in self.test.config["security_server"]:
+                configuration = endpoint_controller.create_api_config(security_server, self.test.config)
+                list_endpoints = list(filter(lambda e: e["ss_name"] == security_server["name"], list_endpoints_dic))[0]["list_endpoints"]
+                endpoints_ids = [e["endpoint_id"] for e in list_endpoints]
+
+                endpoint_access_list = endpoint_controller.remote_list_endpoint_access(configuration, security_server["name"], endpoints_ids)
+
+                for header in EndpointAccessListMapper.headers():
+                    assert header in endpoint_controller.app._last_rendered[0][0]
+
+                assert len(endpoint_access_list) == len(endpoints_ids)
+                assert len(endpoint_controller.app._last_rendered[0]) == (len(endpoints_ids) + 1)
+
+    def step_endpoint_delete_access(self, list_endpoints_dic):
+        access_rights = ['DEV:security-server-owners']
+        with XRDSSTTest() as app:
+            endpoint_controller = EndpointController()
+            endpoint_controller.app = app
+            endpoint_controller.load_config = (lambda: self.test.config)
+            for security_server in self.test.config["security_server"]:
+                configuration = endpoint_controller.create_api_config(security_server, self.test.config)
+                list_endpoints = list(filter(lambda e: e["ss_name"] == security_server["name"], list_endpoints_dic))[0]["list_endpoints"]
+                endpoints_for_delete = list(filter(lambda e: e["service_code"] == "Petstore", list_endpoints))
+                id_endpoints_for_delete = [e["endpoint_id"] for e in endpoints_for_delete]
+
+                endpoint_controller.remote_delete_endpoint_access(configuration, security_server["name"], id_endpoints_for_delete, access_rights)
+
+                endpoint_list_after = endpoint_controller.remote_list_endpoint_access(configuration, security_server["name"], id_endpoints_for_delete)
+
+                for endpoint in endpoint_list_after:
+                    assert access_rights[0] not in endpoint["access"]
+
+
+
     def test_run_configuration(self):
         self.step_add_service_description_fail_url_missing()
         self.step_add_service_description_fail_type_missing()
@@ -638,9 +684,7 @@ class ServiceEndpointTest:
         self.step_add_service_endpoints_fail_endpoints_service_type_wsdl()
         self.step_add_service_endpoints()
         self.step_add_endpoints_access()
-        self.step_endpoint_list()
         self.step_endpoint_update()
-        self.step_endpoint_delete()
         self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
@@ -651,4 +695,8 @@ class ServiceEndpointTest:
         self.step_refresh_service_description()
         self.step_disable_service_description()
         self.step_update_service_description()
+        endpoint_list_dic = self.step_endpoint_list()
+        self.step_endpoint_list_access(endpoint_list_dic)
+        self.step_endpoint_delete_access(endpoint_list_dic)
+        self.step_endpoint_delete()
         self.step_delete_service_description()

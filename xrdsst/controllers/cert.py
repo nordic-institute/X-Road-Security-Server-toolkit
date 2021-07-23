@@ -1,9 +1,7 @@
 import os
 
 import cement.utils.fs
-
 from cement import ex
-
 from xrdsst.api import KeysApi, SystemApi
 from xrdsst.api.token_certificates_api import TokenCertificatesApi
 from xrdsst.api.tokens_api import TokensApi

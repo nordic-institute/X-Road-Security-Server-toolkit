@@ -7,7 +7,7 @@ import pytest
 from argparse import Namespace
 
 from tests.util.test_util import StatusTestData
-from xrdsst.controllers.endpoint import EndpointController, EndpointListMapper
+from xrdsst.controllers.endpoint import EndpointController, EndpointListMapper, EndpointAccessListMapper
 from xrdsst.models import Client, ConnectionType, ClientStatus, ServiceDescription, ServiceType, ServiceClient, ServiceClientType, Service, Endpoint
 from xrdsst.main import XRDSSTTest
 from xrdsst.rest.rest import ApiException
@@ -38,6 +38,13 @@ class EndpointTestData:
                                          local_group_code=None,
                                          service_client_type='GLOBALGROUP',
                                          rights_given_at=None)]
+    get_endpoint = Endpoint(
+                    id='1',
+                    service_code="Test",
+                    method="PUT",
+                    path="/testPath",
+                    generated=False
+            )
 
 
 
@@ -356,13 +363,7 @@ class TestEndpoint(unittest.TestCase):
                                          method='POST',
                                          path='/testPath')
 
-            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=Endpoint(
-                    id='DEV:GOV:9876:SUB1',
-                    service_code="Test",
-                    method="PUT",
-                    path="/testPath",
-                    generated=False
-            )):
+            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=EndpointTestData.get_endpoint):
 
                 with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.update_endpoint',
                                 return_value={}):
@@ -418,11 +419,11 @@ class TestEndpoint(unittest.TestCase):
                                          path='/testPath')
 
             with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=Endpoint(
-                    id='DEV:GOV:9876:SUB1',
-                    service_code="Test",
-                    method="PUT",
-                    path="/testPath",
-                    generated=True
+                id=1,
+                service_code="Test",
+                method="PUT",
+                path="/testPath",
+                generated=True
             )):
 
                 with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.update_endpoint',
@@ -446,13 +447,7 @@ class TestEndpoint(unittest.TestCase):
             app._parsed_args = Namespace(ss='ssX',
                                          id='1')
 
-            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=Endpoint(
-                    id='DEV:GOV:9876:SUB1',
-                    service_code="Test",
-                    method="PUT",
-                    path="/testPath",
-                    generated=False
-            )):
+            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=EndpointTestData.get_endpoint):
 
                 with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.delete_endpoint',
                                 return_value={}):
@@ -497,3 +492,43 @@ class TestEndpoint(unittest.TestCase):
                     with self.capsys.disabled():
                         sys.stdout.write(out)
                         sys.stderr.write(err)
+
+    def test_endpoint_list_access(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', id='1')
+            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=EndpointTestData.get_endpoint):
+                with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint_service_clients',
+                                return_value=EndpointTestData.add_access_response):
+                    endpoint_controller = EndpointController()
+                    endpoint_controller.app = app
+                    endpoint_controller.load_config = (lambda: self.ss_config)
+                    endpoint_controller.list_access()
+
+            for header in EndpointAccessListMapper.headers():
+                assert header in endpoint_controller.app._last_rendered[0][0]
+
+            assert endpoint_controller.app._last_rendered[0][1][0] == '1'
+            assert endpoint_controller.app._last_rendered[0][1][1] == 'PUT /testPath'
+            assert endpoint_controller.app._last_rendered[0][1][2] == 'Test'
+            assert endpoint_controller.app._last_rendered[0][1][3] == 'DEV:security-server-owners'
+
+    def test_endpoint_delete_access(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', id='1', access='DEV:security-server-owners')
+            with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=EndpointTestData.get_endpoint):
+                with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint_service_clients',
+                                return_value=EndpointTestData.add_access_response):
+                    with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.delete_endpoint_service_clients',
+                                    return_value={}):
+
+                        endpoint_controller = EndpointController()
+                        endpoint_controller.app = app
+                        endpoint_controller.load_config = (lambda: self.ss_config)
+                        endpoint_controller.delete_access()
+
+                        out, err = self.capsys.readouterr()
+                        assert out.count("Deleted access rights: '['DEV:security-server-owners']', endpoint id: '1', security server: 'ssX'") > 0
+
+                        with self.capsys.disabled():
+                            sys.stdout.write(out)
+                            sys.stderr.write(err)
