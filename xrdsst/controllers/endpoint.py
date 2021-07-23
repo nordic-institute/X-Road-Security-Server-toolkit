@@ -511,7 +511,7 @@ class EndpointController(BaseController):
                         access_rights = endpoints_api.get_endpoint_service_clients(endpoint_id)
                         render_list.extend(self.parse_endpoint_access_rights_response(endpoint, access_rights))
                     except ApiException as err:
-                        BaseController.log_api_error('EndpointsApi->delete_endpoint', err)
+                        BaseController.log_api_error('EndpointsApi->get_endpoint_service_clients', err)
             except ApiException:
                 BaseController.log_info(self.endpoint_not_found_message(endpoint_id, ss_name))
 

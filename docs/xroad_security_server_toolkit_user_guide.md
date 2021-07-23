@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.1
+Version: 2.2.2
 Doc. ID: XRDSST-CONF
 
 ---
@@ -1243,7 +1243,7 @@ The table above shows the following information about the endpoint access:
 
 Endpoints access rights can be deleted with:
 ```
-xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
+xrdsst endpoint delete-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
 ```
 
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
