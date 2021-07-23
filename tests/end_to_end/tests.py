@@ -170,7 +170,11 @@ class EndToEndTest(unittest.TestCase):
         self.step_verify_initial_transient_api_keys()
         InitializationTest(self).test_run_configuration()
         ClientTest(self).test_run_configuration()
+
+        print("----------------------- Before certificate test ----------------------------------------")
+
         CertificateTest(self).test_run_configuration()
+        print("----------------------- After certificate test ----------------------------------------")
         ServiceEndpointTest(self).test_run_configuration()
         AdminTest(self).test_run_configuration()
         MemberTest(self).test_run_configuration()
