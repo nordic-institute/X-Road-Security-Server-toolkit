@@ -185,7 +185,7 @@ class EndToEndTest(unittest.TestCase):
 
         print("----------------------- After diagnostics test ----------------------------------------")
 
-        # RenewCertificate(self).test_run_configuration()
+        RenewCertificate(self).test_run_configuration()
         # LocalGroupTest(self).test_run_configuration()
 
         # self.step_client_unregister()
