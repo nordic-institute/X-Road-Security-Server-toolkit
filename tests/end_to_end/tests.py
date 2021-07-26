@@ -167,23 +167,16 @@ class EndToEndTest(unittest.TestCase):
 
     def test_run_configuration(self):
         unconfigured_servers_at_start = self.query_status()
-
-        print("----------------------- Start the testing  ----------------------------------------")
-
         self.step_verify_initial_transient_api_keys()
         InitializationTest(self).test_run_configuration()
         ClientTest(self).test_run_configuration()
-
-        print("----------------------- Before certificate test ----------------------------------------")
-
         CertificateTest(self).test_run_configuration()
-        print("----------------------- After certificate test ----------------------------------------")
         ServiceEndpointTest(self).test_run_configuration()
         AdminTest(self).test_run_configuration()
         MemberTest(self).test_run_configuration()
         DiagnosticsTest(self).test_run_configuration()
 
-        print("----------------------- After diagnostics test ----------------------------------------")
+        time.sleep(3000)
 
         LocalGroupTest(self).test_run_configuration()
 
@@ -191,9 +184,9 @@ class EndToEndTest(unittest.TestCase):
 
         RenewCertificate(self).test_run_configuration()
 
-        # self.step_client_unregister()
-        # self.step_client_delete()
+        self.step_client_unregister()
+        self.step_client_delete()
 
-        BackupTest(self).test_run_configuration()
+        # BackupTest(self).test_run_configuration()
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

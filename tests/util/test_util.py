@@ -267,12 +267,12 @@ def api_GET(api_url, api_path, api_key):
 def get_service_description_openapi(config, client_id, ssn):
     api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
-    return list(filter(lambda r: r["type"] == "OPENAPI3"))[0]
+    return list(filter(lambda r: r["type"] == "OPENAPI3", response))[0]
 
 def get_service_description_wsdl(config, client_id, ssn):
     api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
-    return list(filter(lambda r: r["type"] == "WSDL"))[0]
+    return list(filter(lambda r: r["type"] == "WSDL", response))[0]
 
 # Returns service description for given client
 def get_service_description(config, client_id, ssn):

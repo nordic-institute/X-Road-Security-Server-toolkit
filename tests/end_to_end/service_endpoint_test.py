@@ -349,7 +349,7 @@ class ServiceEndpointTest:
 
                         service_controller.remote_refresh_service_descriptions(configuration,
                                                                                client_id,
-                                                                               [description[0]["id"]])
+                                                                               [description["id"]])
 
                         description = get_service_description_openapi(self.test.config, client_id, ssn)
                         assert description["client_id"] == client_id
@@ -483,10 +483,10 @@ class ServiceEndpointTest:
                     client_id = found_client[0]['id']
                     descriptions = get_service_descriptions(self.test.config, client_id, ssn)
                     for description in descriptions:
-                        if description["type"] == "OPENAPI3":
-                            assert len(description[0]["services"][0]["endpoints"]) == 1
+                        if description["type"] == "WSDL":
+                            assert len(description["services"][0]["endpoints"]) == 1
                         else:
-                            assert len(description[1]["services"][0]["endpoints"]) == 4
+                            assert len(description["services"][0]["endpoints"]) == 4
             ssn = ssn + 1
 
         for ssn in range(0, len(self.test.config["security_server"])):
