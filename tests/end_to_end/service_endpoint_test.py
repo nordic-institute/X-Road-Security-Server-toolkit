@@ -699,4 +699,4 @@ class ServiceEndpointTest:
         self.step_endpoint_list_access(endpoint_list_dic)
         self.step_endpoint_delete_access(endpoint_list_dic)
         self.step_endpoint_delete()
-        # self.step_delete_service_description()
+        self.step_delete_service_description()
