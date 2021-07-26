@@ -264,16 +264,28 @@ def api_GET(api_url, api_path, api_key):
     return json.loads(str(response.content, 'utf-8').strip())
 
 
+def get_service_description_openapi(config, client_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
+    return list(filter(lambda r: r["type"] == "OPENAPI3"))[0]
+
+def get_service_description_wsdl(config, client_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
+    return list(filter(lambda r: r["type"] == "WSDL"))[0]
+
 # Returns service description for given client
 def get_service_description(config, client_id, ssn):
     api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
     return response[0] if len(response) > 0 else None
 
+
 def get_service_descriptions(config, client_id, ssn):
     api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
     return response if len(response) > 0 else None
+
 
 # Returns service clients for given service
 def get_service_clients(config, service_id, ssn):
