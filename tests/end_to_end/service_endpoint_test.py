@@ -697,6 +697,6 @@ class ServiceEndpointTest:
         self.step_update_service_description()
         endpoint_list_dic = self.step_endpoint_list()
         self.step_endpoint_list_access(endpoint_list_dic)
-        self.step_endpoint_delete_access(endpoint_list_dic)
+       # self.step_endpoint_delete_access(endpoint_list_dic)
        # self.step_endpoint_delete()
        # self.step_delete_service_description()
