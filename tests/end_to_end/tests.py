@@ -185,12 +185,12 @@ class EndToEndTest(unittest.TestCase):
 
         print("----------------------- After diagnostics test ----------------------------------------")
 
-        # LocalGroupTest(self).test_run_configuration()
+        LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()
 
         # self.step_client_unregister()
         # self.step_client_delete()
 
-        # BackupTest(self).test_run_configuration()
+        BackupTest(self).test_run_configuration()
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)

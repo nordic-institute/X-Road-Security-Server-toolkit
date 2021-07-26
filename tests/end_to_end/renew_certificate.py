@@ -137,5 +137,5 @@ class RenewCertificate:
         CertificateTest(self.test).step_cert_activate()
 
         # self.step_unregister_certificates(old_certificates)
-        self.step_disable_certificates(old_certificates)
-        self.step_delete_certificates(old_certificates)
+        # self.step_disable_certificates(old_certificates)
+        # self.step_delete_certificates(old_certificates)
