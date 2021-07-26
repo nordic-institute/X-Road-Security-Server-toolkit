@@ -691,7 +691,7 @@ class ServiceEndpointTest:
         self.step_list_service_descriptions()
         self.step_list_service_description_services()
         self.step_list_service_access_rights()
-        self.step_delete_service_access_rights()
+       # self.step_delete_service_access_rights()
         self.step_refresh_service_description()
        # self.step_disable_service_description()
         self.step_update_service_description()
