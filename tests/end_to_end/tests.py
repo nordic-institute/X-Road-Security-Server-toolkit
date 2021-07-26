@@ -23,7 +23,7 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from tests.end_to_end.renew_certificate import RenewCertificate
 from tests.end_to_end.local_group_test import LocalGroupTest
-
+import time
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -186,6 +186,9 @@ class EndToEndTest(unittest.TestCase):
         print("----------------------- After diagnostics test ----------------------------------------")
 
         LocalGroupTest(self).test_run_configuration()
+
+        time.sleep(3000)
+
         RenewCertificate(self).test_run_configuration()
 
         # self.step_client_unregister()
