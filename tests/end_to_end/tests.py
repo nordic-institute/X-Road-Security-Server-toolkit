@@ -175,15 +175,8 @@ class EndToEndTest(unittest.TestCase):
         AdminTest(self).test_run_configuration()
         MemberTest(self).test_run_configuration()
         DiagnosticsTest(self).test_run_configuration()
-
-        time.sleep(3000)
-
         LocalGroupTest(self).test_run_configuration()
-
-        time.sleep(3000)
-
         RenewCertificate(self).test_run_configuration()
-
         self.step_client_unregister()
         self.step_client_delete()
 
