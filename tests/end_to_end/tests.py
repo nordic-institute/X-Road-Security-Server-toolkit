@@ -178,10 +178,13 @@ class EndToEndTest(unittest.TestCase):
 
         CertificateTest(self).test_run_configuration()
         print("----------------------- After certificate test ----------------------------------------")
-        # ServiceEndpointTest(self).test_run_configuration()
-        # AdminTest(self).test_run_configuration()
-        # MemberTest(self).test_run_configuration()
-        # DiagnosticsTest(self).test_run_configuration()
+        ServiceEndpointTest(self).test_run_configuration()
+        AdminTest(self).test_run_configuration()
+        MemberTest(self).test_run_configuration()
+        DiagnosticsTest(self).test_run_configuration()
+
+        print("----------------------- After diagnostics test ----------------------------------------")
+
         # RenewCertificate(self).test_run_configuration()
         # LocalGroupTest(self).test_run_configuration()
 
