@@ -183,6 +183,7 @@ class EndToEndTest(unittest.TestCase):
         # self.step_client_unregister()
         # self.step_client_delete()
 
-        # BackupTest(self).test_run_configuration()
+        BackupTest(self).test_run_configuration()
+        time.sleep(2000)
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
