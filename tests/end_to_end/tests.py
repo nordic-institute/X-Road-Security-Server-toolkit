@@ -180,8 +180,8 @@ class EndToEndTest(unittest.TestCase):
 
         # time.sleep(1000)
 
-        self.step_client_unregister()
-        self.step_client_delete()
+        # self.step_client_unregister()
+        # self.step_client_delete()
 
         # BackupTest(self).test_run_configuration()
         configured_servers_at_end = self.query_status()
