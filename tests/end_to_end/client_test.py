@@ -122,19 +122,9 @@ class ClientTest:
                     assert found_client[0]["status"] != ClientStatus.GLOBAL_ERROR
                 ssn = ssn + 1
 
-    def client_step_make_owner(self):
-        member = 'DEV:COM:222'
-        with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
-            for security_server in self.test.config["security_server"]:
-                configuration = client_controller.create_api_config(self.test.config["security_server"][0], self.test.config)
-                client_controller.remote_make_member_owner(configuration, security_server["name"], member)
-
     def test_run_configuration(self):
         self.step_subsystem_add_client_fail_member_class_missing()
         self.step_subsystem_add_client_fail_member_code_missing()
         self.step_subsystem_register_fail_client_not_saved()
         self.step_add_service_description_fail_client_not_saved()
         self.step_subsystem_add_client()
-        self.client_step_make_owner()

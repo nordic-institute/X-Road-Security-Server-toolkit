@@ -7,7 +7,7 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models.key_usage_type import KeyUsageType
 from xrdsst.controllers.cert import CertOperations
 from datetime import datetime
-
+import time
 
 class RenewCertificate:
 
@@ -135,7 +135,7 @@ class RenewCertificate:
         CertificateTest(self.test).step_cert_import()
         CertificateTest(self.test).step_cert_register()
         CertificateTest(self.test).step_cert_activate()
-
-        # self.step_unregister_certificates(old_certificates)
-        # self.step_disable_certificates(old_certificates)
-        # self.step_delete_certificates(old_certificates)
+        time.sleep(460)
+        self.step_unregister_certificates(old_certificates)
+        self.step_disable_certificates(old_certificates)
+        self.step_delete_certificates(old_certificates)
