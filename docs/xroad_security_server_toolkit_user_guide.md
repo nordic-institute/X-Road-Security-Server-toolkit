@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.3
+Version: 2.2.4
 Doc. ID: XRDSST-CONF
 
 ---
@@ -67,6 +67,7 @@ Doc. ID: XRDSST-CONF
 | 20.07.2021 | 2.2.1       | Add endpoint update and delete command                                       | Alberto Fernandez  |
 | 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
 | 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
+| 29.07.2021 | 2.2.3       | Add CSR management commands                                                  | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -169,6 +170,9 @@ Doc. ID: XRDSST-CONF
         * [4.2.13.1 List keys](#42131-list-keys)
         * [4.2.13.2 Update keys](#42132-update-keys)
         * [4.2.13.3 Delete keys](#42133-delete-keys)
+     * [4.2.14 CSR management](#4214-csr-management)
+        * [4.2.14.1 List CSR](#42141-list-csr)
+        * [4.2.14.2 Delete CSR](#42142-delete-csr)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -182,6 +186,7 @@ Doc. ID: XRDSST-CONF
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
 * [10 Change security server owner](#10-change-security-server-owner)
+
 
 
 
@@ -1558,6 +1563,48 @@ xrdsst key delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID>
 ```
 * <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
 * <KEY_ID> key id for delete, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
+
+#### 4.2.14 CSR management
+
+##### 4.2.14.1 List CSR
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+Listing certificate signing request can be done with:
+```
+xrdsst csr list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
+```
+
+* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
+
+╒═════════╤══════════════════════════════════════════╤══════════════════════════════════════════╤═════════════╤════════════════╤════════════════════╕
+│   TOKEN │ KEY ID                                   │ CSR ID                                   │ OWNER       │ USAGE          │ POSSIBLE ACTIONS   │
+╞═════════╪══════════════════════════════════════════╪══════════════════════════════════════════╪═════════════╪════════════════╪════════════════════╡
+│       0 │ 6C4A925F1DCF78043CD84DA31868ED20C9616883 │ D9C0A62D8F67BD2A64B9BE26CDAF3064DDE547DE │             │ AUTHENTICATION │ DELETE             │
+├─────────┼──────────────────────────────────────────┼──────────────────────────────────────────┼─────────────┼────────────────┼────────────────────┤
+│       0 │ F6D58F5400CC9C3D71CF9D42BDE9F51F1BF446B4 │ 6234EAA48BDEF552A1EBC88C4797E147024975ED │ DEV:ORG:111 │ SIGNING        │ DELETE             │
+╘═════════╧══════════════════════════════════════════╧══════════════════════════════════════════╧═════════════╧════════════════╧════════════════════╛
+
+* TOKEN id of the token
+* KEY ID id of the key owner of the CSR
+* CSR ID id of the CSR
+* OWNER member id who owns the CSR
+* USAGE type of certificate that can be used with the key
+* POSSIBLE ACTIONS List of possible actions that can be done to the key sepparated by comma
+
+##### 4.2.14.2 Delete CSR
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+Delete certificate signing request can be done with:
+```
+xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
+```
+
+* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <KEY_ID>  id of the key who owns the CSR
+* <CSR_ID> id of the CSR to be deleted, multiple values can also be given, separated by comma, e.g. D9C0A62D8F67BD2A64B9BE26CDAF3064DDE547DE,6234EAA48BDEF552A1EBC88C4797E147024975ED
 
 
 ## 5 Failure recovery and interpretation of errors
