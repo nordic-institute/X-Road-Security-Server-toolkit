@@ -21,6 +21,7 @@ texts = {
     'backup.controller.description': 'Commands for performing backup operations.',
     'local_group.controller.description': 'Commands for performing client local groups operations',
     'diagnostics.controller.description': 'Commands for performing diagnostics operations',
+    'key.controller.description': 'Commands for performing certificate keys operations',
     # Messages
     'message.file.not.found': "File '{}' not found.",
     'message.file.unreadable': "Could not read file '{}'.",
