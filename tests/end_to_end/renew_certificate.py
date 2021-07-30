@@ -63,10 +63,9 @@ class RenewCertificate:
             cert_controller.app = app
             cert_controller.load_config = (lambda: self.test.config)
 
-            auth_certs = list(filter(lambda cert: cert["type"] == KeyUsageType.AUTHENTICATION, old_certificates))
-            auth_hashes = list((auth_cert["hash"] for auth_cert in auth_certs))
-
             for security_server in self.test.config["security_server"]:
+                auth_certs = list(filter(lambda cert: cert["type"] == KeyUsageType.AUTHENTICATION and cert["ss"] == security_server["name"], old_certificates))
+                auth_hashes = list((auth_cert["hash"] for auth_cert in auth_certs))
                 configuration = cert_controller.create_api_config(security_server, self.test.config)
                 for auth_hash in auth_hashes:
                     cert_controller.remote_cert_operation(configuration, security_server, auth_hash, CertOperations.unregister)
@@ -76,6 +75,7 @@ class RenewCertificate:
                         assert cert_unregister["status"] == "DELETION_IN_PROGRESS"
 
     def step_disable_certificates(self, old_certificates):
+        print("------------------------Entra en disable certificates------------------")
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
@@ -97,13 +97,15 @@ class RenewCertificate:
                     assert bool(ss_certificate["active"] is not True)
 
     def step_delete_certificates(self, old_certificates):
+        print("------------------------Entra en delete certificates------------------")
+
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
             cert_controller.load_config = (lambda: self.test.config)
 
-            old_hashes = list((old_certificate["hash"] for old_certificate in old_certificates))
             for security_server in self.test.config["security_server"]:
+                old_hashes = list((old_certificate["hash"] for old_certificate in old_certificates if old_certificate["ss"] == security_server["name"]))
                 configuration = cert_controller.create_api_config(security_server, self.test.config)
                 for old_hash in old_hashes:
                     cert_controller.remote_cert_operation(configuration, security_server, old_hash, CertOperations.delete)
