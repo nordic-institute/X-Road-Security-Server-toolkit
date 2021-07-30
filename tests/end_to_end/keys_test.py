@@ -28,7 +28,7 @@ class KeysTest:
                                                                      member_code,
                                                                      member_name,
                                                                      self.KEY_LABEL_AUTH,
-                                                                     self.sign_key_label)
+                                                                     self.KEY_LABEL_SIGN)
 
     def step_key_list(self):
         list_key_dic = []
@@ -85,8 +85,6 @@ class KeysTest:
                 key_controller.remote_delete_keys(configuration, security_server["name"], id_keys_to_delete)
                 key_list_after = key_controller.remote_list_keys(configuration, "0")
 
-                print("-----------------------------Len list 1: %s" + len(key_list))
-                print("-----------------------------Len list after: %s" + len(key_list_after))
 
                 # assert len(key_list_after) == (len(key_list) - 2)
 
