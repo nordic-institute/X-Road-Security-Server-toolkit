@@ -178,9 +178,15 @@ class EndToEndTest(unittest.TestCase):
         LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()
 
+        time.sleep(300)
+        print("----------- Sale delete certificates-------")
         self.step_client_unregister()
+        print("----------- Sale client unregister-------")
         self.step_client_delete()
 
+        print("----------- Sale client delete-------")
+
         BackupTest(self).test_run_configuration()
+        print("----------- Sale backup-------")
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
