@@ -75,7 +75,6 @@ class RenewCertificate:
                         assert cert_unregister["status"] == "DELETION_IN_PROGRESS"
 
     def step_disable_certificates(self, old_certificates):
-        print("------------------------Entra en disable certificates------------------")
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
@@ -97,8 +96,6 @@ class RenewCertificate:
                     assert bool(ss_certificate["active"] is not True)
 
     def step_delete_certificates(self, old_certificates):
-        print("------------------------Entra en delete certificates------------------")
-
         with XRDSSTTest() as app:
             cert_controller = CertController()
             cert_controller.app = app
@@ -137,7 +134,7 @@ class RenewCertificate:
         CertificateTest(self.test).step_cert_import()
         CertificateTest(self.test).step_cert_register()
         CertificateTest(self.test).step_cert_activate()
-        # time.sleep(1800)
+
         self.step_unregister_certificates(old_certificates)
         self.step_disable_certificates(old_certificates)
         self.step_delete_certificates(old_certificates)
