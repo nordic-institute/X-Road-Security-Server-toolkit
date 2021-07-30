@@ -7,7 +7,7 @@ from xrdsst.controllers.service import ServiceController
 from xrdsst.core.conf_keys import ConfKeysSecServerClients
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ServiceClientType, ClientStatus
-
+import time
 
 class ServiceEndpointTest:
 
@@ -679,6 +679,7 @@ class ServiceEndpointTest:
         self.step_add_service_endpoints()
         self.step_add_endpoints_access()
         self.step_endpoint_update()
+        time.sleep(1000)
         self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
