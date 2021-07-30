@@ -30,7 +30,7 @@ class KeysTest:
                                                                      member_code,
                                                                      member_name,
                                                                      self.KEY_LABEL_AUTH,
-                                                                     self.sign_key_label)
+                                                                     self.KEY_LABEL_SIGN)
 
     def step_key_list(self):
         list_key_dic = []
@@ -93,5 +93,4 @@ class KeysTest:
         key_list_dic = self.step_key_list()
         self.step_create_test_csr()
         self.step_key_update(key_list_dic)
-
-        # self.step_key_delete(key_list_dic)
+        self.step_key_delete(key_list_dic)
