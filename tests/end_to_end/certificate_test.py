@@ -191,7 +191,7 @@ class CertificateTest:
             CertificateTest(self.test).apply_cert_config(signed_certs, ssn)
             ssn = ssn + 1
 
-        # self.step_cert_register_fail_certificates_not_imported()
+        self.step_cert_register_fail_certificates_not_imported()
         self.step_cert_import()
         self.step_cert_register()
 
@@ -199,11 +199,7 @@ class CertificateTest:
         for ssn in range(0, len(self.test.config["security_server"])):
             waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.test.config, ssn), 1, 300)
 
-        print("----------------------- Before certificate activate ----------------------------------------")
-
         self.step_cert_activate()
-
-        print("----------------------- After certificate test ----------------------------------------")
         self.list_certificates()
         self.step_import_tls_certificate()
         self.step_cert_download_internal_tls()
