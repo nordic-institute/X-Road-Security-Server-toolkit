@@ -81,23 +81,11 @@ class KeysTest:
             key_controller.load_config = (lambda: self.test.config)
             for security_server in self.test.config["security_server"]:
                 configuration = key_controller.create_api_config(security_server, self.test.config)
-
-                print("-----------------------------Entra inicio--------------")
                 key_list = list(filter(lambda k: k["ss_name"] == security_server["name"], key_list_dic))[0]["keys"]
                 keys_to_delete = list(filter(lambda k: k["label"] == self.KEY_LABEL_AUTH or k["label"] == self.KEY_LABEL_SIGN, key_list))
-
-                print("-----------------------------Keys to delete: %s" + str(len(keys_to_delete)))
-
                 id_keys_to_delete = (k["id"] for k in keys_to_delete)
                 key_controller.remote_delete_keys(configuration, security_server["name"], id_keys_to_delete)
-
-                print("Despues de request")
                 key_list_after = key_controller.remote_list_keys(configuration, "0")
-
-
-                print("-----------------------------Len list 1: %s" + str(len(key_list)))
-                print("-----------------------------Len list after: %s" + str(len(key_list_after)))
-
                 assert len(key_list_after) == (len(key_list) - 2)
 
     def test_run_configuration(self):
