@@ -101,7 +101,7 @@ class KeysTest:
                 assert len(key_list_after) == (len(key_list) - 2)
 
     def test_run_configuration(self):
-        key_list_dic = self.step_key_list()
         self.step_create_test_csr()
+        key_list_dic = self.step_key_list()
         self.step_key_update(key_list_dic)
         self.step_key_delete(key_list_dic)
