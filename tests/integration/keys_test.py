@@ -86,7 +86,7 @@ class KeysTest:
                 key_list = list(filter(lambda k: k["ss_name"] == security_server["name"], key_list_dic))[0]["keys"]
                 keys_to_delete = list(filter(lambda k: k["label"] == self.KEY_LABEL_AUTH or k["label"] == self.KEY_LABEL_SIGN, key_list))
 
-                print("-----------------------------Keys to delete: %s" + keys_to_delete)
+                print("-----------------------------Keys to delete: %s" + str(len(keys_to_delete)))
 
                 id_keys_to_delete = (k["id"] for k in keys_to_delete)
                 key_controller.remote_delete_keys(configuration, security_server["name"], id_keys_to_delete)
@@ -95,8 +95,8 @@ class KeysTest:
                 key_list_after = key_controller.remote_list_keys(configuration, "0")
 
 
-                print("-----------------------------Len list 1: %s" + len(key_list))
-                print("-----------------------------Len list after: %s" + len(key_list_after))
+                print("-----------------------------Len list 1: %s" + str(len(key_list)))
+                print("-----------------------------Len list after: %s" + str(len(key_list_after)))
 
                 assert len(key_list_after) == (len(key_list) - 2)
 
