@@ -14,6 +14,7 @@ from xrdsst.controllers.status import ServerStatus
 from tests.integration.renew_certificate_test import RenewCertificate
 from tests.integration.local_group_test import LocalGroupTest
 from tests.integration.keys_test import KeysTest
+from tests.integration.instance_test import InstanceTest
 
 def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
     assert len(sl1) == len(sl2)
@@ -42,6 +43,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         unconfigured_servers_at_start = self.query_status()
 
         InitializationTest(self).test_run_configuration()
+        self.query_status()
+
+        InstanceTest(self).test_run_configuration()
         self.query_status()
 
         ClientTest(self).test_run_configuration()

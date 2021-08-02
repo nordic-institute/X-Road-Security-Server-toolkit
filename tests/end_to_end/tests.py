@@ -24,6 +24,7 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from tests.end_to_end.renew_certificate import RenewCertificate
 from tests.end_to_end.local_group_test import LocalGroupTest
+from tests.end_to_end.instance_test import InstanceTest
 
 
 class EndToEndTest(unittest.TestCase):
@@ -170,6 +171,7 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_verify_initial_transient_api_keys()
         InitializationTest(self).test_run_configuration()
+        InstanceTest(self).test_run_configuration()
         ClientTest(self).test_run_configuration()
         CertificateTest(self).test_run_configuration()
         ServiceEndpointTest(self).test_run_configuration()
