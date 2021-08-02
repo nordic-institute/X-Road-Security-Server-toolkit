@@ -1575,7 +1575,7 @@ Listing certificate signing request can be done with:
 xrdsst csr list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 ```
 
-* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
 
 ╒═════════╤══════════════════════════════════════════╤══════════════════════════════════════════╤═════════════╤════════════════╤════════════════════╕
@@ -1602,7 +1602,7 @@ Delete certificate signing request can be done with:
 xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
 ```
 
-* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <KEY_ID>  id of the key who owns the CSR
 * <CSR_ID> id of the CSR to be deleted, multiple values can also be given, separated by comma, e.g. D9C0A62D8F67BD2A64B9BE26CDAF3064DDE547DE,6234EAA48BDEF552A1EBC88C4797E147024975ED
 
