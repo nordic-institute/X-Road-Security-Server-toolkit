@@ -86,6 +86,18 @@ class TestCsr(unittest.TestCase):
             assert csr_controller.app._last_rendered[0][1][2] == 'F5863EC8C6992789DC7B2261FAED32DBB636E194'
             assert csr_controller.app._last_rendered[0][1][3] == "DEV:ORG:111"
 
+    def test_csr_list_token_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX', token=None)
+            with mock.patch('xrdsst.api.tokens_api.TokensApi.get_token',
+                            return_value=CsrTestData.token_response):
+                csr_controller = CsrController()
+                csr_controller.app = app
+                csr_controller.load_config = (lambda: self.ss_config)
+                csr_controller.list()
+
+            assert csr_controller.app._last_rendered is None
+
     def test_csr_delete(self):
         with XRDSSTTest() as app:
             key_id = '51E66718168C93083708A074A99D3E6B5F26ECA8'
@@ -103,6 +115,55 @@ class TestCsr(unittest.TestCase):
 
                     out, err = self.capsys.readouterr()
                     assert out.count("Deleted CSR id: '%s', key id: '%s', security server: '%s'" % (csr_id, key_id, ss)) > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_csr_delete_key_csr_missing_parameters(self):
+        with XRDSSTTest() as app:
+            ss = 'ssX'
+            app._parsed_args = Namespace(ss=ss, key=None, csr=None)
+            with mock.patch('xrdsst.api.keys_api.KeysApi.get_key',
+                            return_value=CsrTestData.token_response.keys[0]):
+                with mock.patch('xrdsst.api.keys_api.KeysApi.delete_csr',
+                                return_value={}):
+                    csr_controller = CsrController()
+                    csr_controller.app = app
+                    csr_controller.load_config = (lambda: self.ss_config)
+                    csr_controller.delete()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("The following parameters missing for deleting csr: ['key', 'csr']") > 0
+
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
+
+    def test_csr_delete_not_found(self):
+        class KeyNotFound:
+            status = 400
+            data = '{"status":400,"error":{"code":"key_not_found"}}'
+            reason = None
+
+            def getheaders(self): return None
+
+        with XRDSSTTest() as app:
+            key_id = '51E66718168C93083708A074A99D3E6B5F26ECA8'
+            csr_id = 'F5863EC8C6992789DC7B2261FAED32DBB636E194'
+            ss = 'ssX'
+            app._parsed_args = Namespace(ss=ss, key=key_id, csr=csr_id)
+            with mock.patch('xrdsst.api.keys_api.KeysApi.get_key',
+                            side_effect=ApiException(http_resp=KeyNotFound())):
+                with mock.patch('xrdsst.api.keys_api.KeysApi.delete_csr',
+                                return_value={}):
+                    csr_controller = CsrController()
+                    csr_controller.app = app
+                    csr_controller.load_config = (lambda: self.ss_config)
+                    csr_controller.delete()
+
+                    out, err = self.capsys.readouterr()
+                    assert out.count("Could not found key with id: '%s' for security server: '%s'" % (key_id, ss)) > 0
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
