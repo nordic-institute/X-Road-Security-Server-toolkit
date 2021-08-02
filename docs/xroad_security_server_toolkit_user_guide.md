@@ -1543,7 +1543,7 @@ xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 
 The friendly name of a key can be updated with:
 ```
-xrdsst key update --ss <SECURITY_SERVER_NAME> --token <KEY_ID> --name <FRIENDLY_NAME>
+xrdsst key update --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --name <FRIENDLY_NAME>
 ```
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <KEY_ID> key id, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
