@@ -679,7 +679,7 @@ class ServiceEndpointTest:
         self.step_add_service_endpoints()
         self.step_add_endpoints_access()
         self.step_endpoint_update()
-        time.sleep(1000)
+        # time.sleep(1000)
         self.step_subsystem_register()
         self.step_subsystem_update_parameters()
         self.step_update_service_parameters()
