@@ -108,31 +108,4 @@ class TestCsr(unittest.TestCase):
                         sys.stdout.write(out)
                         sys.stderr.write(err)
 
-    def test_key_update_key_not_found(self):
-        class KeyNotFound:
-            status = 400
-            data = '{"status":400,"error":{"code":"key_not_found"}}'
-            reason = None
 
-            def getheaders(self): return None
-
-        with XRDSSTTest() as app:
-            key_id = '51E66718168C93083708A074A99D3E6B5F26ECA8'
-            csr_id = 'F5863EC8C6992789DC7B2261FAED32DBB636E194'
-            ss = 'ssX'
-            app._parsed_args = Namespace(ss=ss, key=key_id, csr=csr_id)
-            with mock.patch('xrdsst.api.keys_api.KeysApi.get_key',
-                            side_effect=ApiException(http_resp=KeyNotFound())):
-                with mock.patch('xrdsst.api.keys_api.KeysApi.delete_csr',
-                                return_value={}):
-                    csr_controller = CsrController()
-                    csr_controller.app = app
-                    csr_controller.load_config = (lambda: self.ss_config)
-                    csr_controller.delete()
-
-                    out, err = self.capsys.readouterr()
-                    assert out.count("Could not found key with id: '%s' for security server: '%s'" % (key_id, ss)) > 0
-
-                    with self.capsys.disabled():
-                        sys.stdout.write(out)
-                        sys.stderr.write(err)
