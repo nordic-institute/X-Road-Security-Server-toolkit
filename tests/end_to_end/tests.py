@@ -178,8 +178,8 @@ class EndToEndTest(unittest.TestCase):
         LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()
 
-        # self.step_client_unregister()
-        # self.step_client_delete()
+        self.step_client_unregister()
+        self.step_client_delete()
 
         BackupTest(self).test_run_configuration()
         # time.sleep(120)
