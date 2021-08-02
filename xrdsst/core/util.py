@@ -163,3 +163,12 @@ def cut_big_string(element, top_characters):
         return element[:(top_characters - 3)] + "..."
     else:
         return element
+
+def convert_list_to_string(list):
+    if list:
+        result = ''
+        for element in list:
+            result = '%s%s, ' % (result, element)
+        return result[:-2]
+    else:
+        return ''

@@ -270,10 +270,12 @@ def get_service_description(config, client_id, ssn):
     response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
     return response[0] if len(response) > 0 else None
 
+
 def get_service_descriptions(config, client_id, ssn):
     api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
     response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
     return response if len(response) > 0 else None
+
 
 # Returns service clients for given service
 def get_service_clients(config, service_id, ssn):
@@ -370,3 +372,12 @@ def auth_cert_registration_global_configuration_update_received(config, ssn):
     response = json.loads(result.content)
     registered_auth_keys = list(filter(registered_auth_key, response['keys']))
     return bool(registered_auth_keys)
+
+# Returns service clients for given service
+def get_token(config, token_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    return api_GET(
+        config["security_server"][ssn]["url"],
+        "tokens/" + token_id,
+        api_key
+    )

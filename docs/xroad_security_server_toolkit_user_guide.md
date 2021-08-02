@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.2
+Version: 2.2.3
 Doc. ID: XRDSST-CONF
 
 ---
@@ -66,6 +66,7 @@ Doc. ID: XRDSST-CONF
 | 19.07.2021 | 2.2.0       | Add diagnostics management                                                   | Bert Viikmäe       |
 | 20.07.2021 | 2.2.1       | Add endpoint update and delete command                                       | Alberto Fernandez  |
 | 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
+| 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -164,6 +165,10 @@ Doc. ID: XRDSST-CONF
         * [4.2.12.2 OCSP responders diagnostics](#42122-ocsp-responders-diagnostics)
         * [4.2.12.3 Timestamping services diagnostics](#42123-timestamping-services-diagnostics)
         * [4.2.12.4 All diagnostics](#42124-all-diagnostics)
+     * [4.2.13 Keys management](#4213-keys-management)
+        * [4.2.13.1 List keys](#42131-list-keys)
+        * [4.2.13.2 Update keys](#42132-update-keys)
+        * [4.2.13.3 Delete keys](#42133-delete-keys)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -177,6 +182,7 @@ Doc. ID: XRDSST-CONF
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
 * [10 Change security server owner](#10-change-security-server-owner)
+
 
 
 <!-- vim-markdown-toc -->
@@ -1316,7 +1322,7 @@ List client local groups can be done with:
 ```
 xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
-* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <CLIENT_ID> subsystem client id, e.g. DEV:COM:12345:COMPANY
 
 ╒══════╤════════════╤════════════════════════╤═════════════════════════════════════════════════════════╕
@@ -1499,6 +1505,60 @@ Listing timestamping services diagnostics can be done with ```xrdsst diagnostics
 Listing all the diagnostics can be done with ```xrdsst diagnostics all```
 
 This command will list all the information from 4.2.12.1 - 4.2.12.3
+
+#### 4.2.13 Keys management
+
+##### 4.2.13.1 List keys
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+Listing certificate keys can be done with:
+```
+xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
+```
+
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
+
+╒══════════════════════════════════════════╤════════════════════════════════╤════════════════════════════════╤════════════════╤═══════════════════════════════════════════════╤════════════╕
+│ ID                                       │ LABEL                          │ NAME                           │ USAGE          │ POSSIBLE ACTIONS                              │      CERTS │
+╞══════════════════════════════════════════╪════════════════════════════════╪════════════════════════════════╪════════════════╪═══════════════════════════════════════════════╪════════════╡
+│ 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E │ ss1-default-auth-key           │ ss1-default-auth-key           │ AUTHENTICATION │ DELETE, EDIT_FRIENDLY_NAME, GENERATE_AUTH_CSR │          1 │
+├──────────────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────┼───────────────────────────────────────────────┼────────────┤
+│ D6EFFF21413B0A6974D087949995B4C677DFD8D1 │ ss1-default-sign-key           │ ss1-default-sign-key           │ SIGNING        │ DELETE, EDIT_FRIENDLY_NAME, GENERATE_SIGN_CSR │          1 │
+├──────────────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────┼───────────────────────────────────────────────┼────────────┤
+│ 7D98B5BCF30F59351D9D396EF350AE3899286927 │ ss1-default-sign-key_COM_12345 │ ss1-default-sign-key_COM_12345 │ SIGNING        │ DELETE, EDIT_FRIENDLY_NAME, GENERATE_SIGN_CSR │          1 │
+╘══════════════════════════════════════════╧════════════════════════════════╧════════════════════════════════╧════════════════╧═══════════════════════════════════════════════╧════════════╛
+
+* ID Id of the key
+* LABEL label of the key
+* NAME friendly name of the key
+* USAGE type of certificate that can be used with the key
+* POSSIBLE ACTIONS List of possible actions that can be done to the key sepparated by comma
+* CERTS number of certificates added to the key
+
+##### 4.2.13.2 Update keys
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+The friendly name of a key can be updated with:
+```
+xrdsst key update --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --name <FRIENDLY_NAME>
+```
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <KEY_ID> key id, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
+* <FRIENDLY_NAME> new friendly name to be updated
+
+##### 4.2.13.3 Delete keys
+
+* Access rights: XROAD_SECURITY_OFFICER
+Keys can be deleted with:
+```
+xrdsst key delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> 
+```
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <KEY_ID> key id for delete, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
+
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
