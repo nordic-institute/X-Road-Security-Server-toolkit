@@ -1327,7 +1327,7 @@ List client local groups can be done with:
 ```
 xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
-* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <CLIENT_ID> subsystem client id, e.g. DEV:COM:12345:COMPANY
 
 ╒══════╤════════════╤════════════════════════╤═════════════════════════════════════════════════════════╕
@@ -1522,11 +1522,11 @@ Listing certificate keys can be done with:
 xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 ```
 
-* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
 
 ╒══════════════════════════════════════════╤════════════════════════════════╤════════════════════════════════╤════════════════╤═══════════════════════════════════════════════╤════════════╕
-│ ID                                       │ LABEL                          │ NAME                           │ USAGE          │ POSSIBLE ACTIONS                              │   Nº CERTS │
+│ ID                                       │ LABEL                          │ NAME                           │ USAGE          │ POSSIBLE ACTIONS                              │      CERTS │
 ╞══════════════════════════════════════════╪════════════════════════════════╪════════════════════════════════╪════════════════╪═══════════════════════════════════════════════╪════════════╡
 │ 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E │ ss1-default-auth-key           │ ss1-default-auth-key           │ AUTHENTICATION │ DELETE, EDIT_FRIENDLY_NAME, GENERATE_AUTH_CSR │          1 │
 ├──────────────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────┼───────────────────────────────────────────────┼────────────┤
@@ -1540,7 +1540,7 @@ xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 * NAME friendly name of the key
 * USAGE type of certificate that can be used with the key
 * POSSIBLE ACTIONS List of possible actions that can be done to the key sepparated by comma
-* Nº CERTS number of certificates added to the key
+* CERTS number of certificates added to the key
 
 ##### 4.2.13.2 Update keys
 
@@ -1548,9 +1548,9 @@ xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 
 The friendly name of a key can be updated with:
 ```
-xrdsst key update --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID> --name <FRIENDLY_NAME>
+xrdsst key update --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --name <FRIENDLY_NAME>
 ```
-* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <KEY_ID> key id, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
 * <FRIENDLY_NAME> new friendly name to be updated
 
@@ -1561,7 +1561,7 @@ Keys can be deleted with:
 ```
 xrdsst key delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> 
 ```
-* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <KEY_ID> key id for delete, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
 
 #### 4.2.14 CSR management
