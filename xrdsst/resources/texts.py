@@ -22,6 +22,7 @@ texts = {
     'local_group.controller.description': 'Commands for performing client local groups operations',
     'diagnostics.controller.description': 'Commands for performing diagnostics operations',
     'key.controller.description': 'Commands for performing certificate keys operations',
+    'csr.controller.description': 'Commands for performing certificate csr operations',
     'instance.controller.description': 'Commands for performing instance operations',
     # Messages
     'message.file.not.found': "File '{}' not found.",

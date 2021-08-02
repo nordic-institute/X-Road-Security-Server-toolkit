@@ -34,6 +34,7 @@ class KeyTestData:
         )]
     )
 
+
 class TestKey(unittest.TestCase):
     ss_config = {
         'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
@@ -62,7 +63,6 @@ class TestKey(unittest.TestCase):
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
         self.capsys = capsys
-
 
     def test_key_list(self):
         with XRDSSTTest() as app:

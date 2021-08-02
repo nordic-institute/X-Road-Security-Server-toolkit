@@ -53,32 +53,7 @@ security_server:
               ssl_auth: False
               url: http://petstore.xxx
           endpoints:
-            - path: /testPath
-              method: POST
+            - path: <ENDPOINT_PATH>
+              method: <ENDPOINT_METHOD>
               access:
-                - DEV:security-server-owners
-                - DEV:ORG:0000:SUBORGANIZATION
-            - path: /getPath
-              method: GET
-              access:
-                - DEV:ORG:111:SUBNIIS
-        - url: http://10.54.135.88/managementservices.wsdl
-          rest_service_code: None
-          type: WSDL
-          access:
-              - DEV:security-server-owners
-          url_all: True
-          timeout_all: True
-          ssl_auth_all: False
-          services:
-            - service_code: clientReg
-              access:
-                - DEV:ORG:111:SUBNIIS
-                - DEV:ORG:0000:SUBORGANIZATION
-              timeout: 40
-              ssl_auth: False
-              url: http://10.54.135.88/managementservices.wsdl
-    - member_class: COM
-      member_code: 12345
-      member_name: COMPANY
-      connection_type: HTTPS
+                - <SERVICE_CLIENT_ID>

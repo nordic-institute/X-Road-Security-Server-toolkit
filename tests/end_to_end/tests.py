@@ -24,8 +24,8 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from tests.end_to_end.renew_certificate import RenewCertificate
 from tests.end_to_end.local_group_test import LocalGroupTest
+from tests.end_to_end.csr_test import CsrTest
 from tests.end_to_end.instance_test import InstanceTest
-
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -183,6 +183,7 @@ class EndToEndTest(unittest.TestCase):
         self.step_client_unregister()
         self.step_client_delete()
         KeysTest(self).test_run_configuration()
+        CsrTest(self).test_run_configuration()
         BackupTest(self).test_run_configuration()
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
