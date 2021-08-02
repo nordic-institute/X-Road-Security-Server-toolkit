@@ -188,11 +188,14 @@ def assert_server_statuses_transitioned(sl1: [ServerStatus], sl2: [ServerStatus]
         assert sl1[i].server_init_status.has_server_code is not True
         assert sl2[i].server_init_status.has_server_code is True
 
+        print("----------- antes server owner---------")
         assert sl1[i].server_init_status.has_server_owner is not True
         assert sl2[i].server_init_status.has_server_owner is True
 
         assert TokenInitStatus.NOT_INITIALIZED == sl1[i].server_init_status.token_init_status
         assert TokenInitStatus.INITIALIZED == sl2[i].server_init_status.token_init_status
+
+        print("----------- antes token ---------")
 
         assert sl1[i].token_status.logged_in is not True
         assert sl2[i].token_status.logged_in is True
@@ -200,12 +203,15 @@ def assert_server_statuses_transitioned(sl1: [ServerStatus], sl2: [ServerStatus]
         assert not sl1[i].timestamping_status
         assert len(sl2[i].timestamping_status) > 0
 
+        print("----------- antes keys ---------")
+
         assert sl1[i].status_keys.has_auth_key is not True
         assert sl2[i].status_keys.has_auth_key is True
         assert sl1[i].status_keys.has_toolkit_auth_key is not True
         assert sl2[i].status_keys.has_toolkit_auth_key is True
 
         # No assumptions about CSRS.
+        print("----------- certs ---------")
 
         assert sl1[i].status_certs.has_toolkit_sign_cert is not True
         assert sl2[i].status_certs.has_toolkit_sign_cert is True
@@ -217,8 +223,11 @@ def assert_server_statuses_transitioned(sl1: [ServerStatus], sl2: [ServerStatus]
         assert sl1[i].status_certs.has_auth_cert is not True
         assert sl2[i].status_certs.has_auth_cert is True
 
+        print("----------- certs 3---------")
         assert sl1[i].status_certs.has_registered_auth_cert is not True
         assert sl2[i].status_certs.has_registered_auth_cert is True
+
+        print("----------- finish ---------")
 
 
 # Waits until boolean function returns True within number of retried delays or raises error

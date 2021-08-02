@@ -180,8 +180,15 @@ class EndToEndTest(unittest.TestCase):
 
         self.step_client_unregister()
         self.step_client_delete()
-
+        print("---------------------------Antes del backup--------------------------")
         BackupTest(self).test_run_configuration()
         # time.sleep(120)
+        print("---------------------------Despues del backup--------------------------")
+
         configured_servers_at_end = self.query_status()
+
+        print("---------------------------Despues de configure servers --------------------------")
+
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
+
+        print("---------------------------Despues de assert_server_statuses_transitioned --------------------------")
