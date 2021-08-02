@@ -7,7 +7,8 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models.key_usage_type import KeyUsageType
 from xrdsst.controllers.cert import CertOperations
 from datetime import datetime
-import time
+from tests.util.test_util import waitfor, auth_cert_registration_global_configuration_update_received
+
 
 class RenewCertificate:
 
@@ -138,3 +139,6 @@ class RenewCertificate:
         # self.step_unregister_certificates(old_certificates)
         # self.step_disable_certificates(old_certificates)
         # self.step_delete_certificates(old_certificates)
+
+        # for ssn in range(0, len(self.test.config["security_server"])):
+        # waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.test.config, ssn), 1, 300)
