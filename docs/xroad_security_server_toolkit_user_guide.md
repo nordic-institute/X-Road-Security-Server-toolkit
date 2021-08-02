@@ -67,7 +67,7 @@ Doc. ID: XRDSST-CONF
 | 20.07.2021 | 2.2.1       | Add endpoint update and delete command                                       | Alberto Fernandez  |
 | 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
 | 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
-| 29.07.2021 | 2.2.3       | Add CSR management commands                                                  | Alberto Fernandez  |
+| 29.07.2021 | 2.2.4       | Add CSR management commands                                                  | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
