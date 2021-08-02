@@ -11,7 +11,7 @@ from xrdsst.models.key_name import KeyName
 class KeyListMapper:
     @staticmethod
     def headers():
-        return ['ID', 'LABEL', 'NAME', 'USAGE', 'POSSIBLE ACTIONS', 'Nº CERTS']
+        return ['ID', 'LABEL', 'NAME', 'USAGE', 'POSSIBLE ACTIONS', 'CERTS']
 
     @staticmethod
     def as_list(key):
@@ -170,10 +170,15 @@ class KeyController(BaseController):
         keys_api = KeysApi(ApiClient(ss_api_config))
         for key_id in key_ids:
             try:
-                keys_api.delete_key(key_id)
-                BaseController.log_info("Deleted key with id: %s, security server: %s" % (key_id, ss_name))
-            except ApiException as err:
-                BaseController.log_api_error("KeysApi=>delete_key", err)
+                key = keys_api.get_key(key_id)
+                if key:
+                    try:
+                        keys_api.delete_key(key_id)
+                        BaseController.log_info("Deleted key with id: %s, security server: %s" % (key_id, ss_name))
+                    except ApiException as err:
+                        BaseController.log_api_error("KeysApi=>delete_key", err)
+            except ApiException:
+                BaseController.log_info("Could not delete key with id: %s, security server: %s, key not found" % (key_id, ss_name))
 
     @staticmethod
     def remote_update_key(ss_api_config, ss_name, key_id, friendly_name):
@@ -183,7 +188,7 @@ class KeyController(BaseController):
             if key:
                 keys_api.update_key(key_id, body=KeyName(friendly_name))
             BaseController.log_info("Updated key with id: %s, security server: %s, new name: %s" % (key_id, ss_name, friendly_name))
-        except ApiException as err:
+        except ApiException:
             BaseController.log_info("Could not update key with id: %s, security server: %s, key not found" % (key_id, ss_name))
 
     @staticmethod
