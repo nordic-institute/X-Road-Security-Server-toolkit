@@ -177,7 +177,7 @@ class EndToEndTest(unittest.TestCase):
         DiagnosticsTest(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()
-
+        print("---------------------------Antes del client unregister--------------------------")
         self.step_client_unregister()
         self.step_client_delete()
         print("---------------------------Antes del backup--------------------------")
