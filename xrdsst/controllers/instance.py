@@ -51,6 +51,7 @@ class InstanceController(BaseController):
         else:
             render_data.extend(map(InstanceListMapper.as_object, instances))
         self.render(render_data)
+        return instances
 
     @staticmethod
     def remote_list_instances(ss_api_config, ss_name):
