@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.4
+Version: 2.2.6
 Doc. ID: XRDSST-CONF
 
 ---
@@ -68,7 +68,7 @@ Doc. ID: XRDSST-CONF
 | 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
 | 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
 | 29.07.2021 | 2.2.4       | Add CSR management commands                                                  | Alberto Fernandez  |
-| 03.08.2021 | 2.2.5       | Add security server list commmand                                            | Alberto Fernandez  |
+| 03.08.2021 | 2.2.6       | Add security server list commmand                                            | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
