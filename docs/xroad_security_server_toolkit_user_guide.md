@@ -68,6 +68,7 @@ Doc. ID: XRDSST-CONF
 | 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
 | 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
 | 29.07.2021 | 2.2.4       | Add CSR management commands                                                  | Alberto Fernandez  |
+| 03.08.2021 | 2.2.5       | Add security server list commmand                                            | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -173,6 +174,8 @@ Doc. ID: XRDSST-CONF
      * [4.2.14 CSR management](#4214-csr-management)
         * [4.2.14.1 List CSR](#42141-list-csr)
         * [4.2.14.2 Delete CSR](#42142-delete-csr)
+     * [4.2.16 Security Server management](#4216-security-server-management)
+        * [4.2.16.1 List Security Servers](#42161-list-security-servers)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -1605,6 +1608,33 @@ xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <KEY_ID>  id of the key who owns the CSR
 * <CSR_ID> id of the CSR to be deleted, multiple values can also be given, separated by comma, e.g. D9C0A62D8F67BD2A64B9BE26CDAF3064DDE547DE,6234EAA48BDEF552A1EBC88C4797E147024975ED
+
+
+#### 4.2.16 Security Server management
+##### 4.2.16.1 List Security Servers
+
+* Access rights: Any role
+
+Listing security servers can be done with:
+```
+xrdsst security-server list
+```
+This command will display the union of all the security servers discover by each security server of the configuration file.
+
+╒═══════════════════╤════════╤═══════════╤════════════╤════════════════╤═══════════════╕
+│ ID                │ CODE   │ ADDRESS   │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │
+╞═══════════════════╪════════╪═══════════╪════════════╪════════════════╪═══════════════╡
+│ DEV:COM:12345:ss2 │ ss2    │ ss2       │ DEV        │ COM            │         12345 │
+├───────────────────┼────────┼───────────┼────────────┼────────────────┼───────────────┤
+│ DEV:ORG:111:ss1   │ ss1    │ ss1       │ DEV        │ ORG            │           111 │
+╘═══════════════════╧════════╧═══════════╧════════════╧════════════════╧═══════════════╛
+
+* ID security server id
+* CODE security server code
+* ADDRESS security server address
+* INSTANCE security server instance
+* MEMBER CLASS security server owner class
+* MEMBER CODE security server owner code
 
 
 ## 5 Failure recovery and interpretation of errors
