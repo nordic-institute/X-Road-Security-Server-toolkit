@@ -68,7 +68,7 @@ Doc. ID: XRDSST-CONF
 | 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
 | 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
 | 29.07.2021 | 2.2.4       | Add CSR management commands                                                  | Alberto Fernandez  |
-| 03.08.2021 | 2.2.6       | Add security server list commmand                                            | Alberto Fernandez  |
+| 03.08.2021 | 2.2.6       | Add security server list and version list commmands                          | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -176,6 +176,7 @@ Doc. ID: XRDSST-CONF
         * [4.2.14.2 Delete CSR](#42142-delete-csr)
      * [4.2.16 Security Server management](#4216-security-server-management)
         * [4.2.16.1 List Security Servers](#42161-list-security-servers)
+        * [4.2.16.2 List Security Server version](#42162-list-security-server-version)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -1619,7 +1620,7 @@ Listing security servers can be done with:
 ```
 xrdsst security-server list
 ```
-This command will display the union of all the security servers discover by each security server of the configuration file.
+This command will display the union of all the security servers discover by each security server stored in the configuration file.
 
 ╒═══════════════════╤════════╤═══════════╤════════════╤════════════════╤═══════════════╕
 │ ID                │ CODE   │ ADDRESS   │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │
@@ -1635,6 +1636,25 @@ This command will display the union of all the security servers discover by each
 * INSTANCE security server instance
 * MEMBER CLASS security server owner class
 * MEMBER CODE security server owner code
+
+##### 4.2.16.2 List Security Server version
+
+* Access rights: Any role
+
+Listing security server version be done with:
+```
+xrdsst security-server version
+```
+This command will display the version for the security servers stored in the configuration file
+
+╒═══════════════════╤═══════════╕
+│ SECURITY SERVER   │ VERSION   │
+╞═══════════════════╪═══════════╡
+│ ss1               │ 6.26.0    │
+╘═══════════════════╧═══════════╛
+
+* SECURITY SERVER code of the security server
+* VERSION security server version number
 
 
 ## 5 Failure recovery and interpretation of errors
