@@ -138,6 +138,22 @@ class ClientController(BaseController):
 
         self.make_member_owner(active_config, self.app.pargs.ss, self.app.pargs.member)
 
+    @ex(help="List clients",
+        arguments=[
+            (['--ss'], {'help': 'Security server name', 'dest': 'ss'})
+        ])
+    def list(self):
+        active_config = self.load_config()
+        missing_parameters = []
+        if self.app.pargs.ss is None:
+            missing_parameters.append('ss')
+        if len(missing_parameters) > 0:
+            BaseController.log_info(
+                'The following parameters missing for make member owner: %s' % missing_parameters)
+            return
+
+        self.list_clients(active_config, self.app.pargs.ss)
+
     # This operation can (at least sometimes) also be performed when global status is FAIL.
     def add_client(self, config):
         ss_api_conf_tuple = list(zip(config["security_server"], map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
@@ -238,6 +254,19 @@ class ClientController(BaseController):
             if client:
                 self.create_auth_key_for_new_owner(ss_api_config, security_servers[0], client)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
+
+    def list_clients(self, config, ss_name):
+        ss_api_conf_tuple = list(zip(config["security_server"],
+                                     map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
+
+        security_servers = list(filter(lambda ss: ss["name"] == ss_name, config["security_server"]))
+        if len(security_servers) == 0:
+            BaseController.log_info("Security server: '%s' not found" % ss_name)
+        else:
+            ss_api_config = self.create_api_config(security_servers[0], config)
+            clients = self.remote_list_clients(ss_api_config, ss_name)
+        BaseController.log_keyless_servers(ss_api_conf_tuple)
+        return clients
 
     def remote_add_client(self, ss_api_config, client_conf):
         conn_type = convert_swagger_enum(ConnectionType, client_conf['connection_type'])
@@ -388,6 +417,11 @@ class ClientController(BaseController):
                         BaseController.log_api_error("ClientsApi->change_owner", err)
         except ApiException as err:
             BaseController.log_api_error("ClientsApi->remote_make_member_owner", err)
+
+    def remote_list_clients(self, ss_api_config, ss_name):
+        clients_api = ClientsApi(ApiClient(ss_api_config))
+        clients = self.find_all_clients(clients_api, show_members=True, internal_search=True)
+
 
     def find_client(self, clients_api, client_conf):
         if 'subsystem_code' in client_conf:
