@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.4
+Version: 2.2.5
 Doc. ID: XRDSST-CONF
 
 ---
@@ -68,6 +68,7 @@ Doc. ID: XRDSST-CONF
 | 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
 | 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
 | 29.07.2021 | 2.2.4       | Add CSR management commands                                                  | Alberto Fernandez  |
+| 02.08.2021 | 2.2.5       | Add list instance command                                                    | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -173,6 +174,9 @@ Doc. ID: XRDSST-CONF
      * [4.2.14 CSR management](#4214-csr-management)
         * [4.2.14.1 List CSR](#42141-list-csr)
         * [4.2.14.2 Delete CSR](#42142-delete-csr)
+     * [4.2.15 Instances management](#4215-instances-management)
+        * [4.2.15.1 List instances:](#42151-list-instances)
+
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -1606,6 +1610,25 @@ xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
 * <KEY_ID>  id of the key who owns the CSR
 * <CSR_ID> id of the CSR to be deleted, multiple values can also be given, separated by comma, e.g. D9C0A62D8F67BD2A64B9BE26CDAF3064DDE547DE,6234EAA48BDEF552A1EBC88C4797E147024975ED
 
+#### 4.2.15 Instances management
+
+##### 4.2.15.1 List instances:
+
+* Access rights: Any role
+
+Listing X-Road instances can be done with:
+```
+xrdsst instance list
+```
+
+╒═══════════════════╤═════════════╕
+│ SECURITY SERVER   │ INSTANCES   │
+╞═══════════════════╪═════════════╡
+│ ss1               │ DEV         │
+╘═══════════════════╧═════════════╛
+
+* SECURITY SERVER name of the security server
+* INSTANCES List of instances discovered for the security server
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
