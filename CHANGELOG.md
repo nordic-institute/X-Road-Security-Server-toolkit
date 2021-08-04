@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.5.0-beta.0] - 2021-08-04
+- add ``xrdsst csr`` and sub-commands ``list`` and ``delete``
+- add ``xrdsst key`` and sub-commands ``list`` and ``delete``
+- add ``xrdsst instance`` and sub-command ``list``
+- add ``xrdsst security-server`` and sub-commands ``list`` and ``list-version``
+- add ``xrdsst client`` and sub-commands ``make-owner`` and ``list``
+- add ``xrdsst endpoint`` and sub-commands ``update``, ``delete``, ``list-access`` and ``delete-access``
+
 ## [2.4.4-beta.0] - 2021-07-20
 - add ``xrdsst diagnostics`` and sub-commands ``global-configuration``, ``ocsp-responders`` and ``timestamping-services``
 - add ``xrdsst client`` and sub-command ``make-owner``
