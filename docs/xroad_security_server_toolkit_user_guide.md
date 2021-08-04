@@ -1249,7 +1249,7 @@ The table above shows the following information about the endpoint:
 
 Single endpoint can be updated with with:
 ```
-xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --method <ENDPOINT_METHOD> --path <ENDPOINT_PATH>
+xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --method <ENDPOINT_METHOD> --path <ENDPOINT_PATH>
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <ENDPOINT_ID> id of the endpoint to be updated, e.g. 1
@@ -1262,7 +1262,7 @@ xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --method 
 
 Single endpoint can be updated with with:
 ```
-xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> 
+xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <ENDPOINT_ID> id of the endpoint to be delete, e.g. 1
@@ -1273,7 +1273,7 @@ xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID>
 
 List service endpoint access can be done:
 ```
-xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> 
+xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
 
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
@@ -1302,7 +1302,7 @@ The table above shows the following information about the endpoint access:
 
 Endpoints access rights can be deleted with:
 ```
-xrdsst endpoint delete-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
+xrdsst endpoint delete-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
 ```
 
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1

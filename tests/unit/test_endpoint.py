@@ -359,7 +359,7 @@ class TestEndpoint(unittest.TestCase):
     def test_endpoint_update(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX',
-                                         id='1',
+                                         endpoint='1',
                                          method='POST',
                                          path='/testPath')
 
@@ -391,7 +391,7 @@ class TestEndpoint(unittest.TestCase):
 
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX',
-                                         id='1',
+                                         endpoint='1',
                                          method='POST',
                                          path='/testPath')
 
@@ -414,7 +414,7 @@ class TestEndpoint(unittest.TestCase):
     def test_endpoint_is_generated(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX',
-                                         id='1',
+                                         endpoint='1',
                                          method='POST',
                                          path='/testPath')
 
@@ -445,7 +445,7 @@ class TestEndpoint(unittest.TestCase):
     def test_endpoint_delete(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX',
-                                         id='1')
+                                         endpoint='1')
 
             with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=EndpointTestData.get_endpoint):
 
@@ -475,7 +475,7 @@ class TestEndpoint(unittest.TestCase):
 
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX',
-                                         id='1')
+                                         endpoint='1')
 
             with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', side_effect=ApiException(http_resp=NotFoundResponse())):
                 with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.delete_endpoint',
@@ -495,7 +495,7 @@ class TestEndpoint(unittest.TestCase):
 
     def test_endpoint_list_access(self):
         with XRDSSTTest() as app:
-            app._parsed_args = Namespace(ss='ssX', id='1')
+            app._parsed_args = Namespace(ss='ssX', endpoint='1')
             with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=EndpointTestData.get_endpoint):
                 with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint_service_clients',
                                 return_value=EndpointTestData.add_access_response):
@@ -514,7 +514,7 @@ class TestEndpoint(unittest.TestCase):
 
     def test_endpoint_delete_access(self):
         with XRDSSTTest() as app:
-            app._parsed_args = Namespace(ss='ssX', id='1', access='DEV:security-server-owners')
+            app._parsed_args = Namespace(ss='ssX', endpoint='1', access='DEV:security-server-owners')
             with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=EndpointTestData.get_endpoint):
                 with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint_service_clients',
                                 return_value=EndpointTestData.add_access_response):

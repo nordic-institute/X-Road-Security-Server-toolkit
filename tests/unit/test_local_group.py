@@ -344,7 +344,7 @@ class TestService(unittest.TestCase):
                 local_group_controller.list()
 
                 assert local_group_controller.app._last_rendered[0][0] == ['ID','CODE','DESCRIPTION','MEMBERS']
-                assert local_group_controller.app._last_rendered[0][1] == [185,'testGroup','test group description',['DEV:ORG:111:TEST']]
+                assert local_group_controller.app._last_rendered[0][1] == [185,'testGroup','test group description', 'DEV:ORG:111:TEST']
 
 
     def test_local_group_delete(self):
