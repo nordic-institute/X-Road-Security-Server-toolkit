@@ -23,6 +23,8 @@ texts = {
     'diagnostics.controller.description': 'Commands for performing diagnostics operations',
     'key.controller.description': 'Commands for performing certificate keys operations',
     'csr.controller.description': 'Commands for performing certificate csr operations',
+    'instance.controller.description': 'Commands for performing instance operations',
+    'security_server.controller.description': 'Commands for performing security server operations',
     # Messages
     'message.file.not.found': "File '{}' not found.",
     'message.file.unreadable': "Could not read file '{}'.",
