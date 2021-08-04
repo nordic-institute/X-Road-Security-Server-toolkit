@@ -1616,7 +1616,7 @@ xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
 
 * Access rights: Any role
 
-Listing xroad instances can be done with:
+Listing X-Road instances can be done with:
 ```
 xrdsst instance list
 ```

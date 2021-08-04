@@ -36,7 +36,7 @@ class TestInstance(unittest.TestCase):
     def capsys(self, capsys):
         self.capsys = capsys
 
-    def test_key_list(self):
+    def test_instance_list(self):
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.xroad_instances_api.XroadInstancesApi.get_xroad_instances',
                             return_value=['DEV']):
