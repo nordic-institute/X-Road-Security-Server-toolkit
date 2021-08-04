@@ -11,6 +11,37 @@ from xrdsst.resources.texts import texts
 from xrdsst.controllers.token import TokenController
 
 
+class ClientsListMapper:
+    @staticmethod
+    def headers():
+        return ['ID', 'INSTANCE', 'MEMBER CLASS', 'MEMBER CODE', 'MEMBER NAME', 'SUBSYSTEM', 'OWNER', 'STATUS', 'HAS SIGN CERT']
+
+    @staticmethod
+    def as_list(client):
+        return [client.id,
+                client.instance_id,
+                client.member_class,
+                client.member_code,
+                client.member_name,
+                client.subsystem_code,
+                client.owner,
+                client.status,
+                client.has_valid_local_sign_cert]
+
+    @staticmethod
+    def as_object(client):
+        return {
+            'id': client.id,
+            'member_class': client.member_class,
+            'member_code': client.member_code,
+            'member_name': client.member_name,
+            'subsystem_code': client.subsystem_code,
+            'owner': client.owner,
+            'status': client.status,
+            'has_valid_local_sign_cert': client.has_valid_local_sign_cert
+        }
+
+
 class ClientController(BaseController):
     class Meta:
         label = 'client'
@@ -149,7 +180,7 @@ class ClientController(BaseController):
             missing_parameters.append('ss')
         if len(missing_parameters) > 0:
             BaseController.log_info(
-                'The following parameters missing for make member owner: %s' % missing_parameters)
+                'The following parameters missing listing clients: %s' % missing_parameters)
             return
 
         self.list_clients(active_config, self.app.pargs.ss)
@@ -258,13 +289,13 @@ class ClientController(BaseController):
     def list_clients(self, config, ss_name):
         ss_api_conf_tuple = list(zip(config["security_server"],
                                      map(lambda ss: self.create_api_config(ss, config), config["security_server"])))
-
+        clients = []
         security_servers = list(filter(lambda ss: ss["name"] == ss_name, config["security_server"]))
         if len(security_servers) == 0:
             BaseController.log_info("Security server: '%s' not found" % ss_name)
         else:
             ss_api_config = self.create_api_config(security_servers[0], config)
-            clients = self.remote_list_clients(ss_api_config, ss_name)
+            clients = self.remote_list_clients(ss_api_config)
         BaseController.log_keyless_servers(ss_api_conf_tuple)
         return clients
 
@@ -418,10 +449,17 @@ class ClientController(BaseController):
         except ApiException as err:
             BaseController.log_api_error("ClientsApi->remote_make_member_owner", err)
 
-    def remote_list_clients(self, ss_api_config, ss_name):
+    def remote_list_clients(self, ss_api_config):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         clients = self.find_all_clients(clients_api, show_members=True, internal_search=True)
-
+        render_data =[]
+        if self.is_output_tabulated():
+            render_data = [ClientsListMapper.headers()]
+            render_data.extend(map(ClientsListMapper.as_list, clients))
+        else:
+            render_data.extend(map(ClientsListMapper.as_object, clients))
+        self.render(render_data)
+        return clients
 
     def find_client(self, clients_api, client_conf):
         if 'subsystem_code' in client_conf:
@@ -488,3 +526,5 @@ class ClientController(BaseController):
             client_id = client_id + "/" + client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE]
 
         return client_id
+
+
