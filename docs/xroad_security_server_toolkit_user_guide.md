@@ -1665,7 +1665,7 @@ This command will display all discovered security servers
 
 Listing security server version can be done with:
 ```
-xrdsst security-server version
+xrdsst security-server list-version
 ```
 This command will display the version for the security servers stored in the configuration file
 
