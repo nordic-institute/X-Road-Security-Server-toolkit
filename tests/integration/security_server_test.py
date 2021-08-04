@@ -32,4 +32,4 @@ class SecurityServerTest:
 
     def test_run_configuration(self):
         self.step_security_servers_list()
-        self.step_security_servers_list_versions()
+       # self.step_security_servers_list_versions()
