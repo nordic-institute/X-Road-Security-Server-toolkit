@@ -32,6 +32,7 @@ class ClientsListMapper:
     def as_object(client):
         return {
             'id': client.id,
+            'instance_id': client.instance_id,
             'member_class': client.member_class,
             'member_code': client.member_code,
             'member_name': client.member_name,
@@ -452,7 +453,7 @@ class ClientController(BaseController):
     def remote_list_clients(self, ss_api_config):
         clients_api = ClientsApi(ApiClient(ss_api_config))
         clients = self.find_all_clients(clients_api, show_members=True, internal_search=True)
-        render_data =[]
+        render_data = []
         if self.is_output_tabulated():
             render_data = [ClientsListMapper.headers()]
             render_data.extend(map(ClientsListMapper.as_list, clients))
@@ -524,7 +525,4 @@ class ClientController(BaseController):
         client_id = "%s/%s/%s" % (client_conf["member_class"], client_conf["member_code"], client_conf["member_name"])
         if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client_conf:
             client_id = client_id + "/" + client_conf[ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE]
-
         return client_id
-
-

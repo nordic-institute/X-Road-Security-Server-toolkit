@@ -126,8 +126,8 @@ Doc. ID: XRDSST-CONF
         * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
         * [4.2.6.5 Client unregister](#4265-client-unregister)
         * [4.2.6.6 Client delete](#4266-client-delete)
-        * [4.2.6.6 Client change owner](#4266-client-change-owner)
-        * [4.2.6.7 Client list](#4267-client-list)
+        * [4.2.6.7 Client change owner](#4267-client-change-owner)
+        * [4.2.6.8 Client list](#4268-client-list)
      * [4.2.7 Service management commands](#427-service-management-commands)
         * [4.2.7.1 Service add description](#4271-service-add-description)
         * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
@@ -945,7 +945,25 @@ xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 
 The members or subsystem must be unregistered from the security server in order to delete it.
 
-##### 4.2.6.7 Client list
+##### 4.2.6.7 Client change owner
+
+* Access rights: XROAD_REGISTRATION_OFFICER
+There are no configuration parameters involved, command line arguments are used instead
+It is possible to make owner to members with:
+```
+xrdsst client delete --ss <SECURITY_SERVER_NAME> --member <MEMBER_ID>
+```
+
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <MEMBER_ID> id of the member, e.g. DEV:GOV:1234
+
+This command will submit a change owner request to the  X-Road governing authority according to the organizational
+procedures of the X-Road instance. 
+Once the owner change request is approved by the X-Road governing authority, the member will automatically become 
+the Owner Member.
+This command will create a new auth key and CSRS for the auth certificate of the new owner
+
+##### 4.2.6.8 Client list
 
 * Access rights: Any role
 
@@ -974,25 +992,6 @@ xrdsst client list --ss <SECURITY_SERVER_NAME>
 * OWNER true if the client is the owner of the security server
 * STATUS client status between SAVED, REGISTRATION IN PROGRESS, REGISTERED, GLOBAL ERROR, DELETION IN PROGRESS, DELETED
 * HAS SIGN CERT true if the client has a valid sign certificate
-
-
-##### 4.2.6.6 Client change owner
-
-* Access rights: XROAD_REGISTRATION_OFFICER
-There are no configuration parameters involved, command line arguments are used instead
-It is possible to make owner to members with:
-```
-xrdsst client delete --ss <SECURITY_SERVER_NAME> --member <MEMBER_ID>
-```
-
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <MEMBER_ID> id of the member, e.g. DEV:GOV:1234
-
-This command will submit a change owner request to the  X-Road governing authority according to the organizational
-procedures of the X-Road instance. 
-Once the owner change request is approved by the X-Road governing authority, the member will automatically become 
-the Owner Member.
-This command will create a new auth key and CSRS for the auth certificate of the new owner
 
 #### 4.2.7 Service management commands
 
