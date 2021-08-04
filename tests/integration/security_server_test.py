@@ -18,7 +18,6 @@ class SecurityServerTest:
                 assert header in security_server_controller.app._last_rendered[0][0]
             assert len(security_server_controller.app._last_rendered[0]) == (len(security_servers_list) + 1)
 
-
     def step_security_servers_list_versions(self):
         with XRDSSTTest() as app:
             security_server_controller = SecurityServerController()
@@ -32,4 +31,4 @@ class SecurityServerTest:
 
     def test_run_configuration(self):
         self.step_security_servers_list()
-       # self.step_security_servers_list_versions()
+        self.step_security_servers_list_versions()
