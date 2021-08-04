@@ -7,7 +7,7 @@ from xrdsst.rest.rest import ApiException
 from xrdsst.resources.texts import texts
 from xrdsst.core.conf_keys import ConfKeysSecServerClientLocalGroups, ConfKeysSecurityServer, ConfKeysSecServerClients
 from xrdsst.models import LocalGroupAdd, Members
-from xrdsst.core.util import parse_argument_list
+from xrdsst.core.util import parse_argument_list, convert_list_to_string
 
 
 class LocalGroupListMapper:
@@ -23,7 +23,7 @@ class LocalGroupListMapper:
         return [local_group.id,
                 local_group.code,
                 local_group.description,
-                members_ids]
+                convert_list_to_string(members_ids)]
 
     @staticmethod
     def as_object(local_group):
@@ -35,7 +35,7 @@ class LocalGroupListMapper:
             'id': local_group.id,
             'code': local_group.code,
             'description': local_group.description,
-            'members': members_ids
+            'members': convert_list_to_string(members_ids)
         }
 
 

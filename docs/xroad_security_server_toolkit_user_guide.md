@@ -1211,7 +1211,7 @@ xrdsst endpoint add-access
 
 List service endpoints can be done with:
 ```
-xrdsst endpoint list --ss <SECURITY_SERVER_NAME>
+xrdsst endpoint list --ss <SECURITY_SERVER_NAME> --description <SERVICE_DESCRIPTION_ID>
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
@@ -1403,7 +1403,7 @@ xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP
 
 Delete client local group members can be done with:
 ```
-xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
+xrdsst local-group delete-member --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
 ```
 
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
