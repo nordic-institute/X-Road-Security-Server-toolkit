@@ -1216,6 +1216,7 @@ xrdsst endpoint list --ss <SECURITY_SERVER_NAME> --description <SERVICE_DESCRIPT
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
+```
 ╒═══════════════╤════════╤═══════════╤══════════════════╤══════════════════╤════════════════════════════════════════════════════╤══════════╕
 │   ENDPOINT ID │ PATH   │ METHOD    │ SERVICE CODE     │ CLIENT           │ SERVICE DESCRIPTION                                │ TYPE     │
 ╞═══════════════╪════════╪═══════════╪══════════════════╪══════════════════╪════════════════════════════════════════════════════╪══════════╡
@@ -1225,6 +1226,7 @@ xrdsst endpoint list --ss <SECURITY_SERVER_NAME> --description <SERVICE_DESCRIPT
 ├───────────────┼────────┼───────────┼──────────────────┼──────────────────┼────────────────────────────────────────────────────┼──────────┤ 
 │            17 │ GET    │ /pets/*   │ Petstore         │ DEV:ORG:111:TEST │ https://raw.githubusercontent.com/OpenAPITools/... │ OPENAPI3 │
 ╘═══════════════╧════════╧═══════════╧══════════════════╧══════════════════╧════════════════════════════════════════════════════╧══════════╛
+```
 
 The table above shows the following information about the endpoint:
 
