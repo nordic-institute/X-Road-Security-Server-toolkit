@@ -64,7 +64,7 @@ class SecurityServerController(BaseController):
         self.list_security_servers(active_config)
 
     @ex(help="List security server versions", arguments=[])
-    def version(self):
+    def list_version(self):
         active_config = self.load_config()
         self.list_security_servers_version(active_config)
 

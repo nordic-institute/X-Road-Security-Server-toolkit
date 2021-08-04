@@ -103,7 +103,7 @@ class TestSecurityServer(unittest.TestCase):
                 security_server_controller = SecurityServerController()
                 security_server_controller.app = app
                 security_server_controller.load_config = (lambda: self.ss_config)
-                security_server_controller.version()
+                security_server_controller.list_version()
 
             for header in SecurityServerVersionMapper.headers():
                 assert header in security_server_controller.app._last_rendered[0][0]
@@ -128,6 +128,6 @@ class TestSecurityServer(unittest.TestCase):
                 security_server_controller = SecurityServerController()
                 security_server_controller.app = app
                 security_server_controller.load_config = (lambda: self.ss_config)
-                security_server_controller.version()
+                security_server_controller.list_version()
 
             assert security_server_controller.app._last_rendered is None

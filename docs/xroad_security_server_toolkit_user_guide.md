@@ -1620,7 +1620,7 @@ Listing security servers can be done with:
 ```
 xrdsst security-server list
 ```
-This command will display the union of all the security servers discover by each security server stored in the configuration file.
+This command will display all discovered security servers
 
 ╒═══════════════════╤════════╤═══════════╤════════════╤════════════════╤═══════════════╕
 │ ID                │ CODE   │ ADDRESS   │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │
@@ -1641,7 +1641,7 @@ This command will display the union of all the security servers discover by each
 
 * Access rights: Any role
 
-Listing security server version be done with:
+Listing security server version can be done with:
 ```
 xrdsst security-server version
 ```
