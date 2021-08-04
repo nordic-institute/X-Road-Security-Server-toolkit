@@ -188,7 +188,7 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
     add_op_node(g, OPS.IMPORT_TLS_CERT, ClientController, ClientController.import_tls_certs, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_LOCAL_GROUP, LocalGroupController, LocalGroupController.add, is_done=(lambda ssn: True))
-    add_op_node(g, OPS.ADD_LOCAL_GROUP_MEMBER, LocalGroupController, LocalGroupController.add_members, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.ADD_LOCAL_GROUP_MEMBER, LocalGroupController, LocalGroupController.add_member, is_done=(lambda ssn: True))
 
     g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
     g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)

@@ -61,7 +61,7 @@ class LocalGroupController(BaseController):
         self.add_local_group(active_config)
 
     @ex(help="add members", arguments=[])
-    def add_members(self):
+    def add_member(self):
         active_config = self.load_config()
         full_op_path = self.op_path()
 

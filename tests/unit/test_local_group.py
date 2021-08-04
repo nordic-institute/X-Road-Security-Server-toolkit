@@ -246,7 +246,7 @@ class TestService(unittest.TestCase):
                         local_group_controller.app = app
                         local_group_controller.load_config = (lambda: self.ss_config)
                         local_group_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                        local_group_controller.add_members()
+                        local_group_controller.add_member()
 
                         out, err = self.capsys.readouterr()
                         assert out.count("Added member(s)") > 0
@@ -276,7 +276,7 @@ class TestService(unittest.TestCase):
                         local_group_controller.app = app
                         local_group_controller.load_config = (lambda: self.ss_config)
                         local_group_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                        local_group_controller.add_members()
+                        local_group_controller.add_member()
 
                         out, err = self.capsys.readouterr()
                         assert out.count(", already added") > 0
@@ -299,7 +299,7 @@ class TestService(unittest.TestCase):
                         local_group_controller.app = app
                         local_group_controller.load_config = (lambda: self.ss_config)
                         local_group_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                        local_group_controller.add_members()
+                        local_group_controller.add_member()
 
                         out, err = self.capsys.readouterr()
                         assert out.count("local group not found") > 0
@@ -322,7 +322,7 @@ class TestService(unittest.TestCase):
                         local_group_controller.app = app
                         local_group_controller.load_config = (lambda: self.ss_config)
                         local_group_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                        local_group_controller.add_members()
+                        local_group_controller.add_member()
 
                         out, err = self.capsys.readouterr()
                         assert out.count(", member not found") > 0
