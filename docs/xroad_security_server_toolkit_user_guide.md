@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.5
+Version: 2.2.6
 Doc. ID: XRDSST-CONF
 
 ---
@@ -69,6 +69,7 @@ Doc. ID: XRDSST-CONF
 | 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
 | 29.07.2021 | 2.2.4       | Add CSR management commands                                                  | Alberto Fernandez  |
 | 02.08.2021 | 2.2.5       | Add list instance command                                                    | Alberto Fernandez  |
+| 03.08.2021 | 2.2.6       | Add security server list and version list commmands                          | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -176,7 +177,9 @@ Doc. ID: XRDSST-CONF
         * [4.2.14.2 Delete CSR](#42142-delete-csr)
      * [4.2.15 Instances management](#4215-instances-management)
         * [4.2.15.1 List instances:](#42151-list-instances)
-
+     * [4.2.16 Security Server management](#4216-security-server-management)
+        * [4.2.16.1 List Security Servers](#42161-list-security-servers)
+        * [4.2.16.2 List Security Server version](#42162-list-security-server-version)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -1629,6 +1632,52 @@ xrdsst instance list
 
 * SECURITY SERVER name of the security server
 * INSTANCES List of instances discovered for the security server
+
+#### 4.2.16 Security Server management
+##### 4.2.16.1 List Security Servers
+
+* Access rights: Any role
+
+Listing security servers can be done with:
+```
+xrdsst security-server list
+```
+This command will display all discovered security servers
+
+╒═══════════════════╤════════╤═══════════╤════════════╤════════════════╤═══════════════╕
+│ ID                │ CODE   │ ADDRESS   │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │
+╞═══════════════════╪════════╪═══════════╪════════════╪════════════════╪═══════════════╡
+│ DEV:COM:12345:ss2 │ ss2    │ ss2       │ DEV        │ COM            │         12345 │
+├───────────────────┼────────┼───────────┼────────────┼────────────────┼───────────────┤
+│ DEV:ORG:111:ss1   │ ss1    │ ss1       │ DEV        │ ORG            │           111 │
+╘═══════════════════╧════════╧═══════════╧════════════╧════════════════╧═══════════════╛
+
+* ID security server id
+* CODE security server code
+* ADDRESS security server address
+* INSTANCE security server instance
+* MEMBER CLASS security server owner class
+* MEMBER CODE security server owner code
+
+##### 4.2.16.2 List Security Server version
+
+* Access rights: Any role
+
+Listing security server version can be done with:
+```
+xrdsst security-server list-version
+```
+This command will display the version for the security servers stored in the configuration file
+
+╒═══════════════════╤═══════════╕
+│ SECURITY SERVER   │ VERSION   │
+╞═══════════════════╪═══════════╡
+│ ss1               │ 6.26.0    │
+╘═══════════════════╧═══════════╛
+
+* SECURITY SERVER code of the security server
+* VERSION security server version number
+
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
