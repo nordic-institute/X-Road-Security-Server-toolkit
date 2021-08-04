@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.6
+Version: 2.2.7
 Doc. ID: XRDSST-CONF
 
 ---
@@ -70,6 +70,7 @@ Doc. ID: XRDSST-CONF
 | 29.07.2021 | 2.2.4       | Add CSR management commands                                                  | Alberto Fernandez  |
 | 02.08.2021 | 2.2.5       | Add list instance command                                                    | Alberto Fernandez  |
 | 03.08.2021 | 2.2.6       | Add security server list and version list commmands                          | Alberto Fernandez  |
+| 04.08.2021 | 2.2.7       | Add client list command                                                      | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -125,7 +126,8 @@ Doc. ID: XRDSST-CONF
         * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
         * [4.2.6.5 Client unregister](#4265-client-unregister)
         * [4.2.6.6 Client delete](#4266-client-delete)
-        * [4.2.6.6 Client change owner](#4266-client-change-owner)
+        * [4.2.6.7 Client change owner](#4267-client-change-owner)
+        * [4.2.6.8 Client list](#4268-client-list)
      * [4.2.7 Service management commands](#427-service-management-commands)
         * [4.2.7.1 Service add description](#4271-service-add-description)
         * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
@@ -943,7 +945,7 @@ xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 
 The members or subsystem must be unregistered from the security server in order to delete it.
 
-##### 4.2.6.6 Client change owner
+##### 4.2.6.7 Client change owner
 
 * Access rights: XROAD_REGISTRATION_OFFICER
 There are no configuration parameters involved, command line arguments are used instead
@@ -960,6 +962,36 @@ procedures of the X-Road instance.
 Once the owner change request is approved by the X-Road governing authority, the member will automatically become 
 the Owner Member.
 This command will create a new auth key and CSRS for the auth certificate of the new owner
+
+##### 4.2.6.8 Client list
+
+* Access rights: Any role
+
+List clients (subsystem and members) can be done with:
+```
+xrdsst client list --ss <SECURITY_SERVER_NAME>
+```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+
+╒══════════════════╤════════════╤════════════════╤═══════════════╤═══════════════╤═════════════╤═════════╤════════════╤═════════════════╕
+│ ID               │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │ MEMBER NAME   │ SUBSYSTEM   │ OWNER   │ STATUS     │ HAS SIGN CERT   │
+╞══════════════════╪════════════╪════════════════╪═══════════════╪═══════════════╪═════════════╪═════════╪════════════╪═════════════════╡
+│ DEV:COM:12345    │ DEV        │ COM            │         12345 │ COMPANY       │             │ False   │ SAVED      │ True            │
+├──────────────────┼────────────┼────────────────┼───────────────┼───────────────┼─────────────┼─────────┼────────────┼─────────────────┤
+│ DEV:ORG:111      │ DEV        │ ORG            │           111 │ NIIS          │             │ True    │ REGISTERED │ True            │
+├──────────────────┼────────────┼────────────────┼───────────────┼───────────────┼─────────────┼─────────┼────────────┼─────────────────┤
+│ DEV:ORG:111:TEST │ DEV        │ ORG            │           111 │ NIIS          │ TEST        │ False   │ REGISTERED │ True            │
+╘══════════════════╧════════════╧════════════════╧═══════════════╧═══════════════╧═════════════╧═════════╧════════════╧═════════════════╛
+
+* ID client id
+* INSTANCE client instance
+* MEMBER CLASS client member class
+* MEMBER CODE client member code
+* MEMBER NAME client member name
+* SUBSYSTEM client subsystem code (empty for members)
+* OWNER true if the client is the owner of the security server
+* STATUS client status between SAVED, REGISTRATION IN PROGRESS, REGISTERED, GLOBAL ERROR, DELETION IN PROGRESS, DELETED
+* HAS SIGN CERT true if the client has a valid sign certificate
 
 #### 4.2.7 Service management commands
 
