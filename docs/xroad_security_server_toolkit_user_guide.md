@@ -822,6 +822,8 @@ SIGN and AUTH certificate information of the security servers can be listed with
 ```
 xrdsst cert list
 ```
+
+```
 ╒══════╤════════════════════════════════╤════════════════╤══════════════════════════════════════════╤══════════╤══════════════╤════════════════════╤════════════╤═════════════╕
 │ ss   │ label                          │ type           │ hash                                     │ active   │ expiration   │ ocsp_status        │ status     │ subject     │
 ╞══════╪════════════════════════════════╪════════════════╪══════════════════════════════════════════╪══════════╪══════════════╪════════════════════╪════════════╪═════════════╡
@@ -831,6 +833,7 @@ xrdsst cert list
 ├──────┼────────────────────────────────┼────────────────┼──────────────────────────────────────────┼──────────┼──────────────┼────────────────────┼────────────┼─────────────┤
 │ ss1  │ ss1-default-sign-key_COM_12345 │ SIGNING        │ CF09F4944E0EC2B2E3B149C1AC9C0DD4990C62D6 │ True     │ 2041/06/10   │ OCSP_RESPONSE_GOOD │ REGISTERED │ DEV/ss1/COM │
 ╘══════╧════════════════════════════════╧════════════════╧══════════════════════════════════════════╧══════════╧══════════════╧════════════════════╧════════════╧═════════════╛
+```
 
 The table above shows the following information about the certificates:
 
@@ -973,6 +976,7 @@ xrdsst client list --ss <SECURITY_SERVER_NAME>
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 
+```
 ╒══════════════════╤════════════╤════════════════╤═══════════════╤═══════════════╤═════════════╤═════════╤════════════╤═════════════════╕
 │ ID               │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │ MEMBER NAME   │ SUBSYSTEM   │ OWNER   │ STATUS     │ HAS SIGN CERT   │
 ╞══════════════════╪════════════╪════════════════╪═══════════════╪═══════════════╪═════════════╪═════════╪════════════╪═════════════════╡
@@ -982,6 +986,7 @@ xrdsst client list --ss <SECURITY_SERVER_NAME>
 ├──────────────────┼────────────┼────────────────┼───────────────┼───────────────┼─────────────┼─────────┼────────────┼─────────────────┤
 │ DEV:ORG:111:TEST │ DEV        │ ORG            │           111 │ NIIS          │ TEST        │ False   │ REGISTERED │ True            │
 ╘══════════════════╧════════════╧════════════════╧═══════════════╧═══════════════╧═════════════╧═════════╧════════════╧═════════════════╛
+```
 
 * ID client id
 * INSTANCE client instance
@@ -1211,11 +1216,12 @@ xrdsst endpoint add-access
 
 List service endpoints can be done with:
 ```
-xrdsst endpoint list --ss <SECURITY_SERVER_NAME>
+xrdsst endpoint list --ss <SECURITY_SERVER_NAME> --description <SERVICE_DESCRIPTION_ID>
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
+```
 ╒═══════════════╤════════╤═══════════╤══════════════════╤══════════════════╤════════════════════════════════════════════════════╤══════════╕
 │   ENDPOINT ID │ PATH   │ METHOD    │ SERVICE CODE     │ CLIENT           │ SERVICE DESCRIPTION                                │ TYPE     │
 ╞═══════════════╪════════╪═══════════╪══════════════════╪══════════════════╪════════════════════════════════════════════════════╪══════════╡
@@ -1225,6 +1231,7 @@ xrdsst endpoint list --ss <SECURITY_SERVER_NAME>
 ├───────────────┼────────┼───────────┼──────────────────┼──────────────────┼────────────────────────────────────────────────────┼──────────┤ 
 │            17 │ GET    │ /pets/*   │ Petstore         │ DEV:ORG:111:TEST │ https://raw.githubusercontent.com/OpenAPITools/... │ OPENAPI3 │
 ╘═══════════════╧════════╧═══════════╧══════════════════╧══════════════════╧════════════════════════════════════════════════════╧══════════╛
+```
 
 The table above shows the following information about the endpoint:
 
@@ -1242,7 +1249,7 @@ The table above shows the following information about the endpoint:
 
 Single endpoint can be updated with with:
 ```
-xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --method <ENDPOINT_METHOD> --path <ENDPOINT_PATH>
+xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --method <ENDPOINT_METHOD> --path <ENDPOINT_PATH>
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <ENDPOINT_ID> id of the endpoint to be updated, e.g. 1
@@ -1255,7 +1262,7 @@ xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --method 
 
 Single endpoint can be updated with with:
 ```
-xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> 
+xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <ENDPOINT_ID> id of the endpoint to be delete, e.g. 1
@@ -1266,12 +1273,13 @@ xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID>
 
 List service endpoint access can be done:
 ```
-xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> 
+xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
 
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <ENDPOINT_ID> id of the endpoint, e.g. 123, multiple values can also be given, separated by comma, e.g. 1,2,3
 
+```
 ╒═══════════════╤════════════╤════════════════╤═══════════════════════════════════════════════════╕
 │   ENDPOINT ID │ ENDPOINT   │ SERVICE CODE   │ ACCESS RIGHTS                                     │
 ╞═══════════════╪════════════╪════════════════╪═══════════════════════════════════════════════════╡
@@ -1279,6 +1287,7 @@ xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID>
 ├───────────────┼────────────┼────────────────┼───────────────────────────────────────────────────┤
 │            26 │ * **       │ ownerChange    │ DEV:security-server-owners                        │
 ╘═══════════════╧════════════╧════════════════╧═══════════════════════════════════════════════════╛
+```
 
 The table above shows the following information about the endpoint access:
 
@@ -1293,7 +1302,7 @@ The table above shows the following information about the endpoint access:
 
 Endpoints access rights can be deleted with:
 ```
-xrdsst endpoint delete-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
+xrdsst endpoint delete-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
 ```
 
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
@@ -1369,6 +1378,7 @@ xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <CLIENT_ID> subsystem client id, e.g. DEV:COM:12345:COMPANY
 
+```
 ╒══════╤════════════╤════════════════════════╤═════════════════════════════════════════════════════════╕
 │   ID │ CODE       │ DESCRIPTION            │ MEMBERS                                                 │
 ╞══════╪════════════╪════════════════════════╪═════════════════════════════════════════════════════════╡
@@ -1376,7 +1386,7 @@ xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ├──────┼────────────┼────────────────────────┼─────────────────────────────────────────────────────────┤
 │  125 │ TestGroup  │ Description test group │ ['DEV:GOV:9999:SUBGOV', 'DEV:ORG:0000:SUBORGANIZATION'] │
 ╘══════╧════════════╧════════════════════════╧═════════════════════════════════════════════════════════╛
-
+```
 
 The table above shows the following information about the local groups:
 
@@ -1403,7 +1413,7 @@ xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP
 
 Delete client local group members can be done with:
 ```
-xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
+xrdsst local-group delete-member --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
 ```
 
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
@@ -1492,11 +1502,13 @@ Diagnostic operations for security server can be performed with ``xrdsst diagnos
 
 Listing global-configuration diagnostics can be done with ```xrdsst diagnostics global-configuration```
 
+```
 ╒═══════════════════╤════════════════╤═══════════════╤═════════════════════╤═════════════════════╕
 │ SECURITY_SERVER   │ STATUS_CLASS   │ STATUS_CODE   │ PREV_UPDATE         │ NEXT_UPDATE         │
 ╞═══════════════════╪════════════════╪═══════════════╪═════════════════════╪═════════════════════╡
 │ ss3               │ OK             │ SUCCESS       │ 2021/07/20 11:34:48 │ 2021/07/20 11:35:48 │
 ╘═══════════════════╧════════════════╧═══════════════╧═════════════════════╧═════════════════════╛
+```
 
 * SECURITY_SERVER name of the security server
 * STATUS_CLASS global configuration status class
@@ -1510,11 +1522,13 @@ Listing global-configuration diagnostics can be done with ```xrdsst diagnostics 
 
 Listing OCSP responders diagnostics can be done with ```xrdsst diagnostics ocsp-responders```
 
+```
 ╒═══════════════════╤══════════════════════════════╤═══════════════════════════╤════════════════╤═══════════════╤═════════════════════╤═════════════════════╕
 │ SECURITY_SERVER   │ NAME                         │ URL                       │ STATUS_CLASS   │ STATUS_CODE   │ PREV_UPDATE         │ NEXT_UPDATE         │
 ╞═══════════════════╪══════════════════════════════╪═══════════════════════════╪════════════════╪═══════════════╪═════════════════════╪═════════════════════╡
 │ ss3               │ CN=Test CA, O=X-Road Test CA │ http://10.249.34.187:8888 │ OK             │ SUCCESS       │ 2021/07/20 11:32:52 │ 2021/07/20 11:52:52 │
 ╘═══════════════════╧══════════════════════════════╧═══════════════════════════╧════════════════╧═══════════════╧═════════════════════╧═════════════════════╛
+```
 
 * SECURITY_SERVER name of the security server
 * NAME name of the certification authority
@@ -1529,12 +1543,13 @@ Listing OCSP responders diagnostics can be done with ```xrdsst diagnostics ocsp-
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Listing timestamping services diagnostics can be done with ```xrdsst diagnostics timestamping-services```
-
+```
 ╒═══════════════════╤═══════════════════════════╤════════════════╤════════════════════════════════════╤═════════════════════╕
 │ SECURITY_SERVER   │ URL                       │ STATUS_CLASS   │ STATUS_CODE                        │ PREV_UPDATE         │
 ╞═══════════════════╪═══════════════════════════╪════════════════╪════════════════════════════════════╪═════════════════════╡
 │ ss3               │ http://10.249.34.187:8899 │ WAITING        │ ERROR_CODE_TIMESTAMP_UNINITIALIZED │ 2021/07/20 11:34:53 │
 ╘═══════════════════╧═══════════════════════════╧════════════════╧════════════════════════════════════╧═════════════════════╛
+```
 
 * SECURITY_SERVER name of the security server
 * URL url for the timestamping services
@@ -1564,6 +1579,7 @@ xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
 
+```
 ╒══════════════════════════════════════════╤════════════════════════════════╤════════════════════════════════╤════════════════╤═══════════════════════════════════════════════╤════════════╕
 │ ID                                       │ LABEL                          │ NAME                           │ USAGE          │ POSSIBLE ACTIONS                              │      CERTS │
 ╞══════════════════════════════════════════╪════════════════════════════════╪════════════════════════════════╪════════════════╪═══════════════════════════════════════════════╪════════════╡
@@ -1573,6 +1589,7 @@ xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 ├──────────────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────┼───────────────────────────────────────────────┼────────────┤
 │ 7D98B5BCF30F59351D9D396EF350AE3899286927 │ ss1-default-sign-key_COM_12345 │ ss1-default-sign-key_COM_12345 │ SIGNING        │ DELETE, EDIT_FRIENDLY_NAME, GENERATE_SIGN_CSR │          1 │
 ╘══════════════════════════════════════════╧════════════════════════════════╧════════════════════════════════╧════════════════╧═══════════════════════════════════════════════╧════════════╛
+```
 
 * ID Id of the key
 * LABEL label of the key
@@ -1617,6 +1634,7 @@ xrdsst csr list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
 
+```
 ╒═════════╤══════════════════════════════════════════╤══════════════════════════════════════════╤═════════════╤════════════════╤════════════════════╕
 │   TOKEN │ KEY ID                                   │ CSR ID                                   │ OWNER       │ USAGE          │ POSSIBLE ACTIONS   │
 ╞═════════╪══════════════════════════════════════════╪══════════════════════════════════════════╪═════════════╪════════════════╪════════════════════╡
@@ -1624,6 +1642,7 @@ xrdsst csr list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 ├─────────┼──────────────────────────────────────────┼──────────────────────────────────────────┼─────────────┼────────────────┼────────────────────┤
 │       0 │ F6D58F5400CC9C3D71CF9D42BDE9F51F1BF446B4 │ 6234EAA48BDEF552A1EBC88C4797E147024975ED │ DEV:ORG:111 │ SIGNING        │ DELETE             │
 ╘═════════╧══════════════════════════════════════════╧══════════════════════════════════════════╧═════════════╧════════════════╧════════════════════╛
+```
 
 * TOKEN id of the token
 * KEY ID id of the key owner of the CSR
@@ -1656,11 +1675,13 @@ Listing X-Road instances can be done with:
 xrdsst instance list
 ```
 
+```
 ╒═══════════════════╤═════════════╕
 │ SECURITY SERVER   │ INSTANCES   │
 ╞═══════════════════╪═════════════╡
 │ ss1               │ DEV         │
 ╘═══════════════════╧═════════════╛
+```
 
 * SECURITY SERVER name of the security server
 * INSTANCES List of instances discovered for the security server
@@ -1676,6 +1697,7 @@ xrdsst security-server list
 ```
 This command will display all discovered security servers
 
+```
 ╒═══════════════════╤════════╤═══════════╤════════════╤════════════════╤═══════════════╕
 │ ID                │ CODE   │ ADDRESS   │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │
 ╞═══════════════════╪════════╪═══════════╪════════════╪════════════════╪═══════════════╡
@@ -1683,6 +1705,7 @@ This command will display all discovered security servers
 ├───────────────────┼────────┼───────────┼────────────┼────────────────┼───────────────┤
 │ DEV:ORG:111:ss1   │ ss1    │ ss1       │ DEV        │ ORG            │           111 │
 ╘═══════════════════╧════════╧═══════════╧════════════╧════════════════╧═══════════════╛
+```
 
 * ID security server id
 * CODE security server code
@@ -1701,11 +1724,13 @@ xrdsst security-server list-version
 ```
 This command will display the version for the security servers stored in the configuration file
 
+```
 ╒═══════════════════╤═══════════╕
 │ SECURITY SERVER   │ VERSION   │
 ╞═══════════════════╪═══════════╡
 │ ss1               │ 6.26.0    │
 ╘═══════════════════╧═══════════╛
+```
 
 * SECURITY SERVER code of the security server
 * VERSION security server version number

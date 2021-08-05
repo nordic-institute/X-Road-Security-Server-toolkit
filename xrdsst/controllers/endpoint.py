@@ -118,7 +118,7 @@ class EndpointController(BaseController):
         self.list_endpoints(active_config, self.app.pargs.ss, description_ids)
 
     @ex(help="Update endpoints", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
-                                            (['--id'], {'help': 'Endpoint id', 'dest': 'id'}),
+                                            (['--endpoint'], {'help': 'Endpoint id', 'dest': 'endpoint'}),
                                             (['--method'], {'help': 'Endpoint method', 'dest': 'method'}),
                                             (['--path'], {'help': 'Endpoint path', 'dest': 'path'})
                                             ])
@@ -128,8 +128,8 @@ class EndpointController(BaseController):
         missing_parameters = []
         if self.app.pargs.ss is None:
             missing_parameters.append('ss')
-        if self.app.pargs.id is None:
-            missing_parameters.append('id')
+        if self.app.pargs.endpoint is None:
+            missing_parameters.append('endpoint')
         if self.app.pargs.method is None:
             missing_parameters.append('method')
         if self.app.pargs.path is None:
@@ -140,10 +140,10 @@ class EndpointController(BaseController):
                 'The following parameters missing for updating endpoints: %s' % missing_parameters)
             return
 
-        self.update_endpoint(active_config, self.app.pargs.ss, self.app.pargs.id, self.app.pargs.method, self.app.pargs.path)
+        self.update_endpoint(active_config, self.app.pargs.ss, self.app.pargs.endpoint, self.app.pargs.method, self.app.pargs.path)
 
     @ex(help="Delete endpoints", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
-                                            (['--id'], {'help': 'Endpoint id', 'dest': 'id'})
+                                            (['--endpoint'], {'help': 'Endpoint id', 'dest': 'endpoint'})
                                             ])
     def delete(self):
         active_config = self.load_config()
@@ -151,18 +151,18 @@ class EndpointController(BaseController):
         missing_parameters = []
         if self.app.pargs.ss is None:
             missing_parameters.append('ss')
-        if self.app.pargs.id is None:
-            missing_parameters.append('id')
+        if self.app.pargs.endpoint is None:
+            missing_parameters.append('endpoint')
 
         if len(missing_parameters) > 0:
             BaseController.log_info(
                 'The following parameters missing for deleting endpoints: %s' % missing_parameters)
             return
 
-        self.delete_endpoint(active_config, self.app.pargs.ss, self.app.pargs.id)
+        self.delete_endpoint(active_config, self.app.pargs.ss, self.app.pargs.endpoint)
 
     @ex(help="List endpoints access", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
-                                                 (['--id'], {'help': 'Endpoint id(s)', 'dest': 'id'})
+                                                 (['--endpoint'], {'help': 'Endpoint id(s)', 'dest': 'endpoint'})
                                                  ])
     def list_access(self):
         active_config = self.load_config()
@@ -170,19 +170,19 @@ class EndpointController(BaseController):
         missing_parameters = []
         if self.app.pargs.ss is None:
             missing_parameters.append('ss')
-        if self.app.pargs.id is None:
-            missing_parameters.append('id')
+        if self.app.pargs.endpoint is None:
+            missing_parameters.append('endpoint')
 
         if len(missing_parameters) > 0:
             BaseController.log_info(
                 'The following parameters missing for listing endpoints access: %s' % missing_parameters)
             return
-        endpoint_ids = parse_argument_list(self.app.pargs.id)
+        endpoint_ids = parse_argument_list(self.app.pargs.endpoint)
 
         self.list_endpoints_access(active_config, self.app.pargs.ss, endpoint_ids)
 
     @ex(help="Delete endpoints access rights", arguments=[(['--ss'], {'help': 'Security server name', 'dest': 'ss'}),
-                                                          (['--id'], {'help': 'Endpoint id(s)', 'dest': 'id'}),
+                                                          (['--endpoint'], {'help': 'Endpoint id(s)', 'dest': 'endpoint'}),
                                                           (['--access'], {'help': 'Endpoint id(s)', 'dest': 'access'})
                                                           ])
     def delete_access(self):
@@ -191,8 +191,8 @@ class EndpointController(BaseController):
         missing_parameters = []
         if self.app.pargs.ss is None:
             missing_parameters.append('ss')
-        if self.app.pargs.id is None:
-            missing_parameters.append('id')
+        if self.app.pargs.endpoint is None:
+            missing_parameters.append('endpoint')
         if self.app.pargs.access is None:
             missing_parameters.append('access')
 
@@ -200,7 +200,7 @@ class EndpointController(BaseController):
             BaseController.log_info(
                 'The following parameters missing for deleting endpoints access: %s' % missing_parameters)
             return
-        endpoint_ids = parse_argument_list(self.app.pargs.id)
+        endpoint_ids = parse_argument_list(self.app.pargs.endpoint)
         access_rights = parse_argument_list(self.app.pargs.access)
 
         self.delete_endpoints_access(active_config, self.app.pargs.ss, endpoint_ids, access_rights)
