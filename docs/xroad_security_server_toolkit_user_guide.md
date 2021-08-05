@@ -2115,7 +2115,7 @@ UI in the tab <strong>KEYS AND CERTIFICATE</strong> => <strong>SIGN AND AUTH KEY
 To renew the certificates we must:
 
 1. Create new CRS keys for the new certificates using the [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys) command. 
-2. Download and sign the new certificates.
+2. Download and sign the new certificates using the [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs) command.
 3. Add the signed certificates to the [certificates list](#322-security-servers-configuration) of the security server 
    in the configuration file.
 4. Import the certificates by running the [certificate import](#4252-certificate-import) command.
@@ -2126,7 +2126,7 @@ To renew the certificates we must:
    It's recommended to wait at least one day so that the new certificates can be distributed for the access server does not crash.
 7. Disable the old certificates by running the [Certificate disable](#4257-certificate-disable) command.
 8. Unregister the old  certificates by running the [Certificate unregister](#4258-certificate-unregister) command.
-9. Delete the old AUTH certificate by running the [Certificate delete](#4259-certificate-delete) command.
+9. Delete the olds AUTH and SIGN keys and certificates by running the [4.2.13.3 Delete keys](#42133-delete-keys) command.
 
 ## 10 Change security server owner
 
