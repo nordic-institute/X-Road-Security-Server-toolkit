@@ -79,5 +79,5 @@ class BackupTest:
         self.step_add_backup()
         self.step_list_backups()
         self.step_download_backups()
-        # self.step_restore_backup()
-        # self.step_delete_backups()
+        self.step_restore_backup()
+        self.step_delete_backups()

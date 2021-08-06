@@ -142,6 +142,3 @@ class RenewCertificate:
         self.step_disable_certificates(old_certificates)
         self.step_delete_certificates(old_certificates)
 
-        # time.sleep(600)
-        # for ssn in range(0, len(self.test.config["security_server"])):
-        # waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.test.config, ssn), 1, 300)
