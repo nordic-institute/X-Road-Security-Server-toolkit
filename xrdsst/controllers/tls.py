@@ -41,7 +41,7 @@ class TlsController(BaseController):
         description = texts['tls.controller.description']
 
     @ex(help="Download internal TLS certificate, if any.", arguments=[])
-    def download_tls(self):
+    def download(self):
         active_config = self.load_config()
 
         return self.download_internal_tls(active_config)
@@ -61,9 +61,7 @@ class TlsController(BaseController):
             BaseController.log_info('The following parameters missing for listing keys: %s' % missing_parameters)
             return
 
-        tokens = parse_argument_list(self.app.pargs.token)
-
-        self.list_keys(active_config, self.app.pargs.ss, tokens)
+        self.generate_tls_keys(active_config, self.app.pargs.ss)
 
     def download_internal_tls(self, config):
         downloaded_internal = []
@@ -131,8 +129,8 @@ class TlsController(BaseController):
     def remote_generate_tls_keys(ss_api_config, ss_name):
         system_api = SystemApi(ApiClient(ss_api_config))
         try:
-            result = system_api.generate_system_tls_key_and_certificate()
+            system_api.generate_system_tls_key_and_certificate()
             BaseController.log_info("Generated TLS key and certificate for security server: '%s'" % ss_name)
-        except:
-            BaseController.log_api_error("SystemApi=>generate_system_tls_key_and_certificate")
+        except ApiException as err:
+            BaseController.log_api_error("SystemApi=>generate_system_tls_key_and_certificate", err)
 

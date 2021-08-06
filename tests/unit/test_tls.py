@@ -6,7 +6,8 @@ import pytest
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.controllers.tls import TlsController
 from xrdsst.main import XRDSSTTest
-
+from argparse import Namespace
+import sys
 
 class TestTls(unittest.TestCase):
     authcert_existing = os.path.join(ROOT_DIR, "tests/resources/authcert.pem")
@@ -77,7 +78,7 @@ class TestTls(unittest.TestCase):
                 tls_controller.load_config = (lambda: self.ss_config)
 
                 # cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                reported_downloads = tls_controller.download_tls()
+                reported_downloads = tls_controller.download()
 
                 assert len(reported_downloads) == 2
                 assert reported_downloads[0].security_server.count("ssX") == 1
@@ -90,3 +91,20 @@ class TestTls(unittest.TestCase):
                 assert ssY_cert == reported_downloads[1].fs_loc
                 assert os.path.exists(ssY_cert)
 
+    def test_generate_new_tls_key(self):
+        with XRDSSTTest() as app:
+            ss_name = 'ssX'
+            app._parsed_args = Namespace(ss=ss_name)
+            with mock.patch('xrdsst.api.system_api.SystemApi.generate_system_tls_key_and_certificate',
+                            return_value={}):
+                tls_controller = TlsController()
+                tls_controller.app = app
+                tls_controller.load_config = (lambda: self.ss_config)
+                tls_controller.generate_key()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("Generated TLS key and certificate for security server: '%s'" % ss_name) > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)

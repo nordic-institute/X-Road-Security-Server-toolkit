@@ -92,26 +92,6 @@ class CertificateTest:
                 configuration = cert_controller.create_api_config(security_server, self.test.config)
                 cert_controller.remote_activate_certificate(configuration, security_server)
 
-    def step_cert_download_csrs(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            cert_controller.load_config = (lambda: self.test.config)
-            result = cert_controller.download_csrs()
-
-            assert len(result) == 6
-
-            fs_loc_list = []
-            csrs = []
-            for csr in result:
-                fs_loc_list.append(csr.fs_loc)
-                csrs.append((str(csr.key_type).lower(), csr.fs_loc))
-            flag = len(set(fs_loc_list)) == len(fs_loc_list)
-
-            assert flag is True
-
-            return csrs
-
     @staticmethod
     def step_acquire_certs(downloaded_csrs, security_server):
         tca_sign_url = find_test_ca_sign_url(security_server['configuration_anchor'])
@@ -132,28 +112,6 @@ class CertificateTest:
             signed_certs = self.step_acquire_certs(downloaded_csrs[(ssn * 3):(ssn * 3 + 3)], security_server)
             self.test.config['security_server'][ssn]['certificates'] = signed_certs
             ssn = ssn + 1
-
-    def step_import_tls_certificate(self):
-        with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
-            ssn = 0
-            for security_server in self.test.config["security_server"]:
-                configuration = client_controller.create_api_config(security_server, self.test.config)
-                client_conf = {
-                    "member_name": security_server["owner_dn_org"],
-                    "member_code": security_server["owner_member_code"],
-                    "member_class": security_server["owner_member_class"]
-                }
-                client_controller.remote_import_tls_certificate(configuration, security_server["tls_certificates"], client_conf)
-
-                if "clients" in security_server:
-                    for client in security_server["clients"]:
-                        if "tls_certificates" in client:
-                            client_controller.remote_import_tls_certificate(configuration, client["tls_certificates"], client)
-                            tls_certs = getClientTlsCertificates(self.test.config, client, ssn)
-                            assert len(tls_certs) == 1
-                ssn = ssn + 1
 
     def list_certificates(self):
         with XRDSSTTest() as app:
@@ -208,5 +166,3 @@ class CertificateTest:
 
         self.step_cert_activate()
         self.list_certificates()
-        self.step_import_tls_certificate()
-        self.step_cert_download_internal_tls()
