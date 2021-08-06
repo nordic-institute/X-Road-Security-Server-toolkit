@@ -1,5 +1,5 @@
 from tests.util.test_util import get_client
-from xrdsst.controllers.client import ClientController
+from xrdsst.controllers.client import ClientController, ClientsListMapper
 from xrdsst.controllers.service import ServiceController
 from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
@@ -131,10 +131,25 @@ class ClientTest:
                 configuration = client_controller.create_api_config(self.test.config["security_server"][0], self.test.config)
                 client_controller.remote_make_member_owner(configuration, security_server["name"], member)
 
+    def step_client_list(self):
+        with XRDSSTTest() as app:
+            client_controller = ClientController()
+            client_controller.app = app
+            client_controller.load_config = (lambda: self.test.config)
+            for security_server in self.test.config["security_server"]:
+                configuration = client_controller.create_api_config(security_server, self.test.config)
+                clients = client_controller.remote_list_clients(configuration)
+
+            for header in ClientsListMapper.headers():
+                assert header in client_controller.app._last_rendered[0][0]
+
+            assert len(client_controller.app._last_rendered[0]) == (len(clients) + 1)
+
     def test_run_configuration(self):
         self.step_subsystem_add_client_fail_member_class_missing()
         self.step_subsystem_add_client_fail_member_code_missing()
         self.step_subsystem_register_fail_client_not_saved()
         self.step_add_service_description_fail_client_not_saved()
         self.step_subsystem_add_client()
+        self.step_client_list()
         self.client_step_make_owner()

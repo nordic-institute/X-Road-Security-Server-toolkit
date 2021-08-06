@@ -8,7 +8,7 @@ import pytest
 from urllib3._collections import HTTPHeaderDict
 
 from tests.util.test_util import StatusTestData
-from xrdsst.controllers.client import ClientController
+from xrdsst.controllers.client import ClientController, ClientsListMapper
 from xrdsst.models import Client, ConnectionType, ClientStatus
 from xrdsst.main import XRDSSTTest
 from xrdsst.resources.texts import server_error_map, ascii_art
@@ -699,3 +699,39 @@ class TestClient(unittest.TestCase):
                     with self.capsys.disabled():
                         sys.stdout.write(out)
                         sys.stderr.write(err)
+
+    def test_client_list(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss='ssX')
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients',
+                            return_value=[ClientTestData.add_response]):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.list()
+
+                for header in ClientsListMapper.headers():
+                    assert header in client_controller.app._last_rendered[0][0]
+
+                assert client_controller.app._last_rendered[0][1][0] == 'DEV:GOV:9876:SUB1'
+                assert client_controller.app._last_rendered[0][1][1] == 'DEV'
+                assert client_controller.app._last_rendered[0][1][2] == 'GOV'
+
+    def test_key_list_ss_missing(self):
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(ss=None)
+            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients',
+                            return_value=[ClientTestData.add_response]):
+                client_controller = ClientController()
+                client_controller.app = app
+                client_controller.load_config = (lambda: self.ss_config)
+                client_controller.list()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("The following parameters missing listing clients: ['ss']") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+                assert client_controller.app._last_rendered is None

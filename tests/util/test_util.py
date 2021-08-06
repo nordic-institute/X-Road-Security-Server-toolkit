@@ -391,3 +391,12 @@ def auth_cert_registration_global_configuration_update_received(config, ssn):
     response = json.loads(result.content)
     registered_auth_keys = list(filter(registered_auth_key, response['keys']))
     return bool(registered_auth_keys)
+
+# Returns service clients for given service
+def get_token(config, token_id, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    return api_GET(
+        config["security_server"][ssn]["url"],
+        "tokens/" + token_id,
+        api_key
+    )

@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.2
+Version: 2.2.7
 Doc. ID: XRDSST-CONF
 
 ---
@@ -66,6 +66,11 @@ Doc. ID: XRDSST-CONF
 | 19.07.2021 | 2.2.0       | Add diagnostics management                                                   | Bert Viikmäe       |
 | 20.07.2021 | 2.2.1       | Add endpoint update and delete command                                       | Alberto Fernandez  |
 | 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
+| 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
+| 29.07.2021 | 2.2.4       | Add CSR management commands                                                  | Alberto Fernandez  |
+| 02.08.2021 | 2.2.5       | Add list instance command                                                    | Alberto Fernandez  |
+| 03.08.2021 | 2.2.6       | Add security server list and version list commmands                          | Alberto Fernandez  |
+| 04.08.2021 | 2.2.7       | Add client list command                                                      | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -121,7 +126,8 @@ Doc. ID: XRDSST-CONF
         * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
         * [4.2.6.5 Client unregister](#4265-client-unregister)
         * [4.2.6.6 Client delete](#4266-client-delete)
-        * [4.2.6.6 Client change owner](#4266-client-change-owner)
+        * [4.2.6.7 Client change owner](#4267-client-change-owner)
+        * [4.2.6.8 Client list](#4268-client-list)
      * [4.2.7 Service management commands](#427-service-management-commands)
         * [4.2.7.1 Service add description](#4271-service-add-description)
         * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
@@ -164,6 +170,18 @@ Doc. ID: XRDSST-CONF
         * [4.2.12.2 OCSP responders diagnostics](#42122-ocsp-responders-diagnostics)
         * [4.2.12.3 Timestamping services diagnostics](#42123-timestamping-services-diagnostics)
         * [4.2.12.4 All diagnostics](#42124-all-diagnostics)
+     * [4.2.13 Keys management](#4213-keys-management)
+        * [4.2.13.1 List keys](#42131-list-keys)
+        * [4.2.13.2 Update keys](#42132-update-keys)
+        * [4.2.13.3 Delete keys](#42133-delete-keys)
+     * [4.2.14 CSR management](#4214-csr-management)
+        * [4.2.14.1 List CSR](#42141-list-csr)
+        * [4.2.14.2 Delete CSR](#42142-delete-csr)
+     * [4.2.15 Instances management](#4215-instances-management)
+        * [4.2.15.1 List instances:](#42151-list-instances)
+     * [4.2.16 Security Server management](#4216-security-server-management)
+        * [4.2.16.1 List Security Servers](#42161-list-security-servers)
+        * [4.2.16.2 List Security Server version](#42162-list-security-server-version)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
   * [5.1 Configuration flow](#51-configuration-flow)
   * [5.2 First-run failures](#52-first-run-failures)
@@ -177,6 +195,8 @@ Doc. ID: XRDSST-CONF
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
 * [10 Change security server owner](#10-change-security-server-owner)
+
+
 
 
 <!-- vim-markdown-toc -->
@@ -802,6 +822,8 @@ SIGN and AUTH certificate information of the security servers can be listed with
 ```
 xrdsst cert list
 ```
+
+```
 ╒══════╤════════════════════════════════╤════════════════╤══════════════════════════════════════════╤══════════╤══════════════╤════════════════════╤════════════╤═════════════╕
 │ ss   │ label                          │ type           │ hash                                     │ active   │ expiration   │ ocsp_status        │ status     │ subject     │
 ╞══════╪════════════════════════════════╪════════════════╪══════════════════════════════════════════╪══════════╪══════════════╪════════════════════╪════════════╪═════════════╡
@@ -811,6 +833,7 @@ xrdsst cert list
 ├──────┼────────────────────────────────┼────────────────┼──────────────────────────────────────────┼──────────┼──────────────┼────────────────────┼────────────┼─────────────┤
 │ ss1  │ ss1-default-sign-key_COM_12345 │ SIGNING        │ CF09F4944E0EC2B2E3B149C1AC9C0DD4990C62D6 │ True     │ 2041/06/10   │ OCSP_RESPONSE_GOOD │ REGISTERED │ DEV/ss1/COM │
 ╘══════╧════════════════════════════════╧════════════════╧══════════════════════════════════════════╧══════════╧══════════════╧════════════════════╧════════════╧═════════════╛
+```
 
 The table above shows the following information about the certificates:
 
@@ -925,7 +948,7 @@ xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 
 The members or subsystem must be unregistered from the security server in order to delete it.
 
-##### 4.2.6.6 Client change owner
+##### 4.2.6.7 Client change owner
 
 * Access rights: XROAD_REGISTRATION_OFFICER
 There are no configuration parameters involved, command line arguments are used instead
@@ -942,6 +965,38 @@ procedures of the X-Road instance.
 Once the owner change request is approved by the X-Road governing authority, the member will automatically become 
 the Owner Member.
 This command will create a new auth key and CSRS for the auth certificate of the new owner
+
+##### 4.2.6.8 Client list
+
+* Access rights: Any role
+
+List clients (subsystem and members) can be done with:
+```
+xrdsst client list --ss <SECURITY_SERVER_NAME>
+```
+* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+
+```
+╒══════════════════╤════════════╤════════════════╤═══════════════╤═══════════════╤═════════════╤═════════╤════════════╤═════════════════╕
+│ ID               │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │ MEMBER NAME   │ SUBSYSTEM   │ OWNER   │ STATUS     │ HAS SIGN CERT   │
+╞══════════════════╪════════════╪════════════════╪═══════════════╪═══════════════╪═════════════╪═════════╪════════════╪═════════════════╡
+│ DEV:COM:12345    │ DEV        │ COM            │         12345 │ COMPANY       │             │ False   │ SAVED      │ True            │
+├──────────────────┼────────────┼────────────────┼───────────────┼───────────────┼─────────────┼─────────┼────────────┼─────────────────┤
+│ DEV:ORG:111      │ DEV        │ ORG            │           111 │ NIIS          │             │ True    │ REGISTERED │ True            │
+├──────────────────┼────────────┼────────────────┼───────────────┼───────────────┼─────────────┼─────────┼────────────┼─────────────────┤
+│ DEV:ORG:111:TEST │ DEV        │ ORG            │           111 │ NIIS          │ TEST        │ False   │ REGISTERED │ True            │
+╘══════════════════╧════════════╧════════════════╧═══════════════╧═══════════════╧═════════════╧═════════╧════════════╧═════════════════╛
+```
+
+* ID client id
+* INSTANCE client instance
+* MEMBER CLASS client member class
+* MEMBER CODE client member code
+* MEMBER NAME client member name
+* SUBSYSTEM client subsystem code (empty for members)
+* OWNER true if the client is the owner of the security server
+* STATUS client status between SAVED, REGISTRATION IN PROGRESS, REGISTERED, GLOBAL ERROR, DELETION IN PROGRESS, DELETED
+* HAS SIGN CERT true if the client has a valid sign certificate
 
 #### 4.2.7 Service management commands
 
@@ -1161,11 +1216,12 @@ xrdsst endpoint add-access
 
 List service endpoints can be done with:
 ```
-xrdsst endpoint list --ss <SECURITY_SERVER_NAME>
+xrdsst endpoint list --ss <SECURITY_SERVER_NAME> --description <SERVICE_DESCRIPTION_ID>
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
 
+```
 ╒═══════════════╤════════╤═══════════╤══════════════════╤══════════════════╤════════════════════════════════════════════════════╤══════════╕
 │   ENDPOINT ID │ PATH   │ METHOD    │ SERVICE CODE     │ CLIENT           │ SERVICE DESCRIPTION                                │ TYPE     │
 ╞═══════════════╪════════╪═══════════╪══════════════════╪══════════════════╪════════════════════════════════════════════════════╪══════════╡
@@ -1175,6 +1231,7 @@ xrdsst endpoint list --ss <SECURITY_SERVER_NAME>
 ├───────────────┼────────┼───────────┼──────────────────┼──────────────────┼────────────────────────────────────────────────────┼──────────┤ 
 │            17 │ GET    │ /pets/*   │ Petstore         │ DEV:ORG:111:TEST │ https://raw.githubusercontent.com/OpenAPITools/... │ OPENAPI3 │
 ╘═══════════════╧════════╧═══════════╧══════════════════╧══════════════════╧════════════════════════════════════════════════════╧══════════╛
+```
 
 The table above shows the following information about the endpoint:
 
@@ -1192,7 +1249,7 @@ The table above shows the following information about the endpoint:
 
 Single endpoint can be updated with with:
 ```
-xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --method <ENDPOINT_METHOD> --path <ENDPOINT_PATH>
+xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --method <ENDPOINT_METHOD> --path <ENDPOINT_PATH>
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <ENDPOINT_ID> id of the endpoint to be updated, e.g. 1
@@ -1205,7 +1262,7 @@ xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --method 
 
 Single endpoint can be updated with with:
 ```
-xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> 
+xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <ENDPOINT_ID> id of the endpoint to be delete, e.g. 1
@@ -1216,12 +1273,13 @@ xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID>
 
 List service endpoint access can be done:
 ```
-xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> 
+xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
 
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 * <ENDPOINT_ID> id of the endpoint, e.g. 123, multiple values can also be given, separated by comma, e.g. 1,2,3
 
+```
 ╒═══════════════╤════════════╤════════════════╤═══════════════════════════════════════════════════╕
 │   ENDPOINT ID │ ENDPOINT   │ SERVICE CODE   │ ACCESS RIGHTS                                     │
 ╞═══════════════╪════════════╪════════════════╪═══════════════════════════════════════════════════╡
@@ -1229,6 +1287,7 @@ xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID>
 ├───────────────┼────────────┼────────────────┼───────────────────────────────────────────────────┤
 │            26 │ * **       │ ownerChange    │ DEV:security-server-owners                        │
 ╘═══════════════╧════════════╧════════════════╧═══════════════════════════════════════════════════╛
+```
 
 The table above shows the following information about the endpoint access:
 
@@ -1243,7 +1302,7 @@ The table above shows the following information about the endpoint access:
 
 Endpoints access rights can be deleted with:
 ```
-xrdsst endpoint delete-access --ss <SECURITY_SERVER_NAME> --id  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
+xrdsst endpoint delete-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
 ```
 
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
@@ -1316,9 +1375,10 @@ List client local groups can be done with:
 ```
 xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
-* <SECURITY_SERVER_NAME> seccurity server name, e.g. ss1
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
 * <CLIENT_ID> subsystem client id, e.g. DEV:COM:12345:COMPANY
 
+```
 ╒══════╤════════════╤════════════════════════╤═════════════════════════════════════════════════════════╕
 │   ID │ CODE       │ DESCRIPTION            │ MEMBERS                                                 │
 ╞══════╪════════════╪════════════════════════╪═════════════════════════════════════════════════════════╡
@@ -1326,7 +1386,7 @@ xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ├──────┼────────────┼────────────────────────┼─────────────────────────────────────────────────────────┤
 │  125 │ TestGroup  │ Description test group │ ['DEV:GOV:9999:SUBGOV', 'DEV:ORG:0000:SUBORGANIZATION'] │
 ╘══════╧════════════╧════════════════════════╧═════════════════════════════════════════════════════════╛
-
+```
 
 The table above shows the following information about the local groups:
 
@@ -1353,7 +1413,7 @@ xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP
 
 Delete client local group members can be done with:
 ```
-xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
+xrdsst local-group delete-member --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
 ```
 
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
@@ -1442,11 +1502,13 @@ Diagnostic operations for security server can be performed with ``xrdsst diagnos
 
 Listing global-configuration diagnostics can be done with ```xrdsst diagnostics global-configuration```
 
+```
 ╒═══════════════════╤════════════════╤═══════════════╤═════════════════════╤═════════════════════╕
 │ SECURITY_SERVER   │ STATUS_CLASS   │ STATUS_CODE   │ PREV_UPDATE         │ NEXT_UPDATE         │
 ╞═══════════════════╪════════════════╪═══════════════╪═════════════════════╪═════════════════════╡
 │ ss3               │ OK             │ SUCCESS       │ 2021/07/20 11:34:48 │ 2021/07/20 11:35:48 │
 ╘═══════════════════╧════════════════╧═══════════════╧═════════════════════╧═════════════════════╛
+```
 
 * SECURITY_SERVER name of the security server
 * STATUS_CLASS global configuration status class
@@ -1460,11 +1522,13 @@ Listing global-configuration diagnostics can be done with ```xrdsst diagnostics 
 
 Listing OCSP responders diagnostics can be done with ```xrdsst diagnostics ocsp-responders```
 
+```
 ╒═══════════════════╤══════════════════════════════╤═══════════════════════════╤════════════════╤═══════════════╤═════════════════════╤═════════════════════╕
 │ SECURITY_SERVER   │ NAME                         │ URL                       │ STATUS_CLASS   │ STATUS_CODE   │ PREV_UPDATE         │ NEXT_UPDATE         │
 ╞═══════════════════╪══════════════════════════════╪═══════════════════════════╪════════════════╪═══════════════╪═════════════════════╪═════════════════════╡
 │ ss3               │ CN=Test CA, O=X-Road Test CA │ http://10.249.34.187:8888 │ OK             │ SUCCESS       │ 2021/07/20 11:32:52 │ 2021/07/20 11:52:52 │
 ╘═══════════════════╧══════════════════════════════╧═══════════════════════════╧════════════════╧═══════════════╧═════════════════════╧═════════════════════╛
+```
 
 * SECURITY_SERVER name of the security server
 * NAME name of the certification authority
@@ -1479,12 +1543,13 @@ Listing OCSP responders diagnostics can be done with ```xrdsst diagnostics ocsp-
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Listing timestamping services diagnostics can be done with ```xrdsst diagnostics timestamping-services```
-
+```
 ╒═══════════════════╤═══════════════════════════╤════════════════╤════════════════════════════════════╤═════════════════════╕
 │ SECURITY_SERVER   │ URL                       │ STATUS_CLASS   │ STATUS_CODE                        │ PREV_UPDATE         │
 ╞═══════════════════╪═══════════════════════════╪════════════════╪════════════════════════════════════╪═════════════════════╡
 │ ss3               │ http://10.249.34.187:8899 │ WAITING        │ ERROR_CODE_TIMESTAMP_UNINITIALIZED │ 2021/07/20 11:34:53 │
 ╘═══════════════════╧═══════════════════════════╧════════════════╧════════════════════════════════════╧═════════════════════╛
+```
 
 * SECURITY_SERVER name of the security server
 * URL url for the timestamping services
@@ -1499,6 +1564,177 @@ Listing timestamping services diagnostics can be done with ```xrdsst diagnostics
 Listing all the diagnostics can be done with ```xrdsst diagnostics all```
 
 This command will list all the information from 4.2.12.1 - 4.2.12.3
+
+#### 4.2.13 Keys management
+
+##### 4.2.13.1 List keys
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+Listing certificate keys can be done with:
+```
+xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
+```
+
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
+
+```
+╒══════════════════════════════════════════╤════════════════════════════════╤════════════════════════════════╤════════════════╤═══════════════════════════════════════════════╤════════════╕
+│ ID                                       │ LABEL                          │ NAME                           │ USAGE          │ POSSIBLE ACTIONS                              │      CERTS │
+╞══════════════════════════════════════════╪════════════════════════════════╪════════════════════════════════╪════════════════╪═══════════════════════════════════════════════╪════════════╡
+│ 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E │ ss1-default-auth-key           │ ss1-default-auth-key           │ AUTHENTICATION │ DELETE, EDIT_FRIENDLY_NAME, GENERATE_AUTH_CSR │          1 │
+├──────────────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────┼───────────────────────────────────────────────┼────────────┤
+│ D6EFFF21413B0A6974D087949995B4C677DFD8D1 │ ss1-default-sign-key           │ ss1-default-sign-key           │ SIGNING        │ DELETE, EDIT_FRIENDLY_NAME, GENERATE_SIGN_CSR │          1 │
+├──────────────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────┼───────────────────────────────────────────────┼────────────┤
+│ 7D98B5BCF30F59351D9D396EF350AE3899286927 │ ss1-default-sign-key_COM_12345 │ ss1-default-sign-key_COM_12345 │ SIGNING        │ DELETE, EDIT_FRIENDLY_NAME, GENERATE_SIGN_CSR │          1 │
+╘══════════════════════════════════════════╧════════════════════════════════╧════════════════════════════════╧════════════════╧═══════════════════════════════════════════════╧════════════╛
+```
+
+* ID Id of the key
+* LABEL label of the key
+* NAME friendly name of the key
+* USAGE type of certificate that can be used with the key
+* POSSIBLE ACTIONS List of possible actions that can be done to the key sepparated by comma
+* CERTS number of certificates added to the key
+
+##### 4.2.13.2 Update keys
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+The friendly name of a key can be updated with:
+```
+xrdsst key update --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --name <FRIENDLY_NAME>
+```
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <KEY_ID> key id, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
+* <FRIENDLY_NAME> new friendly name to be updated
+
+##### 4.2.13.3 Delete keys
+
+* Access rights: XROAD_SECURITY_OFFICER
+Keys can be deleted with:
+```
+xrdsst key delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> 
+```
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <KEY_ID> key id for delete, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
+
+#### 4.2.14 CSR management
+
+##### 4.2.14.1 List CSR
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+Listing certificate signing request can be done with:
+```
+xrdsst csr list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
+```
+
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
+
+```
+╒═════════╤══════════════════════════════════════════╤══════════════════════════════════════════╤═════════════╤════════════════╤════════════════════╕
+│   TOKEN │ KEY ID                                   │ CSR ID                                   │ OWNER       │ USAGE          │ POSSIBLE ACTIONS   │
+╞═════════╪══════════════════════════════════════════╪══════════════════════════════════════════╪═════════════╪════════════════╪════════════════════╡
+│       0 │ 6C4A925F1DCF78043CD84DA31868ED20C9616883 │ D9C0A62D8F67BD2A64B9BE26CDAF3064DDE547DE │             │ AUTHENTICATION │ DELETE             │
+├─────────┼──────────────────────────────────────────┼──────────────────────────────────────────┼─────────────┼────────────────┼────────────────────┤
+│       0 │ F6D58F5400CC9C3D71CF9D42BDE9F51F1BF446B4 │ 6234EAA48BDEF552A1EBC88C4797E147024975ED │ DEV:ORG:111 │ SIGNING        │ DELETE             │
+╘═════════╧══════════════════════════════════════════╧══════════════════════════════════════════╧═════════════╧════════════════╧════════════════════╛
+```
+
+* TOKEN id of the token
+* KEY ID id of the key owner of the CSR
+* CSR ID id of the CSR
+* OWNER member id who owns the CSR
+* USAGE type of certificate that can be used with the key
+* POSSIBLE ACTIONS List of possible actions that can be done to the key sepparated by comma
+
+##### 4.2.14.2 Delete CSR
+
+* Access rights: XROAD_SECURITY_OFFICER
+
+Delete certificate signing request can be done with:
+```
+xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
+```
+
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <KEY_ID>  id of the key who owns the CSR
+* <CSR_ID> id of the CSR to be deleted, multiple values can also be given, separated by comma, e.g. D9C0A62D8F67BD2A64B9BE26CDAF3064DDE547DE,6234EAA48BDEF552A1EBC88C4797E147024975ED
+
+#### 4.2.15 Instances management
+
+##### 4.2.15.1 List instances:
+
+* Access rights: Any role
+
+Listing X-Road instances can be done with:
+```
+xrdsst instance list
+```
+
+```
+╒═══════════════════╤═════════════╕
+│ SECURITY SERVER   │ INSTANCES   │
+╞═══════════════════╪═════════════╡
+│ ss1               │ DEV         │
+╘═══════════════════╧═════════════╛
+```
+
+* SECURITY SERVER name of the security server
+* INSTANCES List of instances discovered for the security server
+
+#### 4.2.16 Security Server management
+##### 4.2.16.1 List Security Servers
+
+* Access rights: Any role
+
+Listing security servers can be done with:
+```
+xrdsst security-server list
+```
+This command will display all discovered security servers
+
+```
+╒═══════════════════╤════════╤═══════════╤════════════╤════════════════╤═══════════════╕
+│ ID                │ CODE   │ ADDRESS   │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │
+╞═══════════════════╪════════╪═══════════╪════════════╪════════════════╪═══════════════╡
+│ DEV:COM:12345:ss2 │ ss2    │ ss2       │ DEV        │ COM            │         12345 │
+├───────────────────┼────────┼───────────┼────────────┼────────────────┼───────────────┤
+│ DEV:ORG:111:ss1   │ ss1    │ ss1       │ DEV        │ ORG            │           111 │
+╘═══════════════════╧════════╧═══════════╧════════════╧════════════════╧═══════════════╛
+```
+
+* ID security server id
+* CODE security server code
+* ADDRESS security server address
+* INSTANCE security server instance
+* MEMBER CLASS security server owner class
+* MEMBER CODE security server owner code
+
+##### 4.2.16.2 List Security Server version
+
+* Access rights: Any role
+
+Listing security server version can be done with:
+```
+xrdsst security-server list-version
+```
+This command will display the version for the security servers stored in the configuration file
+
+```
+╒═══════════════════╤═══════════╕
+│ SECURITY SERVER   │ VERSION   │
+╞═══════════════════╪═══════════╡
+│ ss1               │ 6.26.0    │
+╘═══════════════════╧═══════════╛
+```
+
+* SECURITY SERVER code of the security server
+* VERSION security server version number
+
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
@@ -1879,7 +2115,7 @@ UI in the tab <strong>KEYS AND CERTIFICATE</strong> => <strong>SIGN AND AUTH KEY
 To renew the certificates we must:
 
 1. Create new CRS keys for the new certificates using the [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys) command. 
-2. Download and sign the new certificates.
+2. Download and sign the new certificates using the [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs) command.
 3. Add the signed certificates to the [certificates list](#322-security-servers-configuration) of the security server 
    in the configuration file.
 4. Import the certificates by running the [certificate import](#4252-certificate-import) command.
@@ -1890,7 +2126,7 @@ To renew the certificates we must:
    It's recommended to wait at least one day so that the new certificates can be distributed for the access server does not crash.
 7. Disable the old certificates by running the [Certificate disable](#4257-certificate-disable) command.
 8. Unregister the old  certificates by running the [Certificate unregister](#4258-certificate-unregister) command.
-9. Delete the old AUTH certificate by running the [Certificate delete](#4259-certificate-delete) command.
+9. Delete the olds AUTH and SIGN keys and certificates by running the [4.2.13.3 Delete keys](#42133-delete-keys) command.
 
 ## 10 Change security server owner
 

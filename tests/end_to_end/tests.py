@@ -13,6 +13,7 @@ from tests.end_to_end.diagnostics_test import DiagnosticsTest
 from tests.end_to_end.initialization_test import InitializationTest
 from tests.end_to_end.member_test import MemberTest
 from tests.end_to_end.service_endpoint_test import ServiceEndpointTest
+from tests.end_to_end.keys_test import KeysTest
 from tests.util.test_util import get_client, assert_server_statuses_transitioned
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
@@ -23,6 +24,9 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models import ClientStatus
 from tests.end_to_end.renew_certificate import RenewCertificate
 from tests.end_to_end.local_group_test import LocalGroupTest
+from tests.end_to_end.csr_test import CsrTest
+from tests.end_to_end.instance_test import InstanceTest
+from tests.end_to_end.security_server_test import SecurityServerTest
 import time
 
 class EndToEndTest(unittest.TestCase):
@@ -169,6 +173,8 @@ class EndToEndTest(unittest.TestCase):
         unconfigured_servers_at_start = self.query_status()
         self.step_verify_initial_transient_api_keys()
         InitializationTest(self).test_run_configuration()
+        InstanceTest(self).test_run_configuration()
+        SecurityServerTest(self).test_run_configuration()
         ClientTest(self).test_run_configuration()
         CertificateTest(self).test_run_configuration()
         ServiceEndpointTest(self).test_run_configuration()
@@ -177,14 +183,12 @@ class EndToEndTest(unittest.TestCase):
         DiagnosticsTest(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
         RenewCertificate(self).test_run_configuration()
-        print("---------------------------Antes del client unregister--------------------------")
+        LocalGroupTest(self).test_run_configuration()
         self.step_client_unregister()
         self.step_client_delete()
-        print("---------------------------Antes del backup--------------------------")
+        KeysTest(self).test_run_configuration()
+        CsrTest(self).test_run_configuration()
         BackupTest(self).test_run_configuration()
-        # time.sleep(120)
-        print("---------------------------Despues del backup--------------------------")
-
         configured_servers_at_end = self.query_status()
 
         print("---------------------------Despues de configure servers --------------------------")

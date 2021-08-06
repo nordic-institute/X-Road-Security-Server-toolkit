@@ -21,6 +21,10 @@ from xrdsst.controllers.token import TokenController
 from xrdsst.controllers.user import UserController
 from xrdsst.controllers.endpoint import EndpointController
 from xrdsst.controllers.local_group import LocalGroupController
+from xrdsst.controllers.key import KeyController
+from xrdsst.controllers.csr import CsrController
+from xrdsst.controllers.instance import InstanceController
+from xrdsst.controllers.security_server import SecurityServerController
 from xrdsst.core.util import revoke_api_key
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
     validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, validate_config_cert_activate, \
@@ -184,7 +188,7 @@ def opdep_init(app):
     add_op_node(g, OPS.ADD_ENDPOINT_ACCESS, EndpointController, EndpointController.add_access, is_done=(lambda ssn: True))
     add_op_node(g, OPS.IMPORT_TLS_CERT, ClientController, ClientController.import_tls_certs, is_done=(lambda ssn: True))
     add_op_node(g, OPS.ADD_LOCAL_GROUP, LocalGroupController, LocalGroupController.add, is_done=(lambda ssn: True))
-    add_op_node(g, OPS.ADD_LOCAL_GROUP_MEMBER, LocalGroupController, LocalGroupController.add_members, is_done=(lambda ssn: True))
+    add_op_node(g, OPS.ADD_LOCAL_GROUP_MEMBER, LocalGroupController, LocalGroupController.add_member, is_done=(lambda ssn: True))
 
     g.add_edge(OPS.INIT, OPS.TOKEN_LOGIN)
     g.add_edge(OPS.INIT, OPS.TIMESTAMP_ENABLE)
@@ -245,7 +249,8 @@ class XRDSST(App):
         # register handlers
         handlers = [BaseController, StatusController, ClientController, CertController, TimestampController,
                     TokenController, InitServerController, AutoController, ServiceController, UserController,
-                    EndpointController, MemberController, BackupController, LocalGroupController, DiagnosticsController]
+                    EndpointController, MemberController, BackupController, LocalGroupController, DiagnosticsController,
+                    KeyController, CsrController, InstanceController, SecurityServerController]
 
     api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
 
