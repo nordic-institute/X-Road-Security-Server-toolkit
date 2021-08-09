@@ -127,31 +127,6 @@ class CertificateTest:
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
 
-    def step_client_unregister(self):
-        with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
-            ssn = 0
-            configuration = client_controller.create_api_config(self.test.config["security_server"][0], self.test.config)
-            for client in self.test.config["security_server"][0]["clients"]:
-                if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client:
-                    found_client = get_client(self.test.config, client, ssn)
-                    assert len(found_client) > 0
-                    assert found_client[0]["status"] == ClientStatus.REGISTERED
-                    client_controller.remote_unregister_client(configuration, self.test.config["security_server"][0]["name"], [found_client[0]["id"]])
-                    found_client = get_client(self.test.config, client, ssn)
-                    assert len(found_client) > 0
-                    assert found_client[0]["status"] == ClientStatus.DELETION_IN_PROGRESS
-
-    def step_cert_download_internal_tls(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            for security_server in self.test.config["security_server"]:
-                configuration = cert_controller.create_api_config(security_server, self.test.config)
-                result = cert_controller.remote_download_internal_tls(configuration, security_server)
-                assert len(result) == 1
-
     def test_run_configuration(self):
         self.step_token_init_keys()
         self.step_cert_import_fail_certificates_missing()

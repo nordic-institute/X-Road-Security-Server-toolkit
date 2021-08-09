@@ -88,6 +88,7 @@ class TlsTest:
 
                 assert tls_certificate_before["serial"] != tls_certificate_after["serial"]
                 ssn = ssn + 1
+
     def test_run_configuration(self):
         self.step_import_client_tls_certificate()
         self.step_cert_download_internal_tls()

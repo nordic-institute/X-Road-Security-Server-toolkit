@@ -10,7 +10,9 @@ from argparse import Namespace
 import sys
 
 class TestTls(unittest.TestCase):
-    authcert_existing = os.path.join(ROOT_DIR, "tests/resources/authcert.pem")
+    tls_cert_existing = os.path.join(ROOT_DIR, "tests/resources/cert.pem")
+    tls_cert_non_existing = os.path.join(ROOT_DIR, "tests/resources/111cert.pem")
+
     ss_config = {
         'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
         'logging': {'file': '/tmp/xrdsst_test_token_log', 'level': 'INFO'},
@@ -49,11 +51,6 @@ class TestTls(unittest.TestCase):
               'software_token_pin': '1122',
               }
              ]}
-
-    def ss_config_with_authcert(self):
-        config = copy.deepcopy(self.ss_config)
-        config['security_server'][0]['certificates'] = [self.authcert_existing]
-        return config
 
     @pytest.fixture(autouse=True)
     def capsys(self, capsys):
@@ -104,6 +101,83 @@ class TestTls(unittest.TestCase):
 
                 out, err = self.capsys.readouterr()
                 assert out.count("Generated TLS key and certificate for security server: '%s'" % ss_name) > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_generate_tls_csr(self):
+        with XRDSSTTest() as app:
+            csr_cert ="CSR_TEST"
+            ss_name = 'ssX'
+            csr_distinguished_name = "CN=ssX, O=Organizacion, C=FI"
+            app._parsed_args = Namespace(ss=ss_name, name=csr_distinguished_name)
+            with mock.patch('xrdsst.api.system_api.SystemApi.generate_system_certificate_request',
+                            return_value=csr_cert):
+                tls_controller = TlsController()
+                tls_controller.app = app
+                tls_controller.load_config = (lambda: self.ss_config)
+                result = tls_controller.generate_csr()
+
+                assert result == csr_cert
+
+                out, err = self.capsys.readouterr()
+                assert out.count("Generated TLS CSR for security server: '%s'" % ss_name) > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_generate_tls_csr_name_missing(self):
+        with XRDSSTTest() as app:
+            csr_cert ="CSR_TEST"
+            ss_name = 'ssX'
+            app._parsed_args = Namespace(ss=ss_name, name=None)
+            with mock.patch('xrdsst.api.system_api.SystemApi.generate_system_certificate_request',
+                            return_value=csr_cert):
+                tls_controller = TlsController()
+                tls_controller.app = app
+                tls_controller.load_config = (lambda: self.ss_config)
+                tls_controller.generate_csr()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("The following parameters missing for generating new csr: ['name']") > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_import_tls_certificate(self):
+        with XRDSSTTest() as app:
+            ss_name = 'ssX'
+            app._parsed_args = Namespace(ss=ss_name, cert=self.tls_cert_existing)
+            with mock.patch('xrdsst.api.system_api.SystemApi.import_system_certificate',
+                            return_value={}):
+                tls_controller = TlsController()
+                tls_controller.app = app
+                tls_controller.load_config = (lambda: self.ss_config)
+                tls_controller.import_()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("Imported TLS certificate: '%s', for security server: '%s'" % (self.tls_cert_existing, ss_name)) > 0
+
+                with self.capsys.disabled():
+                    sys.stdout.write(out)
+                    sys.stderr.write(err)
+
+    def test_import_tls_certificate_path_no_existing(self):
+        with XRDSSTTest() as app:
+            ss_name = 'ssX'
+            app._parsed_args = Namespace(ss=ss_name, cert=self.tls_cert_non_existing)
+            with mock.patch('xrdsst.api.system_api.SystemApi.import_system_certificate',
+                            return_value={}):
+                tls_controller = TlsController()
+                tls_controller.app = app
+                tls_controller.load_config = (lambda: self.ss_config)
+                tls_controller.import_()
+
+                out, err = self.capsys.readouterr()
+                assert out.count("Could not read file: '%s'" % (self.tls_cert_non_existing)) > 0
 
                 with self.capsys.disabled():
                     sys.stdout.write(out)

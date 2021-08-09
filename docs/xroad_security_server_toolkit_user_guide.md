@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.7
+Version: 2.2.8
 Doc. ID: XRDSST-CONF
 
 ---
@@ -71,6 +71,7 @@ Doc. ID: XRDSST-CONF
 | 02.08.2021 | 2.2.5       | Add list instance command                                                    | Alberto Fernandez  |
 | 03.08.2021 | 2.2.6       | Add security server list and version list commmands                          | Alberto Fernandez  |
 | 04.08.2021 | 2.2.7       | Add client list command                                                      | Alberto Fernandez  |
+| 09.08.2021 | 2.2.8       | Add tls certificate management commands                                      | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -86,118 +87,119 @@ Doc. ID: XRDSST-CONF
 * [2.2 Installation](#22-installation)
 * [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
   * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
-     * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
-        * [3.1.1.1 Using API keys](#3111-using-api-keys)
-        * [3.1.1.2 Using SSH](#3112-using-ssh)
+    * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
+      * [3.1.1.1 Using API keys](#3111-using-api-keys)
+      * [3.1.1.2 Using SSH](#3112-using-ssh)
   * [3.2 Format of configuration file](#32-format-of-configuration-file)
-     * [3.2.1 Access Configuration](#321-access-configuration)
-     * [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
-     * [3.2.3 Client Configuration](#323-client-configuration)
-     * [3.2.3 Service Configuration](#323-service-configuration)
+    * [3.2.1 Access Configuration](#321-access-configuration)
+    * [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
+    * [3.2.3 Client Configuration](#323-client-configuration)
+    * [3.2.3 Service Configuration](#323-service-configuration)
   * [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
 * [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
-  * [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
-  * [4.2 X-Road Security Server  Toolkit commands](#42-x-road-security-server--toolkit-commands)
-     * [4.2.1 Creating admin user command](#421-creating-admin-user-command)
-     * [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
-     * [4.2.3 Token commands](#423-token-commands)
-        * [4.2.3.1 Token login command](#4231-token-login-command)
-        * [4.2.3.2 Token list](#4232-token-list)
-        * [4.2.3.3 Token init-keys](#4233-token-init-keys)
-        * [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys)
-     * [4.2.4 Timestamp commands](#424-timestamp-commands)
-        * [4.2.4.1 Timestamp init](#4241-timestamp-init)
-        * [4.2.4.2 Timestamp list approved](#4242-timestamp-list-approved)
-        * [4.2.4.3 Timestamp list configured](#4243-timestamp-list-configured)
-     * [4.2.5 Certificate management commands](#425-certificate-management-commands)
-        * [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs)
-        * [4.2.5.2 Certificate import](#4252-certificate-import)
-        * [4.2.5.3 Certificate registration](#4253-certificate-registration)
-        * [4.2.5.4 Certificate activation](#4254-certificate-activation)
-        * [4.2.5.5 Download internal TSL certificates](#4255-download-internal-tsl-certificates)
-        * [4.2.5.6 List certificates](#4256-list-certificates)
-        * [4.2.5.7 Certificate disable](#4257-certificate-disable)
-        * [4.2.5.8 Certificate unregister](#4258-certificate-unregister)
-        * [4.2.5.9 Certificate delete](#4259-certificate-delete)
-     * [4.2.6 Client management commands](#426-client-management-commands)
-        * [4.2.6.1 Client add](#4261-client-add)
-        * [4.2.6.2 Client register](#4262-client-register)
-        * [4.2.6.3 Client update](#4263-client-update)
-        * [4.2.6.4 Client import TSL certificates](#4264-client-import-tsl-certificates)
-        * [4.2.6.5 Client unregister](#4265-client-unregister)
-        * [4.2.6.6 Client delete](#4266-client-delete)
-        * [4.2.6.7 Client change owner](#4267-client-change-owner)
-        * [4.2.6.8 Client list](#4268-client-list)
-     * [4.2.7 Service management commands](#427-service-management-commands)
-        * [4.2.7.1 Service add description](#4271-service-add-description)
-        * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
-        * [4.2.7.3 Enable service](#4273-enable-service)
-        * [4.2.7.4 Service update parameters](#4274-service-update-parameters)
-        * [4.2.7.5 Service list descriptions](#4275-service-list-descriptions)
-        * [4.2.7.6 Service list services](#4276-service-list-services)
-        * [4.2.7.7 Service delete descriptions](#4277-service-delete-descriptions)
-        * [4.2.7.8 Service update descriptions](#4278-service-update-descriptions)
-        * [4.2.7.9 Service refresh descriptions](#4279-service-refresh-descriptions)
-        * [4.2.7.10 Service disable descriptions](#42710-service-disable-descriptions)
-        * [4.2.7.11 Service list access rights for services](#42711-service-list-access-rights-for-services)
-        * [4.2.7.12 Service delete access rights for services](#42712-service-delete-access-rights-for-services)
-        * [4.2.7.13 Service apply](#42713-service-apply)
-     * [4.2.8 Endpoint management](#428-endpoint-management)
-        * [4.2.8.1 Endpoint add](#4281-endpoint-add)
-        * [4.2.8.2 Endpoint add access rights](#4282-endpoint-add-access-rights)
-        * [4.2.8.3 Endpoint list](#4283-endpoint-list)
-        * [4.2.8.4 Endpoint update](#4284-endpoint-update)
-        * [4.2.8.5 Endpoint delete](#4285-endpoint-delete)
-        * [4.2.8.6 Endpoint list access](#4286-endpoint-list-access)
-        * [4.2.8.7 Endpoint delete access rights](#4287-endpoint-delete-access-rights)
-     * [4.2.9 Member management](#429-member-management)
-        * [4.2.9.1 Member find](#4291-member-find)
-        * [4.2.9.2 Member list member classes](#4292-member-list-member-classes)
-     * [4.2.10 Local groups management](#4210-local-groups-management)
-        * [4.2.10.1 Local groups add](#42101-local-groups-add)
-        * [4.2.10.2 Local groups add members](#42102-local-groups-add-members)
-        * [4.2.10.3 Local groups list](#42103-local-groups-list)
-        * [4.2.10.4 Local groups delete](#42104-local-groups-delete)
-        * [4.2.10.5 Local groups member delete](#42105-local-groups-member-delete)
-     * [4.2.11 Backup management](#4211-backup-management)
-        * [4.2.11.1 Backup list](#42111-backup-list)
-        * [4.2.11.2 Backup add](#42112-backup-add)
-        * [4.2.11.3 Backup download](#42113-backup-download)
-        * [4.2.11.4 Backup delete](#42114-backup-delete)
-        * [4.2.11.5 Backup restore](#42115-backup-restore)
-     * [4.2.12 Diagnostics management](#4212-diagnostics-management)
-        * [4.2.12.1 Global configuration diagnostics](#42121-global-configuration-diagnostics)
-        * [4.2.12.2 OCSP responders diagnostics](#42122-ocsp-responders-diagnostics)
-        * [4.2.12.3 Timestamping services diagnostics](#42123-timestamping-services-diagnostics)
-        * [4.2.12.4 All diagnostics](#42124-all-diagnostics)
-     * [4.2.13 Keys management](#4213-keys-management)
-        * [4.2.13.1 List keys](#42131-list-keys)
-        * [4.2.13.2 Update keys](#42132-update-keys)
-        * [4.2.13.3 Delete keys](#42133-delete-keys)
-     * [4.2.14 CSR management](#4214-csr-management)
-        * [4.2.14.1 List CSR](#42141-list-csr)
-        * [4.2.14.2 Delete CSR](#42142-delete-csr)
-     * [4.2.15 Instances management](#4215-instances-management)
-        * [4.2.15.1 List instances:](#42151-list-instances)
-     * [4.2.16 Security Server management](#4216-security-server-management)
-        * [4.2.16.1 List Security Servers](#42161-list-security-servers)
-        * [4.2.16.2 List Security Server version](#42162-list-security-server-version)
+   * [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
+   * [4.2 X-Road Security Server  Toolkit commands](#42-x-road-security-server--toolkit-commands)
+      * [4.2.1 Creating admin user command](#421-creating-admin-user-command)
+      * [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
+      * [4.2.3 Token commands](#423-token-commands)
+         * [4.2.3.1 Token login command](#4231-token-login-command)
+         * [4.2.3.2 Token list](#4232-token-list)
+         * [4.2.3.3 Token init-keys](#4233-token-init-keys)
+         * [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys)
+      * [4.2.4 Timestamp commands](#424-timestamp-commands)
+         * [4.2.4.1 Timestamp init](#4241-timestamp-init)
+         * [4.2.4.2 Timestamp list approved](#4242-timestamp-list-approved)
+         * [4.2.4.3 Timestamp list configured](#4243-timestamp-list-configured)
+      * [4.2.5 Certificate management commands](#425-certificate-management-commands)
+         * [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs)
+         * [4.2.5.2 Certificate import](#4252-certificate-import)
+         * [4.2.5.3 Certificate registration](#4253-certificate-registration)
+         * [4.2.5.4 Certificate activation](#4254-certificate-activation)
+         * [4.2.5.5 List certificates](#4255-list-certificates)
+         * [4.2.5.6 Certificate disable](#4256-certificate-disable)
+         * [4.2.5.7 Certificate unregister](#4257-certificate-unregister)
+         * [4.2.5.8 Certificate delete](#4258-certificate-delete)
+      * [4.2.6 Client management commands](#426-client-management-commands)
+         * [4.2.6.1 Client add](#4261-client-add)
+         * [4.2.6.2 Client register](#4262-client-register)
+         * [4.2.6.3 Client update](#4263-client-update)
+         * [4.2.6.4 Client import TLS certificates](#4264-client-import-tls-certificates)
+         * [4.2.6.5 Client unregister](#4265-client-unregister)
+         * [4.2.6.6 Client delete](#4266-client-delete)
+         * [4.2.6.7 Client change owner](#4267-client-change-owner)
+         * [4.2.6.8 Client list](#4268-client-list)
+      * [4.2.7 Service management commands](#427-service-management-commands)
+         * [4.2.7.1 Service add description](#4271-service-add-description)
+         * [4.2.7.2 Service add access rights](#4272-service-add-access-rights)
+         * [4.2.7.3 Enable service](#4273-enable-service)
+         * [4.2.7.4 Service update parameters](#4274-service-update-parameters)
+         * [4.2.7.5 Service list descriptions](#4275-service-list-descriptions)
+         * [4.2.7.6 Service list services](#4276-service-list-services)
+         * [4.2.7.7 Service delete descriptions](#4277-service-delete-descriptions)
+         * [4.2.7.8 Service update descriptions](#4278-service-update-descriptions)
+         * [4.2.7.9 Service refresh descriptions](#4279-service-refresh-descriptions)
+         * [4.2.7.10 Service disable descriptions](#42710-service-disable-descriptions)
+         * [4.2.7.11 Service list access rights for services](#42711-service-list-access-rights-for-services)
+         * [4.2.7.12 Service delete access rights for services](#42712-service-delete-access-rights-for-services)
+         * [4.2.7.13 Service apply](#42713-service-apply)
+      * [4.2.8 Endpoint management](#428-endpoint-management)
+         * [4.2.8.1 Endpoint add](#4281-endpoint-add)
+         * [4.2.8.2 Endpoint add access rights](#4282-endpoint-add-access-rights)
+         * [4.2.8.3 Endpoint list](#4283-endpoint-list)
+         * [4.2.8.4 Endpoint update](#4284-endpoint-update)
+         * [4.2.8.5 Endpoint delete](#4285-endpoint-delete)
+         * [4.2.8.6 Endpoint list access](#4286-endpoint-list-access)
+         * [4.2.8.7 Endpoint delete access rights](#4287-endpoint-delete-access-rights)
+      * [4.2.9 Member management](#429-member-management)
+         * [4.2.9.1 Member find](#4291-member-find)
+         * [4.2.9.2 Member list member classes](#4292-member-list-member-classes)
+      * [4.2.10 Local groups management](#4210-local-groups-management)
+         * [4.2.10.1 Local groups add](#42101-local-groups-add)
+         * [4.2.10.2 Local groups add members](#42102-local-groups-add-members)
+         * [4.2.10.3 Local groups list](#42103-local-groups-list)
+         * [4.2.10.4 Local groups delete](#42104-local-groups-delete)
+         * [4.2.10.5 Local groups member delete](#42105-local-groups-member-delete)
+      * [4.2.11 Backup management](#4211-backup-management)
+         * [4.2.11.1 Backup list](#42111-backup-list)
+         * [4.2.11.2 Backup add](#42112-backup-add)
+         * [4.2.11.3 Backup download](#42113-backup-download)
+         * [4.2.11.4 Backup delete](#42114-backup-delete)
+         * [4.2.11.5 Backup restore](#42115-backup-restore)
+      * [4.2.12 Diagnostics management](#4212-diagnostics-management)
+         * [4.2.12.1 Global configuration diagnostics](#42121-global-configuration-diagnostics)
+         * [4.2.12.2 OCSP responders diagnostics](#42122-ocsp-responders-diagnostics)
+         * [4.2.12.3 Timestamping services diagnostics](#42123-timestamping-services-diagnostics)
+         * [4.2.12.4 All diagnostics](#42124-all-diagnostics)
+      * [4.2.13 Keys management](#4213-keys-management)
+         * [4.2.13.1 List keys](#42131-list-keys)
+         * [4.2.13.2 Update keys](#42132-update-keys)
+         * [4.2.13.3 Delete keys](#42133-delete-keys)
+      * [4.2.14 CSR management](#4214-csr-management)
+         * [4.2.14.1 List CSR](#42141-list-csr)
+         * [4.2.14.2 Delete CSR](#42142-delete-csr)
+      * [4.2.15 Instances management](#4215-instances-management)
+         * [4.2.15.1 List instances:](#42151-list-instances)
+      * [4.2.16 Security Server management](#4216-security-server-management)
+         * [4.2.16.1 List Security Servers](#42161-list-security-servers)
+         * [4.2.16.2 List Security Server version](#42162-list-security-server-version)
+      * [4.2.17 Internal TLS certificate management](#4217-internal-tls-certificate-management)
+         * [4.2.17.1 Download internal TLS certificate](#42171-download-internal-tls-certificate)
+         * [4.2.17.2 Import internal TLS certificate](#42172-import-internal-tls-certificate)
+         * [4.2.17.3 Generate new key internal TLS certificate](#42173-generate-new-key-internal-tls-certificate)
+         * [4.2.17.4 Generate new key csr TLS certificate](#42174-generate-new-key-csr-tls-certificate)
 * [5 Failure recovery and interpretation of errors](#5-failure-recovery-and-interpretation-of-errors)
-  * [5.1 Configuration flow](#51-configuration-flow)
-  * [5.2 First-run failures](#52-first-run-failures)
-  * [5.3 Configuration file errors](#53-configuration-file-errors)
-     * [5.3.1 Malformed YAML](#531-malformed-yaml)
-     * [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
-  * [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
-  * [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
+   * [5.1 Configuration flow](#51-configuration-flow)
+   * [5.2 First-run failures](#52-first-run-failures)
+   * [5.3 Configuration file errors](#53-configuration-file-errors)
+      * [5.3.1 Malformed YAML](#531-malformed-yaml)
+      * [5.3.2 Other configuration file errors](#532-other-configuration-file-errors)
+   * [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
+   * [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
 * [6 Load balancer setup](#6-load-balancer-setup)
 * [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
 * [10 Change security server owner](#10-change-security-server-owner)
-
-
-
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -804,17 +806,7 @@ AUTH certificate activation can be done with:
 xrdsst cert activate
 ```
 
-##### 4.2.5.5 Download internal TSL certificates
-
-* Access rights: XROAD_SYSTEM_ADMINISTRATOR or XROAD_SECURITY_OFFICER or XROAD_REGISTRATION_OFFICER or XROAD_SERVICE_ADMINISTRATOR
-
-Internal TSL certificates can be downloaded with:
-```
-xrdsst cert download-internal-tsl
-```
-This command will save a zip file in the `/tmp/` folder containing the public and private keys of the internal TSL certificates.
-
-##### 4.2.5.6 List certificates
+##### 4.2.5.5 List certificates
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
@@ -847,7 +839,7 @@ The table above shows the following information about the certificates:
 * status: Status of the certificate between: 'GLOBAL ERROR', 'SAVED', 'REGISTERED', 'REGISTRATION IN PROGRESS', 'DELETION IN PROGRESS', 'DELETED'
 * subject: Owner member of the certificate. 
 
-##### 4.2.5.7 Certificate disable
+##### 4.2.5.6 Certificate disable
 
 * Access rights: XROAD_SECURITY_OFFICER
 
@@ -859,7 +851,7 @@ Disable the certificates can be done with:
 xrdsst cert disable --hash <CERTIFICATE_HASH>
 ```
 
-##### 4.2.5.8 Certificate unregister
+##### 4.2.5.7 Certificate unregister
 
 * Access rights: XROAD_SECURITY_OFFICER
 
@@ -871,7 +863,7 @@ Unregister the authentication certificates can be done with:
 xrdsst cert unregister --hash <CERTIFICATE_HASH>
 ```
 
-##### 4.2.5.9 Certificate delete
+##### 4.2.5.8 Certificate delete
 
 * Access rights: XROAD_SECURITY_OFFICER
 
@@ -915,7 +907,7 @@ Subsystem parameters can be updated with:
 xrdsst client update
 ```
 
-##### 4.2.6.4 Client import TSL certificates
+##### 4.2.6.4 Client import TLS certificates
 
 TLS certificates can be imported and added to a client's whitelist with
 ```
@@ -1735,6 +1727,55 @@ This command will display the version for the security servers stored in the con
 * SECURITY SERVER code of the security server
 * VERSION security server version number
 
+#### 4.2.17 Internal TLS certificate management
+
+##### 4.2.17.1 Download internal TLS certificate
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR or XROAD_SECURITY_OFFICER or XROAD_REGISTRATION_OFFICER or XROAD_SERVICE_ADMINISTRATOR
+
+Internal TLS certificates can be downloaded with:
+```
+xrdsst tls download
+```
+This command will save a zip file in the `/tmp/` folder containing the public and private keys of the internal TLS certificates.
+
+##### 4.2.17.2 Import internal TLS certificate
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
+
+Internal TLS certificates can be imported with:
+
+```
+xrdsst tls import --ss <SECURITY_SERVER_NAME> --cert <PATH_TO_CERT>
+```
+
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <PATH_TO_CERT> path to the internal TLS certificate to be impoted, e.g. "/tmp/certs/cert.pem"
+
+##### 4.2.17.3 Generate new key internal TLS certificate 
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
+
+New key for the internal TLS certificate can be generated with:
+
+```
+xrdsst tls generate-key --ss <SECURITY_SERVER_NAME> 
+```
+
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+
+##### 4.2.17.4 Generate new key csr TLS certificate
+
+* Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
+
+New CSR for the internal TLS certificate can be generated with:
+
+```
+xrdsst tls generate-csr --ss <SECURITY_SERVER_NAME> --name <DISTINGUISHED_NAME>
+```
+
+* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <DISTINGUISHED_NAME> distinguished name for the certificate,  e.g. "CN=mysecurityserver.example.com,O=My Organization,CE=FI"
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney
