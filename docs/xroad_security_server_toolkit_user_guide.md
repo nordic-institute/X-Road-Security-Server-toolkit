@@ -1746,7 +1746,7 @@ This command will save a zip file in the `/tmp/` folder containing the public an
 Internal TLS certificates can be imported with:
 
 ```
-xrdsst tls import --ss <SECURITY_SERVER_NAME> --cert <PATH_TO_CERT>
+xrdsst internal-tls import --ss <SECURITY_SERVER_NAME> --cert <PATH_TO_CERT>
 ```
 
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
@@ -1759,7 +1759,7 @@ xrdsst tls import --ss <SECURITY_SERVER_NAME> --cert <PATH_TO_CERT>
 New key for the internal TLS certificate can be generated with:
 
 ```
-xrdsst tls generate-key --ss <SECURITY_SERVER_NAME> 
+xrdsst internal-tls generate-key --ss <SECURITY_SERVER_NAME> 
 ```
 
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
@@ -1771,7 +1771,7 @@ xrdsst tls generate-key --ss <SECURITY_SERVER_NAME>
 New CSR for the internal TLS certificate can be generated with:
 
 ```
-xrdsst tls generate-csr --ss <SECURITY_SERVER_NAME> --name <DISTINGUISHED_NAME>
+xrdsst internal-tls generate-csr --ss <SECURITY_SERVER_NAME> --name <DISTINGUISHED_NAME>
 ```
 
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
