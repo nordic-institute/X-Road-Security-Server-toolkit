@@ -4,7 +4,6 @@ import cement.utils.fs
 from cement import ex
 from xrdsst.api import SystemApi
 from xrdsst.controllers.base import BaseController
-from xrdsst.core.util import parse_argument_list
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.resources.texts import texts
 from xrdsst.rest.rest import ApiException
@@ -34,12 +33,12 @@ class DownloadedTLS:
         self.fs_loc = fs_loc
 
 
-class TlsController(BaseController):
+class InternalTlsController(BaseController):
     class Meta:
-        label = 'tls'
+        label = 'internal_tls'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = texts['tls.controller.description']
+        description = texts['internal_tls.controller.description']
 
     @ex(help="Download internal TLS certificate, if any.", arguments=[])
     def download(self):
@@ -210,7 +209,6 @@ class TlsController(BaseController):
             return result
         except ApiException as err:
             BaseController.log_api_error("SystemApi=>generate_system_certificate_request", err)
-
 
     @staticmethod
     def remote_import_tls_certificate(ss_api_config, ss_name, cert_path):

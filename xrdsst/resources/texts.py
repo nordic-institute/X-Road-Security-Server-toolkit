@@ -25,7 +25,7 @@ texts = {
     'csr.controller.description': 'Commands for performing certificate csr operations',
     'instance.controller.description': 'Commands for performing instance operations',
     'security_server.controller.description': 'Commands for performing security server operations',
-    'tls.controller.description': 'Commands for performing tls certificate operations',
+    'internal_tls.controller.description': 'Commands for performing tls certificate operations',
     # Messages
     'message.file.not.found': "File '{}' not found.",
     'message.file.unreadable': "Could not read file '{}'.",

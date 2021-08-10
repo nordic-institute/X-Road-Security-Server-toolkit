@@ -1750,7 +1750,7 @@ xrdsst tls import --ss <SECURITY_SERVER_NAME> --cert <PATH_TO_CERT>
 ```
 
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
-* <PATH_TO_CERT> path to the internal TLS certificate to be impoted, e.g. "/tmp/certs/cert.pem"
+* <PATH_TO_CERT> path for the internal TLS certificate to be imported, e.g. "/tmp/certs/cert.pem"
 
 ##### 4.2.17.3 Generate new key internal TLS certificate 
 
@@ -1764,7 +1764,7 @@ xrdsst tls generate-key --ss <SECURITY_SERVER_NAME>
 
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
 
-##### 4.2.17.4 Generate new key csr TLS certificate
+##### 4.2.17.4 Generate new csr TLS certificate
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
 
@@ -1775,7 +1775,7 @@ xrdsst tls generate-csr --ss <SECURITY_SERVER_NAME> --name <DISTINGUISHED_NAME>
 ```
 
 * <SECURITY_SERVER_NAME> security server name, e.g. ss1
-* <DISTINGUISHED_NAME> distinguished name for the certificate,  e.g. "CN=mysecurityserver.example.com,O=My Organization,CE=FI"
+* <DISTINGUISHED_NAME> distinguished name for the certificate,  e.g. "CN=mysecurityserver.example.com,O=My Organization,C=FI"
 
 ## 5 Failure recovery and interpretation of errors
 > "In failure, software reveals its structure" -- Kevlin Henney

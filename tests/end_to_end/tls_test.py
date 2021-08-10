@@ -1,7 +1,7 @@
 import os
 
-from tests.util.test_util import getClientTlsCertificates, get_tsl_certificate
-from xrdsst.controllers.tls import TlsController
+from tests.util.test_util import getClientTlsCertificates, get_tls_certificate
+from xrdsst.controllers.internal_tls import InternalTlsController
 from xrdsst.controllers.client import ClientController
 from xrdsst.core.definitions import ROOT_DIR
 from xrdsst.main import XRDSSTTest
@@ -15,7 +15,7 @@ class TlsTest:
 
     def step_cert_download_internal_tls(self):
         with XRDSSTTest() as app:
-            tls_controller = TlsController()
+            tls_controller = InternalTlsController()
             tls_controller.app = app
             for security_server in self.test.config["security_server"]:
                 ss_configuration = tls_controller.create_api_config(security_server, self.test.config)
@@ -52,21 +52,21 @@ class TlsTest:
 
     def step_generate_new_key(self):
         with XRDSSTTest() as app:
-            tls_controller = TlsController()
+            tls_controller = InternalTlsController()
             tls_controller.app = app
             ssn = 0
             for security_server in self.test.config["security_server"]:
                 ss_configuration = tls_controller.create_api_config(security_server, self.test.config)
-                tls_certificate_before = get_tsl_certificate(self.test.config, ssn)
+                tls_certificate_before = get_tls_certificate(self.test.config, ssn)
                 tls_controller.remote_generate_tls_keys(ss_configuration, security_server["name"])
-                tls_certificate_after = get_tsl_certificate(self.test.config, ssn)
+                tls_certificate_after = get_tls_certificate(self.test.config, ssn)
 
                 assert tls_certificate_before["serial"] != tls_certificate_after["serial"]
                 ssn = ssn + 1
 
     def step_generate_new_csr(self):
         with XRDSSTTest() as app:
-            tls_controller = TlsController()
+            tls_controller = InternalTlsController()
             tls_controller.app = app
             csr_distinguished_name = "CN=ssX, O=Organizacion, C=FI"
             for security_server in self.test.config["security_server"]:
@@ -77,17 +77,18 @@ class TlsTest:
 
     def step_import_tls_certificate(self):
         with XRDSSTTest() as app:
-            tls_controller = TlsController()
+            tls_controller = InternalTlsController()
             tls_controller.app = app
             ssn = 0
             for security_server in self.test.config["security_server"]:
                 ss_configuration = tls_controller.create_api_config(security_server, self.test.config)
-                tls_certificate_before = get_tsl_certificate(self.test.config, ssn)
+                tls_certificate_before = get_tls_certificate(self.test.config, ssn)
                 tls_controller.remote_import_tls_certificate(ss_configuration, security_server["name"], self.tls_cert_existing)
-                tls_certificate_after = get_tsl_certificate(self.test.config, ssn)
+                tls_certificate_after = get_tls_certificate(self.test.config, ssn)
 
                 assert tls_certificate_before["serial"] != tls_certificate_after["serial"]
                 ssn = ssn + 1
+
     def test_run_configuration(self):
         self.step_import_client_tls_certificate()
         self.step_cert_download_internal_tls()

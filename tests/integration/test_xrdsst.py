@@ -61,10 +61,10 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         CertificateTest(self).test_run_configuration()
         self.query_status()
 
-        TlsTest(self).test_run_configuration()
+        ServiceEndpointTest(self).test_run_configuration()
         self.query_status()
 
-        ServiceEndpointTest(self).test_run_configuration()
+        TlsTest(self).test_run_configuration()
         self.query_status()
 
         MemberTest(self).test_run_configuration()

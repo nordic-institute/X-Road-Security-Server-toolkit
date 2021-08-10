@@ -4,7 +4,7 @@ import unittest
 from unittest import mock
 import pytest
 from xrdsst.core.definitions import ROOT_DIR
-from xrdsst.controllers.tls import TlsController
+from xrdsst.controllers.internal_tls import InternalTlsController
 from xrdsst.main import XRDSSTTest
 from argparse import Namespace
 import sys
@@ -70,7 +70,7 @@ class TestTls(unittest.TestCase):
 
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.system_api.SystemApi.download_system_certificate', new=mocked_download_tls):
-                tls_controller = TlsController()
+                tls_controller = InternalTlsController()
                 tls_controller.app = app
                 tls_controller.load_config = (lambda: self.ss_config)
 
@@ -94,7 +94,7 @@ class TestTls(unittest.TestCase):
             app._parsed_args = Namespace(ss=ss_name)
             with mock.patch('xrdsst.api.system_api.SystemApi.generate_system_tls_key_and_certificate',
                             return_value={}):
-                tls_controller = TlsController()
+                tls_controller = InternalTlsController()
                 tls_controller.app = app
                 tls_controller.load_config = (lambda: self.ss_config)
                 tls_controller.generate_key()
@@ -114,7 +114,7 @@ class TestTls(unittest.TestCase):
             app._parsed_args = Namespace(ss=ss_name, name=csr_distinguished_name)
             with mock.patch('xrdsst.api.system_api.SystemApi.generate_system_certificate_request',
                             return_value=csr_cert):
-                tls_controller = TlsController()
+                tls_controller = InternalTlsController()
                 tls_controller.app = app
                 tls_controller.load_config = (lambda: self.ss_config)
                 result = tls_controller.generate_csr()
@@ -135,7 +135,7 @@ class TestTls(unittest.TestCase):
             app._parsed_args = Namespace(ss=ss_name, name=None)
             with mock.patch('xrdsst.api.system_api.SystemApi.generate_system_certificate_request',
                             return_value=csr_cert):
-                tls_controller = TlsController()
+                tls_controller = InternalTlsController()
                 tls_controller.app = app
                 tls_controller.load_config = (lambda: self.ss_config)
                 tls_controller.generate_csr()
@@ -153,7 +153,7 @@ class TestTls(unittest.TestCase):
             app._parsed_args = Namespace(ss=ss_name, cert=self.tls_cert_existing)
             with mock.patch('xrdsst.api.system_api.SystemApi.import_system_certificate',
                             return_value={}):
-                tls_controller = TlsController()
+                tls_controller = InternalTlsController()
                 tls_controller.app = app
                 tls_controller.load_config = (lambda: self.ss_config)
                 tls_controller.import_()
@@ -171,7 +171,7 @@ class TestTls(unittest.TestCase):
             app._parsed_args = Namespace(ss=ss_name, cert=self.tls_cert_non_existing)
             with mock.patch('xrdsst.api.system_api.SystemApi.import_system_certificate',
                             return_value={}):
-                tls_controller = TlsController()
+                tls_controller = InternalTlsController()
                 tls_controller.app = app
                 tls_controller.load_config = (lambda: self.ss_config)
                 tls_controller.import_()
