@@ -1,12 +1,15 @@
 class ProfileData(object):
-    def __init__(self, instance_identifier, member_class, member_code, security_server_id, security_server_code):  # noqa: E501
+    def __init__(self, instance_identifier, member_class, member_code, security_server_code, security_server_dns, owner_class, owner_code, member_name):  # noqa: E501
         """Client - a model defined in Swagger"""  # noqa: E501
 
-        self.instance_identifier = instance_identifier
-        self.member_class = member_class
-        self.member_code = member_code
-        self.security_server_id = security_server_id
-        self.security_server_code = security_server_code
+        self._instance_identifier = instance_identifier
+        self._member_class = member_class
+        self._member_code = member_code
+        self._security_server_code = security_server_code
+        self._security_server_dns = security_server_dns
+        self._owner_class = owner_class
+        self._owner_code = owner_code
+        self._member_name = member_name
 
     @property
     def instance_identifier(self):
@@ -22,13 +25,24 @@ class ProfileData(object):
 
     @property
     def security_server_id(self):
-        return self._security_server_id
+        return "/%s/%s/%s" % (self._owner_class, self._owner_code, self._security_server_code)
 
     @property
     def security_server_code(self):
         return self._security_server_code
 
     @property
-    def serial_number(self):
-        return '/'.join([self._instance_identifier, self.security_server_code, self.member_class])
+    def serial_number_auth(self):
+        return '/'.join([self._instance_identifier, self._security_server_code, self._owner_class])
 
+    @property
+    def serial_number_sign(self):
+        return '/'.join([self._instance_identifier, self._security_server_code, self._member_class])
+
+    @property
+    def security_server_dns(self):
+        return self._security_server_dns
+
+    @property
+    def member_name(self):
+        return self._member_name

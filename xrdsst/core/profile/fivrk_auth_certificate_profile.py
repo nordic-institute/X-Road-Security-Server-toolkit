@@ -6,6 +6,7 @@ class FIVRKAuthCertificateProfile(Profile):
     def build_profile(self, profile_data: ProfileData):
         return {
             "C": "FI",
-            "O": "",
-            "serialNumber": profile_data.serial_number
+            "O": profile_data.member_name,
+            "serialNumber": profile_data.serial_number_auth,
+            "CN": profile_data.security_server_dns
         }

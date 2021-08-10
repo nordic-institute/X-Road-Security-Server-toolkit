@@ -195,7 +195,7 @@ Doc. ID: XRDSST-CONF
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
 * [10 Change security server owner](#10-change-security-server-owner)
-
+* [11 Certificate profile support](#11-certificate-profile-support)
 
 
 
@@ -2137,4 +2137,19 @@ change  X-Road governing authority also it will create the AUTH key and CSRS for
 3. Download the certificate created in the previous step using the command [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs).
 4. Sign the AUTH certificate and import it using the command [4.2.5.2 Certificate import](#4252-certificate-import).
 5. Activate  the AUTH certificate using the command [4.2.5.2 Certificate import](#4252-certificate-import).
-5. Register the AUTH certificate with the command [4.2.5.4 Certificate activation](#4254-certificate-activation).
+6. Register the AUTH certificate with the command [4.2.5.4 Certificate activation](#4254-certificate-activation).
+7. Once the owner is changed, make sure to update the properties `owner_dn_org`, `owner_member_class`, `owner_member_code` in the configuration file
+(`security_server` section) with the values of the new member.
+
+## 11 Certificate profile support
+
+The toolkit has support for multiple profiles to choose between:
+- EJBCA: Default implementation
+- FIVRK: Finnish implementation
+- FO: The Faroe Island's implementation
+- IS: Icelandic Implementation
+
+To select one of this profiles we must fill the property `profile` in the configuration file (`security_server` section) with the name of the profile
+to choose between: "EJBCA", "FIVRK", "FO" and "IS".
+This property is optional, if is not set, the default profile will be the Finnish profile.
+
