@@ -92,6 +92,26 @@ class CertificateTest:
                 configuration = cert_controller.create_api_config(security_server, self.test.config)
                 cert_controller.remote_activate_certificate(configuration, security_server)
 
+    def step_cert_download_csrs(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            cert_controller.load_config = (lambda: self.test.config)
+            result = cert_controller.download_csrs()
+
+            assert len(result) == 6
+
+            fs_loc_list = []
+            csrs = []
+            for csr in result:
+                fs_loc_list.append(csr.fs_loc)
+                csrs.append((str(csr.key_type).lower(), csr.fs_loc))
+            flag = len(set(fs_loc_list)) == len(fs_loc_list)
+
+            assert flag is True
+
+            return csrs
+
     @staticmethod
     def step_acquire_certs(downloaded_csrs, security_server):
         tca_sign_url = find_test_ca_sign_url(security_server['configuration_anchor'])
@@ -127,6 +147,15 @@ class CertificateTest:
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
 
+    def step_cert_download_internal_tls(self):
+        with XRDSSTTest() as app:
+            cert_controller = CertController()
+            cert_controller.app = app
+            for security_server in self.test.config["security_server"]:
+                configuration = cert_controller.create_api_config(security_server, self.test.config)
+                result = cert_controller.remote_download_internal_tls(configuration, security_server)
+                assert len(result) == 1
+
     def test_run_configuration(self):
         self.step_token_init_keys()
         self.step_cert_import_fail_certificates_missing()
@@ -141,3 +170,4 @@ class CertificateTest:
 
         self.step_cert_activate()
         self.list_certificates()
+        self.step_import_tls_certificate()
