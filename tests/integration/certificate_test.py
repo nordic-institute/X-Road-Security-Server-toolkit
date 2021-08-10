@@ -170,4 +170,3 @@ class CertificateTest:
 
         self.step_cert_activate()
         self.list_certificates()
-        self.step_import_tls_certificate()
