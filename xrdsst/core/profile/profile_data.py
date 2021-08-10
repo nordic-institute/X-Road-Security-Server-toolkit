@@ -28,3 +28,7 @@ class ProfileData(object):
     def security_server_code(self):
         return self._security_server_code
 
+    @property
+    def serial_number(self):
+        return '/'.join([self._instance_identifier, self.security_server_code, self.member_class])
+

@@ -1,4 +1,4 @@
-from xrdsst.core.profile.Profile import Profile
+from xrdsst.core.profile.abstract_certificate_profile import Profile
 
 class FoSignCertificateProfile(Profile):
     def build_profile(self, profile_info):
