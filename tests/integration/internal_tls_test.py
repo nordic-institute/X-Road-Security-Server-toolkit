@@ -90,15 +90,9 @@ class TlsTest:
                 ssn = ssn + 1
 
     def test_run_configuration(self):
-        print("-----------Antes client import--------------")
         self.step_import_client_tls_certificate()
-        print("-----------Antes cert download--------------")
         self.step_cert_download_internal_tls()
-        print("-----------Antes new key--------------")
         self.step_generate_new_key()
-        print("-----------Antes new csr--------------")
         self.step_generate_new_csr()
-        print("-----------Antes import tls--------------")
         self.step_import_tls_certificate()
-        print("fin tls certificates")
 
