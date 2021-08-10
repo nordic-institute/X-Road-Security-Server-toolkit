@@ -25,6 +25,7 @@ from xrdsst.controllers.key import KeyController
 from xrdsst.controllers.csr import CsrController
 from xrdsst.controllers.instance import InstanceController
 from xrdsst.controllers.security_server import SecurityServerController
+from xrdsst.controllers.internal_tls import InternalTlsController
 from xrdsst.core.util import revoke_api_key
 from xrdsst.core.validator import validate_config_init, validate_config_timestamp_init, validate_config_token_login, \
     validate_config_token_init_keys, validate_config_cert_import, validate_config_cert_register, validate_config_cert_activate, \
@@ -250,7 +251,7 @@ class XRDSST(App):
         handlers = [BaseController, StatusController, ClientController, CertController, TimestampController,
                     TokenController, InitServerController, AutoController, ServiceController, UserController,
                     EndpointController, MemberController, BackupController, LocalGroupController, DiagnosticsController,
-                    KeyController, CsrController, InstanceController, SecurityServerController]
+                    KeyController, CsrController, InstanceController, SecurityServerController, InternalTlsController]
 
     api_keys = {}  # Keep key references for autoconfiguration and eventual revocation
 

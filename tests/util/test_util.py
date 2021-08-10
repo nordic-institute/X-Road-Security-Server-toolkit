@@ -373,6 +373,7 @@ def auth_cert_registration_global_configuration_update_received(config, ssn):
     registered_auth_keys = list(filter(registered_auth_key, response['keys']))
     return bool(registered_auth_keys)
 
+
 # Returns service clients for given service
 def get_token(config, token_id, ssn):
     api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
@@ -381,3 +382,9 @@ def get_token(config, token_id, ssn):
         "tokens/" + token_id,
         api_key
     )
+
+
+def get_tls_certificate(config, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    response = api_GET(config["security_server"][ssn]["url"], "system/certificate", api_key)
+    return response
