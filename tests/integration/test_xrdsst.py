@@ -17,6 +17,8 @@ from tests.integration.keys_test import KeysTest
 from tests.integration.csr_test import CsrTest
 from tests.integration.instance_test import InstanceTest
 from tests.integration.security_server_test import SecurityServerTest
+from tests.integration.internal_tls_test import TlsTest
+
 
 def server_statuses_equal(sl1: [ServerStatus], sl2: [ServerStatus]):
     assert len(sl1) == len(sl2)
@@ -60,6 +62,9 @@ class TestXRDSST(IntegrationTestBase, IntegrationOpBase):
         self.query_status()
 
         ServiceEndpointTest(self).test_run_configuration()
+        self.query_status()
+
+        TlsTest(self).test_run_configuration()
         self.query_status()
 
         MemberTest(self).test_run_configuration()

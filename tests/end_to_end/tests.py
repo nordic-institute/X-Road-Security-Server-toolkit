@@ -27,6 +27,8 @@ from tests.end_to_end.local_group_test import LocalGroupTest
 from tests.end_to_end.csr_test import CsrTest
 from tests.end_to_end.instance_test import InstanceTest
 from tests.end_to_end.security_server_test import SecurityServerTest
+from tests.end_to_end.internal_tls_test import TlsTest
+
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -176,6 +178,7 @@ class EndToEndTest(unittest.TestCase):
         SecurityServerTest(self).test_run_configuration()
         ClientTest(self).test_run_configuration()
         CertificateTest(self).test_run_configuration()
+        TlsTest(self).test_run_configuration()
         ServiceEndpointTest(self).test_run_configuration()
         AdminTest(self).test_run_configuration()
         MemberTest(self).test_run_configuration()

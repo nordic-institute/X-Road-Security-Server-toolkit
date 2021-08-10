@@ -133,28 +133,6 @@ class CertificateTest:
             self.test.config['security_server'][ssn]['certificates'] = signed_certs
             ssn = ssn + 1
 
-    def step_import_tls_certificate(self):
-        with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
-            ssn = 0
-            for security_server in self.test.config["security_server"]:
-                configuration = client_controller.create_api_config(security_server, self.test.config)
-                client_conf = {
-                    "member_name": security_server["owner_dn_org"],
-                    "member_code": security_server["owner_member_code"],
-                    "member_class": security_server["owner_member_class"]
-                }
-                client_controller.remote_import_tls_certificate(configuration, security_server["tls_certificates"], client_conf)
-
-                if "clients" in security_server:
-                    for client in security_server["clients"]:
-                        if "tls_certificates" in client:
-                            client_controller.remote_import_tls_certificate(configuration, client["tls_certificates"], client)
-                            tls_certs = getClientTlsCertificates(self.test.config, client, ssn)
-                            assert len(tls_certs) == 1
-                ssn = ssn + 1
-
     def list_certificates(self):
         with XRDSSTTest() as app:
             cert_controller = CertController()
@@ -168,22 +146,6 @@ class CertificateTest:
             for header in headers:
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
-
-    def step_client_unregister(self):
-        with XRDSSTTest() as app:
-            client_controller = ClientController()
-            client_controller.app = app
-            ssn = 0
-            configuration = client_controller.create_api_config(self.test.config["security_server"][0], self.test.config)
-            for client in self.test.config["security_server"][0]["clients"]:
-                if ConfKeysSecServerClients.CONF_KEY_SS_CLIENT_SUBSYSTEM_CODE in client:
-                    found_client = get_client(self.test.config, client, ssn)
-                    assert len(found_client) > 0
-                    assert found_client[0]["status"] == ClientStatus.REGISTERED
-                    client_controller.remote_unregister_client(configuration, self.test.config["security_server"][0]["name"], [found_client[0]["id"]])
-                    found_client = get_client(self.test.config, client, ssn)
-                    assert len(found_client) > 0
-                    assert found_client[0]["status"] == ClientStatus.DELETION_IN_PROGRESS
 
     def step_cert_download_internal_tls(self):
         with XRDSSTTest() as app:
@@ -208,5 +170,3 @@ class CertificateTest:
 
         self.step_cert_activate()
         self.list_certificates()
-        self.step_import_tls_certificate()
-        self.step_cert_download_internal_tls()
