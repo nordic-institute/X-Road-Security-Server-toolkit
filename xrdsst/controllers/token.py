@@ -218,8 +218,10 @@ class TokenController(BaseController):
             else:
                 return ProfileTypesEnum.FIVRK
         except BaseException as err:
-            BaseController.log_info("Certificate profile name '%s', not valid, please choose between: 'EJBCA', 'FIVRK', 'FO' and 'IS'" % profile)
+            BaseController.log_info("Certificate profile name '%s', not valid, please choose between: %s"
+                                    % (profile, str([e.name for e in ProfileTypesEnum])))
             raise err
+
     # requires token to be logged in
     def remote_token_add_all_keys_with_csrs(self, ss_api_config, security_server, member_class, member_code, member_name, auth_key_label=None, sign_key_label=None):
 

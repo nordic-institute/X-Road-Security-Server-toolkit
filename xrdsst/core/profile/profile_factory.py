@@ -7,6 +7,8 @@ from xrdsst.core.profile.fivrk_sign_certificate_profile import FIVRKSignCertific
 from xrdsst.core.profile.fivrk_auth_certificate_profile import FIVRKAuthCertificateProfile
 from xrdsst.core.profile.ejbca_auth_certificate_profile import EjbcaAuthCertificateProfile
 from xrdsst.core.profile.ejbca_sign_certificate_profile import EjbcaSignCertificateProfile
+from xrdsst.core.profile.sk_auth_certificate_profile import SkAuthCertificateProfile
+from xrdsst.core.profile.sk_sign_certificate_profile import SkSignCertificateProfile
 from xrdsst.core.profile.profile_types_enum import ProfileTypesEnum
 from xrdsst.core.profile.certificate_types_enum import CertificateTypesEnum
 
@@ -26,6 +28,8 @@ class ProfileFactory:
                 return FIVRKAuthCertificateProfile()
             elif profile_type == ProfileTypesEnum.EJBCA:
                 return EjbcaAuthCertificateProfile()
+            elif profile_type == ProfileTypesEnum.SK:
+                return SkAuthCertificateProfile()
             else:
                 raise ValueError("Error getting profile builder, profile type '%s' not valid" % profile_type)
         elif certificate_type == CertificateTypesEnum.SIGN:
@@ -39,6 +43,8 @@ class ProfileFactory:
                 return FIVRKSignCertificateProfile()
             elif profile_type == ProfileTypesEnum.EJBCA:
                 return EjbcaSignCertificateProfile()
+            elif profile_type == ProfileTypesEnum.SK:
+                return SkSignCertificateProfile()
             else:
                 raise ValueError("Error getting profile builder, profile type '%s' not valid" % profile_type)
 
