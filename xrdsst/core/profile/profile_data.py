@@ -1,7 +1,5 @@
 class ProfileData(object):
-    def __init__(self, instance_identifier, member_class, member_code, security_server_code, security_server_dns, owner_class, owner_code, member_name):  # noqa: E501
-        """Client - a model defined in Swagger"""  # noqa: E501
-
+    def __init__(self, instance_identifier, member_class, member_code, security_server_code, security_server_dns, owner_class, owner_code, member_name):
         self._instance_identifier = instance_identifier
         self._member_class = member_class
         self._member_code = member_code
