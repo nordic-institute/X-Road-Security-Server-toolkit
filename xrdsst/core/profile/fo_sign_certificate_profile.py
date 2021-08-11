@@ -4,7 +4,7 @@ from xrdsst.core.profile.profile_data import ProfileData
 
 class FoSignCertificateProfile(Profile):
     def build_profile(self, profile_data: ProfileData):
-        return{
+        return {
             "C": "FO",
             "O": profile_data.instance_identifier,
             "OU": profile_data.member_class,

@@ -5,6 +5,6 @@ from xrdsst.core.profile.profile_data import ProfileData
 class SkAuthCertificateProfile(Profile):
     def build_profile(self, profile_data: ProfileData):
         return {
-            "SN": profile_data.member_code,
+            "SN": profile_data.owner_code,
             "CN": profile_data.member_name
         }

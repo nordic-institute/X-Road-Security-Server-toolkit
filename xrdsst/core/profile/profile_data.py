@@ -46,3 +46,7 @@ class ProfileData(object):
     @property
     def member_name(self):
         return self._member_name
+
+    @property
+    def owner_code(self):
+        return self._owner_code

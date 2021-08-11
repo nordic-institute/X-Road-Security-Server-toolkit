@@ -17,36 +17,18 @@ class ProfileFactory:
 
     @staticmethod
     def get_profile_builder(certificate_type, profile_type=None):
-        if certificate_type == CertificateTypesEnum.AUTH:
-            if profile_type is None:
-                return FIVRKAuthCertificateProfile()
-            elif profile_type == ProfileTypesEnum.FO:
-                return FoAuthCertificateProfile()
-            elif profile_type == ProfileTypesEnum.IS:
-                return IsAuthCertificateProfile()
-            elif profile_type == ProfileTypesEnum.FIVRK:
-                return FIVRKAuthCertificateProfile()
-            elif profile_type == ProfileTypesEnum.EJBCA:
-                return EjbcaAuthCertificateProfile()
-            elif profile_type == ProfileTypesEnum.SK:
-                return SkAuthCertificateProfile()
-            else:
-                raise ValueError("Error getting profile builder, profile type '%s' not valid" % profile_type)
-        elif certificate_type == CertificateTypesEnum.SIGN:
-            if profile_type is None:
-                return FIVRKSignCertificateProfile()
-            elif profile_type == ProfileTypesEnum.FO:
-                return FoSignCertificateProfile()
-            elif profile_type == ProfileTypesEnum.IS:
-                return IsSignCertificateProfile()
-            elif profile_type == ProfileTypesEnum.FIVRK:
-                return FIVRKSignCertificateProfile()
-            elif profile_type == ProfileTypesEnum.EJBCA:
-                return EjbcaSignCertificateProfile()
-            elif profile_type == ProfileTypesEnum.SK:
-                return SkSignCertificateProfile()
-            else:
-                raise ValueError("Error getting profile builder, profile type '%s' not valid" % profile_type)
-
-
+        if profile_type is None:
+            return FIVRKAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else FIVRKSignCertificateProfile()
+        elif profile_type == ProfileTypesEnum.FO:
+            return FoAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else FoSignCertificateProfile()
+        elif profile_type == ProfileTypesEnum.IS:
+            return IsAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else IsSignCertificateProfile()
+        elif profile_type == ProfileTypesEnum.FIVRK:
+            return FIVRKAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else FIVRKSignCertificateProfile()
+        elif profile_type == ProfileTypesEnum.EJBCA:
+            return EjbcaAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else EjbcaSignCertificateProfile()
+        elif profile_type == ProfileTypesEnum.SK:
+            return SkAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else SkSignCertificateProfile()
+        else:
+            raise ValueError("Error getting profile builder, profile type '%s' not valid" % profile_type)
 

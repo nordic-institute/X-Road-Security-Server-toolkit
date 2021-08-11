@@ -6,7 +6,7 @@ from xrdsst.core.profile.profile_factory import ProfileFactory
 import pytest
 
 
-class TestMember(unittest.TestCase):
+class TestProfiles(unittest.TestCase):
     profile_data = ProfileData(
         instance_identifier="DEV",
         member_class="COM",
@@ -133,9 +133,9 @@ class TestMember(unittest.TestCase):
         assert result["CN"] == self.profile_data.member_name
 
     def test_sk_auth_certificate_profile(self):
-        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.SIGN, profile_type=ProfileTypesEnum.SK)
+        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.AUTH, profile_type=ProfileTypesEnum.SK)
         result = profile.build_profile(profile_data=self.profile_data)
 
         assert len(result) == 2
-        assert result["SN"] == self.profile_data.member_code
+        assert result["SN"] == self.profile_data.owner_code
         assert result["CN"] == self.profile_data.member_name
