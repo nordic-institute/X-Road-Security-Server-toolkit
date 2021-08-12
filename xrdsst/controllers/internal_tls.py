@@ -218,9 +218,9 @@ class InternalTlsController(BaseController):
                 file_content = text_file.read()
                 text_file.close()
                 try:
-                    system_api.import_system_certificate(body=file_content)
+                    cert_details = system_api.import_system_certificate(body=file_content)
                     BaseController.log_info("Imported TLS certificate: '%s', for security server: '%s'" % (cert_path, ss_name))
-
+                    return cert_details
                 except ApiException as err:
                     BaseController.log_info("Invalid certificate: '%s'" % cert_path)
                     BaseController.log_api_error("SystemApi=>generate_system_certificate_request", err)
