@@ -188,14 +188,11 @@ def assert_server_statuses_transitioned(sl1: [ServerStatus], sl2: [ServerStatus]
         assert sl1[i].server_init_status.has_server_code is not True
         assert sl2[i].server_init_status.has_server_code is True
 
-        print("----------- antes server owner---------")
         assert sl1[i].server_init_status.has_server_owner is not True
         assert sl2[i].server_init_status.has_server_owner is True
 
         assert TokenInitStatus.NOT_INITIALIZED == sl1[i].server_init_status.token_init_status
         assert TokenInitStatus.INITIALIZED == sl2[i].server_init_status.token_init_status
-
-        print("----------- antes token ---------")
 
         assert sl1[i].token_status.logged_in is not True
         assert sl2[i].token_status.logged_in is True
@@ -203,15 +200,12 @@ def assert_server_statuses_transitioned(sl1: [ServerStatus], sl2: [ServerStatus]
         assert not sl1[i].timestamping_status
         assert len(sl2[i].timestamping_status) > 0
 
-        print("----------- antes keys ---------")
-
         assert sl1[i].status_keys.has_auth_key is not True
         assert sl2[i].status_keys.has_auth_key is True
         assert sl1[i].status_keys.has_toolkit_auth_key is not True
         assert sl2[i].status_keys.has_toolkit_auth_key is True
 
         # No assumptions about CSRS.
-        print("----------- certs ---------")
 
         assert sl1[i].status_certs.has_toolkit_sign_cert is not True
         assert sl2[i].status_certs.has_toolkit_sign_cert is True
@@ -223,11 +217,8 @@ def assert_server_statuses_transitioned(sl1: [ServerStatus], sl2: [ServerStatus]
         assert sl1[i].status_certs.has_auth_cert is not True
         assert sl2[i].status_certs.has_auth_cert is True
 
-        print("----------- certs 3---------")
         assert sl1[i].status_certs.has_registered_auth_cert is not True
         assert sl2[i].status_certs.has_registered_auth_cert is True
-
-        print("----------- finish ---------")
 
 
 # Waits until boolean function returns True within number of retried delays or raises error
@@ -272,16 +263,6 @@ def api_GET(api_url, api_path, api_key):
 
     return json.loads(str(response.content, 'utf-8').strip())
 
-
-def get_service_description_openapi(config, client_id, ssn):
-    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
-    response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
-    return list(filter(lambda r: r["type"] == "OPENAPI3", response))[0]
-
-def get_service_description_wsdl(config, client_id, ssn):
-    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
-    response = api_GET(config["security_server"][ssn]["url"], "clients/" + client_id + "/service-descriptions", api_key)
-    return list(filter(lambda r: r["type"] == "WSDL", response))[0]
 
 # Returns service description for given client
 def get_service_description(config, client_id, ssn):
@@ -392,6 +373,7 @@ def auth_cert_registration_global_configuration_update_received(config, ssn):
     registered_auth_keys = list(filter(registered_auth_key, response['keys']))
     return bool(registered_auth_keys)
 
+
 # Returns service clients for given service
 def get_token(config, token_id, ssn):
     api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
@@ -400,3 +382,9 @@ def get_token(config, token_id, ssn):
         "tokens/" + token_id,
         api_key
     )
+
+
+def get_tls_certificate(config, ssn):
+    api_key = os.getenv(config["security_server"][ssn]["api_key"], "")
+    response = api_GET(config["security_server"][ssn]["url"], "system/certificate", api_key)
+    return response

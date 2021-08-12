@@ -1,5 +1,3 @@
-import time
-
 from tests.end_to_end.certificate_test import CertificateTest
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.token import TokenController
@@ -9,8 +7,7 @@ from xrdsst.main import XRDSSTTest
 from xrdsst.models.key_usage_type import KeyUsageType
 from xrdsst.controllers.cert import CertOperations
 from datetime import datetime
-import time
-from tests.util.test_util import waitfor, auth_cert_registration_global_configuration_update_received
+
 
 class RenewCertificate:
 
@@ -137,8 +134,7 @@ class RenewCertificate:
         CertificateTest(self.test).step_cert_import()
         CertificateTest(self.test).step_cert_register()
         CertificateTest(self.test).step_cert_activate()
-        
+
         self.step_unregister_certificates(old_certificates)
         self.step_disable_certificates(old_certificates)
         self.step_delete_certificates(old_certificates)
-

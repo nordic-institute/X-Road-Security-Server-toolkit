@@ -30,7 +30,7 @@ class MemberTest:
             for security_server in self.test.config["security_server"]:
                 configuration = base.create_api_config(security_server, self.test.config)
                 response = member_controller.remote_list_classes(configuration, security_server, 'DEV')
-                assert 'ORG' in response
+                assert response == ['COM', 'PRIVATE-FOR-DEV', 'ORG', 'GOV']
 
     def test_run_configuration(self):
         self.step_member_find()

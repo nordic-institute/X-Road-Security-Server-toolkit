@@ -27,7 +27,8 @@ from tests.end_to_end.local_group_test import LocalGroupTest
 from tests.end_to_end.csr_test import CsrTest
 from tests.end_to_end.instance_test import InstanceTest
 from tests.end_to_end.security_server_test import SecurityServerTest
-import time
+from tests.end_to_end.internal_tls_test import TlsTest
+
 
 class EndToEndTest(unittest.TestCase):
     config_file = None
@@ -45,7 +46,6 @@ class EndToEndTest(unittest.TestCase):
             base = BaseController()
             base.app = app
             self.config = base.load_config(baseconfig=self.config_file)
-            # self.config = base.load_config(baseconfig='/home/alberto/Proyects/X-Road-Security-Server-toolkit/tests/resources/test.yaml')
             ssn = 0
             for security_server in self.config["security_server"]:
                 if security_server.get(ConfKeysSecurityServer.CONF_KEY_API_KEY):
@@ -177,6 +177,7 @@ class EndToEndTest(unittest.TestCase):
         SecurityServerTest(self).test_run_configuration()
         ClientTest(self).test_run_configuration()
         CertificateTest(self).test_run_configuration()
+        TlsTest(self).test_run_configuration()
         ServiceEndpointTest(self).test_run_configuration()
         AdminTest(self).test_run_configuration()
         MemberTest(self).test_run_configuration()
@@ -189,9 +190,4 @@ class EndToEndTest(unittest.TestCase):
         CsrTest(self).test_run_configuration()
         BackupTest(self).test_run_configuration()
         configured_servers_at_end = self.query_status()
-
-        print("---------------------------Despues de configure servers --------------------------")
-
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
-
-        print("---------------------------Despues de assert_server_statuses_transitioned --------------------------")
