@@ -445,17 +445,6 @@ class ServiceEndpointTest:
 
                         descriptions = get_service_descriptions(self.test.config, client_id, ssn)
                         assert len(descriptions) == 1
-                        for description in descriptions:
-                            if description["type"] == "WSDL":
-                                assert description["security_server"] == security_server["name"]
-                                assert description["client_id"] == client_id
-                                assert description["type"] == 'WSDL'
-                                assert description["services"] == 4
-                            else:
-                                assert description["security_server"] == security_server["name"]
-                                assert description["client_id"] == client_id
-                                assert description["type"] == 'OPENAPI3'
-                                assert description["services"] == 1
                 ssn = ssn + 1
 
     def step_list_service_access_rights(self):
