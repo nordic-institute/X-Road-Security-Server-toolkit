@@ -263,21 +263,15 @@ class ServiceEndpointTest:
                             list_of_services = service_controller.remote_list_services(configuration, security_server, client_id, [description["id"]])
                             if description["type"] == "WSDL":
                                 assert len(list_of_services) == 4
+                                service_codes = ['authCertDeletion', 'clientDeletion', 'clientReg', 'ownerChange']
+                                sn = 0
+                                for service in list_of_services:
+                                    assert service["security_server"] == security_server["name"]
+                                    assert service["client_id"] == client_id
+                                    assert service["service_id"] == client_id + ':' + service_codes[sn]
+                                    assert service["service_code"] == service_codes[sn]
+                                    sn = sn + 1
                             else:
-                                assert len(list_of_services) == 1
-
-                        service_codes = ['authCertDeletion', 'clientDeletion', 'clientReg', 'ownerChange']
-                        sn = 0
-                        for service in list_of_services:
-                            assert service["security_server"] == security_server["name"]
-                            assert service["client_id"] == client_id
-                            assert service["service_id"] == client_id + ':' + service_codes[sn]
-                            assert service["service_code"] == service_codes[sn]
-                            sn = sn + 1
-
-                        for description in descriptions:
-                            list_of_services = service_controller.remote_list_services(configuration, security_server, client_id, [description["id"]])
-                            if description["type"] == "OPENAPI3":
                                 assert len(list_of_services) == 1
                                 assert list_of_services[0]["security_server"] == security_server["name"]
                                 assert list_of_services[0]["client_id"] == client_id
