@@ -258,10 +258,13 @@ class ServiceEndpointTest:
                     if "service_descriptions" in client:
                         found_client = get_client(self.test.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-
-                        list_of_services = service_controller.remote_list_services(configuration, security_server, client_id, [description[0]["id"]])
-                        assert len(list_of_services) == 4
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        for description in descriptions:
+                            list_of_services = service_controller.remote_list_services(configuration, security_server, client_id, [description["id"]])
+                            if description["type"] == "WSDL":
+                                assert len(list_of_services) == 4
+                            else:
+                                assert len(list_of_services) == 1
 
                         service_codes = ['authCertDeletion', 'clientDeletion', 'clientReg', 'ownerChange']
                         sn = 0
@@ -272,14 +275,16 @@ class ServiceEndpointTest:
                             assert service["service_code"] == service_codes[sn]
                             sn = sn + 1
 
-                        list_of_services = service_controller.remote_list_services(configuration, security_server, client_id, [description[1]["id"]])
-                        assert len(list_of_services) == 1
-                        assert list_of_services[0]["security_server"] == security_server["name"]
-                        assert list_of_services[0]["client_id"] == client_id
-                        assert list_of_services[0]["service_id"] == client_id + ':Petstore'
-                        assert list_of_services[0]["service_code"] == 'Petstore'
-                        assert list_of_services[0]["timeout"] == 120
-                        assert list_of_services[0]["url"] == 'http://petstore.xxx'
+                        for description in descriptions:
+                            list_of_services = service_controller.remote_list_services(configuration, security_server, client_id, [description["id"]])
+                            if description["type"] == "OPENAPI3":
+                                assert len(list_of_services) == 1
+                                assert list_of_services[0]["security_server"] == security_server["name"]
+                                assert list_of_services[0]["client_id"] == client_id
+                                assert list_of_services[0]["service_id"] == client_id + ':Petstore'
+                                assert list_of_services[0]["service_code"] == 'Petstore'
+                                assert list_of_services[0]["timeout"] == 120
+                                assert list_of_services[0]["url"] == 'http://petstore.xxx'
                 ssn = ssn + 1
 
     def step_update_service_description(self):
