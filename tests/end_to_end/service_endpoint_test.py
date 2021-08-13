@@ -351,7 +351,7 @@ class ServiceEndpointTest:
 
                         service_controller.remote_refresh_service_descriptions(configuration,
                                                                                client_id,
-                                                                               [description[0]["id"]])
+                                                                               [descriptions[0]["id"]])
 
                         descriptions = get_service_descriptions(self.test.config, client_id, ssn)
                         assert len(descriptions) == 2
@@ -407,7 +407,7 @@ class ServiceEndpointTest:
 
                         service_controller.remote_disable_service_descriptions(configuration,
                                                                                client_id,
-                                                                               [description[0]["id"]],
+                                                                               [descriptions[0]["id"]],
                                                                                'disable notice')
 
                         descriptions = get_service_descriptions(self.test.config, client_id, ssn)
@@ -444,7 +444,7 @@ class ServiceEndpointTest:
                                 assert description["type"] == 'OPENAPI3'
                                 assert description["services"] == 1
 
-                        service_controller.remote_delete_service_descriptions(configuration, client_id, [description[0]["id"]])
+                        service_controller.remote_delete_service_descriptions(configuration, client_id, [descriptions[0]["id"]])
 
                         descriptions = get_service_descriptions(self.test.config, client_id, ssn)
                         assert len(descriptions) == 1
