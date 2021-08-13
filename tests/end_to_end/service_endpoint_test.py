@@ -308,12 +308,11 @@ class ServiceEndpointTest:
                                 assert description["type"] == 'OPENAPI3'
                                 assert len(description["services"]) == 1
                                 assert description["services"][0]["service_code"] == 'Petstore'
-
-                        service_controller.remote_update_service_descriptions(configuration,
-                                                                              client_id,
-                                                                              [description[1]["id"]],
-                                                                              'NewPetstore',
-                                                                              None)
+                                service_controller.remote_update_service_descriptions(configuration,
+                                                                                      client_id,
+                                                                                      [description["id"]],
+                                                                                      'NewPetstore',
+                                                                                      None)
 
                         descriptions = get_service_descriptions(self.test.config, client_id, ssn)
                         assert len(descriptions) == 2
@@ -348,10 +347,7 @@ class ServiceEndpointTest:
                                 assert description["type"] == 'OPENAPI3'
                                 assert len(description["services"]) == 1
                                 assert description["services"][0]["service_code"] == 'Petstore'
-
-                        service_controller.remote_refresh_service_descriptions(configuration,
-                                                                               client_id,
-                                                                               [descriptions[0]["id"]])
+                                service_controller.remote_refresh_service_descriptions(configuration, client_id, [description["id"]])
 
                         descriptions = get_service_descriptions(self.test.config, client_id, ssn)
                         assert len(descriptions) == 2
