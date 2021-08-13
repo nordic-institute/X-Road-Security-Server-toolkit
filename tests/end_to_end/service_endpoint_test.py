@@ -376,17 +376,20 @@ class ServiceEndpointTest:
                     if "service_descriptions" in client:
                         found_client = get_client(self.test.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[1]["id"]])
-                        assert len(response) == 1
-                        service_controller.remote_delete_service_access(configuration,
-                                                                        security_server,
-                                                                        response[0]["service_id"],
-                                                                        client_id,
-                                                                        description[1]["id"],
-                                                                        [response[0]["service_client_id"]])
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[1]["id"]])
-                        assert len(response) == 0
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            if description["type"] != "WSDL":
+                                response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description["id"]])
+                                assert len(response) == 1
+                                service_controller.remote_delete_service_access(configuration,
+                                                                                security_server,
+                                                                                response[0]["service_id"],
+                                                                                client_id,
+                                                                                description[1]["id"],
+                                                                                [response[0]["service_client_id"]])
+                                response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description["id"]])
+                                assert len(response) == 0
                 ssn = ssn + 1
 
     def step_disable_service_description(self):
@@ -451,17 +454,18 @@ class ServiceEndpointTest:
                     if "service_descriptions" in client:
                         found_client = get_client(self.test.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        assert len(description) == 2
-                        response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description[1]["id"]])
-                        assert len(response) == 1
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == 'DEV:ORG:111:TEST'
-                        assert response[0]["service_id"] == 'DEV:ORG:111:TEST:Petstore'
-                        assert response[0]["service_client_id"] == 'DEV:security-server-owners'
-                        assert response[0]["name"] == 'Security server owners'
-                        assert response[0]["type"] == ServiceClientType.GLOBALGROUP
-
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            if description["type"] != "WSDL":
+                                response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description["id"]])
+                                assert len(response) == 1
+                                assert response[0]["security_server"] == security_server["name"]
+                                assert response[0]["client_id"] == 'DEV:ORG:111:TEST'
+                                assert response[0]["service_id"] == 'DEV:ORG:111:TEST:Petstore'
+                                assert response[0]["service_client_id"] == 'DEV:security-server-owners'
+                                assert response[0]["name"] == 'Security server owners'
+                                assert response[0]["type"] == ServiceClientType.GLOBALGROUP
                 ssn = ssn + 1
 
     def step_add_service_endpoints_fail_endpoints_service_type_wsdl(self):
