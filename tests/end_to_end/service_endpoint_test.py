@@ -427,9 +427,7 @@ class ServiceEndpointTest:
                     if "service_descriptions" in client:
                         found_client = get_client(self.test.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        assert len(description) == 2
-                        descriptions = service_controller.remote_list_service_descriptions(configuration, security_server, [client_id])
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
                         assert len(descriptions) == 2
                         for description in descriptions:
                             if description["type"] == "WSDL":
