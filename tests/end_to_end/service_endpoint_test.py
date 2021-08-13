@@ -409,7 +409,10 @@ class ServiceEndpointTest:
                                                                                client_id,
                                                                                [descriptions[0]["id"]],
                                                                                'disable notice')
-
+                        service_controller.remote_disable_service_descriptions(configuration,
+                                                                               client_id,
+                                                                               [descriptions[1]["id"]],
+                                                                               'disable notice')
                         descriptions = get_service_descriptions(self.test.config, client_id, ssn)
                         assert len(descriptions) == 2
                         for description in descriptions:
