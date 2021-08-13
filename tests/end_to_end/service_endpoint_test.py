@@ -386,7 +386,7 @@ class ServiceEndpointTest:
                                                                                 security_server,
                                                                                 response[0]["service_id"],
                                                                                 client_id,
-                                                                                description[1]["id"],
+                                                                                description["id"],
                                                                                 [response[0]["service_client_id"]])
                                 response = service_controller.remote_list_access_for_services(configuration, security_server, client_id, [description["id"]])
                                 assert len(response) == 0
