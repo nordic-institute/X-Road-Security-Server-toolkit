@@ -509,7 +509,7 @@ class ServiceEndpointTest:
                     found_client = get_client(self.test.config, client, ssn)
                     client_id = found_client[0]['id']
                     descriptions = get_service_descriptions(self.test.config, client_id, ssn)
-                    assert len(descriptions) == 1
+                    assert len(descriptions) == 2
                     for description in descriptions:
                         if description["type"] == "WSDL":
                             assert len(description["services"][0]["endpoints"]) == 1
