@@ -230,18 +230,20 @@ class ServiceEndpointTest:
                     if "service_descriptions" in client:
                         found_client = get_client(self.test.config, client, ssn)
                         client_id = found_client[0]['id']
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, [client_id])
-                        assert len(response) == 2
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == client_id
-                        assert response[0]["type"] == 'WSDL'
-                        assert response[0]["disabled"] is False
-                        assert response[0]["services"] == 4
-                        assert response[1]["security_server"] == security_server["name"]
-                        assert response[1]["client_id"] == client_id
-                        assert response[1]["type"] == 'OPENAPI3'
-                        assert response[1]["disabled"] is False
-                        assert response[1]["services"] == 1
+                        descriptions = service_controller.remote_list_service_descriptions(configuration, security_server, [client_id])
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            if description["type"] == "WSDL":
+                                assert description["security_server"] == security_server["name"]
+                                assert description["client_id"] == client_id
+                                assert description["disabled"] is False
+                                assert description["services"] == 4
+                            else:
+                                assert description["security_server"] == security_server["name"]
+                                assert description["client_id"] == client_id
+                                assert description["type"] == 'OPENAPI3'
+                                assert description["disabled"] is False
+                                assert description["services"] == 1
                 ssn = ssn + 1
 
     def step_list_service_description_services(self):
@@ -298,12 +300,14 @@ class ServiceEndpointTest:
                     if "service_descriptions" in client:
                         found_client = get_client(self.test.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        assert len(description) == 2
-                        assert description[1]["client_id"] == client_id
-                        assert description[1]["type"] == 'OPENAPI3'
-                        assert len(description[1]["services"]) == 1
-                        assert description[1]["services"][0]["service_code"] == 'Petstore'
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            if description["type"] != "WSDL":
+                                assert description["client_id"] == client_id
+                                assert description["type"] == 'OPENAPI3'
+                                assert len(description["services"]) == 1
+                                assert description["services"][0]["service_code"] == 'Petstore'
 
                         service_controller.remote_update_service_descriptions(configuration,
                                                                               client_id,
@@ -311,12 +315,14 @@ class ServiceEndpointTest:
                                                                               'NewPetstore',
                                                                               None)
 
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        assert len(description) == 2
-                        assert description[1]["client_id"] == client_id
-                        assert description[1]["type"] == 'OPENAPI3'
-                        assert len(description[1]["services"]) == 1
-                        assert description[1]["services"][0]["service_code"] == 'NewPetstore'
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            if description["type"] != "WSDL":
+                                assert description["client_id"] == client_id
+                                assert description["type"] == 'OPENAPI3'
+                                assert len(description["services"]) == 1
+                                assert description["services"][0]["service_code"] == 'NewPetstore'
                 ssn = ssn + 1
 
         for ssn in range(0, len(self.test.config["security_server"])):
@@ -334,23 +340,27 @@ class ServiceEndpointTest:
                     if "service_descriptions" in client:
                         found_client = get_client(self.test.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        assert len(description) == 2
-                        assert description[1]["client_id"] == client_id
-                        assert description[1]["type"] == 'OPENAPI3'
-                        assert len(description[1]["services"]) == 1
-                        assert description[1]["services"][0]["service_code"] == 'Petstore'
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            if description["type"] != "WSDL":
+                                assert description["client_id"] == client_id
+                                assert description["type"] == 'OPENAPI3'
+                                assert len(description["services"]) == 1
+                                assert description["services"][0]["service_code"] == 'Petstore'
 
                         service_controller.remote_refresh_service_descriptions(configuration,
                                                                                client_id,
                                                                                [description[0]["id"]])
 
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        assert len(description) == 2
-                        assert description[1]["client_id"] == client_id
-                        assert description[1]["type"] == 'OPENAPI3'
-                        assert len(description[1]["services"]) == 1
-                        assert description[1]["services"][0]["service_code"] == 'Petstore'
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            if description["type"] != "WSDL":
+                                assert description["client_id"] == client_id
+                                assert description["type"] == 'OPENAPI3'
+                                assert len(description["services"]) == 1
+                                assert description["services"][0]["service_code"] == 'Petstore'
                 ssn = ssn + 1
 
     def step_delete_service_access_rights(self):
@@ -390,19 +400,20 @@ class ServiceEndpointTest:
                     if "service_descriptions" in client:
                         found_client = get_client(self.test.config, client, ssn)
                         client_id = found_client[0]['id']
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        assert len(description) == 2
-                        assert description[0]["disabled"] is False
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            assert description["disabled"] is False
 
                         service_controller.remote_disable_service_descriptions(configuration,
                                                                                client_id,
                                                                                [description[0]["id"]],
                                                                                'disable notice')
 
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        assert len(description) == 2
-                        assert description[0]["client_id"] == client_id
-                        assert description[0]["disabled"] is True
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            assert description["disabled"] is True
                 ssn = ssn + 1
 
     def step_delete_service_description(self):
@@ -419,28 +430,35 @@ class ServiceEndpointTest:
                         client_id = found_client[0]['id']
                         description = get_service_descriptions(self.test.config, client_id, ssn)
                         assert len(description) == 2
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, [client_id])
-
-                        assert len(response) == 2
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == client_id
-                        assert response[0]["type"] == 'WSDL'
-                        assert response[0]["services"] == 4
-                        assert response[1]["security_server"] == security_server["name"]
-                        assert response[1]["client_id"] == client_id
-                        assert response[1]["type"] == 'OPENAPI3'
-                        assert response[1]["services"] == 1
+                        descriptions = service_controller.remote_list_service_descriptions(configuration, security_server, [client_id])
+                        assert len(descriptions) == 2
+                        for description in descriptions:
+                            if description["type"] == "WSDL":
+                                assert description["security_server"] == security_server["name"]
+                                assert description["client_id"] == client_id
+                                assert description["type"] == 'WSDL'
+                                assert description["services"] == 4
+                            else:
+                                assert description["security_server"] == security_server["name"]
+                                assert description["client_id"] == client_id
+                                assert description["type"] == 'OPENAPI3'
+                                assert description["services"] == 1
 
                         service_controller.remote_delete_service_descriptions(configuration, client_id, [description[0]["id"]])
 
-                        description = get_service_descriptions(self.test.config, client_id, ssn)
-                        assert len(description) == 1
-                        response = service_controller.remote_list_service_descriptions(configuration, security_server, [client_id])
-                        assert len(response) == 1
-                        assert response[0]["security_server"] == security_server["name"]
-                        assert response[0]["client_id"] == client_id
-                        assert response[0]["type"] == 'OPENAPI3'
-                        assert response[0]["services"] == 1
+                        descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                        assert len(descriptions) == 1
+                        for description in descriptions:
+                            if description["type"] == "WSDL":
+                                assert description["security_server"] == security_server["name"]
+                                assert description["client_id"] == client_id
+                                assert description["type"] == 'WSDL'
+                                assert description["services"] == 4
+                            else:
+                                assert description["security_server"] == security_server["name"]
+                                assert description["client_id"] == client_id
+                                assert description["type"] == 'OPENAPI3'
+                                assert description["services"] == 1
                 ssn = ssn + 1
 
     def step_list_service_access_rights(self):
@@ -490,9 +508,13 @@ class ServiceEndpointTest:
                                 endpoint_controller.remote_add_service_endpoints(configuration, client, service_description, endpoint)
                     found_client = get_client(self.test.config, client, ssn)
                     client_id = found_client[0]['id']
-                    description = get_service_descriptions(self.test.config, client_id, ssn)
-                    assert len(description[0]["services"][0]["endpoints"]) == 1
-                    assert len(description[1]["services"][0]["endpoints"]) == 4
+                    descriptions = get_service_descriptions(self.test.config, client_id, ssn)
+                    assert len(descriptions) == 1
+                    for description in descriptions:
+                        if description["type"] == "WSDL":
+                            assert len(description["services"][0]["endpoints"]) == 1
+                        else:
+                            assert len(description["services"][0]["endpoints"]) == 4
             ssn = ssn + 1
 
         for ssn in range(0, len(self.test.config["security_server"])):
@@ -671,8 +693,6 @@ class ServiceEndpointTest:
 
                 for endpoint in endpoint_list_after:
                     assert access_rights[0] not in endpoint["access"]
-
-
 
     def test_run_configuration(self):
         self.step_add_service_description_fail_url_missing()
