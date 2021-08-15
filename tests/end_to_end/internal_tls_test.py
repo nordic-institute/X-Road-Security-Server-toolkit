@@ -68,7 +68,7 @@ class TlsTest:
         with XRDSSTTest() as app:
             tls_controller = InternalTlsController()
             tls_controller.app = app
-            csr_distinguished_name = "CN=ssX, O=Organizacion, C=FI"
+            csr_distinguished_name = "CN=ssX, O=NIIS, C=FI"
             for security_server in self.test.config["security_server"]:
                 ss_configuration = tls_controller.create_api_config(security_server, self.test.config)
                 csr = tls_controller.remote_generate_tls_csr(ss_configuration, security_server["name"], csr_distinguished_name)
