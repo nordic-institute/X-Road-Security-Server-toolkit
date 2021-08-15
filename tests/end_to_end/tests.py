@@ -177,7 +177,7 @@ class EndToEndTest(unittest.TestCase):
         SecurityServerTest(self).test_run_configuration()
         ClientTest(self).test_run_configuration()
         CertificateTest(self).test_run_configuration()
-        # TlsTest(self).test_run_configuration()
+        TlsTest(self).test_run_configuration()
         ServiceEndpointTest(self).test_run_configuration()
         AdminTest(self).test_run_configuration()
         MemberTest(self).test_run_configuration()
