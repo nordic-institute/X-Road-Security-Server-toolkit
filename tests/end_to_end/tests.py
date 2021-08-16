@@ -14,7 +14,7 @@ from tests.end_to_end.initialization_test import InitializationTest
 from tests.end_to_end.member_test import MemberTest
 from tests.end_to_end.service_endpoint_test import ServiceEndpointTest
 from tests.end_to_end.keys_test import KeysTest
-from tests.util.test_util import get_client, assert_server_statuses_transitioned
+from tests.util.test_util import get_client, assert_server_statuses_transitioned, waitfor, client_registration_global_configuration_update_received
 from xrdsst.controllers.base import BaseController
 from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.status import StatusController
@@ -186,6 +186,12 @@ class EndToEndTest(unittest.TestCase):
         #RenewCertificate(self).test_run_configuration()
         KeysTest(self).test_run_configuration()
         CsrTest(self).test_run_configuration()
+
+        # Wait for global configuration status updates
+        for ssn in range(0, len(self.test.config["security_server"])):
+            for client in self.test.config["security_server"][ssn]["clients"]:
+                waitfor(lambda: client_registration_global_configuration_update_received(self.test.config, client, ssn), 1, 300)
+
         self.step_client_unregister()
         self.step_client_delete()
         configured_servers_at_end = self.query_status()
