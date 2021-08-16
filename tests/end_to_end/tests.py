@@ -183,7 +183,7 @@ class EndToEndTest(unittest.TestCase):
         MemberTest(self).test_run_configuration()
         DiagnosticsTest(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
-        RenewCertificate(self).test_run_configuration()
+        #RenewCertificate(self).test_run_configuration()
         KeysTest(self).test_run_configuration()
         CsrTest(self).test_run_configuration()
 
