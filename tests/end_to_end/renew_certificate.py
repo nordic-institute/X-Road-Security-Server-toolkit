@@ -1,4 +1,5 @@
 from tests.end_to_end.certificate_test import CertificateTest
+from tests.util.test_util import waitfor, auth_cert_registration_global_configuration_update_received
 from xrdsst.controllers.cert import CertController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClients
@@ -134,6 +135,11 @@ class RenewCertificate:
 
         CertificateTest(self.test).step_cert_import()
         CertificateTest(self.test).step_cert_register()
+
+        # Wait for global configuration status updates
+        for ssn in range(0, len(self.test.config["security_server"])):
+            waitfor(lambda: auth_cert_registration_global_configuration_update_received(self.test.config, ssn), 1, 300)
+
         CertificateTest(self.test).step_cert_activate()
 
         self.step_unregister_certificates(old_certificates)
