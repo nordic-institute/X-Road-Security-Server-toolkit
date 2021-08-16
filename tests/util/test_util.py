@@ -13,7 +13,7 @@ from xrdsst.core.api_util import StatusRoles, StatusVersion, StatusGlobal, Statu
     StatusServerTimestamping, StatusToken, StatusKeys, StatusCsrs, StatusCerts
 from xrdsst.core.util import default_auth_key_label, convert_swagger_enum
 from xrdsst.models import ConnectionType, TokenInitStatus, User, InitializationStatus, GlobalConfDiagnostics, Token, \
-    TokenStatus, TokenType, PossibleAction
+    TokenStatus, TokenType, PossibleAction, ClientStatus
 
 
 class ObjectStruct:
@@ -372,6 +372,11 @@ def auth_cert_registration_global_configuration_update_received(config, ssn):
     response = json.loads(result.content)
     registered_auth_keys = list(filter(registered_auth_key, response['keys']))
     return bool(registered_auth_keys)
+
+# Check for auth cert registration update receival
+def client_registration_global_configuration_update_received(config, client, ssn):
+    found_client = get_client(config, client, ssn)
+    return found_client[0]["status"] == ClientStatus.REGISTERED
 
 
 # Returns service clients for given service
