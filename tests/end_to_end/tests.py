@@ -188,9 +188,9 @@ class EndToEndTest(unittest.TestCase):
         CsrTest(self).test_run_configuration()
 
         # Wait for global configuration status updates
-        for ssn in range(0, len(self.test.config["security_server"])):
-            for client in self.test.config["security_server"][ssn]["clients"]:
-                waitfor(lambda: client_registration_global_configuration_update_received(self.test.config, client, ssn), 1, 300)
+        for ssn in range(0, len(self.config["security_server"])):
+            for client in self.config["security_server"][ssn]["clients"]:
+                waitfor(lambda: client_registration_global_configuration_update_received(self.config, client, ssn), 1, 300)
 
         self.step_client_unregister()
         self.step_client_delete()
