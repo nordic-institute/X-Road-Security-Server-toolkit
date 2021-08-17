@@ -16,6 +16,7 @@ def test_opdep_init_adds_app_opdep():
     assert mock_app.OP_DEPENDENCY_LIST
     assert mock_app.OP_GRAPH.number_of_nodes() == len(mock_app.OP_DEPENDENCY_LIST)
 
+
 def test_admin_credentials_from_root_level_when_empty_at_security_server_section():
     os.environ['TOOLKIT_ADMIN_CREDENTIALS'] = 'admin:pass'
     config = {
@@ -26,10 +27,11 @@ def test_admin_credentials_from_root_level_when_empty_at_security_server_section
               'ssh_user': 'ssh_user',
               'ssh_private_key': 'private_key'}]}
     security_server = {
-            'admin_credentials': '',
-            'ssh_user': '',
-            'ssh_private_key': ''}
+        'admin_credentials': '',
+        'ssh_user': '',
+        'ssh_private_key': ''}
     assert 'admin:pass' == get_admin_credentials(security_server, config)
+
 
 def test_admin_credentials_from_root_level_when_missing_at_security_server_section():
     os.environ['TOOLKIT_ADMIN_CREDENTIALS'] = 'admin:pass'
@@ -41,9 +43,10 @@ def test_admin_credentials_from_root_level_when_missing_at_security_server_secti
               'ssh_user': 'ssh_user',
               'ssh_private_key': 'private_key'}]}
     security_server = {
-            'ssh_user': '',
-            'ssh_private_key': ''}
+        'ssh_user': '',
+        'ssh_private_key': ''}
     assert 'admin:pass' == get_admin_credentials(security_server, config)
+
 
 def test_admin_credentials_from_security_server_section_when_empty_at_root_level():
     os.environ['TOOLKIT_ADMIN_CREDENTIALS'] = 'another_admin:another_pass'
@@ -55,10 +58,11 @@ def test_admin_credentials_from_security_server_section_when_empty_at_root_level
               'ssh_user': 'ssh_user',
               'ssh_private_key': 'private_key'}]}
     security_server = {
-            'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
-            'ssh_user': '',
-            'ssh_private_key': ''}
+        'admin_credentials': 'TOOLKIT_ADMIN_CREDENTIALS',
+        'ssh_user': '',
+        'ssh_private_key': ''}
     assert 'another_admin:another_pass' == get_admin_credentials(security_server, config)
+
 
 def test_ssh_values_from_root_level_when_empty_at_security_server_section():
     os.environ['TOOLKIT_SSH_USER'] = 'user'
@@ -69,10 +73,11 @@ def test_ssh_values_from_root_level_when_empty_at_security_server_section():
             [{'ssh_user': 'ssh_user',
               'ssh_private_key': 'private_key'}]}
     security_server = {
-            'ssh_user': '',
-            'ssh_private_key': ''}
+        'ssh_user': '',
+        'ssh_private_key': ''}
     assert 'user' == get_ssh_user(security_server, config)
     assert 'key' == get_ssh_key(security_server, config)
+
 
 def test_ssh_values_from_root_level_when_missing_at_security_server_section():
     os.environ['TOOLKIT_SSH_USER'] = 'user'
@@ -86,6 +91,7 @@ def test_ssh_values_from_root_level_when_missing_at_security_server_section():
     assert 'user' == get_ssh_user(security_server, config)
     assert 'key' == get_ssh_key(security_server, config)
 
+
 def test_ssh_values_from_security_server_section_when_missing_at_root_level():
     os.environ['TOOLKIT_SSH_USER'] = 'another_user'
     os.environ['TOOLKIT_SSH_PRIVATE_KEY'] = 'another_key'
@@ -94,10 +100,11 @@ def test_ssh_values_from_security_server_section_when_missing_at_root_level():
             [{'ssh_user': 'ssh_user',
               'ssh_private_key': 'private_key'}]}
     security_server = {
-            'ssh_user': 'TOOLKIT_SSH_USER',
-            'ssh_private_key': 'TOOLKIT_SSH_PRIVATE_KEY'}
+        'ssh_user': 'TOOLKIT_SSH_USER',
+        'ssh_private_key': 'TOOLKIT_SSH_PRIVATE_KEY'}
     assert 'another_user' == get_ssh_user(security_server, config)
     assert 'another_key' == get_ssh_key(security_server, config)
+
 
 def test_default_sign_key_label():
     security_server_config = {'name': 'ss-name1'}
