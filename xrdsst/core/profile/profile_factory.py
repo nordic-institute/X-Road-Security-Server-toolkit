@@ -27,8 +27,6 @@ class ProfileFactory:
             return FIVRKAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else FIVRKSignCertificateProfile()
         elif profile_type == ProfileTypesEnum.EJBCA:
             return EjbcaAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else EjbcaSignCertificateProfile()
-        elif profile_type == ProfileTypesEnum.SK:
-            return SkAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else SkSignCertificateProfile()
         else:
             raise ValueError("Error getting profile builder, profile type '%s' not valid" % profile_type)
 
