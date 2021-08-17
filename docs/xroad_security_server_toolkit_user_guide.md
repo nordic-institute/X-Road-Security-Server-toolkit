@@ -2194,10 +2194,9 @@ The toolkit has support for multiple profiles to choose between:
 - FIVRK: Finnish implementation
 - FO: Faroe Island's implementation
 - IS: Icelandic Implementation
-- SK: SK Klass 3 certificates implementation
 
 To select one of this profiles, we must fill the property `profile` in the configuration file (`security_server` section) with the name of the profile,
-to choose between: "EJBCA", "FIVRK", "FO", "IS" and "SK".
+to choose between: "EJBCA", "FIVRK", "FO" and "IS".
 
 This property is optional, if is not set, the default profile will be the Finnish one.
 
