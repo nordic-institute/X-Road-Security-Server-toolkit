@@ -6,4 +6,3 @@ class ProfileTypesEnum(Enum):
     IS = 2
     FO = 3
     EJBCA = 4
-    SK = 5
