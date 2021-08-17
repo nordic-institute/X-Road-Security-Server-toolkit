@@ -15,6 +15,7 @@ from xrdsst.resources.texts import server_error_map, ascii_art
 from xrdsst.rest.rest import ApiException
 from argparse import Namespace
 
+
 class ClientTestData:
     add_response = Client(
         id='DEV:GOV:9876:SUB1',
@@ -287,12 +288,12 @@ class TestClient(unittest.TestCase):
         with XRDSSTTest() as app:
             new_config = copy.deepcopy(self.ss_config)
             new_config["security_server"][0]["clients"].append(
-                  {
-                      'member_class': 'NEW_GOV',
-                      'member_code': '1111',
-                      'member_name': 'NEW_TEST',
-                      'connection_type': 'HTTPS'
-                  })
+                {
+                    'member_class': 'NEW_GOV',
+                    'member_code': '1111',
+                    'member_name': 'NEW_TEST',
+                    'connection_type': 'HTTPS'
+                })
 
             with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client',
                             return_value=ClientTestData.add_response):
@@ -322,15 +323,15 @@ class TestClient(unittest.TestCase):
                     has_valid_local_sign_cert=True
             )]):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.update_client', return_value=[Client(
-                    id='DEV:GOV:9876:SUB1',
-                    instance_id='DEV',
-                    member_class='GOV',
-                    member_code='9876',
-                    subsystem_code='SUB1',
-                    connection_type=ConnectionType.HTTPS,
-                    status=ClientStatus.REGISTERED,
-                    owner=True,
-                    has_valid_local_sign_cert=True
+                        id='DEV:GOV:9876:SUB1',
+                        instance_id='DEV',
+                        member_class='GOV',
+                        member_code='9876',
+                        subsystem_code='SUB1',
+                        connection_type=ConnectionType.HTTPS,
+                        status=ClientStatus.REGISTERED,
+                        owner=True,
+                        has_valid_local_sign_cert=True
                 )]):
                     client_controller = ClientController()
                     client_controller.app = app
@@ -345,33 +346,6 @@ class TestClient(unittest.TestCase):
                         sys.stdout.write(out)
                         sys.stderr.write(err)
 
-    def test_client_import_tls_certificate(self):
-        with XRDSSTTest() as app:
-            with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
-                    id='DEV:GOV:9876:SUB1',
-                    instance_id='DEV',
-                    member_class='GOV',
-                    member_code='9876',
-                    member_name='TEST',
-                    subsystem_code=None,
-                    connection_type=ConnectionType.HTTP,
-                    status=ClientStatus.REGISTERED,
-                    owner=True,
-                    has_valid_local_sign_cert=True
-            )]):
-                with mock.patch('xrdsst.api.clients_api.ClientsApi.add_client_tls_certificate', return_value=None):
-                    client_controller = ClientController()
-                    client_controller.app = app
-                    client_controller.load_config = (lambda: self.ss_config_with_tls_cert())
-                    client_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                    client_controller.import_tls_certs()
-
-                    out, err = self.capsys.readouterr()
-                    assert out.count("Import TLS certificate '%s' for client" % self.tls_cert_existing) > 0
-
-                    with self.capsys.disabled():
-                        sys.stdout.write(out)
-                        sys.stderr.write(err)
 
     def test_client_import_tls_certificate(self):
         with XRDSSTTest() as app:
@@ -465,7 +439,6 @@ class TestClient(unittest.TestCase):
                         sys.stdout.write(out)
                         sys.stderr.write(err)
 
-
     def test_client_unregister(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1')
@@ -483,7 +456,6 @@ class TestClient(unittest.TestCase):
                 with self.capsys.disabled():
                     sys.stdout.write(out)
                     sys.stderr.write(err)
-
 
     def test_client_unregister_fail_client_missing(self):
         with XRDSSTTest() as app:
@@ -532,8 +504,7 @@ class TestClient(unittest.TestCase):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1')
             with mock.patch('xrdsst.api.clients_api.ClientsApi.unregister_client',
-                                        side_effect=ApiException(http_resp=AlreadyUnregisterResponse())):
-
+                            side_effect=ApiException(http_resp=AlreadyUnregisterResponse())):
                 client_controller = ClientController()
                 client_controller.app = app
                 client_controller.load_config = (lambda: self.ss_config)
@@ -564,7 +535,6 @@ class TestClient(unittest.TestCase):
                 with self.capsys.disabled():
                     sys.stdout.write(out)
                     sys.stderr.write(err)
-
 
     def test_client_delete_fail_client_missing(self):
         with XRDSSTTest() as app:
@@ -613,8 +583,7 @@ class TestClient(unittest.TestCase):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX', client='DEV:GOV:9876:SUB1')
             with mock.patch('xrdsst.api.clients_api.ClientsApi.delete_client',
-                                        side_effect=ApiException(http_resp=AlreadyUnregisterResponse())):
-
+                            side_effect=ApiException(http_resp=AlreadyUnregisterResponse())):
                 client_controller = ClientController()
                 client_controller.app = app
                 client_controller.load_config = (lambda: self.ss_config)
@@ -686,7 +655,7 @@ class TestClient(unittest.TestCase):
             app._parsed_args = Namespace(ss=ss, member=member)
             with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client', return_value=ClientTestData.make_owner_response):
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.change_owner',
-                                        side_effect=ApiException(http_resp=AlreadyOwnerResponse())):
+                                side_effect=ApiException(http_resp=AlreadyOwnerResponse())):
                     client_controller = ClientController()
                     client_controller.app = app
                     client_controller.load_config = (lambda: self.ss_config_with_tls_cert_non_existing())
