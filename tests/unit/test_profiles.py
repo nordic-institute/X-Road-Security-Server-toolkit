@@ -124,18 +124,3 @@ class TestProfiles(unittest.TestCase):
         assert result["serialNumber"] == self.profile_data.serial_number_sign
         assert result["CN"] == self.profile_data.member_code
 
-    def test_sk_sign_certificate_profile(self):
-        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.SIGN, profile_type=ProfileTypesEnum.SK)
-        result = profile.build_profile(profile_data=self.profile_data)
-
-        assert len(result) == 2
-        assert result["SN"] == self.profile_data.member_code
-        assert result["CN"] == self.profile_data.member_name
-
-    def test_sk_auth_certificate_profile(self):
-        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.AUTH, profile_type=ProfileTypesEnum.SK)
-        result = profile.build_profile(profile_data=self.profile_data)
-
-        assert len(result) == 2
-        assert result["SN"] == self.profile_data.owner_code
-        assert result["CN"] == self.profile_data.member_name
