@@ -184,8 +184,8 @@ class EndToEndTest(unittest.TestCase):
         DiagnosticsTest(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
         #RenewCertificate(self).test_run_configuration()
-        KeysTest(self).test_run_configuration()
-        CsrTest(self).test_run_configuration()
+        #KeysTest(self).test_run_configuration()
+        #CsrTest(self).test_run_configuration()
 
         # Wait for global configuration status updates
         for ssn in range(0, len(self.config["security_server"])):
