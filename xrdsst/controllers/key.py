@@ -8,6 +8,7 @@ from xrdsst.resources.texts import texts
 from xrdsst.core.util import parse_argument_list, convert_list_to_string, cut_big_string
 from xrdsst.models.key_name import KeyName
 
+
 class KeyListMapper:
     @staticmethod
     def headers():
@@ -201,7 +202,7 @@ class KeyController(BaseController):
             yield {
                 'id': key.id,
                 'label': cut_big_string(key.label, 40),
-                'name': cut_big_string(key.name,40),
+                'name': cut_big_string(key.name, 40),
                 'usage': key.usage,
                 'possible_actions': convert_list_to_string(key.possible_actions),
                 'certificate_count': len(key.certificates)
