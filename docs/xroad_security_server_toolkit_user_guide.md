@@ -1837,7 +1837,7 @@ This command will display the version for the security servers stored in the con
 
 Internal TLS certificates can be downloaded with:
 ```
-xrdsst tls download
+xrdsst internal-tls download
 ```
 This command will save a zip file in the `/tmp/` folder containing the public and private keys of the internal TLS certificates.
 
