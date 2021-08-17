@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.8
+Version: 2.2.9
 Doc. ID: XRDSST-CONF
 
 ---
@@ -72,6 +72,7 @@ Doc. ID: XRDSST-CONF
 | 03.08.2021 | 2.2.6       | Add security server list and version list commmands                          | Alberto Fernandez  |
 | 04.08.2021 | 2.2.7       | Add client list command                                                      | Alberto Fernandez  |
 | 09.08.2021 | 2.2.8       | Add tls certificate management commands                                      | Alberto Fernandez  |
+| 10.08.2021 | 2.2.9       | Add certificate profiles support                                             | Alberto Fernandez  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -200,6 +201,7 @@ Doc. ID: XRDSST-CONF
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
 * [10 Change security server owner](#10-change-security-server-owner)
+* [11 Certificate profile support](#11-certificate-profile-support)
 
 <!-- vim-markdown-toc -->
 <!-- tocstop -->
@@ -410,6 +412,7 @@ security_server:
   url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
   ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  profile: <CERTIFICATE_PROFILE>
   tls_certificates:
   	- /path/to/tls_cert
   clients:
@@ -493,12 +496,13 @@ security_server:
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
   tls_certificates:
     - <TLS_CERT_PATH>
+  profile: <CERTIFICATE_PROFILE>
 ```
 * <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
 * <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> (Optional) If is set it will overwrite the <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
 * <CONFIGURATION_ANCHOR_PATH> Path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
-*  <SIGN_CERT_PATH> should be given as path referring to sign certificates location.
-*  <AUTH_CERT_PATH> should be given as path referring to auth certificate location.
+* <SIGN_CERT_PATH> should be given as path referring to sign certificates location.
+* <AUTH_CERT_PATH> should be given as path referring to auth certificate location.
 * <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
 * <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
 * <OWNER_DISTINGUISHED_NAME_ORGANIZATION> should be set to server owner organization. This is used in certificate generation.
@@ -513,6 +517,7 @@ security_server:
 * <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
 * <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g. "/etc/xroad/cert.pem"
 * <CERTIFICATE_HASH> List of certificate hash on which we are going to apply operations such as disable, unregister, delete...
+* <CERTIFICATE_PROFILE> (Optional) Profile name described in [11 Certificate profile support](#11-certificate-profile-support)
 
 #### 3.2.3 Client Configuration
 
@@ -2178,4 +2183,20 @@ change  X-Road governing authority also it will create the AUTH key and CSRS for
 3. Download the certificate created in the previous step using the command [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs).
 4. Sign the AUTH certificate and import it using the command [4.2.5.2 Certificate import](#4252-certificate-import).
 5. Activate  the AUTH certificate using the command [4.2.5.2 Certificate import](#4252-certificate-import).
-5. Register the AUTH certificate with the command [4.2.5.4 Certificate activation](#4254-certificate-activation).
+6. Register the AUTH certificate with the command [4.2.5.4 Certificate activation](#4254-certificate-activation).
+7. Once the owner is changed, make sure to update the properties `owner_dn_org`, `owner_member_class`, `owner_member_code` in the configuration file
+(`security_server` section) with the values of the new member.
+
+## 11 Certificate profile support
+
+The toolkit has support for multiple profiles to choose between:
+- EJBCA: Default implementation
+- FIVRK: Finnish implementation
+- FO: Faroe Island's implementation
+- IS: Icelandic Implementation
+
+To select one of this profiles, we must fill the property `profile` in the configuration file (`security_server` section) with the name of the profile,
+to choose between: "EJBCA", "FIVRK", "FO" and "IS".
+
+This property is optional, if is not set, the default profile will be the Finnish one.
+

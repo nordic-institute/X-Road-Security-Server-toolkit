@@ -22,6 +22,7 @@ security_server:
   url: https://<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>:4000/api/v1
   ssh_user: <SSH_USER_OS_ENV_VAR_NAME>
   ssh_private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
+  profile: <CERTIFICATE_PROFILE>
   tls_certificates:
   	- /path/to/tls_cert
   clients:

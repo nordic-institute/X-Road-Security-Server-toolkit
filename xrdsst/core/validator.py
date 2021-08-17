@@ -7,7 +7,7 @@ from xrdsst.core.conf_keys import ConfKeysSecurityServer, ConfKeysSecServerClien
     ConfKeysSecServerClientServiceDescEndpoints, ConfKeysSecServerClientLocalGroups
 from xrdsst.core.util import convert_swagger_enum
 from xrdsst.models import ConnectionType, ServiceType
-
+from xrdsst.core.profile.profile_types_enum import ProfileTypesEnum
 
 def validator_msg_prefix(ss_config, operation):
     return "'" + ss_config[ConfKeysSecurityServer.CONF_KEY_NAME] + "' [" + str(operation) + "]: "
@@ -19,6 +19,19 @@ def require_fill(key, ss_config, operation, errors):
     if val is None:
         errors.append(validator_msg_prefix(ss_config, operation) + "'" + key + "'" + " missing required value.")
     return bool(val)
+
+
+def require_profile_in_profile_types(key, ss_config, operation, errors):
+    val = ss_config.get(key)
+    if val is None:
+        return True
+    else:
+        matches = [e.name for e in ProfileTypesEnum if e.name == val]
+        if len(matches) > 0:
+            return True
+        else:
+            errors.append(validator_msg_prefix(ss_config, operation) + "'" + key + "'" + " invalid profile value. Valid values are: "
+                          + str([e.name for e in ProfileTypesEnum]))
 
 
 def require_fill_length(key, ss_config, operation, errors):
@@ -109,7 +122,7 @@ def validate_config_token_init_keys(ss_config, operation, errors):
     require_fill(ConfKeysSecurityServer.CONF_KEY_DN_ORG, ss_config, operation, errors)
     require_fill(ConfKeysSecurityServer.CONF_KEY_SOFT_TOKEN_ID, ss_config, operation, errors)
     require_fill(ConfKeysSecurityServer.CONF_KEY_FQDN, ss_config, operation, errors)
-
+    require_profile_in_profile_types(ConfKeysSecurityServer.CONF_KEY_PROFILE, ss_config, operation, errors)
     return len(errors) <= err_cnt
 
 
