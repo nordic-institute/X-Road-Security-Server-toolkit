@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.2.9
+Version: 2.3.0
 Doc. ID: XRDSST-CONF
 
 ---
@@ -73,6 +73,7 @@ Doc. ID: XRDSST-CONF
 | 04.08.2021 | 2.2.7       | Add client list command                                                      | Alberto Fernandez  |
 | 09.08.2021 | 2.2.8       | Add tls certificate management commands                                      | Alberto Fernandez  |
 | 10.08.2021 | 2.2.9       | Add certificate profiles support                                             | Alberto Fernandez  |
+| 17.08.2021 | 2.3.0       | Pre-release documentation updates                                            | Bert Viikmäe  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -1060,6 +1061,24 @@ xrdsst service list-descriptions --client <CLIENT_ID>
 ```
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST, multiple values can also be given, separated by comma, e.g. DEV:GOV:1234:TEST,DEV:GOV:1234:MANAGEMENT
 
+```
+╒══════╤═══════════════════╤══════╤════════════════════════════════════════════════════╤══════════╤════════════╤════════════╕
+│ SS   │ CLIENT            │   ID │ URL                                                │ TYPE     │ DISABLED   │   SERVICES │
+╞══════╪═══════════════════╪══════╪════════════════════════════════════════════════════╪══════════╪════════════╪════════════╡
+│ ss3  │ DEV:GOV:1234:TEST │   28 │ http://10.249.34.187/managementservices.wsdl       │ WSDL     │ False      │          4 │
+├──────┼───────────────────┼──────┼────────────────────────────────────────────────────┼──────────┼────────────┼────────────┤
+│ ss3  │ DEV:GOV:1234:TEST │   22 │ https://raw.githubusercontent.com/OpenAPITools/... │ OPENAPI3 │ False      │          1 │
+╘══════╧═══════════════════╧══════╧════════════════════════════════════════════════════╧══════════╧════════════╧════════════╛
+```
+
+* SS security server name
+* CLIENT client full id
+* ID service description id
+* URL service description url
+* TYPE service description type
+* DISABLED boolean value to indicate if service description is disabled
+* SERVICES number of services provided with the given service description
+
 ##### 4.2.7.6 Service list services
 
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
@@ -1072,6 +1091,28 @@ xrdsst service list-services --client <CLIENT_ID> --description <SERVICE_DESCRIP
 ```
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+
+```
+╒══════╤═══════════════════╤═══════════════╤════════════════════════════════════╤══════════════════╤═══════════╤═══════════════════════════════════════════════╕
+│ SS   │ CLIENT            │   DESCRIPTION │ SERVICE                            │ CODE             │   TIMEOUT │ URL                                           │
+╞══════╪═══════════════════╪═══════════════╪════════════════════════════════════╪══════════════════╪═══════════╪═══════════════════════════════════════════════╡
+│ ss3  │ DEV:GOV:1234:TEST │            28 │ DEV:GOV:1234:TEST:authCertDeletion │ authCertDeletion │        60 │ http://INSERT_MANAGEMENT_SERVICE_ADDRESS_HERE │
+├──────┼───────────────────┼───────────────┼────────────────────────────────────┼──────────────────┼───────────┼───────────────────────────────────────────────┤
+│ ss3  │ DEV:GOV:1234:TEST │            28 │ DEV:GOV:1234:TEST:clientDeletion   │ clientDeletion   │        60 │ http://INSERT_MANAGEMENT_SERVICE_ADDRESS_HERE │
+├──────┼───────────────────┼───────────────┼────────────────────────────────────┼──────────────────┼───────────┼───────────────────────────────────────────────┤
+│ ss3  │ DEV:GOV:1234:TEST │            28 │ DEV:GOV:1234:TEST:clientReg        │ clientReg        │        60 │ http://INSERT_MANAGEMENT_SERVICE_ADDRESS_HERE │
+├──────┼───────────────────┼───────────────┼────────────────────────────────────┼──────────────────┼───────────┼───────────────────────────────────────────────┤
+│ ss3  │ DEV:GOV:1234:TEST │            28 │ DEV:GOV:1234:TEST:ownerChange      │ ownerChange      │        60 │ http://INSERT_MANAGEMENT_SERVICE_ADDRESS_HERE │
+╘══════╧═══════════════════╧═══════════════╧════════════════════════════════════╧══════════════════╧═══════════╧═══════════════════════════════════════════════╛
+```
+
+* SS security server name
+* CLIENT client full id
+* DESCRIPTION service description id
+* SERVICE service full id
+* CODE service code
+* TIMEOUT service timeout value
+* URL service url
 
 ##### 4.2.7.7 Service delete descriptions
 
@@ -1151,6 +1192,23 @@ xrdsst service list-access --client <CLIENT_ID> --description <SERVICE_DESCRIPTI
 ```
 * <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+
+```
+╒══════╤═══════════════════╤═══════════════╤════════════════════════════╤════════════════════════════╤════════════════════════╤════════════════╤═════════════╕
+│ SS   │ CLIENT            │   DESCRIPTION │ SERVICE                    │ SERVICE_CLIENT             │ NAME                   │ RIGHTS_GIVEN   │ TYPE        │
+╞══════╪═══════════════════╪═══════════════╪════════════════════════════╪════════════════════════════╪════════════════════════╪════════════════╪═════════════╡
+│ ss3  │ DEV:GOV:1234:TEST │            22 │ DEV:GOV:1234:TEST:Petstore │ DEV:security-server-owners │ Security server owners │ 2021/08/17     │ GLOBALGROUP │
+╘══════╧═══════════════════╧═══════════════╧════════════════════════════╧════════════════════════════╧════════════════════════╧════════════════╧═════════════╛
+```
+
+* SS security server name
+* CLIENT client full id
+* DESCRIPTION service description id
+* SERVICE service full id
+* SERVICE_CLIENT service client id that has access to the given service
+* NAME service client name that has access to the given service
+* RIGHTS_GIVEN a date when access rights were given
+* TYPE service client type
 
 ##### 4.2.7.12 Service delete access rights for services
 
@@ -1326,6 +1384,19 @@ xrdsst member find --class <MEMBER_CLASS> --code <MEMBER_CODE>
 * <MEMBER_CLASS> member class for the member to be searched, e.g. GOV
 * <MEMBER_CODE> member code for the member to be searched, e.g. 1234
 
+```
+╒═══════════════════╤═══════════════╤════════════════╤═══════════════╕
+│ SECURITY-SERVER   │ MEMBER-NAME   │ MEMBER-CLASS   │   MEMBER-CODE │
+╞═══════════════════╪═══════════════╪════════════════╪═══════════════╡
+│ ss3               │ ACME          │ GOV            │          1234 │
+╘═══════════════════╧═══════════════╧════════════════╧═══════════════╛
+```
+
+* SECURITY-SERVER security server name
+* MEMBER-NAME name of the member
+* MEMBER-CLASS member class
+* MEMBER-CODE member code
+
 ##### 4.2.9.2 Member list member classes
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
@@ -1337,6 +1408,20 @@ xrdsst member list-classes --instance <XROAD-INSTANCE>
 **When ``instance`` command-line parameter is not provided, current instance is assumed**
 
 * <XROAD-INSTANCE> X-Road instance for the member classes to be searched, e.g. DEV
+
+```
+╒═══════════════════╤════════════╤════════════════╕
+│ SECURITY-SERVER   │ INSTANCE   │ MEMBER-CLASS   │
+╞═══════════════════╪════════════╪════════════════╡
+│ ss3               │            │ COM            │
+├───────────────────┼────────────┼────────────────┤
+│ ss3               │            │ GOV            │
+╘═══════════════════╧════════════╧════════════════╛
+```
+
+* SECURITY-SERVER security server name
+* INSTANCE instance name
+* MEMBER-CLASS member class
 
 #### 4.2.10 Local groups management
 
@@ -1437,6 +1522,18 @@ Listing backups can be done with:
 ```
 xrdsst backup list --ss <SECURITY_SERVER_NAME>
 ```
+
+```
+╒═══════════════════╤═════════════════════════════════╤════════════╕
+│ SECURITY_SERVER   │ FILE_NAME                       │ CREATED    │
+╞═══════════════════╪═════════════════════════════════╪════════════╡
+│ ss3               │ conf_backup_20210817-152554.tar │ 2021/08/17 │
+╘═══════════════════╧═════════════════════════════════╧════════════╛
+```
+
+* SECURITY_SERVER security server name
+* FILE_NAME file name of the created security server backup
+* CREATED backup creation date
 
 * <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
 
