@@ -184,16 +184,16 @@ class EndToEndTest(unittest.TestCase):
         DiagnosticsTest(self).test_run_configuration()
         LocalGroupTest(self).test_run_configuration()
         #RenewCertificate(self).test_run_configuration()
-        #KeysTest(self).test_run_configuration()
-        #CsrTest(self).test_run_configuration()
+        KeysTest(self).test_run_configuration()
+        CsrTest(self).test_run_configuration()
 
         # Wait for global configuration status updates
-        for ssn in range(0, len(self.config["security_server"])):
-            for client in self.config["security_server"][ssn]["clients"]:
-                waitfor(lambda: client_registration_global_configuration_update_received(self.config, client, ssn), 1, 300)
+        #for ssn in range(0, len(self.config["security_server"])):
+        #    for client in self.config["security_server"][ssn]["clients"]:
+        #        waitfor(lambda: client_registration_global_configuration_update_received(self.config, client, ssn), 1, 300)
 
-        self.step_client_unregister()
-        self.step_client_delete()
+        #self.step_client_unregister()
+        #self.step_client_delete()
         configured_servers_at_end = self.query_status()
         assert_server_statuses_transitioned(unconfigured_servers_at_start, configured_servers_at_end)
         BackupTest(self).test_run_configuration()
