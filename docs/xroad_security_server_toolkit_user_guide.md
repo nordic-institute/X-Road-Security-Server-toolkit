@@ -281,12 +281,15 @@ Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded: wget --quiet
 Package ``xrdsst-1.0.0.tar.gz`` can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.tar.gz
 Signature ``xrdsst-2.0.0.sig`` of signed package can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.sig
 Package ``xrdsst-2.0.0.tar.gz`` can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.tar.gz
+Signature ``xrdsst-3.0.0.sig`` of signed package can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-3.0.0.sig
+Package ``xrdsst-3.0.0.tar.gz`` can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-3.0.0.tar.gz
 
 Downloaded packages with detached signatures can be verified after adding signing public key to local keyring:
 ```
 $ gpg --keyserver keyserver.ubuntu.com --search-keys  0xfb0d532c10f6ec5b
 $ gpg --verify xrdsst-1.0.0.sig xrdsst-1.0.0.tar.gz
 $ gpg --verify xrdsst-2.0.0.sig xrdsst-2.0.0.tar.gz
+$ gpg --verify xrdsst-3.0.0.sig xrdsst-3.0.0.tar.gz
 ```
 
 After installation, ``xrdsst`` command runs the toolkit, when invoked without any parameters,
