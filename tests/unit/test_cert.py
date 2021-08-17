@@ -145,21 +145,21 @@ class CertTestData:
         type=TokenType.SOFTWARE,
 
         keys=[Key(
-                id='4209807ADA8CF6824CF741FFCEC56855827510B2',
-                available=True,
-                label='ssX-default-auth-key',
-                name='ssX-default-auth-key',
-                saved_to_configuration=True,
-                usage=KeyUsageType.AUTHENTICATION,
-                certificate_signing_requests=[
-                    TokenCertificateSigningRequest(
-                        id='6766344A138328780CE721979868EAD7981B3BD5',
-                        possible_actions=[PossibleAction.DELETE]
-                    )
-                ],
-                certificates=[],
-                possible_actions=[PossibleAction.DELETE, PossibleAction.EDIT_FRIENDLY_NAME, PossibleAction.GENERATE_AUTH_CSR]
-            ),
+            id='4209807ADA8CF6824CF741FFCEC56855827510B2',
+            available=True,
+            label='ssX-default-auth-key',
+            name='ssX-default-auth-key',
+            saved_to_configuration=True,
+            usage=KeyUsageType.AUTHENTICATION,
+            certificate_signing_requests=[
+                TokenCertificateSigningRequest(
+                    id='6766344A138328780CE721979868EAD7981B3BD5',
+                    possible_actions=[PossibleAction.DELETE]
+                )
+            ],
+            certificates=[],
+            possible_actions=[PossibleAction.DELETE, PossibleAction.EDIT_FRIENDLY_NAME, PossibleAction.GENERATE_AUTH_CSR]
+        ),
             Key(
                 id='EC866CE2587F2660BBFCA20C6369E3B178DE3E2B',
                 available=True,
@@ -371,6 +371,7 @@ class TestCert(unittest.TestCase):
             status = 409
             data = '{"status":409,"error":{"code":"certificate_already_exists"}}'
             reason = None
+
             def getheaders(self): return None
 
         with XRDSSTTest() as app:
@@ -396,6 +397,7 @@ class TestCert(unittest.TestCase):
             status = 403
             data = '{"status":403,"error":{"code":"permission_denied"}}'
             reason = None
+
             def getheaders(self): return None
 
         with XRDSSTTest() as app:
@@ -474,7 +476,7 @@ class TestCert(unittest.TestCase):
                     cert_controller.register()
 
                     out, err = self.capsys.readouterr()
-                    out.count("Registered certificate") == 2
+                    assert out.count("Registered certificate") == 2
 
                     with self.capsys.disabled():
                         sys.stdout.write(out)
@@ -520,7 +522,7 @@ class TestCert(unittest.TestCase):
                     label="test",
                     certificates=[CertTestData.single_cert],
                     certificate_signing_requests=[]
-            )]
+                )]
         )]
 
         with XRDSSTTest() as app:
@@ -546,26 +548,25 @@ class TestCert(unittest.TestCase):
                     sys.stderr.write(err)
 
     def test_cert_disable(self):
-       with XRDSSTTest() as app:
-           app._parsed_args = Namespace(hash='111111111')
-           with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
-                           return_value=CertTestData.single_cert):
-               with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.disable_certificate',
-                               return_value={}):
-                   cert_controller = CertController()
-                   cert_controller.app = app
-                   cert_controller.load_config = (lambda: self.ss_config)
-                   cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                   cert_controller.disable()
+        with XRDSSTTest() as app:
+            app._parsed_args = Namespace(hash='111111111')
+            with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
+                            return_value=CertTestData.single_cert):
+                with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.disable_certificate',
+                                return_value={}):
+                    cert_controller = CertController()
+                    cert_controller.app = app
+                    cert_controller.load_config = (lambda: self.ss_config)
+                    cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    cert_controller.disable()
 
-                   out, err = self.capsys.readouterr()
+                    out, err = self.capsys.readouterr()
 
-                   assert out.count("Disable certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
+                    assert out.count("Disable certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
 
-                   with self.capsys.disabled():
-                       sys.stdout.write(out)
-                       sys.stderr.write(err)
-
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
 
     def test_cert_disable_already_disabled(self):
 
@@ -583,7 +584,6 @@ class TestCert(unittest.TestCase):
                             return_value=CertTestData.single_cert):
                 with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.disable_certificate',
                                 side_effect=ApiException(http_resp=AlreadyDisabledResponse())):
-
                     cert_controller = CertController()
                     cert_controller.app = app
                     cert_controller.load_config = (lambda: self.ss_config)
@@ -600,46 +600,45 @@ class TestCert(unittest.TestCase):
                         sys.stderr.write(err)
 
     def test_cert_unregister(self):
-       with XRDSSTTest() as app:
-           hash = '111111111'
-           app._parsed_args = Namespace(hash=hash)
-           with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
-                           return_value=CertTestData.single_cert):
-               with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.unregister_auth_certificate',
-                               return_value={}):
-                   cert_controller = CertController()
-                   cert_controller.app = app
-                   cert_controller.load_config = (lambda: self.ss_config)
-                   cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                   cert_controller.unregister()
+        with XRDSSTTest() as app:
+            hash = '111111111'
+            app._parsed_args = Namespace(hash=hash)
+            with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
+                            return_value=CertTestData.single_cert):
+                with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.unregister_auth_certificate',
+                                return_value={}):
+                    cert_controller = CertController()
+                    cert_controller.app = app
+                    cert_controller.load_config = (lambda: self.ss_config)
+                    cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    cert_controller.unregister()
 
-                   out, err = self.capsys.readouterr()
+                    out, err = self.capsys.readouterr()
 
-                   assert out.count("Unregister certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
+                    assert out.count("Unregister certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
 
-                   with self.capsys.disabled():
-                       sys.stdout.write(out)
-                       sys.stderr.write(err)
-
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
 
     def test_cert_delete(self):
-       with XRDSSTTest() as app:
-           hash = '111111111'
-           app._parsed_args = Namespace(hash=hash)
-           with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
-                           return_value=CertTestData.single_cert):
-               with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.delete_certificate',
-                               return_value={}):
-                   cert_controller = CertController()
-                   cert_controller.app = app
-                   cert_controller.load_config = (lambda: self.ss_config)
-                   cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
-                   cert_controller.delete()
+        with XRDSSTTest() as app:
+            hash = '111111111'
+            app._parsed_args = Namespace(hash=hash)
+            with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.get_certificate',
+                            return_value=CertTestData.single_cert):
+                with mock.patch('xrdsst.api.token_certificates_api.TokenCertificatesApi.delete_certificate',
+                                return_value={}):
+                    cert_controller = CertController()
+                    cert_controller.app = app
+                    cert_controller.load_config = (lambda: self.ss_config)
+                    cert_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
+                    cert_controller.delete()
 
-                   out, err = self.capsys.readouterr()
+                    out, err = self.capsys.readouterr()
 
-                   assert out.count("Delete certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
+                    assert out.count("Delete certificate with hash: '%s'" % CertTestData.single_cert.certificate_details.hash) > 0
 
-                   with self.capsys.disabled():
-                       sys.stdout.write(out)
-                       sys.stderr.write(err)
+                    with self.capsys.disabled():
+                        sys.stdout.write(out)
+                        sys.stderr.write(err)
