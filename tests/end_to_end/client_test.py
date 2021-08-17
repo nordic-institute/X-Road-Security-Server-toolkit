@@ -152,5 +152,5 @@ class ClientTest:
         self.step_subsystem_register_fail_client_not_saved()
         self.step_add_service_description_fail_client_not_saved()
         self.step_subsystem_add_client()
-        self.client_step_make_owner()
+        # self.client_step_make_owner()
         self.step_client_list()
