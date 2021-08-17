@@ -58,6 +58,7 @@ class ConfKeysLogging:
     def descendant_conf_keys():
         return []
 
+
 class ConfKeysSSHAccess:
     CONF_KEY_USER = 'user'
     CONF_KEY_PRIVATE_KEY = 'private_key'
@@ -65,6 +66,7 @@ class ConfKeysSSHAccess:
     @staticmethod
     def descendant_conf_keys():
         return []
+
 
 # Known keys for xrdsst configuration file security server configuration section.
 class ConfKeysSecurityServer:
@@ -151,14 +153,17 @@ class ConfKeysSecServerClientServiceDescEndpoints:
     CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_METHOD = 'method'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_PATH = 'path'
     CONF_KEY_SS_CLIENT_SERVICE_DESC_ENDPOINT_ACCESS = 'access'
+
     @staticmethod
     def descendant_conf_keys():
         return []
+
 
 class ConfKeysSecServerClientLocalGroups:
     CONF_KEY_SS_CLIENT_LOCAL_GROUP_CODE = 'code'
     CONF_KEY_SS_CLIENT_LOCAL_GROUP_DESCRIPTION = 'description'
     CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS = 'members'
+
     @staticmethod
     def descendant_conf_keys():
         return []

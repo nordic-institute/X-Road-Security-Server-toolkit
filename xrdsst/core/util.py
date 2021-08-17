@@ -164,10 +164,11 @@ def cut_big_string(element, top_characters):
     else:
         return element
 
-def convert_list_to_string(list):
-    if list:
+
+def convert_list_to_string(the_list):
+    if the_list:
         result = ''
-        for element in list:
+        for element in the_list:
             result = '%s%s, ' % (result, element)
         return result[:-2]
     else:

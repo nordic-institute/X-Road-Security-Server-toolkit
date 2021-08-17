@@ -7,6 +7,7 @@ from xrdsst.api.keys_api import KeysApi
 from xrdsst.resources.texts import texts
 from xrdsst.core.util import parse_argument_list, convert_list_to_string
 
+
 class CsrListMapper:
     @staticmethod
     def headers():
@@ -113,7 +114,6 @@ class CsrController(BaseController):
 
     def remote_list_csr(self, ss_api_config, tokens):
         tokens_api = TokensApi(ApiClient(ss_api_config))
-        keys_api = KeysApi(ApiClient(ss_api_config))
         render_list = []
         render_data = []
         for token_id in tokens:

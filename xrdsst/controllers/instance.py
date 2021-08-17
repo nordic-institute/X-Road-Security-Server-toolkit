@@ -4,7 +4,8 @@ from xrdsst.rest.rest import ApiException
 from xrdsst.api_client.api_client import ApiClient
 from xrdsst.api.xroad_instances_api import XroadInstancesApi
 from xrdsst.resources.texts import texts
-from xrdsst.core.util import parse_argument_list, convert_list_to_string, cut_big_string
+from xrdsst.core.util import convert_list_to_string
+
 
 class InstanceListMapper:
     @staticmethod

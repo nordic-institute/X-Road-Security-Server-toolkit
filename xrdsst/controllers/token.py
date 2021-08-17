@@ -418,7 +418,7 @@ class TokenController(BaseController):
                 except ApiException as err:
                     BaseController.log_api_error(TokenLabels.error(), err)
         except Exception as exc:
-            raise exc
+            BaseController.log_api_error('Exception adding Auth key with CSRs', exc)
 
 
 def remote_get_security_server_instance(ss_api_config):

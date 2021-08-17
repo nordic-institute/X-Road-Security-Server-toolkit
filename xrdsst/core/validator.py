@@ -480,8 +480,7 @@ def validate_config_tls_cert_import(ss_config, operation, errors):
     err_cnt = len(errors)
     tls_certs = 0
 
-    if ConfKeysSecurityServer.CONF_KEY_TLS_CERTS in ss_config and ss_config[
-        ConfKeysSecurityServer.CONF_KEY_TLS_CERTS] is not None:
+    if ConfKeysSecurityServer.CONF_KEY_TLS_CERTS in ss_config and ss_config[ConfKeysSecurityServer.CONF_KEY_TLS_CERTS] is not None:
 
         tls_certs_config = copy.deepcopy(ss_config[ConfKeysSecurityServer.CONF_KEY_TLS_CERTS])
         cert_file_list_dict = {}
@@ -595,6 +594,6 @@ def validate_config_client_local_groups_members(ss_config, operation, errors):
                         local_groups_config[local_group_ix], operation, errors)
 
                     require_fill_length(ConfKeysSecServerClientLocalGroups.CONF_KEY_SS_CLIENT_LOCAL_GROUP_MEMBERS,
-                        local_groups_config[local_group_ix], operation, errors)
+                                        local_groups_config[local_group_ix], operation, errors)
 
     return len(errors) <= err_cnt

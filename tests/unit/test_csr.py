@@ -168,5 +168,3 @@ class TestCsr(unittest.TestCase):
                     with self.capsys.disabled():
                         sys.stdout.write(out)
                         sys.stderr.write(err)
-
-

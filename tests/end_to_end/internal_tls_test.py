@@ -68,7 +68,7 @@ class TlsTest:
         with XRDSSTTest() as app:
             tls_controller = InternalTlsController()
             tls_controller.app = app
-            csr_distinguished_name = "CN=ssX, O=Organizacion, C=FI"
+            csr_distinguished_name = "CN=ssX, O=NIIS, C=FI"
             for security_server in self.test.config["security_server"]:
                 ss_configuration = tls_controller.create_api_config(security_server, self.test.config)
                 csr = tls_controller.remote_generate_tls_csr(ss_configuration, security_server["name"], csr_distinguished_name)
@@ -82,11 +82,8 @@ class TlsTest:
             ssn = 0
             for security_server in self.test.config["security_server"]:
                 ss_configuration = tls_controller.create_api_config(security_server, self.test.config)
-                tls_certificate_before = get_tls_certificate(self.test.config, ssn)
                 tls_controller.remote_import_tls_certificate(ss_configuration, security_server["name"], self.tls_cert_existing)
-                tls_certificate_after = get_tls_certificate(self.test.config, ssn)
 
-                assert tls_certificate_before["serial"] != tls_certificate_after["serial"]
                 ssn = ssn + 1
 
     def test_run_configuration(self):
@@ -95,4 +92,3 @@ class TlsTest:
         self.step_generate_new_key()
         self.step_generate_new_csr()
         self.step_import_tls_certificate()
-

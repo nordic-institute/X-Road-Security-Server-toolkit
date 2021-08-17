@@ -68,6 +68,18 @@ security_server:
               timeout: 60
               ssl_auth: False
               url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/
+            - service_code: clientDeletion
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/ 
+            - service_code: authCertDeletion
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/ 
+            - service_code: ownerChange
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/   
     - member_class: COM
       member_code: 222
       member_name: FRUIT
@@ -137,6 +149,18 @@ security_server:
               timeout: 60
               ssl_auth: False
               url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/
+            - service_code: clientDeletion
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/ 
+            - service_code: authCertDeletion
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/  
+            - service_code: ownerChange
+              timeout: 60
+              ssl_auth: False
+              url: https://dev-cs.i.x-road.rocks:4002/managementservice/manage/                
     - member_class: COM
       member_code: 222
       member_name: FRUIT

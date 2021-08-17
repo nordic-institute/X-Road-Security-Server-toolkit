@@ -1,11 +1,9 @@
-from tests.util.test_util import get_client, getClientTlsCertificates, auth_cert_registration_global_configuration_update_received, waitfor, \
+from tests.util.test_util import auth_cert_registration_global_configuration_update_received, waitfor, \
     find_test_ca_sign_url, perform_test_ca_sign
 from xrdsst.controllers.cert import CertController
-from xrdsst.controllers.client import ClientController
 from xrdsst.controllers.token import TokenController
 from xrdsst.core.conf_keys import ConfKeysSecServerClients, ConfKeysSecurityServer
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import ClientStatus
 
 
 class CertificateTest:
@@ -146,15 +144,6 @@ class CertificateTest:
             for header in headers:
                 assert header in cert_controller.app._last_rendered[0][0]
             return certificates
-
-    def step_cert_download_internal_tls(self):
-        with XRDSSTTest() as app:
-            cert_controller = CertController()
-            cert_controller.app = app
-            for security_server in self.test.config["security_server"]:
-                configuration = cert_controller.create_api_config(security_server, self.test.config)
-                result = cert_controller.remote_download_internal_tls(configuration, security_server)
-                assert len(result) == 1
 
     def test_run_configuration(self):
         self.step_token_init_keys()

@@ -1,4 +1,3 @@
-import copy
 import os
 import unittest
 from unittest import mock
@@ -8,6 +7,7 @@ from xrdsst.controllers.internal_tls import InternalTlsController
 from xrdsst.main import XRDSSTTest
 from argparse import Namespace
 import sys
+
 
 class TestTls(unittest.TestCase):
     tls_cert_existing = os.path.join(ROOT_DIR, "tests/resources/cert.pem")
@@ -108,7 +108,7 @@ class TestTls(unittest.TestCase):
 
     def test_generate_tls_csr(self):
         with XRDSSTTest() as app:
-            csr_cert ="CSR_TEST"
+            csr_cert = "CSR_TEST"
             ss_name = 'ssX'
             csr_distinguished_name = "CN=ssX, O=Organizacion, C=FI"
             app._parsed_args = Namespace(ss=ss_name, name=csr_distinguished_name)
@@ -130,7 +130,7 @@ class TestTls(unittest.TestCase):
 
     def test_generate_tls_csr_name_missing(self):
         with XRDSSTTest() as app:
-            csr_cert ="CSR_TEST"
+            csr_cert = "CSR_TEST"
             ss_name = 'ssX'
             app._parsed_args = Namespace(ss=ss_name, name=None)
             with mock.patch('xrdsst.api.system_api.SystemApi.generate_system_certificate_request',

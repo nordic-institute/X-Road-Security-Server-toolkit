@@ -1,17 +1,18 @@
-from datetime import datetime
+import copy
 import sys
 import unittest
-from unittest import mock
-import copy
-import pytest
 from argparse import Namespace
+from datetime import datetime
+from unittest import mock
+
+import pytest
 
 from tests.util.test_util import StatusTestData
 from xrdsst.controllers.endpoint import EndpointController, EndpointListMapper, EndpointAccessListMapper
-from xrdsst.models import Client, ConnectionType, ClientStatus, ServiceDescription, ServiceType, ServiceClient, ServiceClientType, Service, Endpoint
 from xrdsst.main import XRDSSTTest
+from xrdsst.models import Client, ConnectionType, ClientStatus, ServiceDescription, ServiceType, ServiceClient, ServiceClientType, Service, Endpoint
 from xrdsst.rest.rest import ApiException
-from datetime import date
+
 
 class EndpointTestData:
     add_description_response = ServiceDescription(
@@ -39,13 +40,12 @@ class EndpointTestData:
                                          service_client_type='GLOBALGROUP',
                                          rights_given_at=None)]
     get_endpoint = Endpoint(
-                    id='1',
-                    service_code="Test",
-                    method="PUT",
-                    path="/testPath",
-                    generated=False
-            )
-
+        id='1',
+        service_code="Test",
+        method="PUT",
+        path="/testPath",
+        generated=False
+    )
 
 
 class TestEndpoint(unittest.TestCase):
@@ -108,7 +108,6 @@ class TestEndpoint(unittest.TestCase):
                     owner=True,
                     has_valid_local_sign_cert=True
             )]):
-
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[EndpointTestData.add_description_response]):
                     with mock.patch(
@@ -151,7 +150,6 @@ class TestEndpoint(unittest.TestCase):
                     owner=True,
                     has_valid_local_sign_cert=True
             )]):
-
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[EndpointTestData.add_description_response]):
                     with mock.patch(
@@ -183,7 +181,6 @@ class TestEndpoint(unittest.TestCase):
                     owner=True,
                     has_valid_local_sign_cert=True
             )]):
-
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[EndpointTestData.add_description_response]):
                     with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
@@ -196,7 +193,6 @@ class TestEndpoint(unittest.TestCase):
                         with mock.patch(
                                 'xrdsst.api.endpoints_api.EndpointsApi.add_endpoint_service_clients',
                                 return_value=EndpointTestData.add_access_response):
-
                             endpoint_controller = EndpointController()
                             endpoint_controller.app = app
                             endpoint_controller.load_config = (lambda: self.ss_config)
@@ -223,7 +219,6 @@ class TestEndpoint(unittest.TestCase):
                     owner=True,
                     has_valid_local_sign_cert=True
             )]):
-
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[EndpointTestData.add_description_response]):
                     with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
@@ -231,7 +226,6 @@ class TestEndpoint(unittest.TestCase):
                         with mock.patch(
                                 'xrdsst.api.endpoints_api.EndpointsApi.add_endpoint_service_clients',
                                 return_value=EndpointTestData.add_access_response):
-
                             endpoint_controller = EndpointController()
                             endpoint_controller.app = app
                             endpoint_controller.load_config = (lambda: self.ss_config)
@@ -244,7 +238,6 @@ class TestEndpoint(unittest.TestCase):
                             with self.capsys.disabled():
                                 sys.stdout.write(out)
                                 sys.stderr.write(err)
-
 
     def test_endpoint_add_access_endpoint_not_found(self):
         with XRDSSTTest() as app:
@@ -259,7 +252,6 @@ class TestEndpoint(unittest.TestCase):
                     owner=True,
                     has_valid_local_sign_cert=True
             )]):
-
                 service_description = copy.deepcopy(EndpointTestData.add_description_response)
                 service_description.services[0].endpoints[0].method = 'GET'
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
@@ -274,7 +266,6 @@ class TestEndpoint(unittest.TestCase):
                         with mock.patch(
                                 'xrdsst.api.endpoints_api.EndpointsApi.add_endpoint_service_clients',
                                 return_value=EndpointTestData.add_access_response):
-
                             endpoint_controller = EndpointController()
                             endpoint_controller.app = app
                             endpoint_controller.load_config = (lambda: self.ss_config)
@@ -295,6 +286,7 @@ class TestEndpoint(unittest.TestCase):
             reason = None
 
             def getheaders(self): return None
+
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.clients_api.ClientsApi.find_clients', return_value=[Client(
                     id='DEV:GOV:9876:SUB1',
@@ -307,7 +299,6 @@ class TestEndpoint(unittest.TestCase):
                     owner=True,
                     has_valid_local_sign_cert=True
             )]):
-
                 with mock.patch('xrdsst.api.clients_api.ClientsApi.get_client_service_descriptions',
                                 return_value=[EndpointTestData.add_description_response]):
                     with mock.patch('xrdsst.api.clients_api.ClientsApi.find_service_client_candidates',
@@ -320,7 +311,6 @@ class TestEndpoint(unittest.TestCase):
                         with mock.patch(
                                 'xrdsst.api.endpoints_api.EndpointsApi.add_endpoint_service_clients',
                                 side_effect=ApiException(http_resp=AlreadyEnabledResponse())):
-
                             endpoint_controller = EndpointController()
                             endpoint_controller.app = app
                             endpoint_controller.load_config = (lambda: self.ss_config)
@@ -355,7 +345,6 @@ class TestEndpoint(unittest.TestCase):
             assert endpoint_controller.app._last_rendered[0][1][5] == 'https://openapi3'
             assert endpoint_controller.app._last_rendered[0][1][6] == ServiceType.OPENAPI3
 
-
     def test_endpoint_update(self):
         with XRDSSTTest() as app:
             app._parsed_args = Namespace(ss='ssX',
@@ -364,10 +353,8 @@ class TestEndpoint(unittest.TestCase):
                                          path='/testPath')
 
             with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=EndpointTestData.get_endpoint):
-
                 with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.update_endpoint',
                                 return_value={}):
-
                     endpoint_controller = EndpointController()
                     endpoint_controller.app = app
                     endpoint_controller.load_config = (lambda: self.ss_config)
@@ -419,16 +406,14 @@ class TestEndpoint(unittest.TestCase):
                                          path='/testPath')
 
             with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=Endpoint(
-                id=1,
-                service_code="Test",
-                method="PUT",
-                path="/testPath",
-                generated=True
+                    id=1,
+                    service_code="Test",
+                    method="PUT",
+                    path="/testPath",
+                    generated=True
             )):
-
                 with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.update_endpoint',
                                 return_value={}):
-
                     endpoint_controller = EndpointController()
                     endpoint_controller.app = app
                     endpoint_controller.load_config = (lambda: self.ss_config)
@@ -448,10 +433,8 @@ class TestEndpoint(unittest.TestCase):
                                          endpoint='1')
 
             with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.get_endpoint', return_value=EndpointTestData.get_endpoint):
-
                 with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.delete_endpoint',
                                 return_value={}):
-
                     endpoint_controller = EndpointController()
                     endpoint_controller.app = app
                     endpoint_controller.load_config = (lambda: self.ss_config)
@@ -465,7 +448,7 @@ class TestEndpoint(unittest.TestCase):
                         sys.stdout.write(out)
                         sys.stderr.write(err)
 
-    def test_endpoint_update_endpoint_not_found(self):
+    def test_endpoint_delete_endpoint_not_found(self):
         class NotFoundResponse:
             status = 404
             data = '{"status":404}'
@@ -520,7 +503,6 @@ class TestEndpoint(unittest.TestCase):
                                 return_value=EndpointTestData.add_access_response):
                     with mock.patch('xrdsst.api.endpoints_api.EndpointsApi.delete_endpoint_service_clients',
                                     return_value={}):
-
                         endpoint_controller = EndpointController()
                         endpoint_controller.app = app
                         endpoint_controller.load_config = (lambda: self.ss_config)

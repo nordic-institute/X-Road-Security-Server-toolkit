@@ -368,7 +368,6 @@ class TestToken(unittest.TestCase):
                                     return_value=TokenTestData.token_login_response):
                         with mock.patch('xrdsst.api.tokens_api.TokensApi.add_key_and_csr',
                                         return_value=TokenTestData.add_auth_key_with_csr_response):
-
                             token_controller = TokenController()
                             token_controller.app = app
                             token_controller.load_config = (lambda: self.ss_config)
@@ -395,14 +394,13 @@ class TestToken(unittest.TestCase):
                                     return_value=TokenTestData.token_login_response):
                         with mock.patch('xrdsst.api.tokens_api.TokensApi.add_key_and_csr',
                                         return_value=TokenTestData.add_sign_key_with_csr_response):
-
                             token_controller = TokenController()
                             token_controller.app = app
                             token_controller.load_config = (lambda: self.ss_config)
                             token_controller.get_server_status = (lambda x, y: StatusTestData.server_status_essentials_complete)
 
                             configuration = token_controller.create_api_config(self.ss_config["security_server"][0], self.ss_config)
-                            client = { 'member_class': "GOV", 'member_code': "7392", "member_name": "UNS-SSX"}
+                            client = {'member_class': "GOV", 'member_code': "7392", "member_name": "UNS-SSX"}
 
                             token_controller.remote_token_add_sign_keys_with_csrs(configuration, self.ss_config["security_server"][0], False, client)
 
