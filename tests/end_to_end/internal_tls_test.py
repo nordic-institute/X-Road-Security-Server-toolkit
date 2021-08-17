@@ -82,11 +82,8 @@ class TlsTest:
             ssn = 0
             for security_server in self.test.config["security_server"]:
                 ss_configuration = tls_controller.create_api_config(security_server, self.test.config)
-                tls_certificate_before = get_tls_certificate(self.test.config, ssn)
                 tls_controller.remote_import_tls_certificate(ss_configuration, security_server["name"], self.tls_cert_existing)
-                tls_certificate_after = get_tls_certificate(self.test.config, ssn)
 
-                # assert tls_certificate_before["serial"] != tls_certificate_after["serial"]
                 ssn = ssn + 1
 
     def test_run_configuration(self):
