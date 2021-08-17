@@ -6,6 +6,7 @@ from xrdsst.models import SecurityServer, Version
 import pytest
 from xrdsst.rest.rest import ApiException
 
+
 class TestSecurityServerData:
     security_servers_response = [
         SecurityServer(
@@ -86,6 +87,7 @@ class TestSecurityServer(unittest.TestCase):
             reason = None
 
             def getheaders(self): return None
+
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.security_servers_api.SecurityServersApi.get_security_servers',
                             side_effect=ApiException(http_resp=ErrorResponse())):
@@ -122,6 +124,7 @@ class TestSecurityServer(unittest.TestCase):
             reason = None
 
             def getheaders(self): return None
+
         with XRDSSTTest() as app:
             with mock.patch('xrdsst.api.system_api.SystemApi.system_version',
                             side_effect=ApiException(http_resp=ErrorResponse())):
