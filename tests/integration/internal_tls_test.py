@@ -95,4 +95,3 @@ class TlsTest:
         self.step_generate_new_key()
         self.step_generate_new_csr()
         self.step_import_tls_certificate()
-
