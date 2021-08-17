@@ -2,9 +2,7 @@ import unittest
 from unittest import mock
 from xrdsst.controllers.instance import InstanceController, InstanceListMapper
 from xrdsst.main import XRDSSTTest
-from xrdsst.models import KeyUsageType
 import pytest
-from xrdsst.rest.rest import ApiException
 
 
 class TestInstance(unittest.TestCase):
