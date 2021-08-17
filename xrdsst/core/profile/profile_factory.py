@@ -1,4 +1,3 @@
-from xrdsst.core.profile.abstract_certificate_profile import Profile
 from xrdsst.core.profile.is_auth_certificate_profile import IsAuthCertificateProfile
 from xrdsst.core.profile.is_sign_certificate_profile import IsSignCertificateProfile
 from xrdsst.core.profile.fo_auth_certificate_profile import FoAuthCertificateProfile
@@ -27,4 +26,3 @@ class ProfileFactory:
             return EjbcaAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else EjbcaSignCertificateProfile()
         else:
             raise ValueError("Error getting profile builder, profile type '%s' not valid" % profile_type)
-
