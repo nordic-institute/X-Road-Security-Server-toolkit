@@ -4,7 +4,7 @@
 With these tools one doesn't have to install python to local machine in order to use toolkit. 
 
 Note that:
-- this Dockerfile clones toolkit with tag v2.0 statically
+- this Dockerfile clones toolkit with tag v3.0 statically
 - ssh keys are generated in docker build phase to /usr/src/ssh -folder
 
 ### Setup
