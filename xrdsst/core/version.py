@@ -1,7 +1,7 @@
 """Module for getting project version"""
 from cement.utils.version import get_version as cement_get_version
 
-CURRENT_VERSION = "CURRENT_VERSION = "3.0.0""
+CURRENT_VERSION = "3.0.0-final.0"
 
 
 def convert_version(version_str):
