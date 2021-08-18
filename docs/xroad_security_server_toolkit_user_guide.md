@@ -852,7 +852,8 @@ The table above shows the following information about the certificates:
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-We must set as argument hash (or list of hashes separated by comma) of the certificates we want to disable, we can get the hashes of the certificates
+
+A hash (or list of hashes separated by comma) of the certificates we want to disable has to be provided as parameter. We can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Disable the certificates can be done with:
@@ -864,7 +865,7 @@ xrdsst cert disable --hash <CERTIFICATE_HASH>
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-We must set as argument hash (or list of hashes separated by comma) of the authentication certificates we want to delete, we can get the hashes of the certificates
+A hash (or list of hashes separated by comma) of the authentication certificates we want to delete has to be provided as parameter. We can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Unregister the authentication certificates can be done with:
@@ -876,7 +877,7 @@ xrdsst cert unregister --hash <CERTIFICATE_HASH>
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-We must set as argument hash (or list of hashes separated by comma) of the certificates we want to delete, we can get the hashes of the certificates
+A hash (or list of hashes separated by comma) of the certificates we want to delete has to be provided as parameter. We can get the hashes of the certificates
 installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Delete the certificates can be done with:
@@ -1272,7 +1273,7 @@ xrdsst endpoint add-access
 
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
-List service endpoints can be done with:
+Listing service endpoints can be done with:
 ```
 xrdsst endpoint list --ss <SECURITY_SERVER_NAME> --description <SERVICE_DESCRIPTION_ID>
 ```
@@ -1318,7 +1319,7 @@ xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --m
 
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
-Single endpoint can be updated with with:
+Single endpoint can be deleted with:
 ```
 xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
@@ -1329,7 +1330,7 @@ xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID>
 
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
-List service endpoint access can be done:
+Listing service endpoint access can be done:
 ```
 xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
@@ -1456,7 +1457,7 @@ xrdsst local-group add-member
 
 * Access rights: XROAD_SERVER_OBSERVER or XROAD_SERVICE_ADMINISTRATOR
 
-List client local groups can be done with:
+Listing client local groups can be done with:
 ```
 xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
@@ -1484,7 +1485,7 @@ The table above shows the following information about the local groups:
 
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
-Delete client local groups can be done with:
+Deletion of client local groups can be done with:
 ```
 xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID>
 ```
@@ -1496,7 +1497,7 @@ xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP
 
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
-Delete client local group members can be done with:
+Deletion of client local group members can be done with:
 ```
 xrdsst local-group delete-member --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
 ```
@@ -1710,6 +1711,7 @@ xrdsst key update --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --name <FRIENDLY_NA
 ##### 4.2.13.3 Delete keys
 
 * Access rights: XROAD_SECURITY_OFFICER
+
 Keys can be deleted with:
 ```
 xrdsst key delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> 
@@ -1752,7 +1754,7 @@ xrdsst csr list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 
 * Access rights: XROAD_SECURITY_OFFICER
 
-Delete certificate signing request can be done with:
+Deletion of certificate signing request can be done with:
 ```
 xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
 ```
@@ -2186,11 +2188,10 @@ When the placeholders in the configuration file have been amended with proper va
 [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit) and continue until(included) [4.9 Client management](#49-client-management)
 
 ## 8 Multitenancy
-It's possible to add another members and subsystem to a security server using the toolkit.
-For doing that we need to add the members and subsystems in the clients section of the configuration
-file. 
+It's possible to add other members and subsystems to a security server using the toolkit.
+For doing that we need to add the members and subsystems in the clients section of the configuration file. 
 For adding a new member we must delete the properties 'service_descriptions' and 'subsystem_code'.
-For example if we have the owner member 'ORG/111/ORGANIZATION/SUB' and want to add the new member 'COM/12345/COMPANY', and the subsystem 'COM/12345/COMPANY/SUB' we must fill the
+For example if we have the owner member 'ORG/111/ORGANIZATION/SUB' and want to add the new member 'COM/12345/COMPANY' and the subsystem 'COM/12345/COMPANY/SUB' we should fill the
 configuration file like this:
 
 ```
@@ -2267,19 +2268,19 @@ To renew the certificates we must:
 4. Import the certificates by running the [certificate import](#4252-certificate-import) command.
 5. Activate the certificates by running the [certificate activation](#4254-certificate-activation) command.
 6. Register the new certificates by running the [certificate registration](#4253-certificate-registration) command.
-7. Wait until the new certificates have the OCSP is Good state and the Status in Registered. We can check this
-   through by running the [List certificates](#4256-list-certificates) command. 
-   It's recommended to wait at least one day so that the new certificates can be distributed for the access server does not crash.
+7. Wait until the new certificates have the OCSP in Good state and the Status in Registered. We can check this
+   by running the [List certificates](#4256-list-certificates) command. 
+   It's recommended to wait at least one day so that the new certificates can be distributed so the access server does not crash.
 7. Disable the old certificates by running the [Certificate disable](#4257-certificate-disable) command.
 8. Unregister the old  certificates by running the [Certificate unregister](#4258-certificate-unregister) command.
-9. Delete the olds AUTH and SIGN keys and certificates by running the [4.2.13.3 Delete keys](#42133-delete-keys) command.
+9. Delete the old AUTH and SIGN keys and certificates by running the [4.2.13.3 Delete keys](#42133-delete-keys) command.
 
 ## 10 Change security server owner
 
-To change the security server owner, two registered Owner members must be available. 
+To change the security server owner, two registered Owner members have to be available. 
 1. Add a new member to the security server and register it. For doing that, follow the guide [8 Multitenancy](#8-multitenancy).
-2. Run the command [4.2.6.6 Client change owner](#4266-client-change-owner). This command submit a request for owner
-change  X-Road governing authority also it will create the AUTH key and CSRS for the AUTH certificate of the new member.
+2. Run the command [4.2.6.6 Client change owner](#4266-client-change-owner). This command submits a request for owner
+change to X-Road governing authority and it will create the AUTH key and CSRs for the AUTH certificate of the new member.
 3. Download the certificate created in the previous step using the command [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs).
 4. Sign the AUTH certificate and import it using the command [4.2.5.2 Certificate import](#4252-certificate-import).
 5. Activate  the AUTH certificate using the command [4.2.5.2 Certificate import](#4252-certificate-import).
@@ -2292,11 +2293,11 @@ change  X-Road governing authority also it will create the AUTH key and CSRS for
 The toolkit has support for multiple profiles to choose between:
 - EJBCA: Default implementation
 - FIVRK: Finnish implementation
-- FO: Faroe Island's implementation
+- FO: Faroe Islands implementation
 - IS: Icelandic Implementation
 
-To select one of this profiles, we must fill the property `profile` in the configuration file (`security_server` section) with the name of the profile,
+To select one of these profiles, we should fill the property `profile` in the configuration file (`security_server` section) with the name of the profile,
 to choose between: "EJBCA", "FIVRK", "FO" and "IS".
 
-This property is optional, if is not set, the default profile will be the Finnish one.
+This property is optional, if not set, the default profile will be Finnish.
 
