@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [3.0.0-final.0] - 2021-08-18
 - X-Road-Security Server Toolkit release version 3.0
-- 
+
 ## [2.6.0-beta.0] - 2021-08-17
 - add ``xrdsst internal-tls`` and sub-commands ``download``, ``import``, ``generate-key`` and ``generate-csr``
 - add support for other certificate profiles
