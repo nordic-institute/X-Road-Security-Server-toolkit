@@ -20,7 +20,7 @@ class ProfileFactory:
             return FoAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else FoSignCertificateProfile()
         elif profile_type == ProfileTypesEnum.IS:
             return IsAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else IsSignCertificateProfile()
-        elif profile_type == ProfileTypesEnum.FIVRK:
+        elif profile_type == ProfileTypesEnum.FI:
             return FIVRKAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else FIVRKSignCertificateProfile()
         elif profile_type == ProfileTypesEnum.EJBCA:
             return EjbcaAuthCertificateProfile() if certificate_type == CertificateTypesEnum.AUTH else EjbcaSignCertificateProfile()
