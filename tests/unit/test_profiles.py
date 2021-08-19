@@ -45,7 +45,7 @@ class TestProfiles(unittest.TestCase):
         assert result["CN"] == self.profile_data.member_code
 
     def test_fivrk_auth_certificate_profile(self):
-        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.AUTH, profile_type=ProfileTypesEnum.FIVRK)
+        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.AUTH, profile_type=ProfileTypesEnum.FI)
         result = profile.build_profile(profile_data=self.profile_data)
 
         assert len(result) == 4
@@ -55,7 +55,7 @@ class TestProfiles(unittest.TestCase):
         assert result["CN"] == self.profile_data.security_server_dns
 
     def test_fivrk_sign_certificate_profile(self):
-        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.SIGN, profile_type=ProfileTypesEnum.FIVRK)
+        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.SIGN, profile_type=ProfileTypesEnum.FI)
         result = profile.build_profile(profile_data=self.profile_data)
 
         assert len(result) == 4

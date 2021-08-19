@@ -216,7 +216,7 @@ class TokenController(BaseController):
             if profile is not None:
                 return ProfileTypesEnum[profile]
             else:
-                return ProfileTypesEnum.FIVRK
+                return ProfileTypesEnum.FI
         except BaseException as err:
             BaseController.log_info("Certificate profile name '%s', not valid, please choose between: %s"
                                     % (profile, str([e.name for e in ProfileTypesEnum])))
@@ -274,7 +274,7 @@ class TokenController(BaseController):
 
             if not has_auth_key:
                 try:
-                    BaseController.log_info(TokenLabels.generate_key(token_id, sign_key_label, 'AUTH'))
+                    BaseController.log_info(TokenLabels.generate_key(token_id, auth_key_label, 'AUTH'))
                     response = token_api.add_key_and_csr(token_id, body=auth_key_req_param)
                     responses.append(response)
                 except ApiException as err:

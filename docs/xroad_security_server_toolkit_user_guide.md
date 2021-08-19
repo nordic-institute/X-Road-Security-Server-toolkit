@@ -2292,12 +2292,12 @@ change to X-Road governing authority and it will create the AUTH key and CSRs fo
 
 The toolkit has support for multiple profiles to choose between:
 - EJBCA: Default implementation
-- FIVRK: Finnish implementation
+- FI: Finnish implementation
 - FO: Faroe Islands implementation
 - IS: Icelandic Implementation
 
 To select one of these profiles, we should fill the property `profile` in the configuration file (`security_server` section) with the name of the profile,
-to choose between: "EJBCA", "FIVRK", "FO" and "IS".
+to choose between: "EJBCA", "FI", "FO" and "IS".
 
 This property is optional, if not set, the default profile will be Finnish.
 
