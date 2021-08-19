@@ -320,6 +320,8 @@ running in a Docker container.
 services, in separate security server.
 * Toolkit access to configured security servers.
 
+**NOTE when using X-Road Security Server Sidecar Slim version, all the Toolkit functionality will remain working, but the timestamping service will not be functional on the security server**
+
 #### 3.1.1 Toolkit access to security servers
 
 To be able to use the toolkit for configuring security server(s), one of the following access combinations
