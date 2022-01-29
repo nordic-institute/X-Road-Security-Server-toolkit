@@ -1,5 +1,8 @@
 # X-Road Security Server Toolkit
 
+[![Go to X-Road Community Slack](https://img.shields.io/badge/Go%20to%20Community%20Slack-grey.svg)](https://jointxroad.slack.com/)
+[![Get invited](https://img.shields.io/badge/No%20Slack-Get%20invited-green.svg)](https://x-road.global/community)
+
 ## About the repository 
 
 This repository contains information about the X-Road Security Server Toolkit, source code, its development, installation and documentation.
