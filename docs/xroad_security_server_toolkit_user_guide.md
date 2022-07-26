@@ -351,11 +351,11 @@ is needed:
 1. Access to REST API of configured Security Server + existing API key.
 1. Access to REST API of configured Security Server + SSH access to the Security Server machine + X-Road Security Server administrative credentials.
 
-Security server REST API is ordinarily exposed at Security Server port 4000 and is separated into
+Security server REST API is ordinarily exposed at Security Server port `4000` and is separated into
 two parts:
-  1. invocable over network -- API calls for performing most of the functionality available from
+  1. Invocable over network -- API calls for performing most of the functionality available from
      web administration console, accessible with API key.
-  1. invocable only locally (in default configuration), i.e. when accessed via 'localhost' or
+  1. Invocable only locally (in default configuration), i.e. when accessed via 'localhost' or
      equivalent and passed Security Server administrative credentials via HTTP basic access
      authentication -- API calls that allow API key management operations.
 
@@ -488,12 +488,15 @@ ssh_access:
   user: <SSH_USER_OS_ENV_VAR_NAME>
   private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
 ```
-* <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server admin credentials, e.g., if the variable is set like ``export TOOLKIT_ADMIN_CREDENTIALS=user:pass`` the value to use here is ``TOOLKIT_ADMIN_CREDENTIALS`` (if specified in the separate section, one value will be 
+* `<SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>`
+  * Environment variable name to hold X-Road Security Server admin credentials, e.g., if the variable is set like ``export TOOLKIT_ADMIN_CREDENTIALS=user:pass`` the value to use here is ``TOOLKIT_ADMIN_CREDENTIALS`` (if specified in the separate section, one value will be 
   used for all configurable Security Servers, but if specified in the ``security_server`` section, the value will be overridden for specific 
   configurable Security Server)
-* <SSH_USER_OS_ENV_VAR_NAME> Environment variable name to hold SSH username, e.g., if the variable is set like ``export TOOLKIT_SSH_USER=ssh_user`` the value to use here is ``TOOLKIT_SSH_USER`` (if specified in ``ssh_access`` section, one value will be used for all configurable Security Servers, 
+* `<SSH_USER_OS_ENV_VAR_NAME>`
+  * Environment variable name to hold SSH username, e.g., if the variable is set like ``export TOOLKIT_SSH_USER=ssh_user`` the value to use here is ``TOOLKIT_SSH_USER`` (if specified in ``ssh_access`` section, one value will be used for all configurable Security Servers, 
   but if specified in the ``security_server`` section, the value will be overridden for specific configurable Security Server)
-* <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> Environment variable name to hold full path to SSH private key, e.g., if the variable is set like ``export TOOLKIT_SSH_PRIVATE_KEY=/home/user/private_key`` the value to use here is ``TOOLKIT_SSH_PRIVATE_KEY``
+* `<SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>`
+  * Environment variable name to hold full path to SSH private key, e.g., if the variable is set like ``export TOOLKIT_SSH_PRIVATE_KEY=/home/user/private_key`` the value to use here is ``TOOLKIT_SSH_PRIVATE_KEY``
   (if specified in ``ssh_access`` section, one value will be used for all configurable Security Servers, 
   but if specified in the ``security_server`` section, the value will be overridden for specific configurable Security Server)    
 
@@ -525,26 +528,46 @@ security_server:
     - <TLS_CERT_PATH>
   profile: <CERTIFICATE_PROFILE>
 ```
-* <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
-* <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> (Optional) If is set it will overwrite the <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
-* <CONFIGURATION_ANCHOR_PATH> Path to the configuration anchor file, e.g., "/etc/xroad/configuration-anchor.xml"
-* <SIGN_CERT_PATH> should be given as path referring to sign certificates location.
-* <AUTH_CERT_PATH> should be given as path referring to auth certificate location.
-* <SECURITY_SERVER_NAME> should be substituted with the installed Security Server name, e.g., `ss1`
-* <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
-* <OWNER_DISTINGUISHED_NAME_ORGANIZATION> should be set to server owner organization. This is used in certificate generation.
-* <OWNER_MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g., GOV.
-* <OWNER_MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g., 1234.
-* <SERVER_CODE> should be substituted with the server code of the installed Security Server, e.g., `ss1`.
-* <SOFT_TOKEN_ID> default software token ID, normally 0 (zero).
-* <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code.
-* <SECURITY_SERVER_EXTERNAL_FQDN> externally accessible FQDN for the Security Server. It's applied to the Security Server certificates.
-* <SECURITY_SERVER_INTERNAL_FQDN_OR_IP> should be substituted with internal IP address or host name of the installed Security Server, e.g., `ss1`
-* <SSH_USER_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_USER_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
-* <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
-* <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g., "/etc/xroad/cert.pem"
-* <CERTIFICATE_HASH> List of certificate hash on which we are going to apply operations such as disable, unregister, delete...
-* <CERTIFICATE_PROFILE> (Optional) Profile name described in [11 Certificate profile support](#11-certificate-profile-support)
+* `<API_KEY_ENV_VAR_NAME>`
+  * Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
+* `<SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>`
+  * (Optional) If is set it will overwrite the `<SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>` property described in the [access section](#3.2.1-access-configuration)
+* `<CONFIGURATION_ANCHOR_PATH>`
+  * Path to the configuration anchor file, e.g., `/etc/xroad/configuration-anchor.xml`.
+* `<SIGN_CERT_PATH>`
+  * Should be given as path referring to sign certificates location.
+* `<AUTH_CERT_PATH>`
+  * Should be given as path referring to auth certificate location.
+* `<SECURITY_SERVER_NAME>`
+  * Should be substituted with the installed Security Server name, e.g., `ss1`.
+* `<OWNER_DISTINGUISHED_NAME_COUNTRY>`
+  * Should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
+* `<OWNER_DISTINGUISHED_NAME_ORGANIZATION>`
+  * Should be set to server owner organization. This is used in certificate generation.
+* `<OWNER_MEMBER_CLASS>`
+  * Should be substituted with the member class obtained from the Central Server, e.g., `GOV`.
+* `<OWNER_MEMBER_CODE>`
+  * Should be substituted with the member code obtained from the Central Server, e.g., `1234`.
+* `<SERVER_CODE>`
+  * Should be substituted with the server code of the installed Security Server, e.g., `ss1`.
+* `<SOFT_TOKEN_ID>`
+  * Default software token ID, normally 0 (zero).
+* `<SOFT_TOKEN_PIN>`
+  * Should be substituted with a desired numeric pin code.
+* `<SECURITY_SERVER_EXTERNAL_FQDN>`
+  * Externally accessible FQDN for the Security Server. It's applied to the Security Server certificates.
+* `<SECURITY_SERVER_INTERNAL_FQDN_OR_IP>`
+  * Should be substituted with internal IP address or host name of the installed Security Server, e.g., `ss1`
+* `<SSH_USER_OS_ENV_VAR_NAME>`
+  * (Optional) If set, it will overwrite the `<SSH_USER_OS_ENV_VAR_NAME>` property described in the [access section](#3.2.1-access-configuration)
+* `<SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>`
+  * (Optional) If set, it will overwrite the `<SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>` property described in the [access section](#3.2.1-access-configuration)
+* `<TLS_CERT_PATH>`
+  * Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g., `/etc/xroad/cert.pem`.
+* `<CERTIFICATE_HASH>`
+  * List of certificate hash on which we are going to apply operations such as disable, unregister, delete.
+* `<CERTIFICATE_PROFILE>`
+  * (Optional) Profile name described in [11 Certificate profile support](#11-certificate-profile-support)
 
 #### 3.2.3 Client Configuration
 
@@ -567,20 +590,27 @@ clients:
             - <MEMBER_ID>
 ```
 
-* <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g., GOV.
-It must have the same value as <OWNER_MEMBER_CLASS> if is a subsystem of the owner client.
-* <OWNER_MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g., 1234
-It must have the same value as <OWNER_MEMBER_CLASS> if is a subsystem of the owner client.
-* <MEMBER_NAME> should be substituted with the member name obtained from the Central Server, e.g., COMPANY.
-It must have the same value as <OWNER_DISTINGUISHED_NAME_ORGANIZATION>  if is a subsystem of the owner client.
-* <SUBSYSTEM_CODE> (Optional, not required for members) X-Road member/client subsystem code.
-* <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
-* <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g., "/etc/xroad/cert.pem"
+* `<MEMBER_CLASS>`
+  * Should be substituted with the member class obtained from the Central Server, e.g., `GOV`.
+It must have the same value as `<OWNER_MEMBER_CLASS>` if is a subsystem of the owner client.
+* `<OWNER_MEMBER_CODE>` should be substituted with the member code obtained from the Central Server, e.g., `1234`
+It must have the same value as `<OWNER_MEMBER_CLASS>` if is a subsystem of the owner client.
+* `<MEMBER_NAME>` should be substituted with the member name obtained from the Central Server, e.g., `COMPANY`.
+It must have the same value as `<OWNER_DISTINGUISHED_NAME_ORGANIZATION>` if is a subsystem of the owner client.
+* `<SUBSYSTEM_CODE>`
+  * (Optional, not required for members) X-Road member/client subsystem code.
+* `<CONNECTION_TYPE>`
+  * Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
+* `<TLS_CERT_PATH>`
+  * Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g., `/etc/xroad/cert.pem`.
 
 <strong>Local groups (Optional):</strong>
-* <LOCAL_GROUP_CODE> code for single local group. Must be unique for each Security Server client.
-* <LOCAL_GROUP_DESCRIPTION> description for single local group.
-* <MEMBER_ID> (Optional) list of subsystems ids, composed by `<INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>`.
+* `<LOCAL_GROUP_CODE>`
+  * Code for single local group. Must be unique for each Security Server client.
+* `<LOCAL_GROUP_DESCRIPTION>`
+  * Description for single local group.
+* `<MEMBER_ID>`
+  * (Optional) list of subsystems ids, composed by `<INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>`.
 
 #### 3.2.3 Service Configuration
 
@@ -613,31 +643,45 @@ service_descriptions:
 ```
 <strong>Service description (Optional):</strong>
 
-* <SERVICE_DESCRIPTION_URL> URL for service description.
-* <REST_SERVICE_CODE> rest service code, not used for WSDL services.
-* <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
-* <SERVICE_DESCRIPTION_ACCESS> (Optional) list of subsystems ids, composed by `<INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>`, or Security Server owners composed 
+* `<SERVICE_DESCRIPTION_URL>`
+  * URL for service description.
+* `<REST_SERVICE_CODE>`
+  * REST service code, not used for WSDL services.
+* `<SERVICE_TYPE>`
+  * Type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
+* `<SERVICE_DESCRIPTION_ACCESS> (Optional) list of subsystems ids, composed by `<INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>`, or Security Server owners composed 
 by `<INSTANCE>:security-server-owners`.
-* <SERVICE_URL_FOR_ALL> boolean value determining if the URL prefix should be applied for all the services.
-* <SERVICE_TIMEOUT_FOR_ALL> boolean value specifying if the timeout should be applied for all the services in the service description.
-* <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value specifying whether SSL authentication should be used for all the services in the service description.
+* `<SERVICE_URL_FOR_ALL>`
+  * Boolean value determining if the URL prefix should be applied for all the services.
+* `<SERVICE_TIMEOUT_FOR_ALL>`
+  * Boolean value specifying if the timeout should be applied for all the services in the service description.
+* `<SERVICE_USE_SSL_AUTH_FOR_ALL>`
+  * Boolean value specifying whether SSL authentication should be used for all the services in the service description.
 
 <strong>Services (Optional):</strong>
 It's possible to create services manually but usually it's not required because they are parsed from the service descriptions automatically. Adding a service manually is needed when a service description isn't available, there is a need to customize the access rights, or there is a need to customize the parameters.
 
-* <SERVICE_CODE> code for single service.
-* <SERVICE_ACCESS> (Optional) same as <SERVICE_DESCRIPTION_ACCESS>, if its defined, it will overwrite the values defined in <SERVICE_DESCRIPTION_ACCESS>
+* `<SERVICE_CODE>`
+  * Code for single service.
+* `<SERVICE_ACCESS>`
+  * (Optional) same as `<SERVICE_DESCRIPTION_ACCESS>`, if its defined, it will overwrite the values defined in `<SERVICE_DESCRIPTION_ACCESS>`.
 for the single service.
-* <SERVICE_TIMEOUT> timeout for service in seconds.
-* <SERVICE_USE_SSL_AUTH> boolean value for specifying whether SSL authentication should be used.
-* <SERVICE_URL> URL for single service
+* `<SERVICE_TIMEOUT>`
+  * Timeout for service in seconds.
+* `<SERVICE_USE_SSL_AUTH>`
+  * Boolean value for specifying whether SSL authentication should be used.
+* `<SERVICE_URL>`
+  * URL for single service.
 
 <strong>Endpoints (Optional):</strong>
-The endpoints are only available for service descriptions of type REST or OPENAPI3.
+The endpoints are only available for service descriptions of type `REST` or `OPENAPI3`.
 
-* <ENDPOINT_PATH> path for the endpoint.
-* <ENDPOINT_METHOD> method for the endpoint (GET, POST, PUT...)
-* <ENDPOINTS_ACCESS> (Optional) same as <SERVICE_ACCESS> or <SERVICE_DESCRIPTION_ACCESS> but for grant endpoint access rights.
+* `<ENDPOINT_PATH>`
+  * Path for the endpoint.
+* `<ENDPOINT_METHOD>`
+  * Method for the endpoint (`GET`, `POST`, `PUT`, etc.)
+* `<ENDPOINTS_ACCESS>`
+  * (Optional) same as `<SERVICE_ACCESS>` or `<SERVICE_DESCRIPTION_ACCESS>` but for grant endpoint access rights.
 
 ### 3.3 Different ways of using the configuration file
 
