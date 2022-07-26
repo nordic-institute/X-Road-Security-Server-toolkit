@@ -1,79 +1,80 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.3.0
+Version: 2.3.1
 Doc. ID: XRDSST-CONF
 
 ---
 
 ## Version history <!-- omit in toc -->
-| Date       | Version     | Description                                                                  | Author             |
-|------------|-------------|------------------------------------------------------------------------------|--------------------|
-| 10.11.2020 | 1.0.0       | Initial draft                                                                | Bert Viikmäe       |
-| 12.11.2020 | 1.1.0       | Documentation of initialization functionality                                | Bert Viikmäe       |
-| 16.11.2020 | 1.1.1       | Documentation of token login functionality                                   | Taimo Peelo        |
-| 08.12.2020 | 1.1.2       | Documentation of token key initializations                                   | Taimo Peelo        |
-| 15.12.2020 | 1.1.3       | Documentation of api-key parameterization                                    | Bert Viikmäe       |
-| 22.12.2020 | 1.1.4       | Brief notes on certificate management                                        | Taimo Peelo        |
-| 30.12.2020 | 1.1.5       | Note on certificate activation                                               | Taimo Peelo        |
-| 12.01.2021 | 1.1.6       | Notes on client management                                                   | Taimo Peelo        |
-| 20.01.2021 | 1.1.7       | Notes on adding service descriptions                                         | Bert Viikmäe       |
-| 27.01.2021 | 1.1.8       | Notes on enabling service descriptions                                       | Bert Viikmäe       |
-| 03.02.2021 | 1.1.9       | Notes on server status query                                                 | Taimo Peelo        |
-| 17.02.2021 | 1.2.0       | Updates to the user guide                                                    | Bert Viikmäe       |
-| 22.02.2021 | 1.2.1       | Update service management                                                    | Bert Viikmäe       |
-| 23.02.2021 | 1.2.2       | Update service management                                                    | Bert Viikmäe       |
-| 17.03.2021 | 1.2.3       | Describe failure interpretation and recovery                                 | Taimo Peelo        |
-| 22.03.2021 | 1.2.4       | Default configuration from config/base.yaml -> config/xrdsst.yml             | Taimo Peelo        |
-| 26.03.2021 | 1.2.5       | Add 'fqdn' key for security server, fix service field descriptions           | Taimo Peelo        |
-| 31.03.2021 | 1.2.6       | Refactorization of configuration file related to SSH and api key parameters  | Bert Viikmäe       |
-| 01.04.2021 | 1.2.7       | Describe backup use, clarify toolkits' error interpretation role, remove undocumented ``api_key_roles`` configuration element | Taimo Peelo        |
-| 05.04.2021 | 1.2.8       | Remove HTTP header value prefix from 'api_key' configuration element         | Taimo Peelo        |
-| 06.04.2021 | 1.2.9       | Describe different security server access possibilities                      | Taimo Peelo        |
-| 06.04.2021 | 1.2.10      | Notes on user management                                                     | Bert Viikmäe       |
-| 09.04.2021 | 1.2.11      | Added description about signing and verification of packages                 | Bert Viikmäe       |
-| 20.04.2021 | 1.3.0       | Substituting plain text secrets in configuration with environment variables  | Bert Viikmäe       |
-| 26.04.2021 | 1.3.1       | Added description about adding endpoints to the REST and OpenAPI services.   | Alberto Fernandez  |
-| 27.04.2021 | 1.3.2       | Substituting plain text api key in configuration with environment variable   | Bert Viikmäe       |
-| 04.05.2021 | 1.3.3       | Added description about endpoint access                                      | Alberto Fernandez  |
-| 10.05.2021 | 1.3.4       | Added Load Balancer setup description                                        | Alberto Fernandez  |            
-| 13.05.2021 | 1.3.5       | Added description about load-balancing                                       | Bert Viikmäe       |
-| 14.05.2021 | 1.3.6       | Notes on client management                                                   | Bert Viikmäe       |
-| 24.05.2021 | 1.3.7       | Added download-internal-tls command                                          | Alberto Fernandez  |
-| 28.05.2021 | 1.3.8       | Added member name property  and multitenancy section                         | Alberto Fernandez  |
-| 28.05.2021 | 1.3.9       | Update service management                                                    | Bert Viikmäe       |
-| 04.06.2021 | 1.3.10      | Refactor documentation                                                       | Alberto Fernandez  |
-| 04.06.2021 | 1.3.11      | Added TLS certificates import                                                | Alberto Fernandez  |
-| 16.06.2021 | 1.3.12      | Added certificate list command description                                   | Alberto Fernandez  |
-| 21.06.2021 | 2.0.0       | Notes on member management                                                   | Bert Viikmäe       |
-| 17.06.2021 | 2.0.1       | Added disable certificates command                                           | Alberto Fernandez  |
-| 21.06.2021 | 2.0.2       | Added delete and unregister certificates command                             | Alberto Fernandez  |
-| 22.06.2021 | 2.0.3       | Notes on member management                                                   | Bert Viikmäe       |
-| 25.06.2021 | 2.0.4       | Update service management with listing of service descriptions               | Bert Viikmäe       |
-| 25.06.2021 | 2.0.5       | Update service management with listing of service description services       | Bert Viikmäe       |
-| 28.06.2021 | 2.0.6       | Update renew certificates process                                            | Alberto Fernandez  |
-| 30.06.2021 | 2.0.7       | Update service management with deletion of service descriptions              | Bert Viikmäe       |
-| 02.07.2021 | 2.0.8       | Update service management with update of service descriptions                | Bert Viikmäe       |
-| 05.07.2021 | 2.0.9       | Update service management with refresh of service descriptions               | Bert Viikmäe       |
-| 05.07.2021 | 2.1.0       | Update service management with disabling of service descriptions             | Bert Viikmäe       |
-| 06.07.2021 | 2.1.1       | Add client unregister command                                                | Alberto Fernandez  |
-| 06.07.2021 | 2.1.2       | Add client delete command                                                    | Alberto Fernandez  |
-| 09.07.2021 | 2.1.3       | Add listing and deletion of access rights for services                       | Bert Viikmäe       |
-| 13.07.2021 | 2.1.4       | Add local groups management                                                  | Alberto Fernandez  |
-| 14.07.2021 | 2.1.5       | Add listing, creation and download of backups                                | Bert Viikmäe       |
-| 15.07.2021 | 2.1.6       | Add deletion of backups                                                      | Bert Viikmäe       |
-| 16.07.2021 | 2.1.7       | Add restore from backups                                                     | Bert Viikmäe       |
-| 19.07.2021 | 2.1.8       | Add make owner command                                                       | Alberto Fernandez  |
-| 16.07.2021 | 2.1.9       | Add list endpoints command                                                   | Alberto Fernandez  |
-| 19.07.2021 | 2.2.0       | Add diagnostics management                                                   | Bert Viikmäe       |
-| 20.07.2021 | 2.2.1       | Add endpoint update and delete command                                       | Alberto Fernandez  |
-| 22.07.2021 | 2.2.2       | Add endpoint list access and delete access commands                          | Alberto Fernandez  |
-| 28.07.2021 | 2.2.3       | Add key management commands                                                  | Alberto Fernandez  |
-| 29.07.2021 | 2.2.4       | Add CSR management commands                                                  | Alberto Fernandez  |
-| 02.08.2021 | 2.2.5       | Add list instance command                                                    | Alberto Fernandez  |
-| 03.08.2021 | 2.2.6       | Add security server list and version list commmands                          | Alberto Fernandez  |
-| 04.08.2021 | 2.2.7       | Add client list command                                                      | Alberto Fernandez  |
-| 09.08.2021 | 2.2.8       | Add tls certificate management commands                                      | Alberto Fernandez  |
-| 10.08.2021 | 2.2.9       | Add certificate profiles support                                             | Alberto Fernandez  |
-| 17.08.2021 | 2.3.0       | Pre-release documentation updates                                            | Bert Viikmäe  |
+| Date       | Version | Description                                                                                                                   | Author            |
+|------------|--------|-------------------------------------------------------------------------------------------------------------------------------|-------------------|
+| 10.11.2020 | 1.0.0  | Initial draft                                                                                                                 | Bert Viikmäe      |
+| 12.11.2020 | 1.1.0  | Documentation of initialization functionality                                                                                 | Bert Viikmäe      |
+| 16.11.2020 | 1.1.1  | Documentation of token login functionality                                                                                    | Taimo Peelo       |
+| 08.12.2020 | 1.1.2  | Documentation of token key initializations                                                                                    | Taimo Peelo       |
+| 15.12.2020 | 1.1.3  | Documentation of api-key parameterization                                                                                     | Bert Viikmäe      |
+| 22.12.2020 | 1.1.4  | Brief notes on certificate management                                                                                         | Taimo Peelo       |
+| 30.12.2020 | 1.1.5  | Note on certificate activation                                                                                                | Taimo Peelo       |
+| 12.01.2021 | 1.1.6  | Notes on client management                                                                                                    | Taimo Peelo       |
+| 20.01.2021 | 1.1.7  | Notes on adding service descriptions                                                                                          | Bert Viikmäe      |
+| 27.01.2021 | 1.1.8  | Notes on enabling service descriptions                                                                                        | Bert Viikmäe      |
+| 03.02.2021 | 1.1.9  | Notes on server status query                                                                                                  | Taimo Peelo       |
+| 17.02.2021 | 1.2.0  | Updates to the user guide                                                                                                     | Bert Viikmäe      |
+| 22.02.2021 | 1.2.1  | Update service management                                                                                                     | Bert Viikmäe      |
+| 23.02.2021 | 1.2.2  | Update service management                                                                                                     | Bert Viikmäe      |
+| 17.03.2021 | 1.2.3  | Describe failure interpretation and recovery                                                                                  | Taimo Peelo       |
+| 22.03.2021 | 1.2.4  | Default configuration from config/base.yaml -> config/xrdsst.yml                                                              | Taimo Peelo       |
+| 26.03.2021 | 1.2.5  | Add 'fqdn' key for Security Server, fix service field descriptions                                                            | Taimo Peelo       |
+| 31.03.2021 | 1.2.6  | Refactorization of configuration file related to SSH and api key parameters                                                   | Bert Viikmäe      |
+| 01.04.2021 | 1.2.7  | Describe backup use, clarify toolkits' error interpretation role, remove undocumented ``api_key_roles`` configuration element | Taimo Peelo       |
+| 05.04.2021 | 1.2.8  | Remove HTTP header value prefix from 'api_key' configuration element                                                          | Taimo Peelo       |
+| 06.04.2021 | 1.2.9  | Describe different Security Server access possibilities                                                                       | Taimo Peelo       |
+| 06.04.2021 | 1.2.10 | Notes on user management                                                                                                      | Bert Viikmäe      |
+| 09.04.2021 | 1.2.11 | Added description about signing and verification of packages                                                                  | Bert Viikmäe      |
+| 20.04.2021 | 1.3.0  | Substituting plain text secrets in configuration with environment variables                                                   | Bert Viikmäe      |
+| 26.04.2021 | 1.3.1  | Added description about adding endpoints to the REST and OpenAPI services.                                                    | Alberto Fernandez |
+| 27.04.2021 | 1.3.2  | Substituting plain text api key in configuration with environment variable                                                    | Bert Viikmäe      |
+| 04.05.2021 | 1.3.3  | Added description about endpoint access                                                                                       | Alberto Fernandez |
+| 10.05.2021 | 1.3.4  | Added Load Balancer setup description                                                                                         | Alberto Fernandez |            
+| 13.05.2021 | 1.3.5  | Added description about load-balancing                                                                                        | Bert Viikmäe      |
+| 14.05.2021 | 1.3.6  | Notes on client management                                                                                                    | Bert Viikmäe      |
+| 24.05.2021 | 1.3.7  | Added download-internal-tls command                                                                                           | Alberto Fernandez |
+| 28.05.2021 | 1.3.8  | Added member name property  and multitenancy section                                                                          | Alberto Fernandez |
+| 28.05.2021 | 1.3.9  | Update service management                                                                                                     | Bert Viikmäe      |
+| 04.06.2021 | 1.3.10 | Refactor documentation                                                                                                        | Alberto Fernandez |
+| 04.06.2021 | 1.3.11 | Added TLS certificates import                                                                                                 | Alberto Fernandez |
+| 16.06.2021 | 1.3.12 | Added certificate list command description                                                                                    | Alberto Fernandez |
+| 21.06.2021 | 2.0.0  | Notes on member management                                                                                                    | Bert Viikmäe      |
+| 17.06.2021 | 2.0.1  | Added disable certificates command                                                                                            | Alberto Fernandez |
+| 21.06.2021 | 2.0.2  | Added delete and unregister certificates command                                                                              | Alberto Fernandez |
+| 22.06.2021 | 2.0.3  | Notes on member management                                                                                                    | Bert Viikmäe      |
+| 25.06.2021 | 2.0.4  | Update service management with listing of service descriptions                                                                | Bert Viikmäe      |
+| 25.06.2021 | 2.0.5  | Update service management with listing of service description services                                                        | Bert Viikmäe      |
+| 28.06.2021 | 2.0.6  | Update renew certificates process                                                                                             | Alberto Fernandez |
+| 30.06.2021 | 2.0.7  | Update service management with deletion of service descriptions                                                               | Bert Viikmäe      |
+| 02.07.2021 | 2.0.8  | Update service management with update of service descriptions                                                                 | Bert Viikmäe      |
+| 05.07.2021 | 2.0.9  | Update service management with refresh of service descriptions                                                                | Bert Viikmäe      |
+| 05.07.2021 | 2.1.0  | Update service management with disabling of service descriptions                                                              | Bert Viikmäe      |
+| 06.07.2021 | 2.1.1  | Add client unregister command                                                                                                 | Alberto Fernandez |
+| 06.07.2021 | 2.1.2  | Add client delete command                                                                                                     | Alberto Fernandez |
+| 09.07.2021 | 2.1.3  | Add listing and deletion of access rights for services                                                                        | Bert Viikmäe      |
+| 13.07.2021 | 2.1.4  | Add local groups management                                                                                                   | Alberto Fernandez |
+| 14.07.2021 | 2.1.5  | Add listing, creation and download of backups                                                                                 | Bert Viikmäe      |
+| 15.07.2021 | 2.1.6  | Add deletion of backups                                                                                                       | Bert Viikmäe      |
+| 16.07.2021 | 2.1.7  | Add restore from backups                                                                                                      | Bert Viikmäe      |
+| 19.07.2021 | 2.1.8  | Add make owner command                                                                                                        | Alberto Fernandez |
+| 16.07.2021 | 2.1.9  | Add list endpoints command                                                                                                    | Alberto Fernandez |
+| 19.07.2021 | 2.2.0  | Add diagnostics management                                                                                                    | Bert Viikmäe      |
+| 20.07.2021 | 2.2.1  | Add endpoint update and delete command                                                                                        | Alberto Fernandez |
+| 22.07.2021 | 2.2.2  | Add endpoint list access and delete access commands                                                                           | Alberto Fernandez |
+| 28.07.2021 | 2.2.3  | Add key management commands                                                                                                   | Alberto Fernandez |
+| 29.07.2021 | 2.2.4  | Add CSR management commands                                                                                                   | Alberto Fernandez |
+| 02.08.2021 | 2.2.5  | Add list instance command                                                                                                     | Alberto Fernandez |
+| 03.08.2021 | 2.2.6  | Add Security Server list and version list commmands                                                                           | Alberto Fernandez |
+| 04.08.2021 | 2.2.7  | Add client list command                                                                                                       | Alberto Fernandez |
+| 09.08.2021 | 2.2.8  | Add tls certificate management commands                                                                                       | Alberto Fernandez |
+| 10.08.2021 | 2.2.9  | Add certificate profiles support                                                                                              | Alberto Fernandez |
+| 17.08.2021 | 2.3.0  | Pre-release documentation updates                                                                                             | Bert Viikmäe      |
+| 26.07.2022 | 2.3.1  | Editorial updates                                                                                                             | Petteri Kivimäki  |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -89,7 +90,7 @@ Doc. ID: XRDSST-CONF
 * [2.2 Installation](#22-installation)
 * [3 Configuration of X-Road Security Server](#3-configuration-of-x-road-security-server)
   * [3.1 Prerequisites to Configuration](#31-prerequisites-to-configuration)
-    * [3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
+    * [3.1.1 Toolkit access to Security Servers](#311-toolkit-access-to-security-servers)
       * [3.1.1.1 Using API keys](#3111-using-api-keys)
       * [3.1.1.2 Using SSH](#3112-using-ssh)
   * [3.2 Format of configuration file](#32-format-of-configuration-file)
@@ -99,10 +100,10 @@ Doc. ID: XRDSST-CONF
     * [3.2.3 Service Configuration](#323-service-configuration)
   * [3.3 Different ways of using the configuration file](#33-different-ways-of-using-the-configuration-file)
 * [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit)
-   * [4.1 The single command fully automatic configuration of security servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
+   * [4.1 The single command fully automatic configuration of Security Servers listed in configuration file](#41-the-single-command-fully-automatic-configuration-of-security-servers-listed-in-configuration-file)
    * [4.2 X-Road Security Server  Toolkit commands](#42-x-road-security-server--toolkit-commands)
       * [4.2.1 Creating admin user command](#421-creating-admin-user-command)
-      * [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
+      * [4.2.2 Initializing the Security Server command](#422-initializing-the-security-server-command)
       * [4.2.3 Token commands](#423-token-commands)
          * [4.2.3.1 Token login command](#4231-token-login-command)
          * [4.2.3.2 Token list](#4232-token-list)
@@ -198,10 +199,10 @@ Doc. ID: XRDSST-CONF
    * [5.4 Errors from internal and external systems](#54-errors-from-internal-and-external-systems)
    * [5.5 Recovery from misconfiguration](#55-recovery-from-misconfiguration)
 * [6 Load balancer setup](#6-load-balancer-setup)
-* [7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
+* [7 Using the Toolkit to configure highly available services using the built-in Security Server internal load balancing](#7-using-the-toolkit-to-configure-highly-available-services-using-the-built-in-security-server-internal-load-balancing)
 * [8 Multitenancy](#8-multitenancy)
 * [9 Renew expiring certificates](#9-renew-expiring-certificates)
-* [10 Change security server owner](#10-change-security-server-owner)
+* [10 Change Security Server owner](#10-change-security-server-owner)
 * [11 Certificate profile support](#11-certificate-profile-support)
 
 <!-- vim-markdown-toc -->
@@ -215,7 +216,7 @@ This document is licensed under the Creative Commons Attribution-ShareAlike 3.0 
 
 ### 1.1 Target Audience
 
-The intended audience of this installation guide are the X-Road security server administrators responsible for installing and configuring the X-Road security server software.
+The intended audience of this installation guide are the X-Road Security Server administrators responsible for installing and configuring the X-Road Security Server software.
 The document is intended for readers with a good knowledge of Linux server management, computer networks, and the X-Road functioning principles.
 
 ### 1.2 References
@@ -230,11 +231,13 @@ The document is intended for readers with a good knowledge of Linux server manag
 ## 2.1 Prerequisites to Installation
 
 * Python version 3.6+
-* apt-get update needs to be run before installing
+* `sudo apt-get update` needs to be run before installing
 * PIP 21.0+
-  - apt install -y python3-pip
-  - python3 -m pip install --upgrade pip
-* Installed X-Road security server packages on target machine(s)
+  ```
+  sudo apt install -y python3-pip
+  python3 -m pip install --upgrade pip
+  ```
+* Installed X-Road Security Server packages on target machine(s)
 
 ## 2.2 Installation
 
@@ -243,53 +246,71 @@ The X-Road Security Server Toolkit package can be installed using PIP (use pip o
 **Installing the latest development version from GitHub**
 
 ```
-$ git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
-$ cd X-Road-Security-Server-toolkit
-$ pip3 install -r requirements.txt
-$ python3 setup.py install
+git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
+cd X-Road-Security-Server-toolkit
+pip3 install -r requirements.txt
+python3 setup.py install
 ```
 
 **Installing the latest released development version from AWS repository**
 
 ```
-$ pip3 install --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
+pip3 install --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
 
 ```
 
 **Installing the latest un-released (beta) development version from AWS repository**
 
 ```
-$ pip3 install --pre --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
+pip3 install --pre --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
 
 ```
 
 **Installing the official released version**
 
 ```
-$ pip3 install --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
+pip3 install --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
 ```
 
 **Upgrading the official released version from a previously released version**
 
 ```
-$ pip3 install --upgrade --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
+pip3 install --upgrade --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
 ```
 
 Package signing public key for can be retrieved from Ubuntu keyserver pool (keyserver.ubuntu.com), key fingerprint is ``0xfb0d532c10f6ec5b``, publisher ``NIIS Repository Automatic Signing Key <info@niis.org>``.
 
-Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.sig
-Package ``xrdsst-1.0.0.tar.gz`` can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.tar.gz
-Signature ``xrdsst-2.0.0.sig`` of signed package can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.sig
-Package ``xrdsst-2.0.0.tar.gz`` can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.tar.gz
-Signature ``xrdsst-3.0.0.sig`` of signed package can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-3.0.0.sig
-Package ``xrdsst-3.0.0.tar.gz`` can be downloaded: wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-3.0.0.tar.gz
-
+- Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded:
+  ```
+  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.sig
+  ```
+- Package ``xrdsst-1.0.0.tar.gz`` can be downloaded:
+  ```
+  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.tar.gz
+  ```
+- Signature ``xrdsst-2.0.0.sig`` of signed package can be downloaded:
+  ```
+  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.sig
+  ```
+- Package ``xrdsst-2.0.0.tar.gz`` can be downloaded:
+  ```
+  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.tar.gz
+  ```
+- Signature ``xrdsst-3.0.0.sig`` of signed package can be downloaded:
+  ```
+  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-3.0.0.sig
+  ```
+- Package ``xrdsst-3.0.0.tar.gz`` can be downloaded:
+  ```
+  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-3.0.0.tar.gz
+  ```
+  
 Downloaded packages with detached signatures can be verified after adding signing public key to local keyring:
 ```
-$ gpg --keyserver keyserver.ubuntu.com --search-keys  0xfb0d532c10f6ec5b
-$ gpg --verify xrdsst-1.0.0.sig xrdsst-1.0.0.tar.gz
-$ gpg --verify xrdsst-2.0.0.sig xrdsst-2.0.0.tar.gz
-$ gpg --verify xrdsst-3.0.0.sig xrdsst-3.0.0.tar.gz
+gpg --keyserver keyserver.ubuntu.com --search-keys  0xfb0d532c10f6ec5b
+gpg --verify xrdsst-1.0.0.sig xrdsst-1.0.0.tar.gz
+gpg --verify xrdsst-2.0.0.sig xrdsst-2.0.0.tar.gz
+gpg --verify xrdsst-3.0.0.sig xrdsst-3.0.0.tar.gz
 ```
 
 After installation, ``xrdsst`` command runs the toolkit, when invoked without any parameters,
@@ -307,35 +328,35 @@ usage: xrdsst token [-h] [-v] {init-keys,list,login} ...
 
 ### 3.1 Prerequisites to Configuration
 
-* X-Road central server. In development, this is best run in the mode where auto-approvals
-are enabled, to be able to register authentication certificates and manage security server
-clients without taking separate actions at central server, see [UG-CS](#Ref_CS-UG) about
+* X-Road Central Server. In development, this is best run in the mode where auto-approvals
+are enabled, to be able to register authentication certificates and manage Security Server
+clients without taking separate actions at Central Server, see [UG-CS](#Ref_CS-UG) about
 ``auto-approve-auth-cert-reg-requests`` and ``auto-approve-client-reg-requests``.
-* Single or multiple security servers to be configured and maintained. Supported and tested
-platforms for the security servers are Ubuntu 18.04/20.04 LTS, Red Hat Enterprise Linux
+* Single or multiple Security Servers to be configured and maintained. Supported and tested
+platforms for the Security Servers are Ubuntu 18.04/20.04 LTS, Red Hat Enterprise Linux
 (RHEL) 7/8 on an x86-64 platform, and
 [X-Road Security Server Sidecar](https://github.com/nordic-institute/X-Road-Security-Server-sidecar)
 running in a Docker container.
-* X-Road security server with subsystem acting as service provider for X-Road management
-services, in separate security server.
-* Toolkit access to configured security servers.
+* X-Road Security Server with subsystem acting as service provider for X-Road management
+services, in separate Security Server.
+* Toolkit access to configured Security Servers.
 
-**NOTE when using X-Road Security Server Sidecar Slim version, all the Toolkit functionality will remain working, but the timestamping service will not be functional on the security server**
+**NOTE when using X-Road Security Server Sidecar Slim version, all the Toolkit functionality will remain working, but the timestamping service will not be functional on the Security Server**
 
-#### 3.1.1 Toolkit access to security servers
+#### 3.1.1 Toolkit access to Security Servers
 
-To be able to use the toolkit for configuring security server(s), one of the following access combinations
+To be able to use the toolkit for configuring Security Server(s), one of the following access combinations
 is needed:
 
-1. Access to REST API of configured security server + existing API key.
-1. Access to REST API of configured security server + SSH access to the security server machine + X-Road security server administrative credentials.
+1. Access to REST API of configured Security Server + existing API key.
+1. Access to REST API of configured Security Server + SSH access to the Security Server machine + X-Road Security Server administrative credentials.
 
-Security server REST API is ordinarily exposed at security server port 4000 and is separated into
+Security server REST API is ordinarily exposed at Security Server port 4000 and is separated into
 two parts:
   1. invocable over network -- API calls for performing most of the functionality available from
      web administration console, accessible with API key.
   1. invocable only locally (in default configuration), i.e. when accessed via 'localhost' or
-     equivalent and passed security server administrative credentials via HTTP basic access
+     equivalent and passed Security Server administrative credentials via HTTP basic access
      authentication -- API calls that allow API key management operations.
 
 ##### 3.1.1.1 Using API keys
@@ -347,10 +368,10 @@ functionality:
  1. XROAD_SECURITY_OFFICER
  1. XROAD_REGISTRATION_OFFICER
 
-On freshly installed and completely unconfigured security server, API key can be obtained from
+On freshly installed and completely unconfigured Security Server, API key can be obtained from
 the server with local API invocation, e.g.:
 ```sh
-$ curl -k --silent \
+curl -k --silent \
     -X POST \
     --header 'Content-Type: application/json' \
     --data '["XROAD_SYSTEM_ADMINISTRATOR", "XROAD_SERVICE_ADMINISTRATOR"]' \
@@ -364,9 +385,9 @@ $ curl -k --silent \
 ```
 
 In the above sample command, role list was shortened for readability, ``user:pass`` to use are
-X-Road security server administrative access credentials. In the output sample,
+X-Road Security Server administrative access credentials. In the output sample,
 ``key`` is the UUID to be used as REST API key. This UUID is only retrievable once for
-API key, as it is not stored in plaintext at the security server. If dealing with security
+API key, as it is not stored in plaintext at the Security Server. If dealing with security
 server that already has some basic configuration done (anchors, ownership information
 and software token configuration finished), this API key can also be created from the web
 administration console (from "Keys and certificates" -> "API keys" submenu).
@@ -378,10 +399,10 @@ when not supplied with API key, but given SSH access credentials to configurable
 server administration credentials. In this case, it will create transient API keys for performing
 the configuration operations, in the same way as described above, and these API keys are normally
 revoked when the toolkit command finishes. However, in case of e.g. electricity or network
-connection loss these keys could remain on the security server indefinitely.
+connection loss these keys could remain on the Security Server indefinitely.
 
 If SSH access is configured for sudo-capable or root account, this also enables creation of (additional)
-administrative accounts for the security server.
+administrative accounts for the Security Server.
 
   
 ### 3.2 Format of configuration file
@@ -459,26 +480,26 @@ security_server:
 
 #### 3.2.1 Access Configuration
 
-This section shows how to configure the security server access as described in
-[3.1.1 Toolkit access to security servers](#311-toolkit-access-to-security-servers)
+This section shows how to configure the Security Server access as described in
+[3.1.1 Toolkit access to Security Servers](#311-toolkit-access-to-security-servers)
 ```
 admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
 ssh_access:
   user: <SSH_USER_OS_ENV_VAR_NAME>
   private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
 ```
-* <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server admin credentials, e.g. if the variable is set like ``export TOOLKIT_ADMIN_CREDENTIALS=user:pass`` the value to use here is ``TOOLKIT_ADMIN_CREDENTIALS`` (if specified in the separate section, one value will be 
-  used for all configurable security servers, but if specified in the ``security_server`` section, the value will be overridden for specific 
-  configurable security server)
-* <SSH_USER_OS_ENV_VAR_NAME> Environment variable name to hold SSH username, e.g. if the variable is set like ``export TOOLKIT_SSH_USER=ssh_user`` the value to use here is ``TOOLKIT_SSH_USER`` (if specified in ``ssh_access`` section, one value will be used for all configurable security servers, 
-  but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)
-* <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> Environment variable name to hold full path to SSH private key, e.g. if the variable is set like ``export TOOLKIT_SSH_PRIVATE_KEY=/home/user/private_key`` the value to use here is ``TOOLKIT_SSH_PRIVATE_KEY``
-  (if specified in ``ssh_access`` section, one value will be used for all configurable security servers, 
-  but if specified in the ``security_server`` section, the value will be overridden for specific configurable security server)    
+* <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server admin credentials, e.g., if the variable is set like ``export TOOLKIT_ADMIN_CREDENTIALS=user:pass`` the value to use here is ``TOOLKIT_ADMIN_CREDENTIALS`` (if specified in the separate section, one value will be 
+  used for all configurable Security Servers, but if specified in the ``security_server`` section, the value will be overridden for specific 
+  configurable Security Server)
+* <SSH_USER_OS_ENV_VAR_NAME> Environment variable name to hold SSH username, e.g., if the variable is set like ``export TOOLKIT_SSH_USER=ssh_user`` the value to use here is ``TOOLKIT_SSH_USER`` (if specified in ``ssh_access`` section, one value will be used for all configurable Security Servers, 
+  but if specified in the ``security_server`` section, the value will be overridden for specific configurable Security Server)
+* <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> Environment variable name to hold full path to SSH private key, e.g., if the variable is set like ``export TOOLKIT_SSH_PRIVATE_KEY=/home/user/private_key`` the value to use here is ``TOOLKIT_SSH_PRIVATE_KEY``
+  (if specified in ``ssh_access`` section, one value will be used for all configurable Security Servers, 
+  but if specified in the ``security_server`` section, the value will be overridden for specific configurable Security Server)    
 
 #### 3.2.2 Security Servers Configuration
 
-This section shows how to set up the security server information. It is possible to configure multiple security servers at the same time. The toolkit will execute the configurations sequentially.
+This section shows how to set up the Security Server information. It is possible to configure multiple Security Servers at the same time. The toolkit will execute the configurations sequentially.
 ```
 security_server:
 - api_key: <API_KEY_ENV_VAR_NAME>
@@ -506,29 +527,29 @@ security_server:
 ```
 * <API_KEY_ENV_VAR_NAME> Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key
 * <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> (Optional) If is set it will overwrite the <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
-* <CONFIGURATION_ANCHOR_PATH> Path to the configuration anchor file, e.g. "/etc/xroad/configuration-anchor.xml"
+* <CONFIGURATION_ANCHOR_PATH> Path to the configuration anchor file, e.g., "/etc/xroad/configuration-anchor.xml"
 * <SIGN_CERT_PATH> should be given as path referring to sign certificates location.
 * <AUTH_CERT_PATH> should be given as path referring to auth certificate location.
-* <SECURITY_SERVER_NAME> should be substituted with the installed security server name, e.g. ss1
+* <SECURITY_SERVER_NAME> should be substituted with the installed Security Server name, e.g., `ss1`
 * <OWNER_DISTINGUISHED_NAME_COUNTRY> should be ISO 3166-1 alpha-2 two letter code for server owner country. This is used in certificate generation.
 * <OWNER_DISTINGUISHED_NAME_ORGANIZATION> should be set to server owner organization. This is used in certificate generation.
-* <OWNER_MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV.
-* <OWNER_MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234.
-* <SERVER_CODE> should be substituted with the server code of the installed security server, e.g. SS1
+* <OWNER_MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g., GOV.
+* <OWNER_MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g., 1234.
+* <SERVER_CODE> should be substituted with the server code of the installed Security Server, e.g., `ss1`.
 * <SOFT_TOKEN_ID> default software token ID, normally 0 (zero).
 * <SOFT_TOKEN_PIN> should be substituted with a desired numeric pin code.
-* <SECURITY_SERVER_EXTERNAL_FQDN> externally accessible FQDN for the security server. It's applied to the security server certificates.
-* <SECURITY_SERVER_INTERNAL_FQDN_OR_IP> should be substituted with internal IP address or host name of the installed security server, e.g. ``ss1``
+* <SECURITY_SERVER_EXTERNAL_FQDN> externally accessible FQDN for the Security Server. It's applied to the Security Server certificates.
+* <SECURITY_SERVER_INTERNAL_FQDN_OR_IP> should be substituted with internal IP address or host name of the installed Security Server, e.g., `ss1`
 * <SSH_USER_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_USER_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
 * <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> (Optional) If set, it will overwrite the <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME> property described in the [access section](#3.2.1-access-configuration)
-* <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g. "/etc/xroad/cert.pem"
+* <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g., "/etc/xroad/cert.pem"
 * <CERTIFICATE_HASH> List of certificate hash on which we are going to apply operations such as disable, unregister, delete...
 * <CERTIFICATE_PROFILE> (Optional) Profile name described in [11 Certificate profile support](#11-certificate-profile-support)
 
 #### 3.2.3 Client Configuration
 
-The security server client information is configured in this section. It is possible to set up a list of subsystems belonging to the owner member
-configured in the [security server configuration](#322-security-servers-configuration) or add them to a new member as described
+The Security Server client information is configured in this section. It is possible to set up a list of subsystems belonging to the owner member
+configured in the [Security Server configuration](#322-security-servers-configuration) or add them to a new member as described
 in [8 Multitenancy](#8-multitenancy).
 ```
 clients:
@@ -546,20 +567,20 @@ clients:
             - <MEMBER_ID>
 ```
 
-* <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g. GOV.
+* <MEMBER_CLASS> should be substituted with the member class obtained from the Central Server, e.g., GOV.
 It must have the same value as <OWNER_MEMBER_CLASS> if is a subsystem of the owner client.
-* <OWNER_MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g. 1234
+* <OWNER_MEMBER_CODE> should be substituted with the member code obtained from the Central Server, e.g., 1234
 It must have the same value as <OWNER_MEMBER_CLASS> if is a subsystem of the owner client.
-* <MEMBER_NAME> should be substituted with the member name obtained from the Central Server, e.g. COMPANY.
+* <MEMBER_NAME> should be substituted with the member name obtained from the Central Server, e.g., COMPANY.
 It must have the same value as <OWNER_DISTINGUISHED_NAME_ORGANIZATION>  if is a subsystem of the owner client.
 * <SUBSYSTEM_CODE> (Optional, not required for members) X-Road member/client subsystem code.
 * <CONNECTION_TYPE> Connection protocol selection, from among ``HTTP``, ``HTTPS``, ``HTTPS_NO_AUTH``.
-* <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g. "/etc/xroad/cert.pem"
+* <TLS_CERT_PATH> Path to the internal TLS certificated to be added to the whitelist of a member or subsystem, e.g., "/etc/xroad/cert.pem"
 
 <strong>Local groups (Optional):</strong>
-* <LOCAL_GROUP_CODE> code for single local group. Must be unique for each security server client.
+* <LOCAL_GROUP_CODE> code for single local group. Must be unique for each Security Server client.
 * <LOCAL_GROUP_DESCRIPTION> description for single local group.
-* <MEMBER_ID> (Optional) list of subsystems ids, composed by <INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>
+* <MEMBER_ID> (Optional) list of subsystems ids, composed by `<INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>`.
 
 #### 3.2.3 Service Configuration
 
@@ -595,8 +616,8 @@ service_descriptions:
 * <SERVICE_DESCRIPTION_URL> URL for service description.
 * <REST_SERVICE_CODE> rest service code, not used for WSDL services.
 * <SERVICE_TYPE> type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
-* <SERVICE_DESCRIPTION_ACCESS> (Optional) list of subsystems ids, composed by <INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>, or security serverver owners composed 
-by <INSTANCE>:security-server-owners.
+* <SERVICE_DESCRIPTION_ACCESS> (Optional) list of subsystems ids, composed by `<INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>`, or Security Server owners composed 
+by `<INSTANCE>:security-server-owners`.
 * <SERVICE_URL_FOR_ALL> boolean value determining if the URL prefix should be applied for all the services.
 * <SERVICE_TIMEOUT_FOR_ALL> boolean value specifying if the timeout should be applied for all the services in the service description.
 * <SERVICE_USE_SSL_AUTH_FOR_ALL> boolean value specifying whether SSL authentication should be used for all the services in the service description.
@@ -632,7 +653,7 @@ $ xrdsst
 ```
 
 Which currently gives further information about tool invocation options and subcommands.
-Base information about statuses of all defined security servers can be seen with read-only
+Base information about statuses of all defined Security Servers can be seen with read-only
 ``status`` operation:
 
 ```
@@ -659,10 +680,10 @@ $ xrdsst status
 ╘══════════════════╧══════════════════════╧═════════════════════════╧═══════════════════════╧══════════╧═════════════╧══════════╧═══════════╧═════════╛
 ```
 
-### 4.1 The single command fully automatic configuration of security servers listed in configuration file
+### 4.1 The single command fully automatic configuration of Security Servers listed in configuration file
 
-The whole security server configuration in a fully automatic mode (all configuration from configuration file) can be run with ``xrdsst apply``
-For performing the configuration step by step instead, please start from [4.2.2 Initializing the security server command](#422-initializing-the-security-server-command)
+The whole Security Server configuration in a fully automatic mode (all configuration from configuration file) can be run with ``xrdsst apply``
+For performing the configuration step by step instead, please start from [4.2.2 Initializing the Security Server command](#422-initializing-the-security-server-command)
 
 
 ### 4.2 X-Road Security Server  Toolkit commands
@@ -684,11 +705,11 @@ Note: This is an optional step in the configuration process and should only be r
 
 **It is a security risk to store the SSH access-related credentials into to configuration file as plain text.**
 
-#### 4.2.2 Initializing the security server command
+#### 4.2.2 Initializing the Security Server command
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR, XROAD_SECURITY_OFFICER
 
-Initializes the security server and upload the configuration anchor by typing:
+Initializes the Security Server and upload the configuration anchor by typing:
 ```
 xrdsst init
 ```
@@ -713,7 +734,7 @@ Configuration parameters involved are `software_token_id` and `software_token_pi
 
 * Access rights: Any
 
-All tokens known to security server can be listed with:
+All tokens known to Security Server can be listed with:
 ```
 xrdsst token list
 ```
@@ -728,7 +749,7 @@ xrdsst token init-keys
 ``` 
 Creates two keys and generates corresponding certificate signing requests (one for authentication, other for signing).
 The key labels used are conventionally with suffixes ``default-auth-key`` and ``default-sign-key``, if
-those already exist, they will not be duplicated and command acts as no-op for such security server.
+those already exist, they will not be duplicated and command acts as no-op for such Security Server.
 If we are using [Multitenancy](#8-multitenancy) this command will also create an extra key and signing request with the 
 key label suffix ``default-sign-key_<MEMBER_CODE>_<MEMBER_NAME>``
 
@@ -753,7 +774,7 @@ Configuration parameters involved are the described in [3.2.2 Security Servers C
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
 
-Single timestamping service approved for use in central server can be configured for security server by invoking ``timestamp`` subcommand as: 
+Single timestamping service approved for use in Central Server can be configured for Security Server by invoking ``timestamp`` subcommand as: 
 ```
 xrdsst timestamp init
 ```
@@ -762,7 +783,7 @@ xrdsst timestamp init
 
 * Access rights: Any
 
-List the available timestamp services approved for the security server
+List the available timestamp services approved for the Security Server
 ```
 xrdsst timestamp list-approved
 ```
@@ -771,14 +792,14 @@ xrdsst timestamp list-approved
 
 * Access rights: Any
 
-List the available timestamp services configured for the security server
+List the available timestamp services configured for the Security Server
 ```
 xrdsst timestamp list-configured
 ```
 
 #### 4.2.5 Certificate management commands
 
-These commands allow us to perform certificate operations of a security server.
+These commands allow us to perform certificate operations of a Security Server.
 
 ##### 4.2.5.1 Certificate download CSRS
 
@@ -803,7 +824,7 @@ xrdsst cert import
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
 
-Register the certificates previously imported in the central server with:
+Register the certificates previously imported in the Central Server with:
 ```
 xrdsst cert register
 ```
@@ -821,7 +842,7 @@ xrdsst cert activate
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
-SIGN and AUTH certificate information of the security servers can be listed with:
+SIGN and AUTH certificate information of the Security Servers can be listed with:
 ```
 xrdsst cert list
 ```
@@ -840,7 +861,7 @@ xrdsst cert list
 
 The table above shows the following information about the certificates:
 
-* ss: Name of the security server where the certificate is installed.
+* ss: Name of the Security Server where the certificate is installed.
 * label: Label of the certificate.
 * type: Type of the certificate, could be AUTHENTICATION or SIGNING
 * hash: Unique identifier of the certificate
@@ -856,7 +877,7 @@ The table above shows the following information about the certificates:
 
 
 A hash (or list of hashes separated by comma) of the certificates we want to disable has to be provided as parameter. We can get the hashes of the certificates
-installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
+installed in each Security Server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Disable the certificates can be done with:
 ```
@@ -868,7 +889,7 @@ xrdsst cert disable --hash <CERTIFICATE_HASH>
 * Access rights: XROAD_SECURITY_OFFICER
 
 A hash (or list of hashes separated by comma) of the authentication certificates we want to delete has to be provided as parameter. We can get the hashes of the certificates
-installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
+installed in each Security Server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Unregister the authentication certificates can be done with:
 ```
@@ -880,7 +901,7 @@ xrdsst cert unregister --hash <CERTIFICATE_HASH>
 * Access rights: XROAD_SECURITY_OFFICER
 
 A hash (or list of hashes separated by comma) of the certificates we want to delete has to be provided as parameter. We can get the hashes of the certificates
-installed in each security server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
+installed in each Security Server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Delete the certificates can be done with:
 ```
@@ -905,7 +926,7 @@ xrdsst client add
 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 
-Subsystems and new members registration in central server can proceed with:
+Subsystems and new members registration in Central Server can proceed with:
 ```
 xrdsst client register
 ```
@@ -935,8 +956,8 @@ Subsystems and new members can be unregister with:
 xrdsst client unregister --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <CLIENT_ID> id(s) of the client, e.g. DEV:GOV:1234:TEST,DEV:COM:12345:SUB
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <CLIENT_ID> id(s) of the client, e.g., DEV:GOV:1234:TEST,DEV:COM:12345:SUB
 
 ##### 4.2.6.6 Client delete
 
@@ -947,10 +968,10 @@ Subsystems and new members can be deleted with:
 xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <CLIENT_ID> id(s) of the client, e.g. DEV:GOV:1234:TEST,DEV:COM:12345:SUB
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <CLIENT_ID> id(s) of the client, e.g., DEV:GOV:1234:TEST,DEV:COM:12345:SUB
 
-The members or subsystem must be unregistered from the security server in order to delete it.
+The members or subsystem must be unregistered from the Security Server in order to delete it.
 
 ##### 4.2.6.7 Client change owner
 
@@ -961,8 +982,8 @@ It is possible to make owner to members with:
 xrdsst client delete --ss <SECURITY_SERVER_NAME> --member <MEMBER_ID>
 ```
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <MEMBER_ID> id of the member, e.g. DEV:GOV:1234
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <MEMBER_ID> id of the member, e.g., DEV:GOV:1234
 
 This command will submit a change owner request to the  X-Road governing authority according to the organizational
 procedures of the X-Road instance. 
@@ -978,7 +999,7 @@ List clients (subsystem and members) can be done with:
 ```
 xrdsst client list --ss <SECURITY_SERVER_NAME>
 ```
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 
 ```
 ╒══════════════════╤════════════╤════════════════╤═══════════════╤═══════════════╤═════════════╤═════════╤════════════╤═════════════════╕
@@ -998,7 +1019,7 @@ xrdsst client list --ss <SECURITY_SERVER_NAME>
 * MEMBER CODE client member code
 * MEMBER NAME client member name
 * SUBSYSTEM client subsystem code (empty for members)
-* OWNER true if the client is the owner of the security server
+* OWNER true if the client is the owner of the Security Server
 * STATUS client status between SAVED, REGISTRATION IN PROGRESS, REGISTERED, GLOBAL ERROR, DELETION IN PROGRESS, DELETED
 * HAS SIGN CERT true if the client has a valid sign certificate
 
@@ -1065,7 +1086,7 @@ Listing service descriptions can be done with:
 ```
 xrdsst service list-descriptions --client <CLIENT_ID>
 ```
-* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST, multiple values can also be given, separated by comma, e.g. DEV:GOV:1234:TEST,DEV:GOV:1234:MANAGEMENT
+* <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST, multiple values can also be given, separated by comma, e.g., DEV:GOV:1234:TEST,DEV:GOV:1234:MANAGEMENT
 
 ```
 ╒══════╤═══════════════════╤══════╤════════════════════════════════════════════════════╤══════════╤════════════╤════════════╕
@@ -1077,7 +1098,7 @@ xrdsst service list-descriptions --client <CLIENT_ID>
 ╘══════╧═══════════════════╧══════╧════════════════════════════════════════════════════╧══════════╧════════════╧════════════╛
 ```
 
-* SS security server name
+* SS Security Server name
 * CLIENT client full id
 * ID service description id
 * URL service description url
@@ -1095,8 +1116,8 @@ Listing services for client's service descriptions can be done with:
 ```
 xrdsst service list-services --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
 ```
-* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
-* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+* <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
 
 ```
 ╒══════╤═══════════════════╤═══════════════╤════════════════════════════════════╤══════════════════╤═══════════╤═══════════════════════════════════════════════╕
@@ -1112,7 +1133,7 @@ xrdsst service list-services --client <CLIENT_ID> --description <SERVICE_DESCRIP
 ╘══════╧═══════════════════╧═══════════════╧════════════════════════════════════╧══════════════════╧═══════════╧═══════════════════════════════════════════════╛
 ```
 
-* SS security server name
+* SS Security Server name
 * CLIENT client full id
 * DESCRIPTION service description id
 * SERVICE service full id
@@ -1130,9 +1151,9 @@ Deletion of service descriptions can be done with:
 ```
 xrdsst service delete-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
 ```
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
-* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
 
 ##### 4.2.7.8 Service update descriptions
 
@@ -1144,11 +1165,11 @@ Update of service descriptions can be done with:
 ```
 xrdsst service update-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --code <REST_SERVICE_CODE> --url <SERVICE_DESCRIPTION_URL
 ```
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
-* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
-* <REST_SERVICE_CODE> REST service code for service description with type REST/OPENAPI3, e.g. Petstore
-* <SERVICE_DESCRIPTION_URL> url of the service description, e.g. https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
+* <REST_SERVICE_CODE> REST service code for service description with type REST/OPENAPI3, e.g., Petstore
+* <SERVICE_DESCRIPTION_URL> url of the service description, e.g., https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/modules/openapi-generator-gradle-plugin/samples/local-spec/petstore-v3.0.yaml
 
 Parameters that can be updated for service description of type WSDL:
 * <SERVICE_DESCRIPTION_URL>
@@ -1167,9 +1188,9 @@ Refresh of service descriptions can be done with:
 ```
 xrdsst service refresh-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
 ```
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
-* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
 
 ##### 4.2.7.10 Service disable descriptions
 
@@ -1181,10 +1202,10 @@ Disabling of service descriptions can be done with:
 ```
 xrdsst service disable-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --notice <NOTICE>
 ```
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
-* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
-* <NOTICE> disabling notice, e.g. "Not used"
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
+* <NOTICE> disabling notice, e.g., "Not used"
 
 ##### 4.2.7.11 Service list access rights for services
 
@@ -1196,8 +1217,8 @@ Listing access rights for services for client's service descriptions can be done
 ```
 xrdsst service list-access --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
 ```
-* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
-* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+* <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
 
 ```
 ╒══════╤═══════════════════╤═══════════════╤════════════════════════════╤════════════════════════════╤════════════════════════╤════════════════╤═════════════╕
@@ -1207,7 +1228,7 @@ xrdsst service list-access --client <CLIENT_ID> --description <SERVICE_DESCRIPTI
 ╘══════╧═══════════════════╧═══════════════╧════════════════════════════╧════════════════════════════╧════════════════════════╧════════════════╧═════════════╛
 ```
 
-* SS security server name
+* SS Security Server name
 * CLIENT client full id
 * DESCRIPTION service description id
 * SERVICE service full id
@@ -1226,11 +1247,11 @@ Deleting access rights for services for client's service descriptions can be don
 ```
 xrdsst service delete-access --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --service <SERVICE_ID> --sclient <SERVICE_CLIENT_ID>
 ```
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <CLIENT_ID> id of the client, e.g. DEV:GOV:1234:TEST
-* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123
-* <SERVICE_ID> id of the service, e.g. DEV:GOV:1234:TEST:Petstore
-* <SERVICE_CLIENT_ID> id of the service description, e.g. DEV:security-server-owners, multiple values can also be given, separated by comma, e.g. DEV:GOV:1234:TEST,DEV:security-server-owners
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123
+* <SERVICE_ID> id of the service, e.g., DEV:GOV:1234:TEST:Petstore
+* <SERVICE_CLIENT_ID> id of the service description, e.g., DEV:security-server-owners, multiple values can also be given, separated by comma, e.g., DEV:GOV:1234:TEST,DEV:security-server-owners
 
 ##### 4.2.7.13 Service apply
 
@@ -1279,8 +1300,8 @@ Listing service endpoints can be done with:
 ```
 xrdsst endpoint list --ss <SECURITY_SERVER_NAME> --description <SERVICE_DESCRIPTION_ID>
 ```
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <SERVICE_DESCRIPTION_ID> id of the service description, e.g. 123, multiple values can also be given, separated by comma, e.g. 123,456
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
 
 ```
 ╒═══════════════╤════════╤═══════════╤══════════════════╤══════════════════╤════════════════════════════════════════════════════╤══════════╕
@@ -1312,10 +1333,10 @@ Single endpoint can be updated with with:
 ```
 xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --method <ENDPOINT_METHOD> --path <ENDPOINT_PATH>
 ```
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <ENDPOINT_ID> id of the endpoint to be updated, e.g. 1
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <ENDPOINT_ID> id of the endpoint to be updated, e.g., 1
 * <ENDPOINT_METHOD> new endpoint method, possible methods are: ALL, GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE
-* <ENDPOINT_path> new endpoint path, e.g. /users 
+* <ENDPOINT_path> new endpoint path, e.g., /users 
 
 ##### 4.2.8.5 Endpoint delete
 
@@ -1325,8 +1346,8 @@ Single endpoint can be deleted with:
 ```
 xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <ENDPOINT_ID> id of the endpoint to be delete, e.g. 1
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <ENDPOINT_ID> id of the endpoint to be delete, e.g., 1
 
 ##### 4.2.8.6 Endpoint list access
 
@@ -1337,8 +1358,8 @@ Listing service endpoint access can be done:
 xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <ENDPOINT_ID> id of the endpoint, e.g. 123, multiple values can also be given, separated by comma, e.g. 1,2,3
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <ENDPOINT_ID> id of the endpoint, e.g., 123, multiple values can also be given, separated by comma, e.g., 1,2,3
 
 ```
 ╒═══════════════╤════════════╤════════════════╤═══════════════════════════════════════════════════╕
@@ -1366,9 +1387,9 @@ Endpoints access rights can be deleted with:
 xrdsst endpoint delete-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
 ```
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <ENDPOINT_ID> id of the endpoint, e.g. 123, multiple values can also be given, separated by comma, e.g. 1,2,3
-* ACCESS RIGHTS : Service clients ids with access rights to the endpoint, multiple values can also be given, separated by comma, e.g. DEV:GOV:9999:SUBGOV,DEV:security-server-owners  
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <ENDPOINT_ID> id of the endpoint, e.g., 123, multiple values can also be given, separated by comma, e.g., 1,2,3
+* ACCESS RIGHTS : Service clients ids with access rights to the endpoint, multiple values can also be given, separated by comma, e.g., DEV:GOV:9999:SUBGOV,DEV:security-server-owners  
 
 This command will search through all the endpoints send as parameters and delete the access rights that matches with the ones sent as parameters
 
@@ -1387,8 +1408,8 @@ Finding a member for current X-Road instance can be done with:
 xrdsst member find --class <MEMBER_CLASS> --code <MEMBER_CODE>
 ```
 
-* <MEMBER_CLASS> member class for the member to be searched, e.g. GOV
-* <MEMBER_CODE> member code for the member to be searched, e.g. 1234
+* <MEMBER_CLASS> member class for the member to be searched, e.g., GOV
+* <MEMBER_CODE> member code for the member to be searched, e.g., 1234
 
 ```
 ╒═══════════════════╤═══════════════╤════════════════╤═══════════════╕
@@ -1398,7 +1419,7 @@ xrdsst member find --class <MEMBER_CLASS> --code <MEMBER_CODE>
 ╘═══════════════════╧═══════════════╧════════════════╧═══════════════╛
 ```
 
-* SECURITY-SERVER security server name
+* SECURITY-SERVER Security Server name
 * MEMBER-NAME name of the member
 * MEMBER-CLASS member class
 * MEMBER-CODE member code
@@ -1413,7 +1434,7 @@ xrdsst member list-classes --instance <XROAD-INSTANCE>
 ```
 **When ``instance`` command-line parameter is not provided, current instance is assumed**
 
-* <XROAD-INSTANCE> X-Road instance for the member classes to be searched, e.g. DEV
+* <XROAD-INSTANCE> X-Road instance for the member classes to be searched, e.g., DEV
 
 ```
 ╒═══════════════════╤════════════╤════════════════╕
@@ -1425,7 +1446,7 @@ xrdsst member list-classes --instance <XROAD-INSTANCE>
 ╘═══════════════════╧════════════╧════════════════╛
 ```
 
-* SECURITY-SERVER security server name
+* SECURITY-SERVER Security Server name
 * INSTANCE instance name
 * MEMBER-CLASS member class
 
@@ -1463,8 +1484,8 @@ Listing client local groups can be done with:
 ```
 xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
-* <CLIENT_ID> subsystem client id, e.g. DEV:COM:12345:COMPANY
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
+* <CLIENT_ID> subsystem client id, e.g., DEV:COM:12345:COMPANY
 
 ```
 ╒══════╤════════════╤════════════════════════╤═════════════════════════════════════════════════════════╕
@@ -1491,9 +1512,9 @@ Deletion of client local groups can be done with:
 ```
 xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID>
 ```
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <LOCAL_GROUP_ID> Local group id (can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), 
-  multiple values can also be given, separated by comma, e.g. 125,127
+  multiple values can also be given, separated by comma, e.g., 125,127
 
 ##### 4.2.10.5 Local groups member delete
 
@@ -1504,9 +1525,9 @@ Deletion of client local group members can be done with:
 xrdsst local-group delete-member --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
 ```
 
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <LOCAL_GROUP_ID> Local group id (it can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), 
-  multiple values can also be given, separated by comma, e.g. 123,456
+  multiple values can also be given, separated by comma, e.g., 123,456
 * <MEMBERS_ID> Member (service client) id (local group members can be check with the 
   command [4.2.10.3 Local groups list](#42103-local-groups-list)), multiple values can also be given, separated by comma,
   e.g. DEV:COM:12345:COMPANY, DEV:ORG:123:NIIS
@@ -1537,11 +1558,11 @@ xrdsst backup list --ss <SECURITY_SERVER_NAME>
 ╘═══════════════════╧═════════════════════════════════╧════════════╛
 ```
 
-* SECURITY_SERVER security server name
-* FILE_NAME file name of the created security server backup
+* SECURITY_SERVER Security Server name
+* FILE_NAME file name of the created Security Server backup
 * CREATED backup creation date
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 
 ##### 4.2.11.2 Backup add
 
@@ -1552,7 +1573,7 @@ Adding backups can be done with:
 xrdsst backup add --ss <SECURITY_SERVER_NAME>
 ```
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 
 ##### 4.2.11.3 Backup download
 
@@ -1563,9 +1584,9 @@ Downloading backups can be done with:
 xrdsst backup download --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 ```
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <BACKUP_FILENAME> file name of the backup to be downloaded, e.g. conf_backup_20210713-161054.tar, 
-  multiple files can also be downloaded, e.g. conf_backup_20210713-161054.tar,conf_backup_20210713-154857.tar
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <BACKUP_FILENAME> file name of the backup to be downloaded, e.g., conf_backup_20210713-161054.tar, 
+  multiple files can also be downloaded, e.g., conf_backup_20210713-161054.tar,conf_backup_20210713-154857.tar
 
 ##### 4.2.11.4 Backup delete
 
@@ -1576,9 +1597,9 @@ Deletion of backups can be done with:
 xrdsst backup delete --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 ```
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <BACKUP_FILENAME> file name of the backup to be deleted, e.g. conf_backup_20210713-161054.tar, 
-  multiple files can also be deleted, e.g. conf_backup_20210713-161054.tar,conf_backup_20210713-154857.tar
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <BACKUP_FILENAME> file name of the backup to be deleted, e.g., conf_backup_20210713-161054.tar, 
+  multiple files can also be deleted, e.g., conf_backup_20210713-161054.tar,conf_backup_20210713-154857.tar
 
 ##### 4.2.11.5 Backup restore
 
@@ -1589,12 +1610,12 @@ Restoration of configuration from backups can be done with:
 xrdsst backup restore --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 ```
 
-* <SECURITY_SERVER_NAME> name of the security server, e.g. ss1
-* <BACKUP_FILENAME> file name of the backup to be restored from, e.g. conf_backup_20210713-161054.tar
+* <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
+* <BACKUP_FILENAME> file name of the backup to be restored from, e.g., conf_backup_20210713-161054.tar
 
 #### 4.2.12 Diagnostics management
 
-Diagnostic operations for security server can be performed with ``xrdsst diagnostics`` subcommands.
+Diagnostic operations for Security Server can be performed with ``xrdsst diagnostics`` subcommands.
 
 ##### 4.2.12.1 Global configuration diagnostics
 
@@ -1610,7 +1631,7 @@ Listing global-configuration diagnostics can be done with ```xrdsst diagnostics 
 ╘═══════════════════╧════════════════╧═══════════════╧═════════════════════╧═════════════════════╛
 ```
 
-* SECURITY_SERVER name of the security server
+* SECURITY_SERVER name of the Security Server
 * STATUS_CLASS global configuration status class
 * STATUS_CODE global configuration status code
 * PREV_UPDATE date and time of previous update of the global configuration
@@ -1630,7 +1651,7 @@ Listing OCSP responders diagnostics can be done with ```xrdsst diagnostics ocsp-
 ╘═══════════════════╧══════════════════════════════╧═══════════════════════════╧════════════════╧═══════════════╧═════════════════════╧═════════════════════╛
 ```
 
-* SECURITY_SERVER name of the security server
+* SECURITY_SERVER name of the Security Server
 * NAME name of the certification authority
 * URL url of the certification authority
 * STATUS_CLASS OCSP status class
@@ -1651,7 +1672,7 @@ Listing timestamping services diagnostics can be done with ```xrdsst diagnostics
 ╘═══════════════════╧═══════════════════════════╧════════════════╧════════════════════════════════════╧═════════════════════╛
 ```
 
-* SECURITY_SERVER name of the security server
+* SECURITY_SERVER name of the Security Server
 * URL url for the timestamping services
 * STATUS_CLASS timestamping services status class
 * STATUS_CODE timestamping services status code
@@ -1676,8 +1697,8 @@ Listing certificate keys can be done with:
 xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 ```
 
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
-* <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
+* <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g., 0,1
 
 ```
 ╒══════════════════════════════════════════╤════════════════════════════════╤════════════════════════════════╤════════════════╤═══════════════════════════════════════════════╤════════════╕
@@ -1706,8 +1727,8 @@ The friendly name of a key can be updated with:
 ```
 xrdsst key update --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --name <FRIENDLY_NAME>
 ```
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
-* <KEY_ID> key id, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
+* <KEY_ID> key id, e.g., 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
 * <FRIENDLY_NAME> new friendly name to be updated
 
 ##### 4.2.13.3 Delete keys
@@ -1718,8 +1739,8 @@ Keys can be deleted with:
 ```
 xrdsst key delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> 
 ```
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
-* <KEY_ID> key id for delete, e.g. 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
+* <KEY_ID> key id for delete, e.g., 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
 
 #### 4.2.14 CSR management
 
@@ -1732,8 +1753,8 @@ Listing certificate signing request can be done with:
 xrdsst csr list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 ```
 
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
-* <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g. 0,1
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
+* <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g., 0,1
 
 ```
 ╒═════════╤══════════════════════════════════════════╤══════════════════════════════════════════╤═════════════╤════════════════╤════════════════════╕
@@ -1761,9 +1782,9 @@ Deletion of certificate signing request can be done with:
 xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
 ```
 
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <KEY_ID>  id of the key who owns the CSR
-* <CSR_ID> id of the CSR to be deleted, multiple values can also be given, separated by comma, e.g. D9C0A62D8F67BD2A64B9BE26CDAF3064DDE547DE,6234EAA48BDEF552A1EBC88C4797E147024975ED
+* <CSR_ID> id of the CSR to be deleted, multiple values can also be given, separated by comma, e.g., D9C0A62D8F67BD2A64B9BE26CDAF3064DDE547DE,6234EAA48BDEF552A1EBC88C4797E147024975ED
 
 #### 4.2.15 Instances management
 
@@ -1784,19 +1805,19 @@ xrdsst instance list
 ╘═══════════════════╧═════════════╛
 ```
 
-* SECURITY SERVER name of the security server
-* INSTANCES List of instances discovered for the security server
+* SECURITY SERVER name of the Security Server
+* INSTANCES List of instances discovered for the Security Server
 
 #### 4.2.16 Security Server management
 ##### 4.2.16.1 List Security Servers
 
 * Access rights: Any role
 
-Listing security servers can be done with:
+Listing Security Servers can be done with:
 ```
 xrdsst security-server list
 ```
-This command will display all discovered security servers
+This command will display all discovered Security Servers
 
 ```
 ╒═══════════════════╤════════╤═══════════╤════════════╤════════════════╤═══════════════╕
@@ -1808,22 +1829,22 @@ This command will display all discovered security servers
 ╘═══════════════════╧════════╧═══════════╧════════════╧════════════════╧═══════════════╛
 ```
 
-* ID security server id
-* CODE security server code
-* ADDRESS security server address
-* INSTANCE security server instance
-* MEMBER CLASS security server owner class
-* MEMBER CODE security server owner code
+* ID Security Server id
+* CODE Security Server code
+* ADDRESS Security Server address
+* INSTANCE Security Server instance
+* MEMBER CLASS Security Server owner class
+* MEMBER CODE Security Server owner code
 
 ##### 4.2.16.2 List Security Server version
 
 * Access rights: Any role
 
-Listing security server version can be done with:
+Listing Security Server version can be done with:
 ```
 xrdsst security-server list-version
 ```
-This command will display the version for the security servers stored in the configuration file
+This command will display the version for the Security Servers stored in the configuration file
 
 ```
 ╒═══════════════════╤═══════════╕
@@ -1833,8 +1854,8 @@ This command will display the version for the security servers stored in the con
 ╘═══════════════════╧═══════════╛
 ```
 
-* SECURITY SERVER code of the security server
-* VERSION security server version number
+* SECURITY SERVER code of the Security Server
+* VERSION Security Server version number
 
 #### 4.2.17 Internal TLS certificate management
 
@@ -1858,8 +1879,8 @@ Internal TLS certificates can be imported with:
 xrdsst internal-tls import --ss <SECURITY_SERVER_NAME> --cert <PATH_TO_CERT>
 ```
 
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
-* <PATH_TO_CERT> path for the internal TLS certificate to be imported, e.g. "/tmp/certs/cert.pem"
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
+* <PATH_TO_CERT> path for the internal TLS certificate to be imported, e.g., "/tmp/certs/cert.pem"
 
 ##### 4.2.17.3 Generate new key internal TLS certificate 
 
@@ -1871,7 +1892,7 @@ New key for the internal TLS certificate can be generated with:
 xrdsst internal-tls generate-key --ss <SECURITY_SERVER_NAME> 
 ```
 
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 
 ##### 4.2.17.4 Generate new csr TLS certificate
 
@@ -1883,7 +1904,7 @@ New CSR for the internal TLS certificate can be generated with:
 xrdsst internal-tls generate-csr --ss <SECURITY_SERVER_NAME> --name <DISTINGUISHED_NAME>
 ```
 
-* <SECURITY_SERVER_NAME> security server name, e.g. ss1
+* <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <DISTINGUISHED_NAME> distinguished name for the certificate,  e.g. "CN=mysecurityserver.example.com,O=My Organization,C=FI"
 
 ## 5 Failure recovery and interpretation of errors
@@ -1892,7 +1913,7 @@ xrdsst internal-tls generate-csr --ss <SECURITY_SERVER_NAME> --name <DISTINGUISH
 It is essential to have a firm grip on both *what* is going and *where* in the
 distributed system to fix upcoming problems encountered while using the toolkit.
 For single configuration operations, it is important that those are performed in
-non-conflicting order, e.g. it is impossible to perform most token operations
+non-conflicting order, e.g., it is impossible to perform most token operations
 before the token has been logged in. If this order is not respected, the output
 from the application will refer to the commands which successful application
 is required to be completed beforehand, e.g.:
@@ -1911,7 +1932,7 @@ or a failure for completely new reason.
 ### 5.1 Configuration flow
 
 As demonstrated above, the operation order is most relevant to understand when
-using single-operations for (re-)applying some part of security server configuration.
+using single-operations for (re-)applying some part of Security Server configuration.
 When using the ``xrdsst apply`` autoconfiguration, operations will already be performed
 in correct functional order.
 
@@ -1938,11 +1959,11 @@ that are to be added to the configuration file:
 
 ```sh
 $ xrdsst -c brandnew.yaml apply
-API key "d8cd2476-c8dc-420a-bcc2-c8636766661b" for security server ss8 created.
+API key "d8cd2476-c8dc-420a-bcc2-c8636766661b" for Security Server ss8 created.
 AUTO ['init']->'ss8'
-Uploading configuration anchor for security server: ss8
+Uploading configuration anchor for Security Server: ss8
 Upload of configuration anchor from "/home/user/demo-anchor.xml" successful
-Initializing security server: ss8
+Initializing Security Server: ss8
 Security server "ss8" initialized
 # ..
 # timestamp service initialization and token login operation output omitted here
@@ -1993,7 +2014,7 @@ Other columns in the given sample indicate that all operations have been success
 
 Badly formed YAML results in parse error which gives exact line and column numbers to
 indicate the error location. With hierarchical configuration, several of these can be given,
-usually the last one reported refers to the actual error, e.g. misaligned client block at
+usually the last one reported refers to the actual error, e.g., misaligned client block at
 line 32 below:
 
 ```yaml
@@ -2040,7 +2061,7 @@ security_server[1] missing required 'name' definition.
 security_server[1] missing required 'url' definition.
 security_server[3] missing required 'url' definition.
 ```
-indicates that 1st and 3rd security server definitions with specified errors,
+indicates that 1st and 3rd Security Server definitions with specified errors,
 (NOT 2nd and 4th).
 
 ### 5.4 Errors from internal and external systems
@@ -2084,8 +2105,8 @@ FAILED
 ```
 
 Above is example toolkit output for a case where management services in separate
-security server have been disabled and ``xrdsst client register`` unable to proceed.
-This is one of these cases where management services security server is somewhat 
+Security Server have been disabled and ``xrdsst client register`` unable to proceed.
+This is one of these cases where management services Security Server is somewhat 
 likely to belong to the same organization, and thus the error might be
 sorted out inside organization, getting the services enabled again. In any case,
 the key to successfully resolving such situations is to pay careful attention
@@ -2094,11 +2115,11 @@ spend time at searching for the problem in the wrong places.
 
 ### 5.5 Recovery from misconfiguration
 This version of toolkit does not yet offer explicit support for backup and restore
-operations of the security server (scheduled for next release of the toolkit). In
+operations of the Security Server (scheduled for next release of the toolkit). In
 case something goes so wrong that way out or way back cannot be seen, it is possible
-to use nightly backups that are kept at security server to revert to earlier state.
+to use nightly backups that are kept at Security Server to revert to earlier state.
 Overview of existing automatic backups is accessible from web administration console
-of the security server, in the "Settings" menu. More information about functionality
+of the Security Server, in the "Settings" menu. More information about functionality
 can be found in [UG-SS](#Ref_SS-UG).
 
 
@@ -2114,9 +2135,9 @@ scripts prepared to install the cluster, for doing that we must follow the instr
 Once the cluster is ready we can use the toolkit to configure the Load Balancer setup, for doing that, we must configure the Primary Security Server as any other single Security Server, setting in the
 `SECURITY_SERVER_INTERNAL_FQDN_OR_IP` property with the FQDN belonging to the Primary.
 
-## 7 Using the Toolkit to configure highly available services using the built-in security server internal load balancing
+## 7 Using the Toolkit to configure highly available services using the built-in Security Server internal load balancing
 
-In order to configure a highly available service using the built-in security server load balancing, at least two security
+In order to configure a highly available service using the built-in Security Server load balancing, at least two security
 servers need to be configured with the same subsystem/service.
 
 An example configuration file to be used:
@@ -2190,7 +2211,7 @@ When the placeholders in the configuration file have been amended with proper va
 [4 Running the X-Road Security Server Toolkit](#4-running-the-x-road-security-server-toolkit) and continue until(included) [4.9 Client management](#49-client-management)
 
 ## 8 Multitenancy
-It's possible to add other members and subsystems to a security server using the toolkit.
+It's possible to add other members and subsystems to a Security Server using the toolkit.
 For doing that we need to add the members and subsystems in the clients section of the configuration file. 
 For adding a new member we must delete the properties 'service_descriptions' and 'subsystem_code'.
 For example if we have the owner member 'ORG/111/ORGANIZATION/SUB' and want to add the new member 'COM/12345/COMPANY' and the subsystem 'COM/12345/COMPANY/SUB' we should fill the
@@ -2265,7 +2286,7 @@ To renew the certificates we must:
 
 1. Create new CRS keys for the new certificates using the [4.2.3.4 Token create-new-keys](#4234-token-create-new-keys) command. 
 2. Download and sign the new certificates using the [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs) command.
-3. Add the signed certificates to the [certificates list](#322-security-servers-configuration) of the security server 
+3. Add the signed certificates to the [certificates list](#322-security-servers-configuration) of the Security Server 
    in the configuration file.
 4. Import the certificates by running the [certificate import](#4252-certificate-import) command.
 5. Activate the certificates by running the [certificate activation](#4254-certificate-activation) command.
@@ -2277,10 +2298,10 @@ To renew the certificates we must:
 8. Unregister the old  certificates by running the [Certificate unregister](#4258-certificate-unregister) command.
 9. Delete the old AUTH and SIGN keys and certificates by running the [4.2.13.3 Delete keys](#42133-delete-keys) command.
 
-## 10 Change security server owner
+## 10 Change Security Server owner
 
-To change the security server owner, two registered Owner members have to be available. 
-1. Add a new member to the security server and register it. For doing that, follow the guide [8 Multitenancy](#8-multitenancy).
+To change the Security Server owner, two registered Owner members have to be available. 
+1. Add a new member to the Security Server and register it. For doing that, follow the guide [8 Multitenancy](#8-multitenancy).
 2. Run the command [4.2.6.6 Client change owner](#4266-client-change-owner). This command submits a request for owner
 change to X-Road governing authority and it will create the AUTH key and CSRs for the AUTH certificate of the new member.
 3. Download the certificate created in the previous step using the command [4.2.5.1 Certificate download CSRS](#4251-certificate-download-csrs).
