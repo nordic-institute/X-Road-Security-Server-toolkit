@@ -650,7 +650,7 @@ service_descriptions:
 * `<SERVICE_TYPE>`
   * Type of service, value from ``OPENAPI3``, ``REST``, ``WSDL``.
 * `<SERVICE_DESCRIPTION_ACCESS>`
-  * (Optional) list of subsystems ids, composed by `<INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>`, or Security Server owners composed by `<INSTANCE>:security-server-owners`.
+  * (Optional) list of subsystems ids, composed by `<INSTANCE>:<MEMBER_CLASS>:<MEMBER_CODE>:<SUBSYSTEM_CODE>`, or Security Server owners global group id composed by `<INSTANCE>:security-server-owners`.
 * `<SERVICE_URL_FOR_ALL>`
   * Boolean value determining if the URL prefix should be applied for all the services.
 * `<SERVICE_TIMEOUT_FOR_ALL>`
