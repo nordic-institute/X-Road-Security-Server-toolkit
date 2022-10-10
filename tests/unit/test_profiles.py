@@ -104,23 +104,36 @@ class TestProfiles(unittest.TestCase):
         assert result["CN"] == self.profile_data.member_code
         assert result["serialNumber"] == self.profile_data.security_server_id
 
+    def test_skklass3_auth_certificate_profile(self):
+        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.AUTH, profile_type=ProfileTypesEnum.SKKLASS3)
+        result = profile.build_profile(profile_data=self.profile_data)
+
+        assert len(result) == 2
+        assert result["CN"] == self.profile_data.member_name
+        assert result["SN"] == self.profile_data.member_code
+
+    def test_skklass3_sign_certificate_profile(self):
+        profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.SIGN, profile_type=ProfileTypesEnum.SKKLASS3)
+        result = profile.build_profile(profile_data=self.profile_data)
+
+        assert len(result) == 2
+        assert result["CN"] == self.profile_data.member_name
+        assert result["SN"] == self.profile_data.member_code
+
     def test_default_auth_certificate_profile(self):
         profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.AUTH, profile_type=None)
         result = profile.build_profile(profile_data=self.profile_data)
 
-        assert len(result) == 4
-        assert result["C"] == "FI"
-        assert result["O"] == self.profile_data.member_name
-        assert result["serialNumber"] == self.profile_data.serial_number_auth
-        assert result["CN"] == self.profile_data.security_server_dns
+        assert len(result) == 2
+        assert result["C"] == self.profile_data.instance_identifier
+        assert result["CN"] == self.profile_data.security_server_code
 
     def test_default_sign_certificate_profile(self):
         profile = ProfileFactory().get_profile_builder(certificate_type=CertificateTypesEnum.SIGN, profile_type=None)
         result = profile.build_profile(profile_data=self.profile_data)
 
-        assert len(result) == 4
-        assert result["C"] == "FI"
-        assert result["O"] == self.profile_data.member_name
-        assert result["serialNumber"] == self.profile_data.serial_number_sign
+        assert len(result) == 3
+        assert result["C"] == self.profile_data.instance_identifier
+        assert result["O"] == self.profile_data.member_class
         assert result["CN"] == self.profile_data.member_code
 
