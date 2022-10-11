@@ -21,7 +21,7 @@ setup(
     classifiers=[],
     install_requires=required,
     author='Nordic Institute for Interoperability Solutions (NIIS)',
-    author_email='info@niis.org',
+    author_email='x-road@niis.org',
     url='https://github.com/nordic-institute/X-Road-Security-Server-toolkit',
     license='MIT',
     packages=find_packages(exclude=['ez_setup', 'tests*']),
