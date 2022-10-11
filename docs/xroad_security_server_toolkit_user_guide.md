@@ -1,5 +1,5 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.3.1
+Version: 2.3.2
 Doc. ID: XRDSST-CONF
 
 ---
@@ -75,6 +75,7 @@ Doc. ID: XRDSST-CONF
 | 10.08.2021 | 2.2.9  | Add certificate profiles support                                                                                              | Alberto Fernandez |
 | 17.08.2021 | 2.3.0  | Pre-release documentation updates                                                                                             | Bert Viikmäe      |
 | 26.07.2022 | 2.3.1  | Editorial updates                                                                                                             | Petteri Kivimäki  |
+| 04.10.2022 | 2.3.2  | Updated documentation related to handover changes                                                                             | Raido Kaju        |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -2357,13 +2358,14 @@ change to X-Road governing authority and it will create the AUTH key and CSRs fo
 ## 11 Certificate profile support
 
 The toolkit has support for multiple profiles to choose between:
-- EJBCA: Default implementation
+- EJBCA: Ejbca implementation
 - FI: Finnish implementation
 - FO: Faroe Islands implementation
 - IS: Icelandic Implementation
+- SKKLASS3: Estonian SkKlass3 Implementation
 
 To select one of these profiles, we should fill the property `profile` in the configuration file (`security_server` section) with the name of the profile,
-to choose between: "EJBCA", "FI", "FO" and "IS".
+to choose between: "EJBCA", "FI", "FO" and "IS" and "SKKLASS3"
 
-This property is optional, if not set, the default profile will be Finnish.
+This property is optional, if not set, the default profile will be EJBCA.
 

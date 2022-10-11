@@ -216,7 +216,7 @@ class TokenController(BaseController):
             if profile is not None:
                 return ProfileTypesEnum[profile]
             else:
-                return ProfileTypesEnum.FI
+                return ProfileTypesEnum.EJBCA
         except BaseException as err:
             BaseController.log_info("Certificate profile name '%s', not valid, please choose between: %s"
                                     % (profile, str([e.name for e in ProfileTypesEnum])))
