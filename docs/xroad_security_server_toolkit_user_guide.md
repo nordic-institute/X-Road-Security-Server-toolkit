@@ -232,13 +232,14 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 ## 2.1 Prerequisites to Installation
 
-* Ubuntu 20.04 LTS
+* Ubuntu 18.04 LTS or 20.04 LTS
 * Python version 3.6+
 * `sudo apt-get update` needs to be run before installing
 * PIP 21.0+
   ```bash
   sudo apt install -y python3-pip
   python3 -m pip install --upgrade pip
+  pip3 install cement
   ```
 * Installed X-Road Security Server packages on target machine(s)
 
@@ -277,11 +278,7 @@ usage: xrdsst token [-h] [-v] {init-keys,list,login} ...
 are enabled, to be able to register authentication certificates and manage Security Server
 clients without taking separate actions at Central Server, see [UG-CS](#Ref_CS-UG) about
 ``auto-approve-auth-cert-reg-requests`` and ``auto-approve-client-reg-requests``.
-* Single or multiple Security Servers to be configured and maintained. Supported and tested
-platforms for the Security Servers are Ubuntu 18.04/20.04 LTS, Red Hat Enterprise Linux
-(RHEL) 7/8 on an x86-64 platform, and
-[X-Road Security Server Sidecar](https://github.com/nordic-institute/X-Road-Security-Server-sidecar)
-running in a Docker container.
+* Single or multiple Security Servers to be configured and maintained.
 * X-Road Security Server with subsystem acting as service provider for X-Road management
 services, in separate Security Server.
 * Toolkit access to configured Security Servers.

@@ -20,12 +20,13 @@ This repository contains information about the X-Road Security Server Toolkit, s
 
 **Prerequisites to Installation**
 
-* Ubuntu 20.04 LTS
+* Ubuntu 18.04 LTS or 20.04 LTS
 * Python version 3.6+
 * apt-get update needs to be run before installing
 * PIP 21.0+
   - apt install -y python3-pip
   - python3 -m pip install --upgrade pip
+  - pip3 install cement
 * Installed X-Road security server packages on target machine(s)
 
 **Installation is performed with pip (use pip or pip3, whichever is used)**
