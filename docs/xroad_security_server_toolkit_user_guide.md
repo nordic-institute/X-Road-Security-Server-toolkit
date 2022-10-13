@@ -223,7 +223,6 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 ### 1.2 References
 
-* <a id="Ref_CS-UG" class="anchor"></a> [\[UG-CS\] X-Road: Central Server User Guide](https://docs.x-road.global/Manuals/ug-cs_x-road_6_central_server_user_guide.html)
 * <a id="Ref_SS-UG" class="anchor"></a> [\[UG-SS\] X-Road: Security Server User Guide](https://docs.x-road.global/Manuals/ug-ss_x-road_6_security_server_user_guide.html)
 * <a id="Ref_YAML_1_1" class="anchor"></a> [\[YAML-1.1\] YAML Ain’t Markup Language (YAML™) Version 1.1](https://yaml.org/spec/1.1)
 
@@ -264,7 +263,7 @@ it will give the overview of available options and sub-commands. Sub-commands th
 also have further subcommands, so for example all the supported token operations can be listed
 with ``xrdsst token``:
 
-```
+```bash
 $ xrdsst token
 usage: xrdsst token [-h] [-v] {init-keys,list,login} ...
 ```
@@ -274,10 +273,6 @@ usage: xrdsst token [-h] [-v] {init-keys,list,login} ...
 
 ### 3.1 Prerequisites to Configuration
 
-* X-Road Central Server. In development, this is best run in the mode where auto-approvals
-are enabled, to be able to register authentication certificates and manage Security Server
-clients without taking separate actions at Central Server, see [UG-CS](#Ref_CS-UG) about
-``auto-approve-auth-cert-reg-requests`` and ``auto-approve-client-reg-requests``.
 * Single or multiple Security Servers to be configured and maintained.
 * X-Road Security Server with subsystem acting as service provider for X-Road management
 services, in separate Security Server.
@@ -524,18 +519,18 @@ in [8 Multitenancy](#8-multitenancy).
 
 ```yaml
 clients:
-	- member_class: <MEMBER_CLASS>
-	  member_code: <MEMBER_CODE>
-	  member_name: <MEMBER_NAME>
-	  subsystem_code: <SUBSYSTEM_CODE>
-	  connection_type: <CONNECTION_TYPE>
-	  tls_certificates:
-        - <TLS_CERT_PATH>
-      local_groups:
-        - code: <LOCAL_GROUP_CODE>
-          description: <LOCAL_GROUP_DESCRIPTION>
-          members:
-            - <MEMBER_ID>
+  - member_class: <MEMBER_CLASS>
+    member_code: <MEMBER_CODE>
+    member_name: <MEMBER_NAME>
+    subsystem_code: <SUBSYSTEM_CODE>
+    connection_type: <CONNECTION_TYPE>
+    tls_certificates:
+      - <TLS_CERT_PATH>
+    local_groups:
+      - code: <LOCAL_GROUP_CODE>
+        description: <LOCAL_GROUP_DESCRIPTION>
+        members:
+          - <MEMBER_ID>
 ```
 
 * `<MEMBER_CLASS>`
@@ -569,26 +564,26 @@ described with the service description, the parameters ``service_code`` and ``ac
 
 ```yaml
 service_descriptions:
-	- url: <SERVICE_DESCRIPTION_URL>
-	  rest_service_code: <REST_SERVICE_CODE>
-	  type: <SERVICE_TYPE>
-	  access:
-		- <SERVICE_DESCRIPTION_ACCESS>
-	  url_all: <SERVICE_URL_FOR_ALL>
-	  timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
-	  ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
-	  services:
-            - service_code: <SERVICE_CODE>
-              access:
-                - <SERVICE_ACCESS>
-              timeout: <SERVICE_TIMEOUT>
-              ssl_auth: <SERVICE_USE_SSL_AUTH>
-              url: <SERVICE_URL>
-          endpoints:
-			- path: <ENDPOINT_PATH>
-			  method: <ENDPOINT_METHOD>
-			  access: 
-			    - <ENDPOINTS_ACCESS>
+  - url: <SERVICE_DESCRIPTION_URL>
+    rest_service_code: <REST_SERVICE_CODE>
+    type: <SERVICE_TYPE>
+    access:
+      - <SERVICE_DESCRIPTION_ACCESS>
+    url_all: <SERVICE_URL_FOR_ALL>
+    timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
+    ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
+    services:
+      - service_code: <SERVICE_CODE>
+        access:
+          - <SERVICE_ACCESS>
+        timeout: <SERVICE_TIMEOUT>
+        ssl_auth: <SERVICE_USE_SSL_AUTH>
+        url: <SERVICE_URL>
+    endpoints:
+      - path: <ENDPOINT_PATH>
+        method: <ENDPOINT_METHOD>
+        access: 
+          - <ENDPOINTS_ACCESS>
 ```
 
 <strong>Service description (Optional):</strong>
