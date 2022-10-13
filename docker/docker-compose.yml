@@ -8,6 +8,7 @@ services:
     build: .
     volumes:
       - .:/usr/src/configuration/:delegated
+      - ..:/usr/src/toolkit-local/
 
 networks:
   xroad-network:
