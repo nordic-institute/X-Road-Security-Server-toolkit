@@ -1,11 +1,11 @@
 # X-Road Security Server Toolkit User Guide
-Version: 2.3.2
+Version: 2.3.3
 Doc. ID: XRDSST-CONF
 
 ---
 
 ## Version history <!-- omit in toc -->
-| Date       | Version | Description                                                                                                                   | Author            |
+| Date       | Version | Description                                                                                                                   | Author           |
 |------------|--------|-------------------------------------------------------------------------------------------------------------------------------|-------------------|
 | 10.11.2020 | 1.0.0  | Initial draft                                                                                                                 | Bert Viikmäe      |
 | 12.11.2020 | 1.1.0  | Documentation of initialization functionality                                                                                 | Bert Viikmäe      |
@@ -34,7 +34,7 @@ Doc. ID: XRDSST-CONF
 | 26.04.2021 | 1.3.1  | Added description about adding endpoints to the REST and OpenAPI services.                                                    | Alberto Fernandez |
 | 27.04.2021 | 1.3.2  | Substituting plain text api key in configuration with environment variable                                                    | Bert Viikmäe      |
 | 04.05.2021 | 1.3.3  | Added description about endpoint access                                                                                       | Alberto Fernandez |
-| 10.05.2021 | 1.3.4  | Added Load Balancer setup description                                                                                         | Alberto Fernandez |            
+| 10.05.2021 | 1.3.4  | Added Load Balancer setup description                                                                                         | Alberto Fernandez |
 | 13.05.2021 | 1.3.5  | Added description about load-balancing                                                                                        | Bert Viikmäe      |
 | 14.05.2021 | 1.3.6  | Notes on client management                                                                                                    | Bert Viikmäe      |
 | 24.05.2021 | 1.3.7  | Added download-internal-tls command                                                                                           | Alberto Fernandez |
@@ -76,6 +76,7 @@ Doc. ID: XRDSST-CONF
 | 17.08.2021 | 2.3.0  | Pre-release documentation updates                                                                                             | Bert Viikmäe      |
 | 26.07.2022 | 2.3.1  | Editorial updates                                                                                                             | Petteri Kivimäki  |
 | 04.10.2022 | 2.3.2  | Updated documentation related to handover changes                                                                             | Raido Kaju        |
+| 13.10.2022 | 2.3.3  | Update installation instructions regarding NIIS Artifactory                                                                   | Raido Kaju        |
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -222,7 +223,6 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 ### 1.2 References
 
-* <a id="Ref_CS-UG" class="anchor"></a> [\[UG-CS\] X-Road: Central Server User Guide](https://docs.x-road.global/Manuals/ug-cs_x-road_6_central_server_user_guide.html)
 * <a id="Ref_SS-UG" class="anchor"></a> [\[UG-SS\] X-Road: Security Server User Guide](https://docs.x-road.global/Manuals/ug-ss_x-road_6_security_server_user_guide.html)
 * <a id="Ref_YAML_1_1" class="anchor"></a> [\[YAML-1.1\] YAML Ain’t Markup Language (YAML™) Version 1.1](https://yaml.org/spec/1.1)
 
@@ -231,12 +231,14 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 ## 2.1 Prerequisites to Installation
 
+* Ubuntu 18.04 LTS or 20.04 LTS
 * Python version 3.6+
 * `sudo apt-get update` needs to be run before installing
 * PIP 21.0+
-  ```
+  ```bash
   sudo apt install -y python3-pip
   python3 -m pip install --upgrade pip
+  pip3 install cement
   ```
 * Installed X-Road Security Server packages on target machine(s)
 
@@ -244,74 +246,16 @@ The document is intended for readers with a good knowledge of Linux server manag
 
 The X-Road Security Server Toolkit package can be installed using PIP (use pip or pip3, whichever is used)
 
-**Installing the latest development version from GitHub**
-
-```
-git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
-cd X-Road-Security-Server-toolkit
-pip3 install -r requirements.txt
-python3 setup.py install
-```
-
-**Installing the latest released development version from AWS repository**
-
-```
-pip3 install --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
-
-```
-
-**Installing the latest un-released (beta) development version from AWS repository**
-
-```
-pip3 install --pre --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
-
-```
-
 **Installing the official released version**
 
-```
-pip3 install --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
+```bash
+pip3 install --extra-index-url https://artifactory.niis.org/artifactory/xroad-extensions-release-pypi/ xrdsst --trusted-host artifactory.niis.org
 ```
 
 **Upgrading the official released version from a previously released version**
 
-```
-pip3 install --upgrade --extra-index-url http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host xroad-toolkit.s3-website-eu-west-1.amazonaws.com
-```
-
-Package signing public key for can be retrieved from Ubuntu keyserver pool (keyserver.ubuntu.com), key fingerprint is ``0xfb0d532c10f6ec5b``, publisher ``NIIS Repository Automatic Signing Key <info@niis.org>``.
-
-- Signature ``xrdsst-1.0.0.sig`` of signed package can be downloaded:
-  ```
-  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.sig
-  ```
-- Package ``xrdsst-1.0.0.tar.gz`` can be downloaded:
-  ```
-  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-1.0.0.tar.gz
-  ```
-- Signature ``xrdsst-2.0.0.sig`` of signed package can be downloaded:
-  ```
-  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.sig
-  ```
-- Package ``xrdsst-2.0.0.tar.gz`` can be downloaded:
-  ```
-  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-2.0.0.tar.gz
-  ```
-- Signature ``xrdsst-3.0.0.sig`` of signed package can be downloaded:
-  ```
-  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-3.0.0.sig
-  ```
-- Package ``xrdsst-3.0.0.tar.gz`` can be downloaded:
-  ```
-  wget --quiet http://xroad-toolkit.s3-website-eu-west-1.amazonaws.com/xrdsst/xrdsst-3.0.0.tar.gz
-  ```
-  
-Downloaded packages with detached signatures can be verified after adding signing public key to local keyring:
-```
-gpg --keyserver keyserver.ubuntu.com --search-keys  0xfb0d532c10f6ec5b
-gpg --verify xrdsst-1.0.0.sig xrdsst-1.0.0.tar.gz
-gpg --verify xrdsst-2.0.0.sig xrdsst-2.0.0.tar.gz
-gpg --verify xrdsst-3.0.0.sig xrdsst-3.0.0.tar.gz
+```bash
+pip3 install --upgrade --extra-index-url https://artifactory.niis.org/artifactory/xroad-extensions-release-pypi/ xrdsst --trusted-host artifactory.niis.org
 ```
 
 After installation, ``xrdsst`` command runs the toolkit, when invoked without any parameters,
@@ -319,7 +263,7 @@ it will give the overview of available options and sub-commands. Sub-commands th
 also have further subcommands, so for example all the supported token operations can be listed
 with ``xrdsst token``:
 
-```
+```bash
 $ xrdsst token
 usage: xrdsst token [-h] [-v] {init-keys,list,login} ...
 ```
@@ -329,15 +273,7 @@ usage: xrdsst token [-h] [-v] {init-keys,list,login} ...
 
 ### 3.1 Prerequisites to Configuration
 
-* X-Road Central Server. In development, this is best run in the mode where auto-approvals
-are enabled, to be able to register authentication certificates and manage Security Server
-clients without taking separate actions at Central Server, see [UG-CS](#Ref_CS-UG) about
-``auto-approve-auth-cert-reg-requests`` and ``auto-approve-client-reg-requests``.
-* Single or multiple Security Servers to be configured and maintained. Supported and tested
-platforms for the Security Servers are Ubuntu 18.04/20.04 LTS, Red Hat Enterprise Linux
-(RHEL) 7/8 on an x86-64 platform, and
-[X-Road Security Server Sidecar](https://github.com/nordic-institute/X-Road-Security-Server-sidecar)
-running in a Docker container.
+* Single or multiple Security Servers to be configured and maintained.
 * X-Road Security Server with subsystem acting as service provider for X-Road management
 services, in separate Security Server.
 * Toolkit access to configured Security Servers.
@@ -371,7 +307,8 @@ functionality:
 
 On freshly installed and completely unconfigured Security Server, API key can be obtained from
 the server with local API invocation, e.g.:
-```sh
+
+```bash
 curl -k --silent \
     -X POST \
     --header 'Content-Type: application/json' \
@@ -415,7 +352,7 @@ filled in the configuration skeleton. The meaning of these placeholders is docum
 details after the sample. Optional elements that are not to be used can be removed completely.
 
 
-```
+```yaml
 admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
 ssh_access:
   user: <SSH_USER_OS_ENV_VAR_NAME>
@@ -483,12 +420,14 @@ security_server:
 
 This section shows how to configure the Security Server access as described in
 [3.1.1 Toolkit access to Security Servers](#311-toolkit-access-to-security-servers)
-```
+
+```yaml
 admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
 ssh_access:
   user: <SSH_USER_OS_ENV_VAR_NAME>
   private_key: <SSH_PRIVATE_KEY_OS_ENV_VAR_NAME>
 ```
+
 * `<SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>`
   * Environment variable name to hold X-Road Security Server admin credentials, e.g., if the variable is set like ``export TOOLKIT_ADMIN_CREDENTIALS=user:pass`` the value to use here is ``TOOLKIT_ADMIN_CREDENTIALS`` (if specified in the separate section, one value will be 
   used for all configurable Security Servers, but if specified in the ``security_server`` section, the value will be overridden for specific 
@@ -504,7 +443,8 @@ ssh_access:
 #### 3.2.2 Security Servers Configuration
 
 This section shows how to set up the Security Server information. It is possible to configure multiple Security Servers at the same time. The toolkit will execute the configurations sequentially.
-```
+
+```yaml
 security_server:
 - api_key: <API_KEY_ENV_VAR_NAME>
   api_key_url: https://localhost:4000/api/v1/api-keys
@@ -529,6 +469,7 @@ security_server:
     - <TLS_CERT_PATH>
   profile: <CERTIFICATE_PROFILE>
 ```
+
 * `<API_KEY_ENV_VAR_NAME>`
   * Environment variable name to hold X-Road Security Server API key (e.g. if the variable is set like ``export TOOLKIT_API_KEY=f13d5108-7799-426d-a024-1300f52f4a51`` the value to use here is ``TOOLKIT_API_KEY``) or left as-is/any for toolkit to attempt creation of transient API key.
 * `<SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>`
@@ -575,20 +516,21 @@ security_server:
 The Security Server client information is configured in this section. It is possible to set up a list of subsystems belonging to the owner member
 configured in the [Security Server configuration](#322-security-servers-configuration) or add them to a new member as described
 in [8 Multitenancy](#8-multitenancy).
-```
+
+```yaml
 clients:
-	- member_class: <MEMBER_CLASS>
-	  member_code: <MEMBER_CODE>
-	  member_name: <MEMBER_NAME>
-	  subsystem_code: <SUBSYSTEM_CODE>
-	  connection_type: <CONNECTION_TYPE>
-	  tls_certificates:
-        - <TLS_CERT_PATH>
-      local_groups:
-        - code: <LOCAL_GROUP_CODE>
-          description: <LOCAL_GROUP_DESCRIPTION>
-          members:
-            - <MEMBER_ID>
+  - member_class: <MEMBER_CLASS>
+    member_code: <MEMBER_CODE>
+    member_name: <MEMBER_NAME>
+    subsystem_code: <SUBSYSTEM_CODE>
+    connection_type: <CONNECTION_TYPE>
+    tls_certificates:
+      - <TLS_CERT_PATH>
+    local_groups:
+      - code: <LOCAL_GROUP_CODE>
+        description: <LOCAL_GROUP_DESCRIPTION>
+        members:
+          - <MEMBER_ID>
 ```
 
 * `<MEMBER_CLASS>`
@@ -619,29 +561,31 @@ In this section services with type ``OPENAPI3``, ``REST``, ``WSDL`` can be confi
 with parameters ``url``, ``rest_service_code``, ``type`` and ``access``. In order to provide access to the services added with that
 service description to different subsystems, the parameter ``access`` should contain a list of subsystem codes. To configure specific services
 described with the service description, the parameters ``service_code`` and ``access`` must be configured in the section ``services``. 
-```
+
+```yaml
 service_descriptions:
-	- url: <SERVICE_DESCRIPTION_URL>
-	  rest_service_code: <REST_SERVICE_CODE>
-	  type: <SERVICE_TYPE>
-	  access:
-		- <SERVICE_DESCRIPTION_ACCESS>
-	  url_all: <SERVICE_URL_FOR_ALL>
-	  timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
-	  ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
-	  services:
-            - service_code: <SERVICE_CODE>
-              access:
-                - <SERVICE_ACCESS>
-              timeout: <SERVICE_TIMEOUT>
-              ssl_auth: <SERVICE_USE_SSL_AUTH>
-              url: <SERVICE_URL>
-          endpoints:
-			- path: <ENDPOINT_PATH>
-			  method: <ENDPOINT_METHOD>
-			  access: 
-			    - <ENDPOINTS_ACCESS>
+  - url: <SERVICE_DESCRIPTION_URL>
+    rest_service_code: <REST_SERVICE_CODE>
+    type: <SERVICE_TYPE>
+    access:
+      - <SERVICE_DESCRIPTION_ACCESS>
+    url_all: <SERVICE_URL_FOR_ALL>
+    timeout_all: <SERVICE_TIMEOUT_FOR_ALL>
+    ssl_auth_all: <SERVICE_USE_SSL_AUTH_FOR_ALL>
+    services:
+      - service_code: <SERVICE_CODE>
+        access:
+          - <SERVICE_ACCESS>
+        timeout: <SERVICE_TIMEOUT>
+        ssl_auth: <SERVICE_USE_SSL_AUTH>
+        url: <SERVICE_URL>
+    endpoints:
+      - path: <ENDPOINT_PATH>
+        method: <ENDPOINT_METHOD>
+        access: 
+          - <ENDPOINTS_ACCESS>
 ```
+
 <strong>Service description (Optional):</strong>
 
 * `<SERVICE_DESCRIPTION_URL>`
@@ -692,7 +636,7 @@ The endpoints are only available for service descriptions of type `REST` or `OPE
 
 The X-Road Security Server Toolkit is run from the command line by typing:
 
-```
+```bash
 $ xrdsst
 ```
 
@@ -700,7 +644,7 @@ Which currently gives further information about tool invocation options and subc
 Base information about statuses of all defined Security Servers can be seen with read-only
 ``status`` operation:
 
-```
+```bash
 $ xrdsst status
 ╒══════════════════╤══════════════════════╤═════════════════════════╤═══════════════════════╤══════════╤═════════════╤══════════╤═══════════╤═════════╕
 │ GLOBAL           │ SERVER               │ ROLES                   │ INIT                  │ TSAS     │ TOKEN       │ KEYS     │ CSRS      │ CERTS   │
@@ -737,9 +681,11 @@ For performing the configuration step by step instead, please start from [4.2.2 
 #### 4.2.1 Creating admin user command
 
 X-Road admin user can be created with 
-```
+
+```bash
 xrdsst user create-admin
 ```
+
 Configuration parameters involved are described in [3.2.1 Access Configuration](#321-access-configuration). Specifically, the administrator user will have the `name: password` defined in the property `admin_credentials`.
 
 
@@ -754,7 +700,8 @@ Note: This is an optional step in the configuration process and should only be r
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR, XROAD_SECURITY_OFFICER
 
 Initializes the Security Server and upload the configuration anchor by typing:
-```
+
+```bash
 xrdsst init
 ```
 
@@ -769,9 +716,11 @@ Configuration parameters related to tokens involved are `software_token_id` and 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Default software token login can be logged on with:
-```
+
+```bash
 xrdsst token login
 ```
+
 Configuration parameters involved are `software_token_id` and `software_token_pin` the described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
 
 ##### 4.2.3.2 Token list
@@ -779,7 +728,8 @@ Configuration parameters involved are `software_token_id` and `software_token_pi
 * Access rights: Any
 
 All tokens known to Security Server can be listed with:
-```
+
+```bash
 xrdsst token list
 ```
 
@@ -788,9 +738,11 @@ xrdsst token list
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER or XROAD_SECURITY_OFFICER
 
 Token keys for authentication and signatures can be created with:
-```
+
+```bash
 xrdsst token init-keys
 ``` 
+
 Creates two keys and generates corresponding certificate signing requests (one for authentication, other for signing).
 The key labels used are conventionally with suffixes ``default-auth-key`` and ``default-sign-key``, if
 those already exist, they will not be duplicated and command acts as no-op for such Security Server.
@@ -802,9 +754,11 @@ key label suffix ``default-sign-key_<MEMBER_CODE>_<MEMBER_NAME>``
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER or XROAD_SECURITY_OFFICER
 
 Token keys for authentication and signatures can be created with:
-```
+
+```bash
 xrdsst token create-new-keys
 ``` 
+
 This command works the same as the [4.2.3.3 Token init-keys](#4233-token-init-keys) command,
 the difference is that this command will be used when the certificates already exist and we want to generate 
 new keys to renew them.
@@ -819,7 +773,8 @@ Configuration parameters involved are the described in [3.2.2 Security Servers C
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
 
 Single timestamping service approved for use in Central Server can be configured for Security Server by invoking ``timestamp`` subcommand as: 
-```
+
+```bash
 xrdsst timestamp init
 ```
 
@@ -828,7 +783,8 @@ xrdsst timestamp init
 * Access rights: Any
 
 List the available timestamp services approved for the Security Server
-```
+
+```bash
 xrdsst timestamp list-approved
 ```
 
@@ -837,7 +793,8 @@ xrdsst timestamp list-approved
 * Access rights: Any
 
 List the available timestamp services configured for the Security Server
-```
+
+```bash
 xrdsst timestamp list-configured
 ```
 
@@ -850,7 +807,8 @@ These commands allow us to perform certificate operations of a Security Server.
 * Access rights: XROAD_SECURITY_OFFICER
 
 Certificate signing requests can be downloaded with 
-```
+
+```bash
 xrdsst cert download-csrs
 ```
 
@@ -860,7 +818,8 @@ xrdsst cert download-csrs
 
 Configuration parameters involved are the `certificates` list described in [3.2.2 Security Servers Configuration](#322-security-servers-configuration)
 In the `certificates` list we must set the path for the signed SIGN and AUTH certificates previously downloaded then can be imported with:
-```
+
+```bash
 xrdsst cert import
 ```
 
@@ -869,7 +828,8 @@ xrdsst cert import
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
 
 Register the certificates previously imported in the Central Server with:
-```
+
+```bash
 xrdsst cert register
 ```
 
@@ -878,7 +838,8 @@ xrdsst cert register
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SECURITY_OFFICER
 
 AUTH certificate activation can be done with:
-```
+
+```bash
 xrdsst cert activate
 ```
 
@@ -887,11 +848,12 @@ xrdsst cert activate
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 SIGN and AUTH certificate information of the Security Servers can be listed with:
-```
+
+```bash
 xrdsst cert list
 ```
 
-```
+```bash
 ╒══════╤════════════════════════════════╤════════════════╤══════════════════════════════════════════╤══════════╤══════════════╤════════════════════╤════════════╤═════════════╕
 │ ss   │ label                          │ type           │ hash                                     │ active   │ expiration   │ ocsp_status        │ status     │ subject     │
 ╞══════╪════════════════════════════════╪════════════════╪══════════════════════════════════════════╪══════════╪══════════════╪════════════════════╪════════════╪═════════════╡
@@ -924,7 +886,8 @@ A hash (or list of hashes separated by comma) of the certificates we want to dis
 installed in each Security Server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Disable the certificates can be done with:
-```
+
+```bash
 xrdsst cert disable --hash <CERTIFICATE_HASH>
 ```
 
@@ -936,7 +899,8 @@ A hash (or list of hashes separated by comma) of the authentication certificates
 installed in each Security Server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Unregister the authentication certificates can be done with:
-```
+
+```bash
 xrdsst cert unregister --hash <CERTIFICATE_HASH>
 ```
 
@@ -948,7 +912,8 @@ A hash (or list of hashes separated by comma) of the certificates we want to del
 installed in each Security Server by running the command [4.2.5.6 List certificates](#4256-list-certificates):
 
 Delete the certificates can be done with:
-```
+
+```bash
 xrdsst cert delete --hash <CERTIFICATE_HASH>
 ```
 
@@ -962,7 +927,8 @@ Configuration parameters involved are the `certificates` list described in [3.2.
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 
 New subsystem or members can be added with:
-```
+
+```bash
 xrdsst client add
 ```
 
@@ -971,7 +937,8 @@ xrdsst client add
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 
 Subsystems and new members registration in Central Server can proceed with:
-```
+
+```bash
 xrdsst client register
 ```
 
@@ -980,14 +947,16 @@ xrdsst client register
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 
 Subsystem parameters can be updated with:
-```
+
+```bash
 xrdsst client update
 ```
 
 ##### 4.2.6.4 Client import TLS certificates
 
 TLS certificates can be imported and added to a client's whitelist with
-```
+
+```bash
 xrdsst client import-tls-certs
 ```
 
@@ -996,7 +965,8 @@ xrdsst client import-tls-certs
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 There are no configuration parameters involved, command line arguments are used instead
 Subsystems and new members can be unregister with:
-```
+
+```bash
 xrdsst client unregister --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
 
@@ -1008,7 +978,8 @@ xrdsst client unregister --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_REGISTRATION_OFFICER
 There are no configuration parameters involved, command line arguments are used instead
 Subsystems and new members can be deleted with:
-```
+
+```bash
 xrdsst client delete --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
 
@@ -1022,7 +993,8 @@ The members or subsystem must be unregistered from the Security Server in order 
 * Access rights: XROAD_REGISTRATION_OFFICER
 There are no configuration parameters involved, command line arguments are used instead
 It is possible to make owner to members with:
-```
+
+```bash
 xrdsst client delete --ss <SECURITY_SERVER_NAME> --member <MEMBER_ID>
 ```
 
@@ -1040,12 +1012,14 @@ This command will create a new auth key and CSRS for the auth certificate of the
 * Access rights: Any role
 
 List clients (subsystem and members) can be done with:
-```
+
+```bash
 xrdsst client list --ss <SECURITY_SERVER_NAME>
 ```
+
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 
-```
+```bash
 ╒══════════════════╤════════════╤════════════════╤═══════════════╤═══════════════╤═════════════╤═════════╤════════════╤═════════════════╕
 │ ID               │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │ MEMBER NAME   │ SUBSYSTEM   │ OWNER   │ STATUS     │ HAS SIGN CERT   │
 ╞══════════════════╪════════════╪════════════════╪═══════════════╪═══════════════╪═════════════╪═════════╪════════════╪═════════════════╡
@@ -1077,9 +1051,11 @@ Configuration parameters involved are the described in [3.2.3 Services Configura
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Adding REST/OPENAPI3/WSDL service can be done with:
-```
+
+```bash
 xrdsst service add-description
 ```
+
 For REST / OPENAPI3 type services, this command will auto-generate a service with the property name `rest_service_code`. 
 
 For WSDL type services it is not necessary to fill in the `rest_service_code` property, when adding the description the services discovered in the WSDL URL are autogenerated.
@@ -1093,9 +1069,11 @@ We must include the services when we want to modify any of their properties (for
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Access rights for a service can be done with:
-```
+
+```bash
 xrdsst service add-access
 ```
+
 This command will add for all the services the access rights defined in the property `access` of the` service_descriptions` section
 except in the case that the `access` property of the `services` section is filled, in that case, this list will overwrite 
 the access rights for the individual service. 
@@ -1105,7 +1083,8 @@ the access rights for the individual service.
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Enabling the service description can be done with:
-```
+
+```bash
 xrdsst service enable-description
 ```
 
@@ -1114,9 +1093,11 @@ xrdsst service enable-description
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Updating the service parameters can be done with:
-```
+
+```bash
 xrdsst service update-parameters
 ```
+
 This command will update the parameters of the single services added to the configuration file, or it will update the parameters
 for all the services in the description if the boolean parameters are set to True.
 
@@ -1127,12 +1108,14 @@ for all the services in the description if the boolean parameters are set to Tru
 There are no configuration parameters involved, command line arguments are used instead
 
 Listing service descriptions can be done with:
-```
+
+```bash
 xrdsst service list-descriptions --client <CLIENT_ID>
 ```
+
 * <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST, multiple values can also be given, separated by comma, e.g., DEV:GOV:1234:TEST,DEV:GOV:1234:MANAGEMENT
 
-```
+```bash
 ╒══════╤═══════════════════╤══════╤════════════════════════════════════════════════════╤══════════╤════════════╤════════════╕
 │ SS   │ CLIENT            │   ID │ URL                                                │ TYPE     │ DISABLED   │   SERVICES │
 ╞══════╪═══════════════════╪══════╪════════════════════════════════════════════════════╪══════════╪════════════╪════════════╡
@@ -1157,13 +1140,15 @@ xrdsst service list-descriptions --client <CLIENT_ID>
 There are no configuration parameters involved, command line arguments are used instead
 
 Listing services for client's service descriptions can be done with:
-```
+
+```bash
 xrdsst service list-services --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
 ```
+
 * <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
 
-```
+```bash
 ╒══════╤═══════════════════╤═══════════════╤════════════════════════════════════╤══════════════════╤═══════════╤═══════════════════════════════════════════════╕
 │ SS   │ CLIENT            │   DESCRIPTION │ SERVICE                            │ CODE             │   TIMEOUT │ URL                                           │
 ╞══════╪═══════════════════╪═══════════════╪════════════════════════════════════╪══════════════════╪═══════════╪═══════════════════════════════════════════════╡
@@ -1192,9 +1177,11 @@ xrdsst service list-services --client <CLIENT_ID> --description <SERVICE_DESCRIP
 There are no configuration parameters involved, command line arguments are used instead
 
 Deletion of service descriptions can be done with:
-```
+
+```bash
 xrdsst service delete-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
 ```
+
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 * <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
@@ -1206,9 +1193,11 @@ xrdsst service delete-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_
 There are no configuration parameters involved, command line arguments are used instead
 
 Update of service descriptions can be done with:
-```
+
+```bash
 xrdsst service update-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --code <REST_SERVICE_CODE> --url <SERVICE_DESCRIPTION_URL
 ```
+
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 * <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
@@ -1229,9 +1218,11 @@ Parameters that can be updated for service description of type REST/OPENAPI3:
 There are no configuration parameters involved, command line arguments are used instead
 
 Refresh of service descriptions can be done with:
-```
+
+```bash
 xrdsst service refresh-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
 ```
+
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 * <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
@@ -1243,9 +1234,11 @@ xrdsst service refresh-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT
 There are no configuration parameters involved, command line arguments are used instead
 
 Disabling of service descriptions can be done with:
-```
+
+```bash
 xrdsst service disable-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --notice <NOTICE>
 ```
+
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 * <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
@@ -1258,13 +1251,15 @@ xrdsst service disable-descriptions --ss <SECURITY_SERVER_NAME> --client <CLIENT
 There are no configuration parameters involved, command line arguments are used instead
 
 Listing access rights for services for client's service descriptions can be done with:
-```
+
+```bash
 xrdsst service list-access --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID>
 ```
+
 * <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
 
-```
+```bash
 ╒══════╤═══════════════════╤═══════════════╤════════════════════════════╤════════════════════════════╤════════════════════════╤════════════════╤═════════════╕
 │ SS   │ CLIENT            │   DESCRIPTION │ SERVICE                    │ SERVICE_CLIENT             │ NAME                   │ RIGHTS_GIVEN   │ TYPE        │
 ╞══════╪═══════════════════╪═══════════════╪════════════════════════════╪════════════════════════════╪════════════════════════╪════════════════╪═════════════╡
@@ -1288,9 +1283,11 @@ xrdsst service list-access --client <CLIENT_ID> --description <SERVICE_DESCRIPTI
 There are no configuration parameters involved, command line arguments are used instead
 
 Deleting access rights for services for client's service descriptions can be done with:
-```
+
+```bash
 xrdsst service delete-access --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --description <SERVICE_DESCRIPTION_ID> --service <SERVICE_ID> --sclient <SERVICE_CLIENT_ID>
 ```
+
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 * <CLIENT_ID> id of the client, e.g., DEV:GOV:1234:TEST
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123
@@ -1303,9 +1300,11 @@ xrdsst service delete-access --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID> --
 
 It is possible to run sequentially all the service commands described before in [4.2.6 Service management commands](#427-service-management-commands)
 with:
-```
+
+```bash
 xrdsst service apply
 ```
+
 This command will execute the commands: ``xrdsst service add-description``, ``xrdsst service enable-description``, ``xrdsst service add-access``, ``xrdsst service update-parameters``.
 
 #### 4.2.8 Endpoint management
@@ -1321,9 +1320,11 @@ Endpoints are only available for service types REST and OPENAPI3.
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Adding endpoints to a service can be done with:
-```
+
+```bash
 xrdsst endpoint add
 ```
+
 Endpoints in service type OPENAPI3 are autogenerated, so, the endpoints defined in the configuration 
 will be created together with the autogenerated ones.
 
@@ -1332,7 +1333,8 @@ will be created together with the autogenerated ones.
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Access rights for a single endpoint can be add with:
-```
+
+```bash
 xrdsst endpoint add-access
 ```
 
@@ -1341,13 +1343,15 @@ xrdsst endpoint add-access
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 Listing service endpoints can be done with:
-```
+
+```bash
 xrdsst endpoint list --ss <SECURITY_SERVER_NAME> --description <SERVICE_DESCRIPTION_ID>
 ```
+
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 * <SERVICE_DESCRIPTION_ID> id of the service description, e.g., 123, multiple values can also be given, separated by comma, e.g., 123,456
 
-```
+```bash
 ╒═══════════════╤════════╤═══════════╤══════════════════╤══════════════════╤════════════════════════════════════════════════════╤══════════╕
 │   ENDPOINT ID │ PATH   │ METHOD    │ SERVICE CODE     │ CLIENT           │ SERVICE DESCRIPTION                                │ TYPE     │
 ╞═══════════════╪════════╪═══════════╪══════════════════╪══════════════════╪════════════════════════════════════════════════════╪══════════╡
@@ -1374,9 +1378,11 @@ The table above shows the following information about the endpoint:
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 Single endpoint can be updated with with:
-```
+
+```bash
 xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --method <ENDPOINT_METHOD> --path <ENDPOINT_PATH>
 ```
+
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 * <ENDPOINT_ID> id of the endpoint to be updated, e.g., 1
 * <ENDPOINT_METHOD> new endpoint method, possible methods are: ALL, GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE
@@ -1387,9 +1393,11 @@ xrdsst endpoint update --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --m
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 Single endpoint can be deleted with:
-```
+
+```bash
 xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
+
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 * <ENDPOINT_ID> id of the endpoint to be delete, e.g., 1
 
@@ -1398,14 +1406,15 @@ xrdsst endpoint delete --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID>
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 Listing service endpoint access can be done:
-```
+
+```bash
 xrdsst endpoint list-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> 
 ```
 
 * <SECURITY_SERVER_NAME> name of the Security Server, e.g., `ss1`
 * <ENDPOINT_ID> id of the endpoint, e.g., 123, multiple values can also be given, separated by comma, e.g., 1,2,3
 
-```
+```bash
 ╒═══════════════╤════════════╤════════════════╤═══════════════════════════════════════════════════╕
 │   ENDPOINT ID │ ENDPOINT   │ SERVICE CODE   │ ACCESS RIGHTS                                     │
 ╞═══════════════╪════════════╪════════════════╪═══════════════════════════════════════════════════╡
@@ -1427,7 +1436,8 @@ The table above shows the following information about the endpoint access:
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 Endpoints access rights can be deleted with:
-```
+
+```bash
 xrdsst endpoint delete-access --ss <SECURITY_SERVER_NAME> --endpoint  <ENDPOINT_ID> --access <ACCESS_RIGTHS>
 ```
 
@@ -1448,7 +1458,8 @@ There are no configuration parameters involved, command line arguments are used 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Finding a member for current X-Road instance can be done with:
-```
+
+```bash
 xrdsst member find --class <MEMBER_CLASS> --code <MEMBER_CODE>
 ```
 
@@ -1473,14 +1484,16 @@ xrdsst member find --class <MEMBER_CLASS> --code <MEMBER_CODE>
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Listing member classes can be done with:
-```
+
+```bash
 xrdsst member list-classes --instance <XROAD-INSTANCE>
 ```
+
 **When ``instance`` command-line parameter is not provided, current instance is assumed**
 
 * <XROAD-INSTANCE> X-Road instance for the member classes to be searched, e.g., DEV
 
-```
+```bash
 ╒═══════════════════╤════════════╤════════════════╕
 │ SECURITY-SERVER   │ INSTANCE   │ MEMBER-CLASS   │
 ╞═══════════════════╪════════════╪════════════════╡
@@ -1505,7 +1518,8 @@ Configuration parameters involved are the ``local-groups`` section described in 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Adding local groups to a client can be done with:
-```
+
+```bash
 xrdsst local-group add
 ```
 
@@ -1516,7 +1530,8 @@ Configuration parameters involved are the ``local-groups members`` section descr
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR and XROAD_SERVICE_ADMINISTRATOR
 
 Adding members to a local group can be done with:
-```
+
+```bash
 xrdsst local-group add-member
 ```
 
@@ -1525,13 +1540,15 @@ xrdsst local-group add-member
 * Access rights: XROAD_SERVER_OBSERVER or XROAD_SERVICE_ADMINISTRATOR
 
 Listing client local groups can be done with:
-```
+
+```bash
 xrdsst local-group list --ss <SECURITY_SERVER_NAME> --client <CLIENT_ID>
 ```
+
 * <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <CLIENT_ID> subsystem client id, e.g., DEV:COM:12345:COMPANY
 
-```
+```bash
 ╒══════╤════════════╤════════════════════════╤═════════════════════════════════════════════════════════╕
 │   ID │ CODE       │ DESCRIPTION            │ MEMBERS                                                 │
 ╞══════╪════════════╪════════════════════════╪═════════════════════════════════════════════════════════╡
@@ -1553,9 +1570,11 @@ The table above shows the following information about the local groups:
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 Deletion of client local groups can be done with:
-```
+
+```bash
 xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID>
 ```
+
 * <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <LOCAL_GROUP_ID> Local group id (can be check with the command [4.2.10.3 Local groups list](#42103-local-groups-list)), 
   multiple values can also be given, separated by comma, e.g., 125,127
@@ -1565,7 +1584,8 @@ xrdsst local-group delete --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP
 * Access rights: XROAD_SERVICE_ADMINISTRATOR
 
 Deletion of client local group members can be done with:
-```
+
+```bash
 xrdsst local-group delete-member --ss <SECURITY_SERVER_NAME> --local-group <LOCAL_GROUP_ID> --member <MEMBERS_ID>
 ```
 
@@ -1590,11 +1610,12 @@ There are no configuration parameters involved, command line arguments are used 
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Listing backups can be done with:
-```
+
+```bash
 xrdsst backup list --ss <SECURITY_SERVER_NAME>
 ```
 
-```
+```bash
 ╒═══════════════════╤═════════════════════════════════╤════════════╕
 │ SECURITY_SERVER   │ FILE_NAME                       │ CREATED    │
 ╞═══════════════════╪═════════════════════════════════╪════════════╡
@@ -1613,7 +1634,8 @@ xrdsst backup list --ss <SECURITY_SERVER_NAME>
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Adding backups can be done with:
-```
+
+```bash
 xrdsst backup add --ss <SECURITY_SERVER_NAME>
 ```
 
@@ -1624,7 +1646,8 @@ xrdsst backup add --ss <SECURITY_SERVER_NAME>
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Downloading backups can be done with:
-```
+
+```bash
 xrdsst backup download --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 ```
 
@@ -1637,7 +1660,8 @@ xrdsst backup download --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Deletion of backups can be done with:
-```
+
+```bash
 xrdsst backup delete --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 ```
 
@@ -1650,7 +1674,8 @@ xrdsst backup delete --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Restoration of configuration from backups can be done with:
-```
+
+```bash
 xrdsst backup restore --ss <SECURITY_SERVER_NAME> --file <BACKUP_FILENAME>
 ```
 
@@ -1667,7 +1692,7 @@ Diagnostic operations for Security Server can be performed with ``xrdsst diagnos
 
 Listing global-configuration diagnostics can be done with ```xrdsst diagnostics global-configuration```
 
-```
+```bash
 ╒═══════════════════╤════════════════╤═══════════════╤═════════════════════╤═════════════════════╕
 │ SECURITY_SERVER   │ STATUS_CLASS   │ STATUS_CODE   │ PREV_UPDATE         │ NEXT_UPDATE         │
 ╞═══════════════════╪════════════════╪═══════════════╪═════════════════════╪═════════════════════╡
@@ -1687,7 +1712,7 @@ Listing global-configuration diagnostics can be done with ```xrdsst diagnostics 
 
 Listing OCSP responders diagnostics can be done with ```xrdsst diagnostics ocsp-responders```
 
-```
+```bash
 ╒═══════════════════╤══════════════════════════════╤═══════════════════════════╤════════════════╤═══════════════╤═════════════════════╤═════════════════════╕
 │ SECURITY_SERVER   │ NAME                         │ URL                       │ STATUS_CLASS   │ STATUS_CODE   │ PREV_UPDATE         │ NEXT_UPDATE         │
 ╞═══════════════════╪══════════════════════════════╪═══════════════════════════╪════════════════╪═══════════════╪═════════════════════╪═════════════════════╡
@@ -1708,7 +1733,8 @@ Listing OCSP responders diagnostics can be done with ```xrdsst diagnostics ocsp-
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR
 
 Listing timestamping services diagnostics can be done with ```xrdsst diagnostics timestamping-services```
-```
+
+```bash
 ╒═══════════════════╤═══════════════════════════╤════════════════╤════════════════════════════════════╤═════════════════════╕
 │ SECURITY_SERVER   │ URL                       │ STATUS_CLASS   │ STATUS_CODE                        │ PREV_UPDATE         │
 ╞═══════════════════╪═══════════════════════════╪════════════════╪════════════════════════════════════╪═════════════════════╡
@@ -1737,14 +1763,15 @@ This command will list all the information from 4.2.12.1 - 4.2.12.3
 * Access rights: XROAD_SECURITY_OFFICER
 
 Listing certificate keys can be done with:
-```
+
+```bash
 xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 ```
 
 * <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g., 0,1
 
-```
+```bash
 ╒══════════════════════════════════════════╤════════════════════════════════╤════════════════════════════════╤════════════════╤═══════════════════════════════════════════════╤════════════╕
 │ ID                                       │ LABEL                          │ NAME                           │ USAGE          │ POSSIBLE ACTIONS                              │      CERTS │
 ╞══════════════════════════════════════════╪════════════════════════════════╪════════════════════════════════╪════════════════╪═══════════════════════════════════════════════╪════════════╡
@@ -1768,9 +1795,11 @@ xrdsst key list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 * Access rights: XROAD_SECURITY_OFFICER
 
 The friendly name of a key can be updated with:
-```
+
+```bash
 xrdsst key update --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --name <FRIENDLY_NAME>
 ```
+
 * <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <KEY_ID> key id, e.g., 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
 * <FRIENDLY_NAME> new friendly name to be updated
@@ -1780,9 +1809,11 @@ xrdsst key update --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --name <FRIENDLY_NA
 * Access rights: XROAD_SECURITY_OFFICER
 
 Keys can be deleted with:
-```
+
+```bash
 xrdsst key delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> 
 ```
+
 * <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <KEY_ID> key id for delete, e.g., 61F82DF2B7E1A43DF500FC3E7C8AE4B6D2DD0C7E
 
@@ -1793,14 +1824,15 @@ xrdsst key delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID>
 * Access rights: XROAD_SECURITY_OFFICER
 
 Listing certificate signing request can be done with:
-```
+
+```bash
 xrdsst csr list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 ```
 
 * <SECURITY_SERVER_NAME> Security Server name, e.g., `ss1`
 * <TOKEN_ID> token id, multiple values can also be given, separated by comma, e.g., 0,1
 
-```
+```bash
 ╒═════════╤══════════════════════════════════════════╤══════════════════════════════════════════╤═════════════╤════════════════╤════════════════════╕
 │   TOKEN │ KEY ID                                   │ CSR ID                                   │ OWNER       │ USAGE          │ POSSIBLE ACTIONS   │
 ╞═════════╪══════════════════════════════════════════╪══════════════════════════════════════════╪═════════════╪════════════════╪════════════════════╡
@@ -1822,7 +1854,8 @@ xrdsst csr list --ss <SECURITY_SERVER_NAME> --token <TOKEN_ID>
 * Access rights: XROAD_SECURITY_OFFICER
 
 Deletion of certificate signing request can be done with:
-```
+
+```bash
 xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
 ```
 
@@ -1837,11 +1870,12 @@ xrdsst csr delete --ss <SECURITY_SERVER_NAME> --key <KEY_ID> --csr <CSR_ID>
 * Access rights: Any role
 
 Listing X-Road instances can be done with:
-```
+
+```bash
 xrdsst instance list
 ```
 
-```
+```bash
 ╒═══════════════════╤═════════════╕
 │ SECURITY SERVER   │ INSTANCES   │
 ╞═══════════════════╪═════════════╡
@@ -1858,12 +1892,14 @@ xrdsst instance list
 * Access rights: Any role
 
 Listing Security Servers can be done with:
-```
+
+```bash
 xrdsst security-server list
 ```
+
 This command will display all discovered Security Servers
 
-```
+```bash
 ╒═══════════════════╤════════╤═══════════╤════════════╤════════════════╤═══════════════╕
 │ ID                │ CODE   │ ADDRESS   │ INSTANCE   │ MEMBER CLASS   │   MEMBER CODE │
 ╞═══════════════════╪════════╪═══════════╪════════════╪════════════════╪═══════════════╡
@@ -1885,12 +1921,14 @@ This command will display all discovered Security Servers
 * Access rights: Any role
 
 Listing Security Server version can be done with:
-```
+
+```bash
 xrdsst security-server list-version
 ```
+
 This command will display the version for the Security Servers stored in the configuration file
 
-```
+```bash
 ╒═══════════════════╤═══════════╕
 │ SECURITY SERVER   │ VERSION   │
 ╞═══════════════════╪═══════════╡
@@ -1908,9 +1946,11 @@ This command will display the version for the Security Servers stored in the con
 * Access rights: XROAD_SYSTEM_ADMINISTRATOR or XROAD_SECURITY_OFFICER or XROAD_REGISTRATION_OFFICER or XROAD_SERVICE_ADMINISTRATOR
 
 Internal TLS certificates can be downloaded with:
-```
+
+```bash
 xrdsst internal-tls download
 ```
+
 This command will save a zip file in the `/tmp/` folder containing the public and private keys of the internal TLS certificates.
 
 ##### 4.2.17.2 Import internal TLS certificate
@@ -1919,7 +1959,7 @@ This command will save a zip file in the `/tmp/` folder containing the public an
 
 Internal TLS certificates can be imported with:
 
-```
+```bash
 xrdsst internal-tls import --ss <SECURITY_SERVER_NAME> --cert <PATH_TO_CERT>
 ```
 
@@ -1932,7 +1972,7 @@ xrdsst internal-tls import --ss <SECURITY_SERVER_NAME> --cert <PATH_TO_CERT>
 
 New key for the internal TLS certificate can be generated with:
 
-```
+```bash
 xrdsst internal-tls generate-key --ss <SECURITY_SERVER_NAME> 
 ```
 
@@ -1944,7 +1984,7 @@ xrdsst internal-tls generate-key --ss <SECURITY_SERVER_NAME>
 
 New CSR for the internal TLS certificate can be generated with:
 
-```
+```bash
 xrdsst internal-tls generate-csr --ss <SECURITY_SERVER_NAME> --name <DISTINGUISHED_NAME>
 ```
 
@@ -1962,12 +2002,13 @@ before the token has been logged in. If this order is not respected, the output
 from the application will refer to the commands which successful application
 is required to be completed beforehand, e.g.:
 
-```sh
+```bash
 $ xrdsst -c brandnew.yaml client add
 SKIPPED 'ss8': has ['init', 'token login', 'token init-keys'] performed but also 
 needs ['cert import', 'cert register', 'cert activate'] completion before continuing
 with requested ['client add']
 ```
+
 lists three certificate operations (``import``, ``register``, ``activate``)
 that should be then given in specified order, and if these have been completed
 succesfully, the desired command should also be ready for either successful execution
@@ -2001,7 +2042,7 @@ Typical end for the first autoconfiguration run for a single server usually
 is an error message that asks to download and sign the CSRs to acquire certificates
 that are to be added to the configuration file:
 
-```sh
+```bash
 $ xrdsst -c brandnew.yaml apply
 API key "d8cd2476-c8dc-420a-bcc2-c8636766661b" for Security Server ss8 created.
 AUTO ['init']->'ss8'
@@ -2080,7 +2121,7 @@ security_server:                                                     # line 11
 
 is reported as:
 
-```sh
+```bash
 Error parsing config: while parsing a block mapping
   in "block-err.yaml", line 12, column 3
 expected <block end>, but found '<block sequence start>'
@@ -2100,7 +2141,7 @@ These messages should be mostly self-explanatory. In case of multiple elements,
 missing some required fields, the **one**-based index of the erroneous element is
 given, e.g:
 
-```
+```text
 security_server[1] missing required 'name' definition.
 security_server[1] missing required 'url' definition.
 security_server[3] missing required 'url' definition.
@@ -2126,7 +2167,7 @@ sometimes even hints of possible solutions. For server proxy errors, as much of 
 information is shown as acquired from SERVER proxy or service PROVIDER information
 system behind SERVER proxy:
 
-```sh
+```bash
 $ xrdsst client register
 # ... SNIPPED ...
 FAILED
@@ -2186,7 +2227,7 @@ servers need to be configured with the same subsystem/service.
 
 An example configuration file to be used:
 
-```
+```yaml
 admin_credentials: <SECURITY_SERVER_CREDENTIALS_OS_ENV_VAR_NAME>
 ssh_access:
   user: <SSH_USER_OS_ENV_VAR_NAME>
@@ -2261,7 +2302,7 @@ For adding a new member we must delete the properties 'service_descriptions' and
 For example if we have the owner member 'ORG/111/ORGANIZATION/SUB' and want to add the new member 'COM/12345/COMPANY' and the subsystem 'COM/12345/COMPANY/SUB' we should fill the
 configuration file like this:
 
-```
+```yaml
 [...]
   clients:
     - member_class: ORG
@@ -2287,20 +2328,26 @@ configuration file like this:
 Running the `apply` command will create the new member, create the certificate and register it,
 but if we want to do step by step we need to: 
 - Add the new members/subsystems with the command:
-```
+
+```bash
 xrdsst client add-client
 ```
+
 - Create the SIGN key and CSRS for the new member
-```
+
+```bash
 xrdsst token init-keys
 ```
 
 - Download this CSRS with the command:
-```
+
+```bash
 xrdsst cert download-csrs 
 ```
+
 Sign it and add it to the list of certificates in the configuration:
-```
+
+```yaml
 [...]
 security_server:
 - api_key: <API_KEY_ENV_VAR_NAME>
@@ -2313,12 +2360,16 @@ security_server:
     - /path/to/signcert_new_member
 [...]
 ```
+
 - Import the certificate:
-```
+
+```bash
 xrdsst cert import
 ```
+
 - Register the new member by running the command:
-```
+
+```bash
 xrdsst client register
 ```
 

@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [4.0.0-final.0] - 2021-08-18
+- add support for `SkKlass3` certificate profiles
+- **(breaking)** changed default profile to `Ejbca` instead of `FI`
+- **(breaking)** changed PyPi registry location
+
 ## [3.0.0-final.0] - 2021-08-18
 - X-Road-Security Server Toolkit release version 3.0
 

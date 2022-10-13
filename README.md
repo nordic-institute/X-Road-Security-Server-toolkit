@@ -20,16 +20,18 @@ This repository contains information about the X-Road Security Server Toolkit, s
 
 **Prerequisites to Installation**
 
+* Ubuntu 18.04 LTS or 20.04 LTS
 * Python version 3.6+
 * apt-get update needs to be run before installing
 * PIP 21.0+
   - apt install -y python3-pip
   - python3 -m pip install --upgrade pip
+  - pip3 install cement
 * Installed X-Road security server packages on target machine(s)
 
 **Installation is performed with pip (use pip or pip3, whichever is used)**
 
-```
+```bash
 $ git clone https://github.com/nordic-institute/X-Road-Security-Server-toolkit.git
 
 $ cd X-Road-Security-Server-toolkit
@@ -39,27 +41,6 @@ $ pip3 install -r requirements.txt
 $ python3 setup.py install
 ```
 
-## Installing the latest released development version from AWS repository
-
-```
-$ pip3 install --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
-
-```
-
-## Installing the latest un-released (beta) development version from AWS repository
-
-```
-$ pip3 install --pre --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
-
-```
-
-## Upgrading the latest released development version from AWS repository
-
-```
-$ pip3 install --upgrade --extra-index-url http://niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com/ xrdsst --trusted-host niis-xrdsst-development.s3-website-eu-west-1.amazonaws.com
-
-```
-
 ## Development
 
 This project includes a number of helpers in the `Makefile` to streamline common development tasks.
@@ -67,29 +48,33 @@ This project includes a number of helpers in the `Makefile` to streamline common
 ## Testing
 
 In order to run unit tests with code coverage the following target in the `Makefile` should be run:
-```
+
+```bash
 $ make test
 
 ```
 
 In order to run unit tests with integration tests the following target in the `Makefile` should be run:
-```
+
+```bash
 $ make test-all
 
 ```
 
 End to end tests are run using the following script:
-```
+
+```bash
 $ run_end_to_end_tests.sh
 
-More details about the required input parameters are provided in the script file
 ```
+
+More details about the required input parameters are provided in the script file
 
 ### Environment Setup
 
 The following demonstrates setting up and working with a development environment:
 
-```
+```bash
 ### create a virtualenv for development
 
 $ pip3 install virtualenv
@@ -99,23 +84,24 @@ $ make virtualenv
 $ source env/bin/activate
 
 ```
+
 ### Project versioning
 
 Pre-release:
 
-```
+```bash
 $ 0.x.x-alpha.0
 ```
 
 First release:
 
-```
+```bash
 $ 1.0.0-final.0
 ```
 
 Post first release:
 
-```
+```bash
 $ 1.x.x-beta.0
 ```
 
@@ -123,24 +109,25 @@ $ 1.x.x-beta.0
 ### Updating project version
 
 * Update patch/minor/major/release/build (major.minor.patch-release.build)
-```
+
+```bash
 $ bump2version patch/minor/major/release/build (e.g. bump2version minor)
 ```
+
 In case of minor updates, use `bump2version patch`
 In case of major updates, use `bump2version minor`
 When releasing, use `bump2version major`
 
 In case of releasing, also `bump2version release` should be performed
 to update the release part of the version number, which can contain values: 
-```
-beta
-final
-```
+
+* `beta`
+* `final`
 
 ### Releasing
 
 Use the included helper function via the `Makefile`:
 
-```
+```bash
 $ make dist
 ```
