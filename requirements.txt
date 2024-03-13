@@ -16,7 +16,7 @@ bump2version~=1.0.1
 gitpython~=3.1.11
 docker~=4.1.0
 yq~=2.11.1
-jq~=1.1.1
+jq~=1.6.0
 
 requests~=2.22.0
 python-dateutil~=2.8.1
